@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Mapping</string>
+
+    <!--errors-->
+    <string name="no_data">Cannot get the required data.</string>
+
+    <!--tamil translation-->
+    <string name="next_ta">அடுத்த</string>
+    <string name="back_ta">முன்னாடி</string>
+    <string name="dummy_question_ta">உங்களுடைய சர்வேயர் குறியீட்டை பதிவு செய்யவும்</string>
+    <string name="dummy_option_ta">விருப்பம்</string>
+</resources>

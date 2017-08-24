@@ -1,0 +1,128 @@
+package com.puthuvaazhvu.mapping.Parsers;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.puthuvaazhvu.mapping.Modals.Option;
+import com.puthuvaazhvu.mapping.Modals.Question;
+import com.puthuvaazhvu.mapping.Modals.Survey;
+import com.puthuvaazhvu.mapping.Modals.Text;
+import com.puthuvaazhvu.mapping.utils.JsonHelper;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by muthuveerappans on 8/24/17.
+ */
+
+public class SurveyParser {
+    private static SurveyParser surveyParser;
+    String json;
+
+    public static SurveyParser getInstance() {
+        if (surveyParser == null) {
+            surveyParser = new SurveyParser();
+        }
+        return surveyParser;
+    }
+
+    private SurveyParser() {
+    }
+
+    public Survey parseSurvey(JsonObject json) {
+        String id = JsonHelper.getString(json, "_id");
+        String name = JsonHelper.getString(json, "name");
+        String modifiedAt = JsonHelper.getString(json, "modifiedAt");
+
+        JsonArray questionsArray = JsonHelper.getJsonArray(json, "questions");
+        List<Question> questionList = new ArrayList<>();
+
+        if (questionsArray != null) {
+            for (JsonElement e : questionsArray) {
+                questionList.add(parseQuestion(e.getAsJsonObject()));
+            }
+        }
+
+        return new Survey(id, name, questionList, modifiedAt);
+    }
+
+    public Question parseQuestion(JsonObject json) {
+        String position = JsonHelper.getString(json, "position");
+        String id = JsonHelper.getString(json, "_id");
+        String type = JsonHelper.getString(json, "type");
+        String modifiedAt = JsonHelper.getString(json, "modifiedAt");
+
+        JsonObject textJson = JsonHelper.getJsonObject(json, "text");
+
+        Text text = null;
+
+        if (textJson != null) {
+            text = parseText(textJson);
+        }
+
+        JsonArray optionsArray = JsonHelper.getJsonArray(json, "options");
+        List<Option> optionList = new ArrayList<>();
+
+        if (optionsArray != null) {
+            for (JsonElement e : optionsArray) {
+                Option option = parseOption(e.getAsJsonObject());
+                if (option != null) {
+                    optionList.add(option);
+                }
+            }
+        }
+
+        List<String> tags = JsonHelper.getStringArray(json, "tags");
+
+        JsonArray childrenArray = JsonHelper.getJsonArray(json, "children");
+        List<Question> children = new ArrayList<>();
+
+        if (childrenArray != null) {
+            for (JsonElement e : childrenArray) {
+                children.add(parseQuestion(e.getAsJsonObject()));
+            }
+        }
+
+        return new Question(id, position, text, type, optionList, tags, modifiedAt, children);
+    }
+
+    public Option parseOption(JsonObject json) {
+        String position = JsonHelper.getString(json, "position");
+
+        JsonObject optionJson = JsonHelper.getJsonObject(json, "option");
+
+        String id = "";
+        String type = "";
+
+        if (optionJson != null) {
+            id = JsonHelper.getString(optionJson, "_id");
+            type = JsonHelper.getString(optionJson, "type");
+        }
+
+        JsonObject textJson = JsonHelper.getJsonObject(optionJson, "text");
+
+        Text text = null;
+
+        if (textJson != null) {
+            text = parseText(textJson);
+        }
+
+        String modifiedAT = JsonHelper.getString(optionJson, "modifiedAt");
+
+        Option option = null;
+
+        if (!id.isEmpty() && text != null) {
+            option = new Option(id, type, text, modifiedAT, position);
+        }
+
+        return option;
+    }
+
+    public Text parseText(JsonObject json) {
+        String english = JsonHelper.getString(json, "english");
+        String tamil = JsonHelper.getString(json, "tamil");
+        String id = JsonHelper.getString(json, "_id");
+        return new Text(id, english, tamil);
+    }
+}
