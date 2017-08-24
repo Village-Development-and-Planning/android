@@ -1,4 +1,4 @@
-package com.puthuvaazhvu.mapping.Question.TagQuestions;
+package com.puthuvaazhvu.mapping.Question.Grid;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -11,9 +11,10 @@ import android.view.ViewGroup;
 import com.puthuvaazhvu.mapping.Question.QuestionModal;
 import com.puthuvaazhvu.mapping.Question.QuestionTree.QuestionTreeFragment;
 import com.puthuvaazhvu.mapping.Question.QuestionTree.QuestionTreeFragmentCommunicationInterface;
-import com.puthuvaazhvu.mapping.Question.QuestionsGridFragment.QuestionGridFragment;
-import com.puthuvaazhvu.mapping.Question.QuestionsGridFragment.QuestionGridFragmentCommunicationInterface;
+import com.puthuvaazhvu.mapping.Question.Grid.RootQuestionsGrid.RootQuestionsGridHolderFragment;
+import com.puthuvaazhvu.mapping.Question.Grid.RootQuestionsGrid.RootQuestionsHolderGridFragmentCommunicationInterface;
 import com.puthuvaazhvu.mapping.R;
+import com.puthuvaazhvu.mapping.utils.DataHelper;
 
 import java.util.ArrayList;
 
@@ -21,21 +22,27 @@ import java.util.ArrayList;
  * Created by muthuveerappans on 8/24/17.
  */
 
-public class TagQuestionsFragment extends Fragment
-        implements QuestionGridFragmentCommunicationInterface, QuestionTreeFragmentCommunicationInterface {
+public class QuestionTreeRootAsGridFragment extends Fragment
+        implements RootQuestionsHolderGridFragmentCommunicationInterface, QuestionTreeFragmentCommunicationInterface {
     ArrayList<QuestionModal> questionModalList;
-    QuestionGridFragment questionGridFragment;
+    QuestionModal root;
+    RootQuestionsGridHolderFragment rootQuestionsGridHolderFragment;
     QuestionTreeFragment questionTreeFragment;
+    QuestionTreeRootAsGridFragmentCommunicationInterface communicationInterface;
 
-    public static TagQuestionsFragment getInstance(ArrayList<QuestionModal> questionModalList) {
-        TagQuestionsFragment tagQuestionsFragment = new TagQuestionsFragment();
+    public static QuestionTreeRootAsGridFragment getInstance(QuestionModal root) {
+        QuestionTreeRootAsGridFragment tagQuestionsFragment = new QuestionTreeRootAsGridFragment();
 
         Bundle bundle = new Bundle();
-        bundle.putParcelableArrayList("question_data_list", questionModalList);
+        bundle.putParcelable("question_data", root);
 
         tagQuestionsFragment.setArguments(bundle);
 
         return tagQuestionsFragment;
+    }
+
+    public void setCommunicationInterface(QuestionTreeRootAsGridFragmentCommunicationInterface communicationInterface) {
+        this.communicationInterface = communicationInterface;
     }
 
     @Nullable
@@ -46,17 +53,23 @@ public class TagQuestionsFragment extends Fragment
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        questionModalList = getArguments().getParcelableArrayList("question_data_list");
+        root = getArguments().getParcelable("question_data");
+
+        if (root == null) {
+            throw new RuntimeException("The root question is null. " + QuestionTreeRootAsGridFragment.class);
+        }
+
+        questionModalList = root.getChildren();
         loadQuestionGridFragment();
     }
 
     private void loadQuestionGridFragment() {
-        questionGridFragment = null;
-        questionGridFragment = QuestionGridFragment.getInstance(questionModalList);
-        questionGridFragment.setCommunicationInterface(this);
+        rootQuestionsGridHolderFragment = null;
+        rootQuestionsGridHolderFragment = RootQuestionsGridHolderFragment.getInstance(questionModalList);
+        rootQuestionsGridHolderFragment.setCommunicationInterface(this);
 
         FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.container, questionGridFragment);
+        fragmentTransaction.replace(R.id.container, rootQuestionsGridHolderFragment);
         fragmentTransaction.commitAllowingStateLoss();
     }
 
@@ -78,8 +91,10 @@ public class TagQuestionsFragment extends Fragment
     @Override
     public void onFinished(QuestionModal modifiedQuestionModal) {
         // TODO:
-        // + update questions data.
         // + note the questions answered (tag) for end flow.
+        // + end the fragment is all questions have been answered.
+
+        DataHelper.modifyQuestionInGiven(root, modifiedQuestionModal);
         loadQuestionGridFragment();
     }
 }

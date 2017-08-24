@@ -21,24 +21,24 @@ public class QuestionModal implements Parcelable {
     boolean isNextPresent;
     boolean isPreviousPresent;
 
-    public QuestionModal(String questionID, String text, ArrayList<OptionData> optionDataList, ArrayList<QuestionModal> children, OPTION_TYPES optionType, boolean isNextPresent, boolean isPreviousPresent) {
+    public QuestionModal(String questionID, String text, ArrayList<OptionData> optionDataList, OPTION_TYPES optionType, ArrayList<QuestionModal> children, boolean isNextPresent, boolean isPreviousPresent) {
         this.questionID = questionID;
         this.text = text;
         this.optionDataList = optionDataList;
-        this.children = children;
         this.optionType = optionType;
         this.isNextPresent = isNextPresent;
         this.isPreviousPresent = isPreviousPresent;
+        this.children = children;
     }
 
     protected QuestionModal(Parcel in) {
         questionID = in.readString();
         text = in.readString();
         optionDataList = in.createTypedArrayList(OptionData.CREATOR);
-        children = in.createTypedArrayList(QuestionModal.CREATOR);
         isNextPresent = in.readByte() != 0;
         isPreviousPresent = in.readByte() != 0;
         optionType = OPTION_TYPES.valueOf(in.readString());
+        children = in.createTypedArrayList(QuestionModal.CREATOR);
     }
 
     @Override
@@ -46,10 +46,10 @@ public class QuestionModal implements Parcelable {
         dest.writeString(questionID);
         dest.writeString(text);
         dest.writeTypedList(optionDataList);
-        dest.writeTypedList(children);
         dest.writeByte((byte) (isNextPresent ? 1 : 0));
         dest.writeByte((byte) (isPreviousPresent ? 1 : 0));
         dest.writeString(optionType.name());
+        dest.writeTypedList(children);
     }
 
     @Override
@@ -57,7 +57,7 @@ public class QuestionModal implements Parcelable {
         return 0;
     }
 
-    public static final Creator<QuestionModal> CREATOR = new Creator<QuestionModal>() {
+    public static final Parcelable.Creator<QuestionModal> CREATOR = new Parcelable.Creator<QuestionModal>() {
         @Override
         public QuestionModal createFromParcel(Parcel in) {
             return new QuestionModal(in);
@@ -68,6 +68,10 @@ public class QuestionModal implements Parcelable {
             return new QuestionModal[size];
         }
     };
+
+    public ArrayList<QuestionModal> getChildren() {
+        return children;
+    }
 
     public String getQuestionID() {
         return questionID;
@@ -81,10 +85,6 @@ public class QuestionModal implements Parcelable {
         return optionDataList;
     }
 
-    public ArrayList<QuestionModal> getChildren() {
-        return children;
-    }
-
     public OPTION_TYPES getOptionType() {
         return optionType;
     }
@@ -95,6 +95,16 @@ public class QuestionModal implements Parcelable {
 
     public boolean isPreviousPresent() {
         return isPreviousPresent;
+    }
+
+    public void setOther(QuestionModal questionModal) {
+        this.questionID = questionModal.getQuestionID();
+        this.text = questionModal.getText();
+        this.children = questionModal.getChildren();
+        this.optionDataList = questionModal.getOptionDataList();
+        this.optionType = questionModal.getOptionType();
+        this.isPreviousPresent = questionModal.isPreviousPresent();
+        this.isNextPresent = questionModal.isNextPresent();
     }
 
     @Override
@@ -112,4 +122,5 @@ public class QuestionModal implements Parcelable {
     public int hashCode() {
         return questionID != null ? questionID.hashCode() : 0;
     }
+
 }

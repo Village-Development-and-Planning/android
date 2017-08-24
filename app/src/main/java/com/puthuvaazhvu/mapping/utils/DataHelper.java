@@ -31,6 +31,26 @@ public class DataHelper {
 
     }
 
+    public static void modifyQuestionInGiven(QuestionModal root, QuestionModal newQuestion) {
+        ArrayList<QuestionModal> children = root.getChildren();
+
+        boolean found = false;
+
+        for (int i = 0; i < children.size(); i++) {
+            QuestionModal qm = children.get(i);
+            if (qm.equals(newQuestion)) {
+                qm.setOther(newQuestion);
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            throw new RuntimeException("The given question " + newQuestion.getQuestionID()
+                    + " is not found in the root's " + root.getQuestionID() + " children.");
+        }
+    }
+
     public static void captureLoggedOptions(QuestionModal root
             , QuestionModal currentQuestion, ArrayList<OptionData> selectedOptions) {
 

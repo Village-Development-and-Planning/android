@@ -10,8 +10,8 @@ import android.view.ViewGroup;
 
 import com.puthuvaazhvu.mapping.Options.Modal.OptionData;
 import com.puthuvaazhvu.mapping.Question.QuestionModal;
-import com.puthuvaazhvu.mapping.Question.QuestionTree.SingleQuestion.QuestionFragment;
-import com.puthuvaazhvu.mapping.Question.QuestionTree.SingleQuestion.QuestionFragmentCommunicationInterface;
+import com.puthuvaazhvu.mapping.Question.SingleQuestion.QuestionFragment;
+import com.puthuvaazhvu.mapping.Question.SingleQuestion.QuestionFragmentCommunicationInterface;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.utils.DataHelper;
 

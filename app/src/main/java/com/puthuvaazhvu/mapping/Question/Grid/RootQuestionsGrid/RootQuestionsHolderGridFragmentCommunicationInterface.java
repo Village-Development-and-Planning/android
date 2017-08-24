@@ -1,4 +1,4 @@
-package com.puthuvaazhvu.mapping.Question.QuestionsGridFragment;
+package com.puthuvaazhvu.mapping.Question.Grid.RootQuestionsGrid;
 
 import com.puthuvaazhvu.mapping.Question.QuestionModal;
 
@@ -6,6 +6,6 @@ import com.puthuvaazhvu.mapping.Question.QuestionModal;
  * Created by muthuveerappans on 8/24/17.
  */
 
-public interface QuestionGridFragmentCommunicationInterface {
+public interface RootQuestionsHolderGridFragmentCommunicationInterface {
     public void onSelectedQuestion(QuestionModal questionModal);
 }

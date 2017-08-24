@@ -1,4 +1,4 @@
-package com.puthuvaazhvu.mapping.Question.QuestionTree.SingleQuestion;
+package com.puthuvaazhvu.mapping.Question.SingleQuestion;
 
 import com.puthuvaazhvu.mapping.Options.Modal.OptionData;
 import com.puthuvaazhvu.mapping.Question.QuestionModal;

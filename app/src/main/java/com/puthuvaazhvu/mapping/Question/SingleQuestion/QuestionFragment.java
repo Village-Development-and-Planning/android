@@ -1,4 +1,4 @@
-package com.puthuvaazhvu.mapping.Question.QuestionTree.SingleQuestion;
+package com.puthuvaazhvu.mapping.Question.SingleQuestion;
 
 import android.content.Context;
 import android.os.Bundle;

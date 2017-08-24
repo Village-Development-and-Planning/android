@@ -1,4 +1,4 @@
-package com.puthuvaazhvu.mapping.Question.QuestionsGridFragment;
+package com.puthuvaazhvu.mapping.Question.Grid.RootQuestionsGrid;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -22,24 +22,24 @@ import java.util.List;
  * Created by muthuveerappans on 8/24/17.
  */
 
-public class QuestionGridFragment extends Fragment {
+public class RootQuestionsGridHolderFragment extends Fragment {
     RecyclerView recyclerView;
     List<QuestionModal> questionModalList;
-    QuestionGridFragmentCommunicationInterface communicationInterface;
+    RootQuestionsHolderGridFragmentCommunicationInterface communicationInterface;
     QuestionsAdapter questionsAdapter;
 
-    public static QuestionGridFragment getInstance(ArrayList<QuestionModal> questionModalList) {
-        QuestionGridFragment questionGridFragment = new QuestionGridFragment();
+    public static RootQuestionsGridHolderFragment getInstance(ArrayList<QuestionModal> questionModalList) {
+        RootQuestionsGridHolderFragment rootQuestionsGridHolderFragment = new RootQuestionsGridHolderFragment();
 
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList("question_data_list", questionModalList);
 
-        questionGridFragment.setArguments(bundle);
+        rootQuestionsGridHolderFragment.setArguments(bundle);
 
-        return questionGridFragment;
+        return rootQuestionsGridHolderFragment;
     }
 
-    public void setCommunicationInterface(QuestionGridFragmentCommunicationInterface communicationInterface) {
+    public void setCommunicationInterface(RootQuestionsHolderGridFragmentCommunicationInterface communicationInterface) {
         this.communicationInterface = communicationInterface;
     }
 
@@ -93,7 +93,7 @@ public class QuestionGridFragment extends Fragment {
         if (communicationInterface != null) {
             communicationInterface.onSelectedQuestion(questionModal);
         } else {
-            throw new RuntimeException("The interface is null on " + QuestionGridFragment.class);
+            throw new RuntimeException("The interface is null on " + RootQuestionsGridHolderFragment.class);
         }
     }
 
