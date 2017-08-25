@@ -13,6 +13,7 @@ import java.util.List;
 
 public class QuestionTreeRootLoopFragmentPresenter {
     HashMap<String, OptionData> answeredOptionsMap = new HashMap<>();
+    HashMap<String, QuestionModal> answeredQuestionsMap = new HashMap<>();
 
     public QuestionTreeRootLoopFragmentPresenter() {
     }
@@ -41,5 +42,15 @@ public class QuestionTreeRootLoopFragmentPresenter {
                 od.setOptionDone(true);
             }
         }
+    }
+
+    public void insertQuestionToMap(QuestionModal questionModal, String optionID) {
+        answeredQuestionsMap.put(optionID, questionModal);
+    }
+
+    public HashMap<String, HashMap<String, QuestionModal>> getOutputMap(String questionID) {
+        HashMap<String, HashMap<String, QuestionModal>> result = new HashMap<>();
+        result.put(questionID, answeredQuestionsMap);
+        return result;
     }
 }

@@ -33,7 +33,7 @@ public class OptionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View root = null;
         RecyclerView.ViewHolder viewHolder = null;
-        if (option_type == OPTION_TYPES.SINGLE) {
+        if (option_type == OPTION_TYPES.SINGLE || option_type == OPTION_TYPES.LOOP) {
             root = LayoutInflater.from(parent.getContext()).inflate(R.layout.radio_button_option, parent, false);
             viewHolder = new SVH(root);
         } else if (option_type == OPTION_TYPES.MULTIPLE) {
@@ -83,7 +83,7 @@ public class OptionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                             "This should actually contain the options data");
                 }
 
-                if (option_type == OPTION_TYPES.SINGLE) {
+                if (option_type == OPTION_TYPES.SINGLE || option_type == OPTION_TYPES.LOOP) {
                     // Reset all the radio buttons to false
                     for (OptionData optionData : optionDataList) {
                         optionData.setChecked(false);
@@ -91,7 +91,7 @@ public class OptionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 }
 
                 OptionData optionData = (OptionData) tag;
-                optionData.setChecked(option_type == OPTION_TYPES.SINGLE ?
+                optionData.setChecked(option_type == OPTION_TYPES.SINGLE || option_type == OPTION_TYPES.LOOP ?
                         true : !optionData.isChecked());
             }
         };

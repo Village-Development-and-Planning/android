@@ -28,6 +28,8 @@ public class QuestionTreeRootLoopFragment extends Fragment
     QuestionFragment questionFragment;
     QuestionTreeRootAsGridFragment questionTreeRootAsGridFragment;
     QuestionTreeRootLoopFragmentPresenter presenter;
+    String currentOptionID;
+    QuestionTreeRootLoopFragmentCommunicationInterface communicationInterface;
 
     public static QuestionTreeRootLoopFragment getInstance(QuestionModal questionModal) {
         QuestionTreeRootLoopFragment questionTreeRootLoopFragment = new QuestionTreeRootLoopFragment();
@@ -38,6 +40,10 @@ public class QuestionTreeRootLoopFragment extends Fragment
         questionTreeRootLoopFragment.setArguments(bundle);
 
         return questionTreeRootLoopFragment;
+    }
+
+    public void setCommunicationInterface(QuestionTreeRootLoopFragmentCommunicationInterface communicationInterface) {
+        this.communicationInterface = communicationInterface;
     }
 
     @Nullable
@@ -75,6 +81,12 @@ public class QuestionTreeRootLoopFragment extends Fragment
 
     @Override
     public void moveToNextQuestion(QuestionModal currentQuestion, ArrayList<OptionData> optionDataList) {
+        if (optionDataList.size() != 1) {
+            throw new RuntimeException("The count of the selected options should always be 1 for LOOPING QUESTION");
+        }
+
+        currentOptionID = optionDataList.get(0).getId();
+
         presenter.insertOptionDataToMap(optionDataList);
         loadRootQuestionGrid(questionModal);
     }
@@ -86,25 +98,16 @@ public class QuestionTreeRootLoopFragment extends Fragment
 
     @Override
     public void onAllQuestionAnswered(QuestionModal updatedRoot) {
-        // TODO:
-        // + save result
-        /* Example JSON:
-        {
-            survey_id: [
-                option_1_id:  {
-                    root_question_modal: {}
-                },
-                option_2_id: {
-                    root_question_modal: {}
-                }
-            ]
+        if (currentOptionID == null) {
+            throw new RuntimeException("The option ID is null after the root questions have been answered.");
         }
-         */
+
+        presenter.insertQuestionToMap(updatedRoot, currentOptionID);
 
         presenter.alterOptionTosDone(questionModal);
 
         if (presenter.checkIfAllOptionsHaveBoonAnswered(questionModal.getOptionDataList())) {
-            // TODO: finish
+            communicationInterface.onLoopFinished(presenter.getOutputMap(questionModal.getQuestionID()));
         } else {
             loadRootQuestionFragment(questionModal);
         }
