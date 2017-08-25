@@ -4,7 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.puthuvaazhvu.mapping.Options.Modal.OptionData;
-import com.puthuvaazhvu.mapping.Options.OPTION_TYPES;
+import com.puthuvaazhvu.mapping.Options.Modal.OPTION_TYPES;
 
 import java.util.ArrayList;
 

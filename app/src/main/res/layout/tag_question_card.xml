@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="@dimen/tag_question_card_side_length"
-    android:layout_height="@dimen/tag_question_card_side_length"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="8dp">
+    android:layout_height="@dimen/tag_question_card_side_length">
 
     <RelativeLayout
         android:id="@+id/holder"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_margin="8dp"
         android:background="@drawable/rounded_rect_border_black">
 
         <TextView
@@ -23,5 +23,13 @@
             android:textStyle="bold" />
     </RelativeLayout>
 
-</android.support.v7.widget.CardView>
+    <ImageView
+        android:id="@+id/img_check_mark"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_alignParentRight="true"
+        android:src="@mipmap/ic_checkmark_gray"
+        android:visibility="gone"
+        tools:visibility="visible" />
+</RelativeLayout>
 

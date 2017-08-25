@@ -1,7 +1,7 @@
 package com.puthuvaazhvu.mapping.utils;
 
 import com.puthuvaazhvu.mapping.Options.Modal.OptionData;
-import com.puthuvaazhvu.mapping.Options.OPTION_TYPES;
+import com.puthuvaazhvu.mapping.Options.Modal.OPTION_TYPES;
 import com.puthuvaazhvu.mapping.Question.QuestionModal;
 
 import java.util.ArrayList;
@@ -28,7 +28,6 @@ public class DataHelper {
             result.add(qm);
             convertTreeToListInner(qm, result);
         }
-
     }
 
     public static void modifyQuestionInGiven(QuestionModal root, QuestionModal newQuestion) {

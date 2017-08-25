@@ -12,12 +12,14 @@ public class OptionData implements Parcelable {
     boolean isChecked;
     final String text;
     final String id;
+    boolean isOptionDone;
 
-    public OptionData(int position, boolean isChecked, String text, String id) {
+    public OptionData(int position, boolean isChecked, String text, String id, boolean isOptionDone) {
         this.position = position;
         this.isChecked = isChecked;
         this.text = text;
         this.id = id;
+        this.isOptionDone = isOptionDone;
     }
 
     protected OptionData(Parcel in) {
@@ -25,6 +27,7 @@ public class OptionData implements Parcelable {
         isChecked = in.readByte() != 0;
         text = in.readString();
         id = in.readString();
+        isOptionDone = in.readByte() != 0;
     }
 
     public int getPosition() {
@@ -45,6 +48,14 @@ public class OptionData implements Parcelable {
 
     public void setChecked(boolean checked) {
         isChecked = checked;
+    }
+
+    public boolean isOptionDone() {
+        return isOptionDone;
+    }
+
+    public void setOptionDone(boolean optionDone) {
+        isOptionDone = optionDone;
     }
 
     public static final Creator<OptionData> CREATOR = new Creator<OptionData>() {
@@ -70,5 +81,6 @@ public class OptionData implements Parcelable {
         parcel.writeByte((byte) (isChecked ? 1 : 0));
         parcel.writeString(text);
         parcel.writeString(id);
+        parcel.writeByte((byte) (isOptionDone ? 1 : 0));
     }
 }

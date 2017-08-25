@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.puthuvaazhvu.mapping.Question.QuestionModal;
@@ -24,11 +25,11 @@ import java.util.List;
 
 public class RootQuestionsGridHolderFragment extends Fragment {
     RecyclerView recyclerView;
-    List<QuestionModal> questionModalList;
+    List<GridQuestionModal> questionModalList;
     RootQuestionsHolderGridFragmentCommunicationInterface communicationInterface;
     QuestionsAdapter questionsAdapter;
 
-    public static RootQuestionsGridHolderFragment getInstance(ArrayList<QuestionModal> questionModalList) {
+    public static RootQuestionsGridHolderFragment getInstance(ArrayList<GridQuestionModal> questionModalList) {
         RootQuestionsGridHolderFragment rootQuestionsGridHolderFragment = new RootQuestionsGridHolderFragment();
 
         Bundle bundle = new Bundle();
@@ -80,7 +81,7 @@ public class RootQuestionsGridHolderFragment extends Fragment {
                 , new RecyclerItemClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                QuestionModal questionModal = questionModalList.get(position);
+                GridQuestionModal questionModal = questionModalList.get(position);
                 sendDataToCaller(questionModal);
             }
         }));
@@ -89,7 +90,7 @@ public class RootQuestionsGridHolderFragment extends Fragment {
         recyclerView.setAdapter(questionsAdapter);
     }
 
-    private void sendDataToCaller(QuestionModal questionModal) {
+    private void sendDataToCaller(GridQuestionModal questionModal) {
         if (communicationInterface != null) {
             communicationInterface.onSelectedQuestion(questionModal);
         } else {
@@ -108,8 +109,8 @@ public class RootQuestionsGridHolderFragment extends Fragment {
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
             QVH qvh = (QVH) holder;
-            QuestionModal questionModal = questionModalList.get(position);
-            qvh.setQuestionText(questionModal.getText());
+            GridQuestionModal questionModal = questionModalList.get(position);
+            qvh.populateViews(questionModal.getText(), questionModal.isQuestionAnswered);
         }
 
         @Override
@@ -120,11 +121,18 @@ public class RootQuestionsGridHolderFragment extends Fragment {
 
     private class QVH extends RecyclerView.ViewHolder {
         private TextView textView;
+        private ImageView img_check_mark;
 
         public QVH(View itemView) {
             super(itemView);
 
             textView = itemView.findViewById(R.id.textView);
+            img_check_mark = itemView.findViewById(R.id.img_check_mark);
+        }
+
+        public void populateViews(String text, boolean isQuestionAnswered) {
+            img_check_mark.setVisibility(isQuestionAnswered ? View.VISIBLE : View.GONE);
+            setQuestionText(text);
         }
 
         public void setQuestionText(String text) {

@@ -7,5 +7,5 @@ import com.puthuvaazhvu.mapping.Question.QuestionModal;
  */
 
 public interface RootQuestionsHolderGridFragmentCommunicationInterface {
-    public void onSelectedQuestion(QuestionModal questionModal);
+    public void onSelectedQuestion(GridQuestionModal questionModal);
 }

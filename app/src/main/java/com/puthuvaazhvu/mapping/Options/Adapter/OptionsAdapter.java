@@ -4,11 +4,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 
 import com.puthuvaazhvu.mapping.Options.Modal.OptionData;
-import com.puthuvaazhvu.mapping.Options.OPTION_TYPES;
-import com.puthuvaazhvu.mapping.Options.OptionsFragment;
+import com.puthuvaazhvu.mapping.Options.Modal.OPTION_TYPES;
 import com.puthuvaazhvu.mapping.R;
 
 import java.util.ArrayList;
@@ -29,18 +31,26 @@ public class OptionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View root = LayoutInflater.from(parent.getContext()).inflate(R.layout.radio_button_option, parent, false);
-        return new VH(root);
+        View root = null;
+        RecyclerView.ViewHolder viewHolder = null;
+        if (option_type == OPTION_TYPES.SINGLE) {
+            root = LayoutInflater.from(parent.getContext()).inflate(R.layout.radio_button_option, parent, false);
+            viewHolder = new SVH(root);
+        } else if (option_type == OPTION_TYPES.MULTIPLE) {
+            root = LayoutInflater.from(parent.getContext()).inflate(R.layout.check_box_option, parent, false);
+            viewHolder = new MVH(root);
+        }
+        return viewHolder;
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        VH VH = (VH) holder;
+        VH vh = (VH) holder;
 
         OptionData optionData = optionDataList.get(position);
-        VH.setTagDataForRadioButton(optionData);
+        vh.setTagDataForCompoundButton(optionData);
 
-        VH.populateView(optionData.getText(), optionData.isChecked());
+        vh.populateView(optionData.getText(), optionData.isChecked(), optionData.isOptionDone());
     }
 
     @Override
@@ -58,10 +68,12 @@ public class OptionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         return result;
     }
 
-    private class VH extends RecyclerView.ViewHolder {
-        RadioButton radio_button;
+    private abstract class VH<T extends CompoundButton> extends RecyclerView.ViewHolder {
+        T compoundButton;
+        ImageView img_check_mark;
 
-        View.OnClickListener radioButtonClickEvent = new View.OnClickListener() {
+
+        View.OnClickListener optionCLickEvent = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Object tag = view.getTag();
@@ -87,17 +99,45 @@ public class OptionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         public VH(View itemView) {
             super(itemView);
 
-            radio_button = itemView.findViewById(R.id.radio_button);
-            radio_button.setOnClickListener(radioButtonClickEvent);
+            compoundButton = getCompoundButton(itemView);
+            compoundButton.setOnClickListener(optionCLickEvent);
+
+            img_check_mark = itemView.findViewById(R.id.img_checkmark);
         }
 
-        public void setTagDataForRadioButton(OptionData optionData) {
-            radio_button.setTag(optionData);
+        public abstract T getCompoundButton(View itemView);
+
+        public void setTagDataForCompoundButton(OptionData optionData) {
+            compoundButton.setTag(optionData);
         }
 
-        public void populateView(String text, boolean isRadioSelected) {
-            radio_button.setText(text);
-            radio_button.setSelected(isRadioSelected);
+        public void populateView(String text, boolean isRadioSelected, boolean shouldShowCheckMark) {
+            compoundButton.setText(text);
+            compoundButton.setSelected(isRadioSelected);
+            img_check_mark.setVisibility(shouldShowCheckMark ? View.VISIBLE : View.GONE);
         }
     }
+
+    private class SVH extends VH<RadioButton> {
+        public SVH(View itemView) {
+            super(itemView);
+        }
+
+        @Override
+        public RadioButton getCompoundButton(View itemView) {
+            return itemView.findViewById(R.id.radio_button);
+        }
+    }
+
+    private class MVH extends VH<CheckBox> {
+        public MVH(View itemView) {
+            super(itemView);
+        }
+
+        @Override
+        public CheckBox getCompoundButton(View itemView) {
+            return itemView.findViewById(R.id.check_box);
+        }
+    }
+
 }

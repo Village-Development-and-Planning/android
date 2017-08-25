@@ -11,11 +11,11 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 
 import com.puthuvaazhvu.mapping.Options.Adapter.OptionsAdapter;
+import com.puthuvaazhvu.mapping.Options.Modal.OPTION_TYPES;
 import com.puthuvaazhvu.mapping.Options.Modal.OptionData;
 import com.puthuvaazhvu.mapping.R;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by muthuveerappans on 8/24/17.
@@ -79,7 +79,7 @@ public class OptionsFragment extends Fragment {
         if (option_type == OPTION_TYPES.INPUT) {
             ArrayList<OptionData> result = new ArrayList<>();
             String option = input_edit_text.getText().toString();
-            result.add(new OptionData(-1, true, option, ""));
+            result.add(new OptionData(-1, true, option, "", true));
             return result;
         }
 

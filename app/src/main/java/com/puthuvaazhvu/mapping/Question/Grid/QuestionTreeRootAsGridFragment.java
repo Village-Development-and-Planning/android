@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.puthuvaazhvu.mapping.Question.Grid.RootQuestionsGrid.GridQuestionModal;
 import com.puthuvaazhvu.mapping.Question.QuestionModal;
 import com.puthuvaazhvu.mapping.Question.QuestionTree.QuestionTreeFragment;
 import com.puthuvaazhvu.mapping.Question.QuestionTree.QuestionTreeFragmentCommunicationInterface;
@@ -29,6 +30,7 @@ public class QuestionTreeRootAsGridFragment extends Fragment
     RootQuestionsGridHolderFragment rootQuestionsGridHolderFragment;
     QuestionTreeFragment questionTreeFragment;
     QuestionTreeRootAsGridFragmentCommunicationInterface communicationInterface;
+    QuestionTreeAsGridFragmentPresenter presenter;
 
     public static QuestionTreeRootAsGridFragment getInstance(QuestionModal root) {
         QuestionTreeRootAsGridFragment tagQuestionsFragment = new QuestionTreeRootAsGridFragment();
@@ -54,18 +56,19 @@ public class QuestionTreeRootAsGridFragment extends Fragment
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         root = getArguments().getParcelable("question_data");
+        presenter = new QuestionTreeAsGridFragmentPresenter();
 
         if (root == null) {
             throw new RuntimeException("The root question is null. " + QuestionTreeRootAsGridFragment.class);
         }
 
         questionModalList = root.getChildren();
-        loadQuestionGridFragment();
+        loadQuestionGridFragment(presenter.convertFrom(questionModalList));
     }
 
-    private void loadQuestionGridFragment() {
+    private void loadQuestionGridFragment(ArrayList<GridQuestionModal> gridQuestionModalArrayList) {
         rootQuestionsGridHolderFragment = null;
-        rootQuestionsGridHolderFragment = RootQuestionsGridHolderFragment.getInstance(questionModalList);
+        rootQuestionsGridHolderFragment = RootQuestionsGridHolderFragment.getInstance(gridQuestionModalArrayList);
         rootQuestionsGridHolderFragment.setCommunicationInterface(this);
 
         FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
@@ -84,17 +87,22 @@ public class QuestionTreeRootAsGridFragment extends Fragment
     }
 
     @Override
-    public void onSelectedQuestion(QuestionModal questionModal) {
+    public void onSelectedQuestion(GridQuestionModal questionModal) {
         loadQuestionTreeFragment(questionModal);
     }
 
     @Override
     public void onFinished(QuestionModal modifiedQuestionModal) {
-        // TODO:
-        // + note the questions answered (tag) for end flow.
-        // + end the fragment is all questions have been answered.
+        presenter.insertEntryIntoMap(modifiedQuestionModal);
 
         DataHelper.modifyQuestionInGiven(root, modifiedQuestionModal);
-        loadQuestionGridFragment();
+        questionModalList = root.getChildren();
+
+        if (presenter.checkIfAllQuestionsAreCompleted(questionModalList)) {
+            presenter.clearMap();
+            communicationInterface.onAllQuestionAnswered(root);
+        } else {
+            loadQuestionGridFragment(presenter.convertFrom(questionModalList));
+        }
     }
 }
