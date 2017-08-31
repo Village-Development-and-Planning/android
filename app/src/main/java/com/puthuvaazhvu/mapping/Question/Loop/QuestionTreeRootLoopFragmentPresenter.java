@@ -5,6 +5,7 @@ import com.puthuvaazhvu.mapping.Question.QuestionModal;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 
 /**
@@ -32,11 +33,15 @@ public class QuestionTreeRootLoopFragmentPresenter {
         boolean hasBeenAnswered = false;
         for (OptionData od : optionData) {
             hasBeenAnswered = answeredOptionsMap.containsKey(od.getId());
+
+            if (!hasBeenAnswered) {
+                break;
+            }
         }
         return hasBeenAnswered;
     }
 
-    public void alterOptionTosDone(QuestionModal root) {
+    public void alterOptionsToDone(QuestionModal root) {
         for (OptionData od : root.getOptionDataList()) {
             if (answeredOptionsMap.containsKey(od.getId())) {
                 od.setOptionDone(true);

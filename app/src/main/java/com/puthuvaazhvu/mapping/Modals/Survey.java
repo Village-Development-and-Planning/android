@@ -3,6 +3,7 @@ package com.puthuvaazhvu.mapping.Modals;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -12,10 +13,10 @@ import java.util.List;
 public class Survey implements Parcelable {
     String id;
     String name;
-    List<Question> questionList;
+    ArrayList<Question> questionList;
     String modifiedAt;
 
-    public Survey(String id, String name, List<Question> questionList, String modifiedAt) {
+    public Survey(String id, String name, ArrayList<Question> questionList, String modifiedAt) {
         this.id = id;
         this.name = name;
         this.questionList = questionList;
@@ -62,7 +63,7 @@ public class Survey implements Parcelable {
         return name;
     }
 
-    public List<Question> getQuestionList() {
+    public ArrayList<Question> getQuestionList() {
         return questionList;
     }
 

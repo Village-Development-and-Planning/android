@@ -74,6 +74,7 @@ public class RootQuestionsGridHolderFragment extends Fragment {
                         int newSpanCount = (int) Math.floor(viewWidth / cardViewWidth);
                         gridLayoutManager.setSpanCount(newSpanCount);
                         gridLayoutManager.requestLayout();
+                        recyclerView.setLayoutManager(gridLayoutManager);
                     }
                 });
 

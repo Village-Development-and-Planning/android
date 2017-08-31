@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 
 import com.puthuvaazhvu.mapping.Options.Adapter.OptionsAdapter;
-import com.puthuvaazhvu.mapping.Options.Modal.OPTION_TYPES;
+import com.puthuvaazhvu.mapping.Question.QUESTION_TYPE;
 import com.puthuvaazhvu.mapping.Options.Modal.OptionData;
 import com.puthuvaazhvu.mapping.R;
 
@@ -25,11 +25,11 @@ public class OptionsFragment extends Fragment {
     RecyclerView recyclerView;
     EditText input_edit_text;
 
-    OPTION_TYPES option_type;
+    QUESTION_TYPE option_type;
     ArrayList<OptionData> optionDataArrayList;
     OptionsAdapter optionsAdapter;
 
-    public static OptionsFragment getInstance(ArrayList<OptionData> optionDataList, OPTION_TYPES option_type) {
+    public static OptionsFragment getInstance(ArrayList<OptionData> optionDataList, QUESTION_TYPE option_type) {
         OptionsFragment optionsFragment = new OptionsFragment();
 
         Bundle bundle = new Bundle();
@@ -54,16 +54,13 @@ public class OptionsFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        option_type = (OPTION_TYPES) getArguments().getSerializable("option_type");
+        option_type = (QUESTION_TYPE) getArguments().getSerializable("option_type");
         optionDataArrayList = getArguments().getParcelableArrayList("options_data");
 
-        manipulateViewVisibilityBasedOnOptionType();
+        input_edit_text = view.findViewById(R.id.input_edit_text);
+        recyclerView = view.findViewById(R.id.options_recycler_view);
 
-        if (option_type == OPTION_TYPES.INPUT) {
-            input_edit_text = view.findViewById(R.id.input_edit_text);
-        } else {
-            recyclerView = view.findViewById(R.id.options_recycler_view);
-
+        if (option_type != QUESTION_TYPE.INPUT) {
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext()
                     , LinearLayoutManager.VERTICAL, false);
             recyclerView.setLayoutManager(linearLayoutManager);
@@ -73,13 +70,14 @@ public class OptionsFragment extends Fragment {
             recyclerView.setAdapter(optionsAdapter);
         }
 
+        manipulateViewVisibilityBasedOnOptionType();
     }
 
     public ArrayList<OptionData> getSelectedOptions() {
-        if (option_type == OPTION_TYPES.INPUT) {
+        if (option_type == QUESTION_TYPE.INPUT) {
             ArrayList<OptionData> result = new ArrayList<>();
             String option = input_edit_text.getText().toString();
-            result.add(new OptionData(-1, true, option, "", true));
+            result.add(new OptionData("-1", true, option, "", true));
             return result;
         }
 
@@ -87,7 +85,7 @@ public class OptionsFragment extends Fragment {
     }
 
     public void manipulateViewVisibilityBasedOnOptionType() {
-        if (option_type == OPTION_TYPES.INPUT) {
+        if (option_type == QUESTION_TYPE.INPUT) {
             input_edit_text.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
         } else {

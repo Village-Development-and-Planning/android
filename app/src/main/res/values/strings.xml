@@ -3,6 +3,8 @@
 
     <!--errors-->
     <string name="no_data">Cannot get the required data.</string>
+    <string name="enter_cst">Enter your CST code</string>
+    <string name="tag_line">A Tamilnadu government initiative.</string>
 
     <!--tamil translation-->
     <string name="next_ta">அடுத்த</string>

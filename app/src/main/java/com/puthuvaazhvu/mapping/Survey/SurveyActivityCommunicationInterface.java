@@ -1,6 +1,7 @@
 package com.puthuvaazhvu.mapping.Survey;
 
 import com.puthuvaazhvu.mapping.Modals.Survey;
+import com.puthuvaazhvu.mapping.Question.QuestionModal;
 
 /**
  * Created by muthuveerappans on 8/24/17.
@@ -8,6 +9,10 @@ import com.puthuvaazhvu.mapping.Modals.Survey;
 
 public interface SurveyActivityCommunicationInterface {
     public void parsedSurveyData(Survey survey);
+
+    public void loadQuestionFragment(QuestionModal questionModal);
+
+    public void loadLoopQuestionFragment(QuestionModal questionModal);
 
     public void onError(int code);
 }

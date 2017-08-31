@@ -3,23 +3,25 @@ package com.puthuvaazhvu.mapping.Modals;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by muthuveerappans on 8/24/17.
  */
 
-public class Question implements Parcelable{
+public class Question implements Parcelable {
     String id;
     String position;
     Text text;
     String type;
-    List<Option> optionList;
-    List<String> tags;
+    ArrayList<Option> optionList;
+    ArrayList<String> tags;
     String modifiedAt;
-    List<Question> children;
+    String rawNumber;
+    ArrayList<Question> children;
 
-    public Question(String id, String position, Text text, String type, List<Option> optionList, List<String> tags, String modifiedAt, List<Question> children) {
+    public Question(String id, String position, String rawNumber, Text text, String type, ArrayList<Option> optionList, ArrayList<String> tags, String modifiedAt, ArrayList<Question> children) {
         this.id = id;
         this.position = position;
         this.text = text;
@@ -28,6 +30,7 @@ public class Question implements Parcelable{
         this.tags = tags;
         this.modifiedAt = modifiedAt;
         this.children = children;
+        this.rawNumber = rawNumber;
     }
 
     protected Question(Parcel in) {
@@ -39,6 +42,7 @@ public class Question implements Parcelable{
         tags = in.createStringArrayList();
         modifiedAt = in.readString();
         children = in.createTypedArrayList(Question.CREATOR);
+        rawNumber = in.readString();
     }
 
     public static final Creator<Question> CREATOR = new Creator<Question>() {
@@ -52,6 +56,10 @@ public class Question implements Parcelable{
             return new Question[size];
         }
     };
+
+    public String getRawNumber() {
+        return rawNumber;
+    }
 
     public String getId() {
         return id;
@@ -69,11 +77,11 @@ public class Question implements Parcelable{
         return type;
     }
 
-    public List<Option> getOptionList() {
+    public ArrayList<Option> getOptionList() {
         return optionList;
     }
 
-    public List<String> getTags() {
+    public ArrayList<String> getTags() {
         return tags;
     }
 
@@ -81,7 +89,7 @@ public class Question implements Parcelable{
         return modifiedAt;
     }
 
-    public List<Question> getChildren() {
+    public ArrayList<Question> getChildren() {
         return children;
     }
 
@@ -100,5 +108,6 @@ public class Question implements Parcelable{
         parcel.writeStringList(tags);
         parcel.writeString(modifiedAt);
         parcel.writeTypedList(children);
+        parcel.writeString(rawNumber);
     }
 }

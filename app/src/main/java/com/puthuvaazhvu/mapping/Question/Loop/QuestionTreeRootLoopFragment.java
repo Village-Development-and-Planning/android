@@ -15,6 +15,7 @@ import com.puthuvaazhvu.mapping.Question.QuestionModal;
 import com.puthuvaazhvu.mapping.Question.SingleQuestion.QuestionFragment;
 import com.puthuvaazhvu.mapping.Question.SingleQuestion.QuestionFragmentCommunicationInterface;
 import com.puthuvaazhvu.mapping.R;
+import com.puthuvaazhvu.mapping.utils.DeepCopy.DeepCopy;
 
 import java.util.ArrayList;
 
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 public class QuestionTreeRootLoopFragment extends Fragment
         implements QuestionFragmentCommunicationInterface, QuestionTreeRootAsGridFragmentCommunicationInterface {
     QuestionModal questionModal;
+    QuestionModal questionModalCopy;
     QuestionFragment questionFragment;
     QuestionTreeRootAsGridFragment questionTreeRootAsGridFragment;
     QuestionTreeRootLoopFragmentPresenter presenter;
@@ -56,7 +58,8 @@ public class QuestionTreeRootLoopFragment extends Fragment
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         presenter = new QuestionTreeRootLoopFragmentPresenter();
         questionModal = getArguments().getParcelable("question_data");
-        loadRootQuestionFragment(questionModal);
+        questionModalCopy = (QuestionModal) DeepCopy.copy(questionModal);
+        loadRootQuestionFragment(questionModalCopy);
     }
 
     private void loadRootQuestionFragment(QuestionModal questionModal) {
@@ -102,14 +105,16 @@ public class QuestionTreeRootLoopFragment extends Fragment
             throw new RuntimeException("The option ID is null after the root questions have been answered.");
         }
 
-        presenter.insertQuestionToMap(updatedRoot, currentOptionID);
+        presenter.insertQuestionToMap((QuestionModal) DeepCopy.copy(updatedRoot), currentOptionID);
 
-        presenter.alterOptionTosDone(questionModal);
+        presenter.alterOptionsToDone(questionModal);
 
         if (presenter.checkIfAllOptionsHaveBoonAnswered(questionModal.getOptionDataList())) {
             communicationInterface.onLoopFinished(presenter.getOutputMap(questionModal.getQuestionID()));
         } else {
-            loadRootQuestionFragment(questionModal);
+            questionModalCopy = null;
+            questionModalCopy = (QuestionModal) DeepCopy.copy(questionModal);
+            loadRootQuestionFragment(questionModalCopy);
         }
     }
 }

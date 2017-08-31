@@ -1,5 +1,7 @@
 package com.puthuvaazhvu.mapping.Question.Grid;
 
+import android.util.Log;
+
 import com.puthuvaazhvu.mapping.Modals.Question;
 import com.puthuvaazhvu.mapping.Question.Grid.RootQuestionsGrid.GridQuestionModal;
 import com.puthuvaazhvu.mapping.Question.QuestionModal;
@@ -33,6 +35,10 @@ public class QuestionTreeAsGridFragmentPresenter {
         boolean isCompleted = false;
         for (QuestionModal qm : questionModalArrayList) {
             isCompleted = completedQuestionsMap.containsKey(qm.getQuestionID());
+
+            if (!isCompleted) {
+                break;
+            }
         }
         return isCompleted;
     }

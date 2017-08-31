@@ -19,10 +19,16 @@ import com.puthuvaazhvu.mapping.utils.DataHelper;
 
 import java.util.ArrayList;
 
+import static com.puthuvaazhvu.mapping.Constants.DEBUG;
+
 /**
  * Created by muthuveerappans on 8/24/17.
  */
 
+/*
+This class shows all the children of the given question as grid and loops over all children.
+This class doesn't show the root. Only shows the children.
+ */
 public class QuestionTreeRootAsGridFragment extends Fragment
         implements RootQuestionsHolderGridFragmentCommunicationInterface, QuestionTreeFragmentCommunicationInterface {
     ArrayList<QuestionModal> questionModalList;
@@ -95,7 +101,6 @@ public class QuestionTreeRootAsGridFragment extends Fragment
     public void onFinished(QuestionModal modifiedQuestionModal) {
         presenter.insertEntryIntoMap(modifiedQuestionModal);
 
-        DataHelper.modifyQuestionInGiven(root, modifiedQuestionModal);
         questionModalList = root.getChildren();
 
         if (presenter.checkIfAllQuestionsAreCompleted(questionModalList)) {

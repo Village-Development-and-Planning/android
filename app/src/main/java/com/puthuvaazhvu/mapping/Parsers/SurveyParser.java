@@ -36,7 +36,7 @@ public class SurveyParser {
         String modifiedAt = JsonHelper.getString(json, "modifiedAt");
 
         JsonArray questionsArray = JsonHelper.getJsonArray(json, "questions");
-        List<Question> questionList = new ArrayList<>();
+        ArrayList<Question> questionList = new ArrayList<>();
 
         if (questionsArray != null) {
             for (JsonElement e : questionsArray) {
@@ -52,6 +52,7 @@ public class SurveyParser {
         String id = JsonHelper.getString(json, "_id");
         String type = JsonHelper.getString(json, "type");
         String modifiedAt = JsonHelper.getString(json, "modifiedAt");
+        String rawNumber = JsonHelper.getString(json, "number");
 
         JsonObject textJson = JsonHelper.getJsonObject(json, "text");
 
@@ -62,7 +63,7 @@ public class SurveyParser {
         }
 
         JsonArray optionsArray = JsonHelper.getJsonArray(json, "options");
-        List<Option> optionList = new ArrayList<>();
+        ArrayList<Option> optionList = new ArrayList<>();
 
         if (optionsArray != null) {
             for (JsonElement e : optionsArray) {
@@ -73,10 +74,10 @@ public class SurveyParser {
             }
         }
 
-        List<String> tags = JsonHelper.getStringArray(json, "tags");
+        ArrayList<String> tags = JsonHelper.getStringArray(json, "tags");
 
         JsonArray childrenArray = JsonHelper.getJsonArray(json, "children");
-        List<Question> children = new ArrayList<>();
+        ArrayList<Question> children = new ArrayList<>();
 
         if (childrenArray != null) {
             for (JsonElement e : childrenArray) {
@@ -84,7 +85,7 @@ public class SurveyParser {
             }
         }
 
-        return new Question(id, position, text, type, optionList, tags, modifiedAt, children);
+        return new Question(id, position, rawNumber, text, type, optionList, tags, modifiedAt, children);
     }
 
     public Option parseOption(JsonObject json) {

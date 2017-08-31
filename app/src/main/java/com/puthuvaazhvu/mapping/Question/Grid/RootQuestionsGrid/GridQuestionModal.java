@@ -4,7 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.puthuvaazhvu.mapping.Options.Modal.OptionData;
-import com.puthuvaazhvu.mapping.Options.Modal.OPTION_TYPES;
+import com.puthuvaazhvu.mapping.Question.QUESTION_TYPE;
 import com.puthuvaazhvu.mapping.Question.QuestionModal;
 
 import java.util.ArrayList;
@@ -16,8 +16,8 @@ import java.util.ArrayList;
 public class GridQuestionModal extends QuestionModal implements Parcelable {
     boolean isQuestionAnswered;
 
-    public GridQuestionModal(String questionID, String text, ArrayList<OptionData> optionDataList, OPTION_TYPES optionType, ArrayList<QuestionModal> children, boolean isNextPresent, boolean isPreviousPresent, boolean isQuestionAnswered) {
-        super(questionID, text, optionDataList, optionType, children, isNextPresent, isPreviousPresent);
+    public GridQuestionModal(String questionID, String rawNumber, String text, ArrayList<OptionData> optionDataList, ArrayList<String> tags, QUESTION_TYPE optionType, ArrayList<QuestionModal> children, boolean isNextPresent, boolean isPreviousPresent, boolean isQuestionAnswered) {
+        super(questionID, rawNumber, text, optionDataList, optionType, children, tags, isNextPresent, isPreviousPresent);
         this.isQuestionAnswered = isQuestionAnswered;
     }
 
@@ -53,6 +53,6 @@ public class GridQuestionModal extends QuestionModal implements Parcelable {
     };
 
     public static GridQuestionModal questionModalAdapter(QuestionModal questionModal) {
-        return new GridQuestionModal(questionModal.getQuestionID(), questionModal.getText(), questionModal.getOptionDataList(), questionModal.getOptionType(), questionModal.getChildren(), questionModal.isNextPresent(), questionModal.isPreviousPresent(), false);
+        return new GridQuestionModal(questionModal.getQuestionID(), questionModal.getRawNumber(), questionModal.getText(), questionModal.getOptionDataList(), questionModal.getTags(), questionModal.getQuestionType(), questionModal.getChildren(), questionModal.isNextPresent(), questionModal.isPreviousPresent(), false);
     }
 }

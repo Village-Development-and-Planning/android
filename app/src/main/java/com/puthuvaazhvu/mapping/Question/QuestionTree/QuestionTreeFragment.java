@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.puthuvaazhvu.mapping.Options.Modal.OptionData;
+import com.puthuvaazhvu.mapping.Question.QUESTION_TYPE;
 import com.puthuvaazhvu.mapping.Question.QuestionModal;
 import com.puthuvaazhvu.mapping.Question.SingleQuestion.QuestionFragment;
 import com.puthuvaazhvu.mapping.Question.SingleQuestion.QuestionFragmentCommunicationInterface;
@@ -55,7 +56,11 @@ public class QuestionTreeFragment extends Fragment implements QuestionFragmentCo
         root = getArguments().getParcelable("question_data");
         questionModalArrayList = DataHelper.convertTreeToList(root);
 
-        loadQuestionFragment(getNextQuestion());
+        QuestionModal questionModal = getNextQuestion();
+        if (questionModal.getQuestionType() == QUESTION_TYPE.DETAILS) {
+            throw new RuntimeException("The DETAILS type questions should not come here.");
+        }
+        loadQuestionFragment(questionModal);
     }
 
     private void loadQuestionFragment(QuestionModal questionModal) {
@@ -69,7 +74,7 @@ public class QuestionTreeFragment extends Fragment implements QuestionFragmentCo
         fragmentTransaction.commitAllowingStateLoss();
     }
 
-    // TODO: If initially NO is pressed, should not go to next question.
+    // TODO: Options skip.
     @Override
     public void moveToNextQuestion(QuestionModal currentQuestion, ArrayList<OptionData> optionDataList) {
         QuestionModal nextQuestion = getNextQuestion();
@@ -99,12 +104,22 @@ public class QuestionTreeFragment extends Fragment implements QuestionFragmentCo
     }
 
     private QuestionModal getNextQuestion() {
+        QuestionModal questionModal = null;
         currentChildIndex += 1;
 
         if (currentChildIndex >= questionModalArrayList.size()) {
-            return null;
+            questionModal = null;
+        } else {
+            questionModal = questionModalArrayList.get(currentChildIndex);
+            if (questionModal.getQuestionType() == QUESTION_TYPE.NONE) {
+                currentChildIndex += 1;
+                if (currentChildIndex >= questionModalArrayList.size()) {
+                    questionModal = null;
+                } else {
+                    questionModal = questionModalArrayList.get(currentChildIndex);
+                }
+            }
         }
-
-        return questionModalArrayList.get(currentChildIndex);
+        return questionModal;
     }
 }

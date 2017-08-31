@@ -5,8 +5,13 @@ import android.os.AsyncTask;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.puthuvaazhvu.mapping.Constants;
+import com.puthuvaazhvu.mapping.Modals.Question;
 import com.puthuvaazhvu.mapping.Modals.Survey;
 import com.puthuvaazhvu.mapping.Parsers.SurveyParser;
+import com.puthuvaazhvu.mapping.Question.QuestionModal;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by muthuveerappans on 8/24/17.
@@ -15,6 +20,7 @@ import com.puthuvaazhvu.mapping.Parsers.SurveyParser;
 public class SurveyActivityPresenter {
     SurveyActivityCommunicationInterface communicationInterface;
     Parser parser;
+    Survey survey;
 
     public SurveyActivityPresenter(SurveyActivityCommunicationInterface communicationInterface) {
         this.communicationInterface = communicationInterface;
@@ -28,6 +34,7 @@ public class SurveyActivityPresenter {
                 if (communicationInterface != null) {
                     if (survey != null) {
                         communicationInterface.parsedSurveyData(survey);
+                        SurveyActivityPresenter.this.survey = survey;
                     } else {
                         communicationInterface.onError(Constants.ErrorCodes.NULL_DATA);
                     }
@@ -35,6 +42,17 @@ public class SurveyActivityPresenter {
             }
         });
         parser.execute(json);
+    }
+
+    public void directSurveyQuestionsToFragments() {
+        if (survey == null) {
+            throw new RuntimeException("The survey object is null. ");
+        }
+
+        ArrayList<Question> surveyQuestions = survey.getQuestionList();
+        // TODO: check if the question is completed
+        // TODO: if question not completed -> call specific callback
+        // TODO: if all questions completed -> Survey Done.
     }
 
     public void cancelParsingAsyncTask() {

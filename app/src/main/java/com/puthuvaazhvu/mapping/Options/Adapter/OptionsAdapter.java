@@ -10,11 +10,13 @@ import android.widget.ImageView;
 import android.widget.RadioButton;
 
 import com.puthuvaazhvu.mapping.Options.Modal.OptionData;
-import com.puthuvaazhvu.mapping.Options.Modal.OPTION_TYPES;
+import com.puthuvaazhvu.mapping.Question.QUESTION_TYPE;
 import com.puthuvaazhvu.mapping.R;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.puthuvaazhvu.mapping.Constants.DEBUG;
 
 /**
  * Created by muthuveerappans on 8/24/17.
@@ -22,23 +24,27 @@ import java.util.List;
 
 public class OptionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     List<OptionData> optionDataList;
-    OPTION_TYPES option_type;
+    QUESTION_TYPE question_type;
 
-    public OptionsAdapter(List<OptionData> optionDataList, OPTION_TYPES option_type) {
+    public OptionsAdapter(List<OptionData> optionDataList, QUESTION_TYPE question_type) {
         this.optionDataList = optionDataList;
-        this.option_type = option_type;
+        this.question_type = question_type;
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View root = null;
         RecyclerView.ViewHolder viewHolder = null;
-        if (option_type == OPTION_TYPES.SINGLE || option_type == OPTION_TYPES.LOOP) {
+        if (question_type == QUESTION_TYPE.SINGLE || question_type == QUESTION_TYPE.LOOP) {
             root = LayoutInflater.from(parent.getContext()).inflate(R.layout.radio_button_option, parent, false);
             viewHolder = new SVH(root);
-        } else if (option_type == OPTION_TYPES.MULTIPLE) {
+        } else if (question_type == QUESTION_TYPE.MULTIPLE) {
             root = LayoutInflater.from(parent.getContext()).inflate(R.layout.check_box_option, parent, false);
             viewHolder = new MVH(root);
+        } else {
+            // TODO: should not throw an exception in production.
+            if (DEBUG)
+                throw new RuntimeException("The QUESTION_TYPE is NONE");
         }
         return viewHolder;
     }
@@ -83,7 +89,7 @@ public class OptionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                             "This should actually contain the options data");
                 }
 
-                if (option_type == OPTION_TYPES.SINGLE || option_type == OPTION_TYPES.LOOP) {
+                if (question_type == QUESTION_TYPE.SINGLE || question_type == QUESTION_TYPE.LOOP) {
                     // Reset all the radio buttons to false
                     for (OptionData optionData : optionDataList) {
                         optionData.setChecked(false);
@@ -91,8 +97,10 @@ public class OptionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 }
 
                 OptionData optionData = (OptionData) tag;
-                optionData.setChecked(option_type == OPTION_TYPES.SINGLE || option_type == OPTION_TYPES.LOOP ?
+                optionData.setChecked(question_type == QUESTION_TYPE.SINGLE || question_type == QUESTION_TYPE.LOOP ?
                         true : !optionData.isChecked());
+
+                OptionsAdapter.this.notifyDataSetChanged();
             }
         };
 
@@ -113,7 +121,7 @@ public class OptionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
         public void populateView(String text, boolean isRadioSelected, boolean shouldShowCheckMark) {
             compoundButton.setText(text);
-            compoundButton.setSelected(isRadioSelected);
+            compoundButton.setChecked(isRadioSelected);
             img_check_mark.setVisibility(shouldShowCheckMark ? View.VISIBLE : View.GONE);
         }
     }

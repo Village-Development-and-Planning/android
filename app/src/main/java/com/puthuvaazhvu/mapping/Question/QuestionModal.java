@@ -4,31 +4,35 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.puthuvaazhvu.mapping.Options.Modal.OptionData;
-import com.puthuvaazhvu.mapping.Options.Modal.OPTION_TYPES;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * Created by muthuveerappans on 8/24/17.
  */
 
-public class QuestionModal implements Parcelable {
+public class QuestionModal implements Parcelable, Serializable {
     String questionID;
     String text;
+    String rawNumber;
+    ArrayList<String> tags;
     ArrayList<OptionData> optionDataList;
     ArrayList<QuestionModal> children;
-    OPTION_TYPES optionType;
+    QUESTION_TYPE questionType;
     boolean isNextPresent;
     boolean isPreviousPresent;
 
-    public QuestionModal(String questionID, String text, ArrayList<OptionData> optionDataList, OPTION_TYPES optionType, ArrayList<QuestionModal> children, boolean isNextPresent, boolean isPreviousPresent) {
+    public QuestionModal(String questionID, String rawNumber, String text, ArrayList<OptionData> optionDataList, QUESTION_TYPE questionType, ArrayList<QuestionModal> children, ArrayList<String> tags, boolean isNextPresent, boolean isPreviousPresent) {
         this.questionID = questionID;
         this.text = text;
         this.optionDataList = optionDataList;
-        this.optionType = optionType;
+        this.questionType = questionType;
         this.isNextPresent = isNextPresent;
         this.isPreviousPresent = isPreviousPresent;
         this.children = children;
+        this.tags = tags;
+        this.rawNumber = rawNumber;
     }
 
     protected QuestionModal(Parcel in) {
@@ -37,8 +41,10 @@ public class QuestionModal implements Parcelable {
         optionDataList = in.createTypedArrayList(OptionData.CREATOR);
         isNextPresent = in.readByte() != 0;
         isPreviousPresent = in.readByte() != 0;
-        optionType = OPTION_TYPES.valueOf(in.readString());
+        questionType = QUESTION_TYPE.valueOf(in.readString());
         children = in.createTypedArrayList(QuestionModal.CREATOR);
+        tags = in.createStringArrayList();
+        rawNumber = in.readString();
     }
 
     @Override
@@ -48,8 +54,10 @@ public class QuestionModal implements Parcelable {
         dest.writeTypedList(optionDataList);
         dest.writeByte((byte) (isNextPresent ? 1 : 0));
         dest.writeByte((byte) (isPreviousPresent ? 1 : 0));
-        dest.writeString(optionType.name());
+        dest.writeString(questionType.name());
         dest.writeTypedList(children);
+        dest.writeStringList(tags);
+        dest.writeString(rawNumber);
     }
 
     @Override
@@ -69,6 +77,14 @@ public class QuestionModal implements Parcelable {
         }
     };
 
+    public String getRawNumber() {
+        return rawNumber;
+    }
+
+    public ArrayList<String> getTags() {
+        return tags;
+    }
+
     public ArrayList<QuestionModal> getChildren() {
         return children;
     }
@@ -85,8 +101,8 @@ public class QuestionModal implements Parcelable {
         return optionDataList;
     }
 
-    public OPTION_TYPES getOptionType() {
-        return optionType;
+    public QUESTION_TYPE getQuestionType() {
+        return questionType;
     }
 
     public boolean isNextPresent() {
@@ -102,7 +118,7 @@ public class QuestionModal implements Parcelable {
         this.text = questionModal.getText();
         this.children = questionModal.getChildren();
         this.optionDataList = questionModal.getOptionDataList();
-        this.optionType = questionModal.getOptionType();
+        this.questionType = questionModal.getQuestionType();
         this.isPreviousPresent = questionModal.isPreviousPresent();
         this.isNextPresent = questionModal.isNextPresent();
     }

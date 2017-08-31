@@ -21,6 +21,8 @@ import com.puthuvaazhvu.mapping.R;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.puthuvaazhvu.mapping.Constants.DEBUG;
+
 /**
  * Created by muthuveerappans on 8/24/17.
  */
@@ -106,7 +108,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener {
 
     private void populateOptionsContainer() {
         optionsFragment = null;
-        optionsFragment = OptionsFragment.getInstance(questionModal.getOptionDataList(), questionModal.getOptionType());
+        optionsFragment = OptionsFragment.getInstance(questionModal.getOptionDataList(), questionModal.getQuestionType());
 
         FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.options_container, optionsFragment);
@@ -120,7 +122,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener {
                 communicationInterface.moveToPreviousQuestion(questionModal);
                 break;
             case R.id.next_button:
-                if (checkOptionData()) {
+                if (checkOptionData() || DEBUG) {
                     communicationInterface.moveToNextQuestion(questionModal, getSelectedOptions());
                 } else {
                     // TODO: show error.

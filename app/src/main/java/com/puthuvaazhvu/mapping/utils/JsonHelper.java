@@ -30,8 +30,8 @@ public class JsonHelper {
         return null;
     }
 
-    public static List<String> getStringArray(JsonObject jsonObject, String key) {
-        List<String> result = new ArrayList<>();
+    public static ArrayList<String> getStringArray(JsonObject jsonObject, String key) {
+        ArrayList<String> result = new ArrayList<>();
         if (isJsonValid(jsonObject, key)) {
             JsonArray stringArray = jsonObject.get(key).getAsJsonArray();
             for (JsonElement e : stringArray) {
