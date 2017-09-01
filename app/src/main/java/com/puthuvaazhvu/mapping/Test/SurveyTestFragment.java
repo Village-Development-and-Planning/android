@@ -160,7 +160,7 @@ public class SurveyTestFragment extends Fragment
         ArrayList<Question> questions = survey.getQuestionList();
         for (Question question : questions) {
             if (question.getType().equals("MAIN_LOOP_DYNAMIC_OPTIONS")) {
-                return ModalAdapters.getAsQuestionModal(question, true);
+                return ModalAdapters.getAsQuestionModal(question, Constants.isTamil);
             }
         }
         return null;
@@ -172,7 +172,7 @@ public class SurveyTestFragment extends Fragment
             if (question.getType().equals("MAIN_LOOP_DYNAMIC_OPTIONS")) {
                 for (Question q : question.getChildren()) {
                     if (q.getRawNumber().equals("2.3")) {
-                        return ModalAdapters.getAsQuestionModal(q, true);
+                        return ModalAdapters.getAsQuestionModal(q, Constants.isTamil);
                     }
                 }
             }
@@ -185,7 +185,7 @@ public class SurveyTestFragment extends Fragment
         for (Question question : questions) {
             if (question.getType().equals("DUMMY")) {
                 Question randomQuestion = question.getChildren().get(0);
-                return ModalAdapters.getAsQuestionModal(randomQuestion, true);
+                return ModalAdapters.getAsQuestionModal(randomQuestion, Constants.isTamil);
             }
         }
         return null;

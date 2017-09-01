@@ -1,5 +1,6 @@
 package com.puthuvaazhvu.mapping.Survey;
 
+import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.Modals.Survey;
 import com.puthuvaazhvu.mapping.Question.QuestionModal;
 
@@ -13,6 +14,10 @@ public interface SurveyActivityCommunicationInterface {
     public void loadQuestionFragment(QuestionModal questionModal);
 
     public void loadLoopQuestionFragment(QuestionModal questionModal);
+
+    public void onSurveyDone();
+
+    public void onAllQuestionsSaved();
 
     public void onError(int code);
 }

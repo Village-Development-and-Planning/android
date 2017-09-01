@@ -10,5 +10,6 @@ import java.util.HashMap;
 
 public interface QuestionTreeRootLoopFragmentCommunicationInterface {
     // The question modal object is a deep copy and not a reference to the input.
+    // Format: HashMap<question_id, HashMap<option_id, question_object>>
     public void onLoopFinished(HashMap<String, HashMap<String, QuestionModal>> result);
 }

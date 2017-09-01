@@ -6,7 +6,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.Constants;
 import com.puthuvaazhvu.mapping.Modals.Survey;
 import com.puthuvaazhvu.mapping.Options.Modal.OptionData;
@@ -35,12 +37,15 @@ public class SurveyActivity extends AppCompatActivity implements SurveyActivityC
     SurveyActivityPresenter surveyActivityPresenter;
     QuestionTreeFragment questionTreeFragment;
     QuestionTreeRootLoopFragment questionTreeRootLoopFragment;
+    String basePath;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.survey_activity);
+
+        basePath = getFilesDir().getAbsolutePath();
 
         if (DEBUG) {
             surveyJSON = DataHelper.readFromAssetsFile(this, "test_data/survey_test_options.json");
@@ -60,6 +65,7 @@ public class SurveyActivity extends AppCompatActivity implements SurveyActivityC
 //            f.replace(R.id.question_container, surveyTestFragment);
 //            f.commitAllowingStateLoss();
 //        }
+        surveyActivityPresenter.getNextQuestionAndDirectToFragments();
     }
 
     @Override
@@ -70,6 +76,19 @@ public class SurveyActivity extends AppCompatActivity implements SurveyActivityC
     @Override
     public void loadLoopQuestionFragment(QuestionModal questionModal) {
         loadQuestionLoopFragment(questionModal);
+    }
+
+    @Override
+    public void onSurveyDone() {
+        if (DEBUG)
+            Toast.makeText(SurveyActivity.this, "Survey is done.", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onAllQuestionsSaved() {
+        if (DEBUG)
+            Toast.makeText(SurveyActivity.this, "Survey answers have been saved successfully."
+                    , Toast.LENGTH_SHORT).show();
     }
 
     private void loadQuestionTreeFragment(QuestionModal questionModal) {
@@ -106,14 +125,16 @@ public class SurveyActivity extends AppCompatActivity implements SurveyActivityC
     private QuestionTreeFragmentCommunicationInterface questionTreeFragmentCommunicationInterface = new QuestionTreeFragmentCommunicationInterface() {
         @Override
         public void onFinished(QuestionModal modifiedQuestionModal) {
-
+            // NOT IMPLEMENTED
         }
     };
 
     private QuestionTreeRootLoopFragmentCommunicationInterface questionTreeRootLoopFragmentCommunicationInterface = new QuestionTreeRootLoopFragmentCommunicationInterface() {
         @Override
         public void onLoopFinished(HashMap<String, HashMap<String, QuestionModal>> result) {
-
+            surveyActivityPresenter.logAnsweredQuestions(result);
+            surveyActivityPresenter.saveObjectToDisk(result, basePath);
+            surveyActivityPresenter.getNextQuestionAndDirectToFragments();
         }
     };
 
