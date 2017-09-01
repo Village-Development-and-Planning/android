@@ -29,6 +29,7 @@ public class DetailsActivity extends AppCompatActivity
     RecyclerView recyclerView;
     ArrayList<SurveyorDetailsModal> surveyorDetailsModals = new ArrayList<>();
     DetailsAdapter adapter;
+    DetailsActivityPresenter presenter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,8 +43,12 @@ public class DetailsActivity extends AppCompatActivity
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
 
+        presenter = new DetailsActivityPresenter(this);
+
         adapter = new DetailsAdapter();
         recyclerView.setAdapter(adapter);
+
+        presenter.fetchData();
     }
 
     @Override

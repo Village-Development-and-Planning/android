@@ -14,7 +14,7 @@
         "_id": "59a4237803ff69231c0ba5b3",
         "modifiedAt": "2017-08-28T14:06:48.710Z"
       },
-      "type": "DUMMY",
+      "type": "DETAILS_DYNAMIC_OPTIONS",
       "__v": 0,
       "children": [
         {

@@ -10,6 +10,7 @@ import com.puthuvaazhvu.mapping.Modals.Survey;
 import com.puthuvaazhvu.mapping.Parsers.SurveyParser;
 import com.puthuvaazhvu.mapping.Question.QUESTION_TYPE;
 import com.puthuvaazhvu.mapping.Question.QuestionModal;
+import com.puthuvaazhvu.mapping.utils.DeepCopy.DeepCopy;
 import com.puthuvaazhvu.mapping.utils.ModalAdapters;
 import com.puthuvaazhvu.mapping.utils.ObjectToFromDisk.ObjectToFromDiskAsync;
 import com.puthuvaazhvu.mapping.utils.ObjectToFromDisk.SaveToDiskAsync;
@@ -17,6 +18,7 @@ import com.puthuvaazhvu.mapping.utils.ObjectToFromDisk.SaveToDiskAsync;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -41,8 +43,8 @@ public class SurveyActivityPresenter {
             public void onParsed(Survey survey) {
                 if (communicationInterface != null) {
                     if (survey != null) {
-                        communicationInterface.parsedSurveyData(survey);
                         SurveyActivityPresenter.this.survey = survey;
+                        communicationInterface.parsedSurveyData(survey);
                     } else {
                         communicationInterface.onError(Constants.ErrorCodes.NULL_DATA);
                     }
@@ -79,6 +81,10 @@ public class SurveyActivityPresenter {
                         completedSavingQuestionIds.add(questionID);
                         boolean isCompleted = false;
                         for (Question q : survey.getQuestionList()) {
+                            QuestionModal questionModal = ModalAdapters.getAsQuestionModal(q, Constants.isTamil);
+                            if (questionModal.getQuestionType() == QUESTION_TYPE.DETAILS) {
+                                continue;
+                            }
                             isCompleted = completedSavingQuestionIds.contains(q.getId());
                             if (!isCompleted) {
                                 break;
