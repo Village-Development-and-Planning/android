@@ -74,7 +74,6 @@ public class QuestionTreeFragment extends Fragment implements QuestionFragmentCo
         fragmentTransaction.commitAllowingStateLoss();
     }
 
-    // TODO: Options skip.
     @Override
     public void moveToNextQuestion(QuestionModal currentQuestion, ArrayList<OptionData> optionDataList) {
         QuestionModal nextQuestion = getNextQuestion();
@@ -100,7 +99,13 @@ public class QuestionTreeFragment extends Fragment implements QuestionFragmentCo
             currentChildIndex = 0;
         }
 
-        return questionModalArrayList.get(currentChildIndex);
+        QuestionModal questionModal = questionModalArrayList.get(currentChildIndex);
+        if (questionModal.getQuestionType() == QUESTION_TYPE.NONE) {
+            questionModal = getPreviousQuestion();
+        } else if (!DataHelper.shouldShowQuestion(root, questionModal.getInfo())) {
+            questionModal = getPreviousQuestion();
+        }
+        return questionModal;
     }
 
     private QuestionModal getNextQuestion() {
@@ -112,12 +117,9 @@ public class QuestionTreeFragment extends Fragment implements QuestionFragmentCo
         } else {
             questionModal = questionModalArrayList.get(currentChildIndex);
             if (questionModal.getQuestionType() == QUESTION_TYPE.NONE) {
-                currentChildIndex += 1;
-                if (currentChildIndex >= questionModalArrayList.size()) {
-                    questionModal = null;
-                } else {
-                    questionModal = questionModalArrayList.get(currentChildIndex);
-                }
+                questionModal = getNextQuestion();
+            } else if (!DataHelper.shouldShowQuestion(root, questionModal.getInfo())) {
+                questionModal = getNextQuestion();
             }
         }
         return questionModal;

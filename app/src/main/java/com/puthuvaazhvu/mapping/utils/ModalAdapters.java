@@ -24,7 +24,8 @@ public class ModalAdapters {
                 , childrenConverted
                 , question.getTags()
                 , true
-                , true); // TODO: look at this. NEXT/BACK button should not be always visible.
+                , true
+                , question.getInfo() != null ? QuestionModal.Info.adapter(question.getInfo()) : null); // TODO: look at this. NEXT/BACK button should not be always visible.
     }
 
     public static ArrayList<OptionData> getAsOptionDataList(ArrayList<Option> options, boolean isTamil) {
@@ -54,6 +55,8 @@ public class ModalAdapters {
             return QUESTION_TYPE.SINGLE;
         } else if (type.equals("DETAILS_DYNAMIC_OPTIONS")) {
             return QUESTION_TYPE.DETAILS;
+        } else if (type.equals("INPUT_BUTTON")) {
+            return QUESTION_TYPE.INPUT_BUTTON;
         }
         return QUESTION_TYPE.NONE;
     }

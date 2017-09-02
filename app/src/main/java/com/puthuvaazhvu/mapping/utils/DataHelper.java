@@ -17,6 +17,34 @@ import java.util.ArrayList;
  */
 
 public class DataHelper {
+    public static boolean shouldShowQuestion(QuestionModal root, QuestionModal.Info info) {
+        if (info == null) {
+            return true;
+        }
+
+        if (root.getRawNumber().equals(info.getQuestionNumberRaw())) {
+            return isOptionChecked(root, info.getOption());
+        }
+
+        for (QuestionModal questionModal : root.getChildren()) {
+            if (questionModal.getRawNumber().equals(info.getQuestionNumberRaw())) {
+                return isOptionChecked(questionModal, info.getOption());
+            } else {
+                return shouldShowQuestion(questionModal, info);
+            }
+        }
+        return true;
+    }
+
+    public static boolean isOptionChecked(QuestionModal questionModal, String option) {
+        ArrayList<OptionData> optionDataArrayList = questionModal.getOptionDataList();
+        for (int i = 0; i < optionDataArrayList.size(); i++) {
+            if (optionDataArrayList.get(i).getText().toLowerCase().equals(option.toLowerCase())) {
+                return optionDataArrayList.get(i).isChecked();
+            }
+        }
+        return false;
+    }
 
     public static ArrayList<QuestionModal> convertTreeToList(QuestionModal questionModal) {
         ArrayList<QuestionModal> result = new ArrayList<>();

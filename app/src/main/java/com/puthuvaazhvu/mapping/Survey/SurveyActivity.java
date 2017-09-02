@@ -48,7 +48,7 @@ public class SurveyActivity extends AppCompatActivity implements SurveyActivityC
         basePath = getFilesDir().getAbsolutePath();
 
         if (DEBUG) {
-            surveyJSON = DataHelper.readFromAssetsFile(this, "test_data/survey_test_options.json");
+            surveyJSON = DataHelper.readFromAssetsFile(this, "test_data/survey_test_options2.json");
         } else {
             surveyJSON = getIntent().getExtras().getString(Constants.IntentKeys.SurveyActivity_survey_data_string);
         }

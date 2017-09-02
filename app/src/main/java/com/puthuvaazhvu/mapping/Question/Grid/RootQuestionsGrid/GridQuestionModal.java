@@ -16,8 +16,27 @@ import java.util.ArrayList;
 public class GridQuestionModal extends QuestionModal implements Parcelable {
     boolean isQuestionAnswered;
 
-    public GridQuestionModal(String questionID, String rawNumber, String text, ArrayList<OptionData> optionDataList, ArrayList<String> tags, QUESTION_TYPE optionType, ArrayList<QuestionModal> children, boolean isNextPresent, boolean isPreviousPresent, boolean isQuestionAnswered) {
-        super(questionID, rawNumber, text, optionDataList, optionType, children, tags, isNextPresent, isPreviousPresent);
+    private GridQuestionModal(String questionID
+            , String rawNumber
+            , String text
+            , ArrayList<OptionData> optionDataList
+            , ArrayList<String> tags
+            , QUESTION_TYPE optionType
+            , ArrayList<QuestionModal> children
+            , boolean isNextPresent
+            , boolean isPreviousPresent
+            , boolean isQuestionAnswered
+            , Info info) {
+        super(questionID
+                , rawNumber
+                , text
+                , optionDataList
+                , optionType
+                , children
+                , tags
+                , isNextPresent
+                , isPreviousPresent
+                , info);
         this.isQuestionAnswered = isQuestionAnswered;
     }
 
@@ -53,6 +72,16 @@ public class GridQuestionModal extends QuestionModal implements Parcelable {
     };
 
     public static GridQuestionModal questionModalAdapter(QuestionModal questionModal) {
-        return new GridQuestionModal(questionModal.getQuestionID(), questionModal.getRawNumber(), questionModal.getText(), questionModal.getOptionDataList(), questionModal.getTags(), questionModal.getQuestionType(), questionModal.getChildren(), questionModal.isNextPresent(), questionModal.isPreviousPresent(), false);
+        return new GridQuestionModal(questionModal.getQuestionID()
+                , questionModal.getRawNumber()
+                , questionModal.getText()
+                , questionModal.getOptionDataList()
+                , questionModal.getTags()
+                , questionModal.getQuestionType()
+                , questionModal.getChildren()
+                , questionModal.isNextPresent()
+                , questionModal.isPreviousPresent()
+                , false
+                , questionModal.getInfo());
     }
 }

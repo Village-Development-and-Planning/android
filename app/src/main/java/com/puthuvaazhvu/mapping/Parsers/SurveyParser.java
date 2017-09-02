@@ -53,6 +53,7 @@ public class SurveyParser {
         String type = JsonHelper.getString(json, "type");
         String modifiedAt = JsonHelper.getString(json, "modifiedAt");
         String rawNumber = JsonHelper.getString(json, "number");
+        Question.Info info = parseQuestionInfo(json);
 
         JsonObject textJson = JsonHelper.getJsonObject(json, "text");
 
@@ -85,7 +86,7 @@ public class SurveyParser {
             }
         }
 
-        return new Question(id, position, rawNumber, text, type, optionList, tags, modifiedAt, children);
+        return new Question(id, position, rawNumber, text, type, optionList, tags, modifiedAt, children, info);
     }
 
     public Option parseOption(JsonObject json) {
@@ -125,5 +126,17 @@ public class SurveyParser {
         String tamil = JsonHelper.getString(json, "tamil");
         String id = JsonHelper.getString(json, "_id");
         return new Text(id, english, tamil);
+    }
+
+    public Question.Info parseQuestionInfo(JsonObject jsonObject) {
+        Question.Info info = null;
+        JsonObject infoJson = JsonHelper.getJsonObject(jsonObject, "info");
+        if (infoJson != null) {
+            String questionNumber = JsonHelper.getString(infoJson, "question");
+            String option = JsonHelper.getString(infoJson, "option");
+            if (!questionNumber.isEmpty() && !option.isEmpty())
+                info = new Question.Info(questionNumber, option);
+        }
+        return info;
     }
 }

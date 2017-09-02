@@ -20,8 +20,18 @@ public class Question implements Parcelable {
     String modifiedAt;
     String rawNumber;
     ArrayList<Question> children;
+    Info info;
 
-    public Question(String id, String position, String rawNumber, Text text, String type, ArrayList<Option> optionList, ArrayList<String> tags, String modifiedAt, ArrayList<Question> children) {
+    public Question(String id
+            , String position
+            , String rawNumber
+            , Text text
+            , String type
+            , ArrayList<Option> optionList
+            , ArrayList<String> tags
+            , String modifiedAt
+            , ArrayList<Question> children
+            , Info info) {
         this.id = id;
         this.position = position;
         this.text = text;
@@ -31,6 +41,7 @@ public class Question implements Parcelable {
         this.modifiedAt = modifiedAt;
         this.children = children;
         this.rawNumber = rawNumber;
+        this.info = info;
     }
 
     protected Question(Parcel in) {
@@ -41,8 +52,28 @@ public class Question implements Parcelable {
         optionList = in.createTypedArrayList(Option.CREATOR);
         tags = in.createStringArrayList();
         modifiedAt = in.readString();
-        children = in.createTypedArrayList(Question.CREATOR);
         rawNumber = in.readString();
+        children = in.createTypedArrayList(Question.CREATOR);
+        info = in.readParcelable(Info.class.getClassLoader());
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(position);
+        dest.writeParcelable(text, flags);
+        dest.writeString(type);
+        dest.writeTypedList(optionList);
+        dest.writeStringList(tags);
+        dest.writeString(modifiedAt);
+        dest.writeString(rawNumber);
+        dest.writeTypedList(children);
+        dest.writeParcelable(info, flags);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     public static final Creator<Question> CREATOR = new Creator<Question>() {
@@ -93,21 +124,53 @@ public class Question implements Parcelable {
         return children;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
+    public Info getInfo() {
+        return info;
     }
 
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(id);
-        parcel.writeString(position);
-        parcel.writeParcelable(text, i);
-        parcel.writeString(type);
-        parcel.writeTypedList(optionList);
-        parcel.writeStringList(tags);
-        parcel.writeString(modifiedAt);
-        parcel.writeTypedList(children);
-        parcel.writeString(rawNumber);
+    public static class Info implements Parcelable {
+        String questionNumberRaw;
+        String option;
+
+        public Info(String questionNumberRaw, String option) {
+            this.questionNumberRaw = questionNumberRaw;
+            this.option = option;
+        }
+
+        protected Info(Parcel in) {
+            questionNumberRaw = in.readString();
+            option = in.readString();
+        }
+
+        public String getQuestionNumberRaw() {
+            return questionNumberRaw;
+        }
+
+        public String getOption() {
+            return option;
+        }
+
+        public static final Creator<Info> CREATOR = new Creator<Info>() {
+            @Override
+            public Info createFromParcel(Parcel in) {
+                return new Info(in);
+            }
+
+            @Override
+            public Info[] newArray(int size) {
+                return new Info[size];
+            }
+        };
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel parcel, int i) {
+            parcel.writeString(questionNumberRaw);
+            parcel.writeString(option);
+        }
     }
 }

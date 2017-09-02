@@ -3,6 +3,7 @@ package com.puthuvaazhvu.mapping.Question;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.puthuvaazhvu.mapping.Modals.Question;
 import com.puthuvaazhvu.mapping.Options.Modal.OptionData;
 
 import java.io.Serializable;
@@ -22,8 +23,18 @@ public class QuestionModal implements Parcelable, Serializable {
     QUESTION_TYPE questionType;
     boolean isNextPresent;
     boolean isPreviousPresent;
+    Info info;
 
-    public QuestionModal(String questionID, String rawNumber, String text, ArrayList<OptionData> optionDataList, QUESTION_TYPE questionType, ArrayList<QuestionModal> children, ArrayList<String> tags, boolean isNextPresent, boolean isPreviousPresent) {
+    public QuestionModal(String questionID
+            , String rawNumber
+            , String text
+            , ArrayList<OptionData> optionDataList
+            , QUESTION_TYPE questionType
+            , ArrayList<QuestionModal> children
+            , ArrayList<String> tags
+            , boolean isNextPresent
+            , boolean isPreviousPresent
+            , Info info) {
         this.questionID = questionID;
         this.text = text;
         this.optionDataList = optionDataList;
@@ -33,31 +44,32 @@ public class QuestionModal implements Parcelable, Serializable {
         this.children = children;
         this.tags = tags;
         this.rawNumber = rawNumber;
+        this.info = info;
     }
 
     protected QuestionModal(Parcel in) {
         questionID = in.readString();
         text = in.readString();
+        rawNumber = in.readString();
+        tags = in.createStringArrayList();
         optionDataList = in.createTypedArrayList(OptionData.CREATOR);
+        children = in.createTypedArrayList(QuestionModal.CREATOR);
         isNextPresent = in.readByte() != 0;
         isPreviousPresent = in.readByte() != 0;
-        questionType = QUESTION_TYPE.valueOf(in.readString());
-        children = in.createTypedArrayList(QuestionModal.CREATOR);
-        tags = in.createStringArrayList();
-        rawNumber = in.readString();
+        info = in.readParcelable(Info.class.getClassLoader());
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(questionID);
         dest.writeString(text);
+        dest.writeString(rawNumber);
+        dest.writeStringList(tags);
         dest.writeTypedList(optionDataList);
+        dest.writeTypedList(children);
         dest.writeByte((byte) (isNextPresent ? 1 : 0));
         dest.writeByte((byte) (isPreviousPresent ? 1 : 0));
-        dest.writeString(questionType.name());
-        dest.writeTypedList(children);
-        dest.writeStringList(tags);
-        dest.writeString(rawNumber);
+        dest.writeParcelable(info, flags);
     }
 
     @Override
@@ -65,7 +77,7 @@ public class QuestionModal implements Parcelable, Serializable {
         return 0;
     }
 
-    public static final Parcelable.Creator<QuestionModal> CREATOR = new Parcelable.Creator<QuestionModal>() {
+    public static final Creator<QuestionModal> CREATOR = new Creator<QuestionModal>() {
         @Override
         public QuestionModal createFromParcel(Parcel in) {
             return new QuestionModal(in);
@@ -76,6 +88,10 @@ public class QuestionModal implements Parcelable, Serializable {
             return new QuestionModal[size];
         }
     };
+
+    public Info getInfo() {
+        return info;
+    }
 
     public String getRawNumber() {
         return rawNumber;
@@ -137,6 +153,56 @@ public class QuestionModal implements Parcelable, Serializable {
     @Override
     public int hashCode() {
         return questionID != null ? questionID.hashCode() : 0;
+    }
+
+    public static class Info implements Parcelable, Serializable {
+        String questionNumberRaw;
+        String option;
+
+        public Info(String questionNumberRaw, String option) {
+            this.questionNumberRaw = questionNumberRaw;
+            this.option = option;
+        }
+
+        public String getQuestionNumberRaw() {
+            return questionNumberRaw;
+        }
+
+        public String getOption() {
+            return option;
+        }
+
+        protected Info(Parcel in) {
+            questionNumberRaw = in.readString();
+            option = in.readString();
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeString(questionNumberRaw);
+            dest.writeString(option);
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        public static final Creator<Info> CREATOR = new Creator<Info>() {
+            @Override
+            public Info createFromParcel(Parcel in) {
+                return new Info(in);
+            }
+
+            @Override
+            public Info[] newArray(int size) {
+                return new Info[size];
+            }
+        };
+
+        public static Info adapter(Question.Info info) {
+            return new Info(info.getQuestionNumberRaw(), info.getOption());
+        }
     }
 
 }
