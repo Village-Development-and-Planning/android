@@ -1,39 +1,51 @@
 package com.puthuvaazhvu.mapping.Survey;
 
+import android.content.Context;
 import android.os.AsyncTask;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.puthuvaazhvu.mapping.Constants;
 import com.puthuvaazhvu.mapping.Modals.Question;
 import com.puthuvaazhvu.mapping.Modals.Survey;
+import com.puthuvaazhvu.mapping.Options.Modal.OptionData;
 import com.puthuvaazhvu.mapping.Parsers.SurveyParser;
 import com.puthuvaazhvu.mapping.Question.QUESTION_TYPE;
 import com.puthuvaazhvu.mapping.Question.QuestionModal;
-import com.puthuvaazhvu.mapping.utils.DeepCopy.DeepCopy;
+import com.puthuvaazhvu.mapping.utils.DataHelper;
+import com.puthuvaazhvu.mapping.utils.FileIO.SaveOperationCallback;
+import com.puthuvaazhvu.mapping.utils.FileIO.SaveSurveyToFile;
 import com.puthuvaazhvu.mapping.utils.ModalAdapters;
-import com.puthuvaazhvu.mapping.utils.ObjectToFromDisk.ObjectToFromDiskAsync;
-import com.puthuvaazhvu.mapping.utils.ObjectToFromDisk.SaveToDiskAsync;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+
+import static com.puthuvaazhvu.mapping.Constants.ErrorCodes.PARSING_ERROR;
+import static com.puthuvaazhvu.mapping.Constants.ErrorCodes.SAVING_ERROR;
 
 /**
  * Created by muthuveerappans on 8/24/17.
  */
 
 public class SurveyActivityPresenter {
-    SurveyActivityCommunicationInterface communicationInterface;
-    Parser parser;
-    Survey survey;
-    Set<String> completedSurveyQuestionIds = new HashSet<>();
-    Set<String> completedSavingQuestionIds = new HashSet<>();
+    private SurveyActivityCommunicationInterface communicationInterface;
+    private Parser parser;
+    private ResponsesToJson responsesToJson;
+    private Survey survey;
+    private HashMap<String, Object> completedSurveyQuestions = new HashMap<>();
+    private Context context;
 
     public SurveyActivityPresenter(SurveyActivityCommunicationInterface communicationInterface) {
         this.communicationInterface = communicationInterface;
+        this.context = (Context) communicationInterface;
+    }
+
+    public File getSaveJsonFile(String dirName, String fileName) {
+        File dir = context.getDir(dirName, Context.MODE_PRIVATE);
+        File file = new File(dir, fileName);
+        return file;
     }
 
     public void parseSurveyJson(String json) {
@@ -66,48 +78,63 @@ public class SurveyActivityPresenter {
                             + questionModal.getQuestionType().name() + " is not handled in UI");
             }
         } else {
-            communicationInterface.onSurveyDone();
+            // all questions completed
+            saveResponses();
         }
     }
 
-    public void saveObjectToDisk(final HashMap<String, HashMap<String, QuestionModal>> result, String basePath) {
-        ObjectToFromDiskAsync.getInstance().saveObjectToDisk(result
-                , survey.getId()
-                , basePath
-                , new SaveToDiskAsync.SaveToDiskCallback() {
-                    @Override
-                    public void onDone() {
-                        String questionID = result.keySet().iterator().next();
-                        completedSavingQuestionIds.add(questionID);
-                        boolean isCompleted = false;
-                        for (Question q : survey.getQuestionList()) {
-                            QuestionModal questionModal = ModalAdapters.getAsQuestionModal(q, Constants.isTamil);
-                            if (questionModal.getQuestionType() == QUESTION_TYPE.DETAILS) {
-                                continue;
-                            }
-                            isCompleted = completedSavingQuestionIds.contains(q.getId());
-                            if (!isCompleted) {
-                                break;
-                            }
-                        }
+    private void saveResponses() {
+        if (responsesToJson != null) {
+            responsesToJson.cancel(true);
+        }
 
-                        if (isCompleted) {
-                            if (communicationInterface != null) {
-                                communicationInterface.onAllQuestionsSaved();
-                            }
-                        }
-                    }
-                });
+        if (survey == null) {
+            throw new RuntimeException("The survey object is null.");
+        }
+
+        responsesToJson = new ResponsesToJson(survey.getId()
+                , survey.getName()
+                , completedSurveyQuestions
+                , new ResponsesToJson.ResponseToJsonCallbacks() {
+            @Override
+            public void onResponsesConvertedToJson(String error, JsonObject result) {
+                if (result != null) {
+                    // TODO: surveyor id.
+                    String resultantFileName = DataHelper.getSurveyResponsesFileName(survey.getId(), null, null);
+                    File file = getSaveJsonFile(Constants.DataStorage.APP_DIR_SURVEY, resultantFileName);
+                    saveJsonToFile(result, file);
+                } else {
+                    communicationInterface.onError(PARSING_ERROR);
+                }
+            }
+        });
+        responsesToJson.execute();
+    }
+
+    public void saveJsonToFile(JsonObject result, File file) {
+        SaveSurveyToFile saveSurveyToFile = new SaveSurveyToFile(result, file, new SaveOperationCallback() {
+            @Override
+            public void done() {
+                // clear the survey once all the answers are saved.
+                completedSurveyQuestions.clear();
+                communicationInterface.onSurveyDone();
+            }
+
+            @Override
+            public void error(String message) {
+                communicationInterface.onError(SAVING_ERROR);
+            }
+        });
+        saveSurveyToFile.save();
     }
 
     public void logAnsweredQuestions(HashMap<String, HashMap<String, QuestionModal>> result) {
-        for (String id : result.keySet()) {
-            logAnsweredQuestions(id);
-        }
+        HashMap.Entry<String, HashMap<String, QuestionModal>> entry = result.entrySet().iterator().next();
+        completedSurveyQuestions.put(entry.getKey(), entry.getValue());
     }
 
-    private void logAnsweredQuestions(String questionID) {
-        completedSurveyQuestionIds.add(questionID);
+    public void logAnsweredQuestions(String questionID, QuestionModal questionModal) {
+        completedSurveyQuestions.put(questionID, questionModal);
     }
 
     public void cancelParsingAsyncTask() {
@@ -139,7 +166,7 @@ public class SurveyActivityPresenter {
     }
 
     private boolean checkIfSurveyQuestionIsDone(Question question) {
-        return completedSurveyQuestionIds.contains(question.getId());
+        return completedSurveyQuestions.containsKey(question.getId());
     }
 
     private static class Parser extends AsyncTask<String, Void, Survey> {
@@ -172,6 +199,95 @@ public class SurveyActivityPresenter {
         @Override
         protected void onPostExecute(Survey survey) {
             parserCallbacks.onParsed(survey);
+        }
+    }
+
+    /**
+     * Helper to convert the survey responses into a single json asynchronously.
+     */
+    private static class ResponsesToJson extends AsyncTask<Void, Void, JsonObject> {
+        HashMap<String, Object> completedSurveyQuestions;
+
+        interface ResponseToJsonCallbacks {
+            void onResponsesConvertedToJson(String error, JsonObject result);
+        }
+
+        ResponseToJsonCallbacks callbacks;
+        String surveyName,
+                surveyID;
+
+        public ResponsesToJson(String surveyID,
+                               String surveyName,
+                               HashMap<String, Object> completedSurveyQuestions,
+                               ResponseToJsonCallbacks callbacks) {
+            this.completedSurveyQuestions = completedSurveyQuestions;
+            this.callbacks = callbacks;
+            this.surveyID = surveyID;
+            this.surveyName = surveyName;
+        }
+
+        @Override
+        protected JsonObject doInBackground(Void... voids) {
+            JsonObject result = new JsonObject();
+            result.addProperty("survey_id", surveyID);
+            result.addProperty("survey_name", surveyName);
+
+            JsonArray answersJsonArray = new JsonArray();
+            result.add("answers", answersJsonArray);
+            for (String key : completedSurveyQuestions.keySet()) {
+                JsonObject r = new JsonObject();
+                r.addProperty("question_id", key);
+                Object response = completedSurveyQuestions.get(key);
+                if (response instanceof HashMap) {
+                    JsonArray aja = new JsonArray();
+                    // This is of the form <option_id, question_modal>
+                    HashMap<String, QuestionModal> rhm = (HashMap<String, QuestionModal>) response;
+                    for (String optionKey : rhm.keySet()) {
+                        QuestionModal qm = rhm.get(optionKey);
+                        JsonObject qmJo = toJson(qm);
+                        JsonObject qmJoo = new JsonObject();
+                        qmJoo.addProperty("option_id", optionKey);
+                        qmJoo.add("response", qmJo);
+                        aja.add(qmJoo);
+                    }
+                    r.add("option_data", aja);
+                }
+                // do for other response types.
+
+                answersJsonArray.add(r);
+            }
+            return result;
+        }
+
+        private JsonObject toJson(QuestionModal questionModal) {
+            JsonObject result = new JsonObject();
+            JsonArray cja = new JsonArray();
+            JsonArray oja = new JsonArray();
+            for (OptionData od : questionModal.getOptionDataList()) {
+                JsonObject oj = new JsonObject();
+                oj.addProperty("option_id", od.getId());
+                JsonObject odj = new JsonObject();
+                odj.addProperty("is_selected", od.isChecked());
+                oj.add("response", odj);
+                oja.add(oj);
+            }
+            result.addProperty("question_id", questionModal.getQuestionID());
+            result.add("option_data", oja);
+            result.add("children", cja);
+
+            for (QuestionModal qm : questionModal.getChildren()) {
+                cja.add(toJson(qm));
+            }
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(JsonObject jsonObject) {
+            if (jsonObject != null) {
+                callbacks.onResponsesConvertedToJson(null, jsonObject);
+            } else {
+                callbacks.onResponsesConvertedToJson("Error converting the responses to JSON", null);
+            }
         }
     }
 }

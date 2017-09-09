@@ -107,4 +107,18 @@ public class DataHelper {
         }
         return json;
     }
+
+    public static String getSurveyResponsesFileName(String surveyID, String surveyorID, String surveyeeID) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(surveyID);
+        if (surveyorID != null && !surveyorID.isEmpty()) {
+            stringBuilder.append(",");
+            stringBuilder.append(surveyorID);
+        }
+        if (surveyeeID != null && !surveyeeID.isEmpty()) {
+            stringBuilder.append(",");
+            stringBuilder.append(surveyeeID);
+        }
+        return stringBuilder.toString();
+    }
 }

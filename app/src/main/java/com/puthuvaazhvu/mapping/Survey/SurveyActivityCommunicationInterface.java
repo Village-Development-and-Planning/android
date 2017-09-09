@@ -17,7 +17,5 @@ public interface SurveyActivityCommunicationInterface {
 
     public void onSurveyDone();
 
-    public void onAllQuestionsSaved();
-
     public void onError(int code);
 }

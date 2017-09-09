@@ -84,13 +84,6 @@ public class SurveyActivity extends AppCompatActivity implements SurveyActivityC
             Toast.makeText(SurveyActivity.this, "Survey is done.", Toast.LENGTH_SHORT).show();
     }
 
-    @Override
-    public void onAllQuestionsSaved() {
-        if (DEBUG)
-            Toast.makeText(SurveyActivity.this, "Survey answers have been saved successfully."
-                    , Toast.LENGTH_SHORT).show();
-    }
-
     private void loadQuestionTreeFragment(QuestionModal questionModal) {
         if (questionModal == null) {
             throw new RuntimeException("The question data is null");
@@ -129,11 +122,11 @@ public class SurveyActivity extends AppCompatActivity implements SurveyActivityC
         }
     };
 
-    private QuestionTreeRootLoopFragmentCommunicationInterface questionTreeRootLoopFragmentCommunicationInterface = new QuestionTreeRootLoopFragmentCommunicationInterface() {
+    private QuestionTreeRootLoopFragmentCommunicationInterface questionTreeRootLoopFragmentCommunicationInterface =
+            new QuestionTreeRootLoopFragmentCommunicationInterface() {
         @Override
         public void onLoopFinished(HashMap<String, HashMap<String, QuestionModal>> result) {
             surveyActivityPresenter.logAnsweredQuestions(result);
-            surveyActivityPresenter.saveObjectToDisk(result, basePath);
             surveyActivityPresenter.getNextQuestionAndDirectToFragments();
         }
     };
