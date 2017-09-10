@@ -2,6 +2,7 @@ package com.puthuvaazhvu.mapping.Survey;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Environment;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -17,11 +18,13 @@ import com.puthuvaazhvu.mapping.utils.DataHelper;
 import com.puthuvaazhvu.mapping.utils.FileIO.SaveOperationCallback;
 import com.puthuvaazhvu.mapping.utils.FileIO.SaveSurveyToFile;
 import com.puthuvaazhvu.mapping.utils.ModalAdapters;
+import com.puthuvaazhvu.mapping.utils.StorageHelpers;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static com.puthuvaazhvu.mapping.Constants.ErrorCodes.FILE_STORAGE_NULL;
 import static com.puthuvaazhvu.mapping.Constants.ErrorCodes.PARSING_ERROR;
 import static com.puthuvaazhvu.mapping.Constants.ErrorCodes.SAVING_ERROR;
 
@@ -35,17 +38,23 @@ public class SurveyActivityPresenter {
     private ResponsesToJson responsesToJson;
     private Survey survey;
     private HashMap<String, Object> completedSurveyQuestions = new HashMap<>();
-    private Context context;
 
     public SurveyActivityPresenter(SurveyActivityCommunicationInterface communicationInterface) {
         this.communicationInterface = communicationInterface;
-        this.context = (Context) communicationInterface;
     }
 
     public File getSaveJsonFile(String dirName, String fileName) {
-        File dir = context.getDir(dirName, Context.MODE_PRIVATE);
-        File file = new File(dir, fileName);
-        return file;
+        if (StorageHelpers.isExternalStorageWritable()) {
+            String root = Environment.getExternalStorageDirectory().toString();
+            File dir = new File(root + "/" + dirName);
+            boolean dirExists = dir.exists();
+            if (!dirExists)
+                dirExists = dir.mkdirs();
+            if (dirExists) {
+                return new File(dir, fileName);
+            }
+        }
+        return null;
     }
 
     public void parseSurveyJson(String json) {
@@ -100,9 +109,13 @@ public class SurveyActivityPresenter {
             public void onResponsesConvertedToJson(String error, JsonObject result) {
                 if (result != null) {
                     // TODO: surveyor id.
-                    String resultantFileName = DataHelper.getSurveyResponsesFileName(survey.getId(), null, null);
+                    String resultantFileName = StorageHelpers.getSurveyResponsesFileName(survey.getId(), null, null);
                     File file = getSaveJsonFile(Constants.DataStorage.APP_DIR_SURVEY, resultantFileName);
-                    saveJsonToFile(result, file);
+                    if (file == null) {
+                        communicationInterface.onError(FILE_STORAGE_NULL);
+                    } else {
+                        saveJsonToFile(result, file);
+                    }
                 } else {
                     communicationInterface.onError(PARSING_ERROR);
                 }

@@ -103,7 +103,8 @@ public class QuestionTreeRootAsGridFragment extends Fragment
 
         questionModalList = root.getChildren();
 
-        if (presenter.checkIfAllQuestionsAreCompleted(questionModalList)) {
+        // TODO: Remove the DEBUG Flag.
+        if (presenter.checkIfAllQuestionsAreCompleted(questionModalList) || DEBUG) {
             presenter.clearMap();
             communicationInterface.onAllQuestionAnswered(root);
         } else {

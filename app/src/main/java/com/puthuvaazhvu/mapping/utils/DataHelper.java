@@ -1,6 +1,7 @@
 package com.puthuvaazhvu.mapping.utils;
 
 import android.content.Context;
+import android.os.Environment;
 import android.util.Log;
 
 import com.puthuvaazhvu.mapping.Constants;
@@ -106,19 +107,5 @@ public class DataHelper {
             Log.i(Constants.LOG_TAG, "Error reading the JSON file from assets. " + ex.getMessage());
         }
         return json;
-    }
-
-    public static String getSurveyResponsesFileName(String surveyID, String surveyorID, String surveyeeID) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(surveyID);
-        if (surveyorID != null && !surveyorID.isEmpty()) {
-            stringBuilder.append(",");
-            stringBuilder.append(surveyorID);
-        }
-        if (surveyeeID != null && !surveyeeID.isEmpty()) {
-            stringBuilder.append(",");
-            stringBuilder.append(surveyeeID);
-        }
-        return stringBuilder.toString();
     }
 }

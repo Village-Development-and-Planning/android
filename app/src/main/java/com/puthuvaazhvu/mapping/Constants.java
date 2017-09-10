@@ -22,6 +22,7 @@ public class Constants {
         public static int NULL_DATA = -1;
         public static int PARSING_ERROR = -2;
         public static int SAVING_ERROR = -3;
+        public static int FILE_STORAGE_NULL = -4;
     }
 
     public static class ErrorMessages {

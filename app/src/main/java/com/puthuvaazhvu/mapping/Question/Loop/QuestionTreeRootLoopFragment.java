@@ -91,7 +91,7 @@ public class QuestionTreeRootLoopFragment extends Fragment
         currentOptionID = optionDataList.get(0).getId();
 
         presenter.insertOptionDataToMap(optionDataList);
-        loadRootQuestionGrid(questionModal);
+        loadRootQuestionGrid(questionModalCopy);
     }
 
     @Override
@@ -109,8 +109,8 @@ public class QuestionTreeRootLoopFragment extends Fragment
 
         presenter.alterOptionsToDone(questionModal);
 
-        if (presenter.checkIfAllOptionsHaveBoonAnswered(questionModal.getOptionDataList())) {
-            communicationInterface.onLoopFinished(presenter.getOutputMap(questionModal.getQuestionID()));
+        if (presenter.checkIfAllOptionsHaveBoonAnswered(questionModalCopy.getOptionDataList())) {
+            communicationInterface.onLoopFinished(presenter.getOutputMap(questionModalCopy.getQuestionID()));
         } else {
             questionModalCopy = null;
             questionModalCopy = (QuestionModal) DeepCopy.copy(questionModal);

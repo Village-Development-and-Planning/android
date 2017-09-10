@@ -1,5 +1,7 @@
 package com.puthuvaazhvu.mapping.Survey;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -22,6 +24,7 @@ import com.puthuvaazhvu.mapping.Question.SingleQuestion.QuestionFragmentCommunic
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.Test.SurveyTestFragment;
 import com.puthuvaazhvu.mapping.utils.DataHelper;
+import com.puthuvaazhvu.mapping.utils.StorageHelpers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,6 +48,11 @@ public class SurveyActivity extends AppCompatActivity implements SurveyActivityC
 
         setContentView(R.layout.survey_activity);
 
+        String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE
+                , Manifest.permission.READ_EXTERNAL_STORAGE};
+
+        StorageHelpers.isPermissionGranted(this, permissions);
+
         basePath = getFilesDir().getAbsolutePath();
 
         if (DEBUG) {
@@ -55,6 +63,15 @@ public class SurveyActivity extends AppCompatActivity implements SurveyActivityC
 
         surveyActivityPresenter = new SurveyActivityPresenter(this);
         surveyActivityPresenter.parseSurveyJson(surveyJSON);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, "Data will not be saved unless the storage permission is granted."
+                    , Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -124,12 +141,12 @@ public class SurveyActivity extends AppCompatActivity implements SurveyActivityC
 
     private QuestionTreeRootLoopFragmentCommunicationInterface questionTreeRootLoopFragmentCommunicationInterface =
             new QuestionTreeRootLoopFragmentCommunicationInterface() {
-        @Override
-        public void onLoopFinished(HashMap<String, HashMap<String, QuestionModal>> result) {
-            surveyActivityPresenter.logAnsweredQuestions(result);
-            surveyActivityPresenter.getNextQuestionAndDirectToFragments();
-        }
-    };
+                @Override
+                public void onLoopFinished(HashMap<String, HashMap<String, QuestionModal>> result) {
+                    surveyActivityPresenter.logAnsweredQuestions(result);
+                    surveyActivityPresenter.getNextQuestionAndDirectToFragments();
+                }
+            };
 
     @Override
     public void onError(int code) {

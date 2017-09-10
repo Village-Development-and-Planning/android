@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 
 /**
  * Created by muthuveerappans on 9/9/17.
@@ -59,11 +60,9 @@ public class SaveSurveyToFile implements SaveOperation {
             Exception error = null;
             try {
                 JsonObject jsonObject = jsonObjects[0];
-                FileOutputStream fos = new FileOutputStream(file);
-                ObjectOutputStream os = new ObjectOutputStream(fos);
-                os.writeObject(jsonObject);
-                os.close();
-                fos.close();
+                String jsonString = jsonObject.toString();
+                PrintWriter printWriter = new PrintWriter(file);
+                printWriter.println(jsonString);
             } catch (IOException e) {
                 error = e;
             }
