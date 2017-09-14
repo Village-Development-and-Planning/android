@@ -15,6 +15,7 @@ import java.util.ArrayList;
 
 public class GridQuestionModal extends QuestionModal implements Parcelable {
     boolean isQuestionAnswered;
+    int questionCount;
 
     private GridQuestionModal(String questionID
             , String rawNumber
@@ -26,6 +27,7 @@ public class GridQuestionModal extends QuestionModal implements Parcelable {
             , boolean isNextPresent
             , boolean isPreviousPresent
             , boolean isQuestionAnswered
+            , int count
             , Info info) {
         super(questionID
                 , rawNumber
@@ -38,6 +40,7 @@ public class GridQuestionModal extends QuestionModal implements Parcelable {
                 , isPreviousPresent
                 , info);
         this.isQuestionAnswered = isQuestionAnswered;
+        this.questionCount = count;
     }
 
     public GridQuestionModal(Parcel in) {
@@ -71,7 +74,7 @@ public class GridQuestionModal extends QuestionModal implements Parcelable {
         }
     };
 
-    public static GridQuestionModal questionModalAdapter(QuestionModal questionModal) {
+    public static GridQuestionModal questionModalAdapter(QuestionModal questionModal, int questionCount) {
         return new GridQuestionModal(questionModal.getQuestionID()
                 , questionModal.getRawNumber()
                 , questionModal.getText()
@@ -82,6 +85,7 @@ public class GridQuestionModal extends QuestionModal implements Parcelable {
                 , questionModal.isNextPresent()
                 , questionModal.isPreviousPresent()
                 , false
+                , questionCount
                 , questionModal.getInfo());
     }
 }

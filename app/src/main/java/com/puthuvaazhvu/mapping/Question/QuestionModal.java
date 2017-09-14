@@ -15,6 +15,7 @@ import java.util.ArrayList;
 
 public class QuestionModal implements Parcelable, Serializable {
     String questionID;
+    String iterationID;
     String text;
     String rawNumber;
     ArrayList<String> tags;
@@ -89,6 +90,10 @@ public class QuestionModal implements Parcelable, Serializable {
         }
     };
 
+    public void setIterationID(String iterationID) {
+        this.iterationID = iterationID;
+    }
+
     public Info getInfo() {
         return info;
     }
@@ -107,6 +112,10 @@ public class QuestionModal implements Parcelable, Serializable {
 
     public String getQuestionID() {
         return questionID;
+    }
+
+    public String getIterationID() {
+        return iterationID;
     }
 
     public String getText() {

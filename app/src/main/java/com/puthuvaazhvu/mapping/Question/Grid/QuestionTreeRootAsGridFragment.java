@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import com.puthuvaazhvu.mapping.Question.Grid.RootQuestionsGrid.GridQuestionModal;
 import com.puthuvaazhvu.mapping.Question.QuestionModal;
@@ -16,6 +17,8 @@ import com.puthuvaazhvu.mapping.Question.Grid.RootQuestionsGrid.RootQuestionsGri
 import com.puthuvaazhvu.mapping.Question.Grid.RootQuestionsGrid.RootQuestionsHolderGridFragmentCommunicationInterface;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.utils.DataHelper;
+import com.puthuvaazhvu.mapping.utils.DeepCopy.DeepCopy;
+import com.puthuvaazhvu.mapping.utils.Utils;
 
 import java.util.ArrayList;
 
@@ -30,13 +33,16 @@ This class shows all the children of the given question as grid and loops over a
 This class doesn't show the root. Only shows the children.
  */
 public class QuestionTreeRootAsGridFragment extends Fragment
-        implements RootQuestionsHolderGridFragmentCommunicationInterface, QuestionTreeFragmentCommunicationInterface {
-    ArrayList<QuestionModal> questionModalList;
+        implements RootQuestionsHolderGridFragmentCommunicationInterface
+        , QuestionTreeFragmentCommunicationInterface
+        , View.OnClickListener {
     QuestionModal root;
+    QuestionModal rootCopy;
     RootQuestionsGridHolderFragment rootQuestionsGridHolderFragment;
     QuestionTreeFragment questionTreeFragment;
     QuestionTreeRootAsGridFragmentCommunicationInterface communicationInterface;
     QuestionTreeAsGridFragmentPresenter presenter;
+    Button endGPSButton;
 
     public static QuestionTreeRootAsGridFragment getInstance(QuestionModal root) {
         QuestionTreeRootAsGridFragment tagQuestionsFragment = new QuestionTreeRootAsGridFragment();
@@ -56,20 +62,23 @@ public class QuestionTreeRootAsGridFragment extends Fragment
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.empty_frame_for_fragment, container, false);
+        return inflater.inflate(R.layout.grid_fragment, container, false);
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         root = getArguments().getParcelable("question_data");
+        rootCopy = (QuestionModal) DeepCopy.copy(root);
         presenter = new QuestionTreeAsGridFragmentPresenter();
 
         if (root == null) {
             throw new RuntimeException("The root question is null. " + QuestionTreeRootAsGridFragment.class);
         }
 
-        questionModalList = root.getChildren();
-        loadQuestionGridFragment(presenter.convertFrom(questionModalList));
+        loadQuestionGridFragment(presenter.convertFrom(rootCopy.getChildren()));
+
+        endGPSButton = view.findViewById(R.id.end_gps_button);
+        endGPSButton.setOnClickListener(this);
     }
 
     private void loadQuestionGridFragment(ArrayList<GridQuestionModal> gridQuestionModalArrayList) {
@@ -94,21 +103,37 @@ public class QuestionTreeRootAsGridFragment extends Fragment
 
     @Override
     public void onSelectedQuestion(GridQuestionModal questionModal) {
+        presenter.setIDToQuestion(questionModal, Utils.generateRandomUUID());
         loadQuestionTreeFragment(questionModal);
     }
 
     @Override
     public void onFinished(QuestionModal modifiedQuestionModal) {
-        presenter.insertEntryIntoMap(modifiedQuestionModal);
+        presenter.addQuestionToResult((QuestionModal) DeepCopy.copy(modifiedQuestionModal));
+        rootCopy = (QuestionModal) DeepCopy.copy(root);
+        loadQuestionGridFragment(presenter.convertFrom(rootCopy.getChildren()));
 
-        questionModalList = root.getChildren();
+        //presenter.insertEntryIntoMap(modifiedQuestionModal);
 
-        // TODO: Remove the DEBUG Flag.
-        if (presenter.checkIfAllQuestionsAreCompleted(questionModalList) || DEBUG) {
-            presenter.clearMap();
-            communicationInterface.onAllQuestionAnswered(root);
-        } else {
-            loadQuestionGridFragment(presenter.convertFrom(questionModalList));
+//        questionModalList = root.getChildren();
+//
+//        // TODO: Remove the DEBUG Flag.
+//        if (presenter.checkIfAllQuestionsAreCompleted(questionModalList) || DEBUG) {
+//            presenter.clearMap();
+//            communicationInterface.onAllQuestionAnswered(root);
+//        } else {
+//            loadQuestionGridFragment(presenter.convertFrom(questionModalList));
+//        }
+    }
+
+    @Override
+    public void onClick(View view) {
+        if (view.getId() == R.id.end_gps_button) {
+
+            // TODO: Record GPS
+
+            QuestionModal updatedRoot = presenter.getResult(root);
+            communicationInterface.onAllQuestionAnswered(updatedRoot);
         }
     }
 }

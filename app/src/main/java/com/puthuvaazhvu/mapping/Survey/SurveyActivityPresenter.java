@@ -285,6 +285,7 @@ public class SurveyActivityPresenter {
                 oja.add(oj);
             }
             result.addProperty("question_id", questionModal.getQuestionID());
+            result.addProperty("iterator_id", questionModal.getIterationID());
             result.add("option_data", oja);
             result.add("children", cja);
 

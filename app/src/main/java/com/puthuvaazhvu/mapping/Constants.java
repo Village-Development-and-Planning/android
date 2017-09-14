@@ -10,6 +10,8 @@ public class Constants {
     public static boolean isTamil = false;
     public static String APP_PACKAGE = "com.puthuvaazhvu.mapping";
 
+    public static String SPLIT_FOR_N_TAG = "<n_id>";
+
     public static class DataStorage {
         public static final String APP_DIR_SURVEY = APP_PACKAGE + "_surveydata";
     }

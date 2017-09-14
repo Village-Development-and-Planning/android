@@ -111,7 +111,7 @@ public class RootQuestionsGridHolderFragment extends Fragment {
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
             QVH qvh = (QVH) holder;
             GridQuestionModal questionModal = questionModalList.get(position);
-            qvh.populateViews(questionModal.getText(), questionModal.isQuestionAnswered);
+            qvh.populateViews(questionModal.getText(), questionModal.isQuestionAnswered, questionModal.questionCount);
         }
 
         @Override
@@ -123,17 +123,27 @@ public class RootQuestionsGridHolderFragment extends Fragment {
     private class QVH extends RecyclerView.ViewHolder {
         private TextView textView;
         private ImageView img_check_mark;
+        private TextView badge;
 
         public QVH(View itemView) {
             super(itemView);
 
             textView = itemView.findViewById(R.id.textView);
+            badge = itemView.findViewById(R.id.badge_txt);
             img_check_mark = itemView.findViewById(R.id.img_check_mark);
+            img_check_mark.setVisibility(View.GONE);
         }
 
-        public void populateViews(String text, boolean isQuestionAnswered) {
-            img_check_mark.setVisibility(isQuestionAnswered ? View.VISIBLE : View.GONE);
+        public void populateViews(String text, boolean isQuestionAnswered, int count) {
+            //img_check_mark.setVisibility(isQuestionAnswered ? View.VISIBLE : View.GONE);
             setQuestionText(text);
+            badge.setText(String.valueOf(count));
+
+            if (count <= 0) {
+                badge.setVisibility(View.GONE);
+            } else {
+                badge.setVisibility(View.VISIBLE);
+            }
         }
 
         public void setQuestionText(String text) {
