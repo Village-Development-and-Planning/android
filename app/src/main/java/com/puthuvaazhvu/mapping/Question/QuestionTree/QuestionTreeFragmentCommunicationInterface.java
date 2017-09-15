@@ -8,4 +8,6 @@ import com.puthuvaazhvu.mapping.Question.QuestionModal;
 
 public interface QuestionTreeFragmentCommunicationInterface {
     public void onFinished(QuestionModal modifiedQuestionModal);
+
+    void onChildFragmentPop();
 }

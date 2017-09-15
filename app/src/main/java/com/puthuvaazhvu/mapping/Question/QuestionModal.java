@@ -3,11 +3,15 @@ package com.puthuvaazhvu.mapping.Question;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.puthuvaazhvu.mapping.Constants;
 import com.puthuvaazhvu.mapping.Modals.Question;
 import com.puthuvaazhvu.mapping.Options.Modal.OptionData;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+
+import static com.puthuvaazhvu.mapping.Constants.APIDataConstants.MULTIPLE_ITERATION;
+import static com.puthuvaazhvu.mapping.Constants.APIDataConstants.SINGLE_ITERATION;
 
 /**
  * Created by muthuveerappans on 8/24/17.
@@ -136,6 +140,15 @@ public class QuestionModal implements Parcelable, Serializable {
 
     public boolean isPreviousPresent() {
         return isPreviousPresent;
+    }
+
+    public String getIterationTag() {
+        for (String t : tags) {
+            if (t.equals(MULTIPLE_ITERATION) || t.equals(SINGLE_ITERATION)) {
+                return t;
+            }
+        }
+        return null;
     }
 
     public void setOther(QuestionModal questionModal) {

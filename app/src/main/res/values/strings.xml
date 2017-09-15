@@ -3,6 +3,8 @@
 
     <!--errors-->
     <string name="no_data">Cannot get the required data.</string>
+    <string name="question_iteration_error">Cannot proceed</string>
+    <string name="survey_incomplete">Please complete all the questions</string>
     <string name="enter_cst">Enter your CST code</string>
     <string name="tag_line">A Tamilnadu government initiative.</string>
     <string name="press">PRESS</string>

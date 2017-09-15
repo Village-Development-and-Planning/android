@@ -8,7 +8,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
+import com.puthuvaazhvu.mapping.Constants;
 import com.puthuvaazhvu.mapping.Question.Grid.RootQuestionsGrid.GridQuestionModal;
 import com.puthuvaazhvu.mapping.Question.QuestionModal;
 import com.puthuvaazhvu.mapping.Question.QuestionTree.QuestionTreeFragment;
@@ -16,7 +18,6 @@ import com.puthuvaazhvu.mapping.Question.QuestionTree.QuestionTreeFragmentCommun
 import com.puthuvaazhvu.mapping.Question.Grid.RootQuestionsGrid.RootQuestionsGridHolderFragment;
 import com.puthuvaazhvu.mapping.Question.Grid.RootQuestionsGrid.RootQuestionsHolderGridFragmentCommunicationInterface;
 import com.puthuvaazhvu.mapping.R;
-import com.puthuvaazhvu.mapping.utils.DataHelper;
 import com.puthuvaazhvu.mapping.utils.DeepCopy.DeepCopy;
 import com.puthuvaazhvu.mapping.utils.Utils;
 
@@ -43,6 +44,7 @@ public class QuestionTreeRootAsGridFragment extends Fragment
     QuestionTreeRootAsGridFragmentCommunicationInterface communicationInterface;
     QuestionTreeAsGridFragmentPresenter presenter;
     Button endGPSButton;
+    View bottomContainer;
 
     public static QuestionTreeRootAsGridFragment getInstance(QuestionModal root) {
         QuestionTreeRootAsGridFragment tagQuestionsFragment = new QuestionTreeRootAsGridFragment();
@@ -67,6 +69,11 @@ public class QuestionTreeRootAsGridFragment extends Fragment
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        endGPSButton = view.findViewById(R.id.end_gps_button);
+        endGPSButton.setOnClickListener(this);
+
+        bottomContainer = view.findViewById(R.id.bottom_container);
+
         root = getArguments().getParcelable("question_data");
         rootCopy = (QuestionModal) DeepCopy.copy(root);
         presenter = new QuestionTreeAsGridFragmentPresenter();
@@ -76,9 +83,6 @@ public class QuestionTreeRootAsGridFragment extends Fragment
         }
 
         loadQuestionGridFragment(presenter.convertFrom(rootCopy.getChildren()));
-
-        endGPSButton = view.findViewById(R.id.end_gps_button);
-        endGPSButton.setOnClickListener(this);
     }
 
     private void loadQuestionGridFragment(ArrayList<GridQuestionModal> gridQuestionModalArrayList) {
@@ -89,6 +93,8 @@ public class QuestionTreeRootAsGridFragment extends Fragment
         FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.container, rootQuestionsGridHolderFragment);
         fragmentTransaction.commitAllowingStateLoss();
+
+        bottomContainer.setVisibility(View.VISIBLE);
     }
 
     private void loadQuestionTreeFragment(QuestionModal questionModal) {
@@ -99,12 +105,18 @@ public class QuestionTreeRootAsGridFragment extends Fragment
         FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.container, questionTreeFragment);
         fragmentTransaction.commitAllowingStateLoss();
+
+        bottomContainer.setVisibility(View.INVISIBLE);
     }
 
     @Override
     public void onSelectedQuestion(GridQuestionModal questionModal) {
-        presenter.setIDToQuestion(questionModal, Utils.generateRandomUUID());
-        loadQuestionTreeFragment(questionModal);
+        if (presenter.isIterationAllowed(questionModal)) {
+            presenter.setIDToQuestion(questionModal, Utils.generateRandomUUID());
+            loadQuestionTreeFragment(questionModal);
+        } else {
+            Utils.showErrorMessage(Constants.ErrorMessages.ITERATION_ERROR, getContext());
+        }
     }
 
     @Override
@@ -127,13 +139,23 @@ public class QuestionTreeRootAsGridFragment extends Fragment
     }
 
     @Override
+    public void onChildFragmentPop() {
+        loadQuestionGridFragment(presenter.convertFrom(rootCopy.getChildren()));
+    }
+
+    @Override
     public void onClick(View view) {
         if (view.getId() == R.id.end_gps_button) {
 
             // TODO: Record GPS
 
-            QuestionModal updatedRoot = presenter.getResult(root);
-            communicationInterface.onAllQuestionAnswered(updatedRoot);
+            // TODO: Remove the DEBUG Flag.
+            if (presenter.checkIfAllQuestionsAreAnswered(root) || DEBUG) {
+                QuestionModal updatedRoot = presenter.getResult(root);
+                communicationInterface.onAllQuestionAnswered(updatedRoot);
+            } else {
+                Utils.showErrorMessage(Constants.ErrorMessages.SURVEY_INCOMPLETE, getContext());
+            }
         }
     }
 }

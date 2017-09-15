@@ -12,6 +12,11 @@ public class Constants {
 
     public static String SPLIT_FOR_N_TAG = "<n_id>";
 
+    public static class APIDataConstants {
+        public static final String MULTIPLE_ITERATION = "MULTIPLE_ITERATION";
+        public static final String SINGLE_ITERATION = "SINGLE_ITERATION";
+    }
+
     public static class DataStorage {
         public static final String APP_DIR_SURVEY = APP_PACKAGE + "_surveydata";
     }
@@ -29,5 +34,7 @@ public class Constants {
 
     public static class ErrorMessages {
         public static int NULL_DATA = R.string.no_data;
+        public static int ITERATION_ERROR = R.string.question_iteration_error;
+        public static int SURVEY_INCOMPLETE = R.string.survey_incomplete;
     }
 }

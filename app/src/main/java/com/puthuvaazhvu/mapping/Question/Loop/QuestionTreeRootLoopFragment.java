@@ -15,6 +15,7 @@ import com.puthuvaazhvu.mapping.Question.QuestionModal;
 import com.puthuvaazhvu.mapping.Question.SingleQuestion.QuestionFragment;
 import com.puthuvaazhvu.mapping.Question.SingleQuestion.QuestionFragmentCommunicationInterface;
 import com.puthuvaazhvu.mapping.R;
+import com.puthuvaazhvu.mapping.Survey.BaseSurveyFragment;
 import com.puthuvaazhvu.mapping.utils.DeepCopy.DeepCopy;
 
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ import java.util.ArrayList;
  * Created by muthuveerappans on 8/25/17.
  */
 
-public class QuestionTreeRootLoopFragment extends Fragment
+public class QuestionTreeRootLoopFragment extends BaseSurveyFragment
         implements QuestionFragmentCommunicationInterface, QuestionTreeRootAsGridFragmentCommunicationInterface {
     QuestionModal questionModal;
     QuestionModal questionModalCopy;
@@ -92,6 +93,8 @@ public class QuestionTreeRootLoopFragment extends Fragment
 
         presenter.insertOptionDataToMap(optionDataList);
         loadRootQuestionGrid(questionModalCopy);
+
+        getParentCallback().setInfoText(optionDataList.get(0).getText());
     }
 
     @Override

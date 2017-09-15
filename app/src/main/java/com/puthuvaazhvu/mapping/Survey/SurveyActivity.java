@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.JsonObject;
@@ -35,18 +36,22 @@ import static com.puthuvaazhvu.mapping.Constants.DEBUG;
  * Created by muthuveerappans on 8/24/17.
  */
 
-public class SurveyActivity extends AppCompatActivity implements SurveyActivityCommunicationInterface {
+public class SurveyActivity extends AppCompatActivity
+        implements SurveyActivityCommunicationInterface, SurveyActivityUICommunicationInterface {
     String surveyJSON;
     SurveyActivityPresenter surveyActivityPresenter;
     QuestionTreeFragment questionTreeFragment;
     QuestionTreeRootLoopFragment questionTreeRootLoopFragment;
     String basePath;
+    TextView infoTxt;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.survey_activity);
+
+        infoTxt = (TextView) findViewById(R.id.info_text);
 
         String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE
                 , Manifest.permission.READ_EXTERNAL_STORAGE};
@@ -137,6 +142,11 @@ public class SurveyActivity extends AppCompatActivity implements SurveyActivityC
         public void onFinished(QuestionModal modifiedQuestionModal) {
             // NOT IMPLEMENTED
         }
+
+        @Override
+        public void onChildFragmentPop() {
+
+        }
     };
 
     private QuestionTreeRootLoopFragmentCommunicationInterface questionTreeRootLoopFragmentCommunicationInterface =
@@ -151,5 +161,10 @@ public class SurveyActivity extends AppCompatActivity implements SurveyActivityC
     @Override
     public void onError(int code) {
         Log.i(Constants.LOG_TAG, "Error parsing the survey. Error code : " + code);
+    }
+
+    @Override
+    public void setInfoText(String text) {
+        infoTxt.setText(text);
     }
 }

@@ -14,6 +14,7 @@ import com.puthuvaazhvu.mapping.Question.QuestionModal;
 import com.puthuvaazhvu.mapping.Question.SingleQuestion.QuestionFragment;
 import com.puthuvaazhvu.mapping.Question.SingleQuestion.QuestionFragmentCommunicationInterface;
 import com.puthuvaazhvu.mapping.R;
+import com.puthuvaazhvu.mapping.Survey.BaseSurveyFragment;
 import com.puthuvaazhvu.mapping.utils.DataHelper;
 
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ import java.util.ArrayList;
  * Created by muthuveerappans on 8/24/17.
  */
 
-public class QuestionTreeFragment extends Fragment implements QuestionFragmentCommunicationInterface {
+public class QuestionTreeFragment extends BaseSurveyFragment implements QuestionFragmentCommunicationInterface {
     ArrayList<QuestionModal> questionModalArrayList; // Contains all the children of the tree in a single list.
     QuestionFragment questionFragment;
     QuestionModal currentQuestion;
@@ -89,14 +90,20 @@ public class QuestionTreeFragment extends Fragment implements QuestionFragmentCo
 
     @Override
     public void moveToPreviousQuestion(QuestionModal currentQuestion) {
-        loadQuestionFragment(getPreviousQuestion());
+        QuestionModal questionModal = getPreviousQuestion();
+        if (questionModal == null) {
+            communicationInterface.onChildFragmentPop();
+        } else {
+            loadQuestionFragment(questionModal);
+        }
     }
 
     private QuestionModal getPreviousQuestion() {
         currentChildIndex -= 1;
 
-        if (currentChildIndex <= 0) {
+        if (currentChildIndex < 0) {
             currentChildIndex = 0;
+            return null;
         }
 
         QuestionModal questionModal = questionModalArrayList.get(currentChildIndex);

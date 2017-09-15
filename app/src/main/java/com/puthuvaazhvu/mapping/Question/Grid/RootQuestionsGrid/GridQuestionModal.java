@@ -74,6 +74,8 @@ public class GridQuestionModal extends QuestionModal implements Parcelable {
         }
     };
 
+
+
     public static GridQuestionModal questionModalAdapter(QuestionModal questionModal, int questionCount) {
         return new GridQuestionModal(questionModal.getQuestionID()
                 , questionModal.getRawNumber()

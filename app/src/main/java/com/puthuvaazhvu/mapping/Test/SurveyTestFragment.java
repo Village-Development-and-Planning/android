@@ -198,6 +198,11 @@ public class SurveyTestFragment extends Fragment
         Toast.makeText(getContext(), "Survey finished", Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    public void onChildFragmentPop() {
+        // NOT IMPLEMENTED
+    }
+
     // method of QuestionTreeRootAsGridFragment
     @Override
     public void onAllQuestionAnswered(QuestionModal updatedRoot) {
