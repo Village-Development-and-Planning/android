@@ -10,11 +10,21 @@ public class Constants {
     public static boolean isTamil = false;
     public static String APP_PACKAGE = "com.puthuvaazhvu.mapping";
 
-    public static String SPLIT_FOR_N_TAG = "<n_id>";
-
     public static class APIDataConstants {
         public static final String MULTIPLE_ITERATION = "MULTIPLE_ITERATION";
         public static final String SINGLE_ITERATION = "SINGLE_ITERATION";
+        public static final String LOOP = "LOOP";
+        public static final String BINARY = "BINARY";
+        public static final String SINGLE_CHOICE = "SINGLE_CHOICE";
+        public static final String MULTIPLE_CHOICE = "MULTIPLE_CHOICE";
+        public static final String INPUT = "INPUT";
+        public static final String TAG_GPS = "GPS";
+        public static final String TAG_SURVEYOR_CODE = "SURVEYOR_CODE";
+        public static final String TAG_SURVEYOR_DISTRICT = "SURVEYOR_DISTRICT";
+        public static final String TAG_SURVEYOR_BLOCK = "SURVEYOR_BLOCK";
+        public static final String TAG_SURVEYOR_PANCHAYAT = "SURVEYOR_PANCHAYAT";
+        public static final String TAG_SURVEYOR_VILLAGE = "SURVEYOR_VILLAGE";
+        public static final String TAG_SURVEYOR_HABITATIONS = "SURVEYOR_HABITATIONS";
     }
 
     public static class DataStorage {

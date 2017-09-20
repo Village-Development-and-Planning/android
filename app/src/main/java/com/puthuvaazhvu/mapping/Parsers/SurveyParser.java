@@ -49,13 +49,14 @@ public class SurveyParser {
 
     public Question parseQuestion(JsonObject json) {
         String position = JsonHelper.getString(json, "position");
-        String id = JsonHelper.getString(json, "_id");
-        String type = JsonHelper.getString(json, "type");
-        String modifiedAt = JsonHelper.getString(json, "modifiedAt");
-        String rawNumber = JsonHelper.getString(json, "number");
-        Question.Info info = parseQuestionInfo(json);
+        JsonObject questionJson = JsonHelper.getJsonObject(json, "question");
+        String id = JsonHelper.getString(questionJson, "_id");
+        String type = JsonHelper.getString(questionJson, "type");
+        String modifiedAt = JsonHelper.getString(questionJson, "modifiedAt");
+        String rawNumber = JsonHelper.getString(questionJson, "number");
+        Question.Info info = parseQuestionInfo(questionJson);
 
-        JsonObject textJson = JsonHelper.getJsonObject(json, "text");
+        JsonObject textJson = JsonHelper.getJsonObject(questionJson, "text");
 
         Text text = null;
 
@@ -63,7 +64,7 @@ public class SurveyParser {
             text = parseText(textJson);
         }
 
-        JsonArray optionsArray = JsonHelper.getJsonArray(json, "options");
+        JsonArray optionsArray = JsonHelper.getJsonArray(questionJson, "options");
         ArrayList<Option> optionList = new ArrayList<>();
 
         if (optionsArray != null) {
@@ -75,9 +76,9 @@ public class SurveyParser {
             }
         }
 
-        ArrayList<String> tags = JsonHelper.getStringArray(json, "tags");
+        ArrayList<String> tags = JsonHelper.getStringArray(questionJson, "tags");
 
-        JsonArray childrenArray = JsonHelper.getJsonArray(json, "children");
+        JsonArray childrenArray = JsonHelper.getJsonArray(questionJson, "children");
         ArrayList<Question> children = new ArrayList<>();
 
         if (childrenArray != null) {

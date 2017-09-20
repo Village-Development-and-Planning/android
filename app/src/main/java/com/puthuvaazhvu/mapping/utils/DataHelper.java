@@ -40,7 +40,7 @@ public class DataHelper {
     public static boolean isOptionChecked(QuestionModal questionModal, String option) {
         ArrayList<OptionData> optionDataArrayList = questionModal.getOptionDataList();
         for (int i = 0; i < optionDataArrayList.size(); i++) {
-            if (optionDataArrayList.get(i).getText().toLowerCase().equals(option.toLowerCase())) {
+            if (optionDataArrayList.get(i).getPosition().equals(option)) {
                 return optionDataArrayList.get(i).isChecked();
             }
         }
@@ -76,7 +76,7 @@ public class DataHelper {
             , QuestionModal currentQuestion, ArrayList<OptionData> selectedOptions) {
 
         if (root.equals(currentQuestion)) {
-            if (currentQuestion.getQuestionType() == QUESTION_TYPE.INPUT) {
+            if (currentQuestion.hasInput()) {
                 currentQuestion.getOptionDataList().clear();
                 currentQuestion.getOptionDataList().addAll(selectedOptions);
             }
@@ -85,7 +85,7 @@ public class DataHelper {
 
             for (QuestionModal qm : children) {
                 if (qm.equals(currentQuestion)) {
-                    if (currentQuestion.getQuestionType() == QUESTION_TYPE.INPUT) {
+                    if (currentQuestion.hasInput()) {
                         currentQuestion.getOptionDataList().clear();
                         currentQuestion.getOptionDataList().addAll(selectedOptions);
                     }

@@ -11,23 +11,17 @@ import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.Constants;
 import com.puthuvaazhvu.mapping.Modals.Survey;
-import com.puthuvaazhvu.mapping.Options.Modal.OptionData;
 import com.puthuvaazhvu.mapping.Question.Loop.QuestionTreeRootLoopFragment;
 import com.puthuvaazhvu.mapping.Question.Loop.QuestionTreeRootLoopFragmentCommunicationInterface;
 import com.puthuvaazhvu.mapping.Question.QuestionModal;
 import com.puthuvaazhvu.mapping.Question.QuestionTree.QuestionTreeFragment;
 import com.puthuvaazhvu.mapping.Question.QuestionTree.QuestionTreeFragmentCommunicationInterface;
-import com.puthuvaazhvu.mapping.Question.SingleQuestion.QuestionFragment;
-import com.puthuvaazhvu.mapping.Question.SingleQuestion.QuestionFragmentCommunicationInterface;
 import com.puthuvaazhvu.mapping.R;
-import com.puthuvaazhvu.mapping.Test.SurveyTestFragment;
 import com.puthuvaazhvu.mapping.utils.DataHelper;
 import com.puthuvaazhvu.mapping.utils.StorageHelpers;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import static com.puthuvaazhvu.mapping.Constants.DEBUG;
@@ -61,7 +55,7 @@ public class SurveyActivity extends AppCompatActivity
         basePath = getFilesDir().getAbsolutePath();
 
         if (DEBUG) {
-            surveyJSON = DataHelper.readFromAssetsFile(this, "test_data/survey_test_options2.json");
+            surveyJSON = DataHelper.readFromAssetsFile(this, "test_data/survey_3.json");
         } else {
             surveyJSON = getIntent().getExtras().getString(Constants.IntentKeys.SurveyActivity_survey_data_string);
         }

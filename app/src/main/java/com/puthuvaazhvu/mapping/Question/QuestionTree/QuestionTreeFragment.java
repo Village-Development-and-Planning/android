@@ -58,9 +58,6 @@ public class QuestionTreeFragment extends BaseSurveyFragment implements Question
         questionModalArrayList = DataHelper.convertTreeToList(root);
 
         QuestionModal questionModal = getNextQuestion();
-        if (questionModal.getQuestionType() == QUESTION_TYPE.DETAILS) {
-            throw new RuntimeException("The DETAILS type questions should not come here.");
-        }
         loadQuestionFragment(questionModal);
     }
 

@@ -20,6 +20,8 @@ import com.puthuvaazhvu.mapping.utils.DeepCopy.DeepCopy;
 
 import java.util.ArrayList;
 
+import static com.puthuvaazhvu.mapping.Constants.DEBUG;
+
 /**
  * Created by muthuveerappans on 8/25/17.
  */
@@ -86,15 +88,15 @@ public class QuestionTreeRootLoopFragment extends BaseSurveyFragment
     @Override
     public void moveToNextQuestion(QuestionModal currentQuestion, ArrayList<OptionData> optionDataList) {
         if (optionDataList.size() != 1) {
-            throw new RuntimeException("The count of the selected options should always be 1 for LOOPING QUESTION");
+            // TODO: Handle/show error message here.
+        } else {
+            currentOptionID = optionDataList.get(0).getId();
+
+            presenter.insertOptionDataToMap(optionDataList);
+            loadRootQuestionGrid(questionModalCopy);
+
+            getParentCallback().setInfoText(optionDataList.get(0).getText());
         }
-
-        currentOptionID = optionDataList.get(0).getId();
-
-        presenter.insertOptionDataToMap(optionDataList);
-        loadRootQuestionGrid(questionModalCopy);
-
-        getParentCallback().setInfoText(optionDataList.get(0).getText());
     }
 
     @Override

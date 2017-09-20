@@ -35,10 +35,10 @@ public class OptionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View root = null;
         RecyclerView.ViewHolder viewHolder = null;
-        if (question_type == QUESTION_TYPE.SINGLE || question_type == QUESTION_TYPE.LOOP) {
+        if (question_type == QUESTION_TYPE.SINGLE_CHOICE || question_type == QUESTION_TYPE.LOOP) {
             root = LayoutInflater.from(parent.getContext()).inflate(R.layout.radio_button_option, parent, false);
             viewHolder = new SVH(root);
-        } else if (question_type == QUESTION_TYPE.MULTIPLE) {
+        } else if (question_type == QUESTION_TYPE.MULTIPLE_CHOICE) {
             root = LayoutInflater.from(parent.getContext()).inflate(R.layout.check_box_option, parent, false);
             viewHolder = new MVH(root);
         } else {
@@ -89,7 +89,7 @@ public class OptionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                             "This should actually contain the options data");
                 }
 
-                if (question_type == QUESTION_TYPE.SINGLE || question_type == QUESTION_TYPE.LOOP) {
+                if (question_type == QUESTION_TYPE.SINGLE_CHOICE || question_type == QUESTION_TYPE.LOOP) {
                     // Reset all the radio buttons to false
                     for (OptionData optionData : optionDataList) {
                         optionData.setChecked(false);
@@ -97,7 +97,7 @@ public class OptionsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 }
 
                 OptionData optionData = (OptionData) tag;
-                optionData.setChecked(question_type == QUESTION_TYPE.SINGLE || question_type == QUESTION_TYPE.LOOP ?
+                optionData.setChecked(question_type == QUESTION_TYPE.SINGLE_CHOICE || question_type == QUESTION_TYPE.LOOP ?
                         true : !optionData.isChecked());
 
                 OptionsAdapter.this.notifyDataSetChanged();

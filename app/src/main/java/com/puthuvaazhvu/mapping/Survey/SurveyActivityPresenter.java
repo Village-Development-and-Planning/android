@@ -169,7 +169,7 @@ public class SurveyActivityPresenter {
                 continue;
             }
             result = ModalAdapters.getAsQuestionModal(question, Constants.isTamil);
-            if (result.getQuestionType() == QUESTION_TYPE.DETAILS) {
+            if (result.getQuestionType() != QUESTION_TYPE.LOOP) {
                 result = null;
                 continue;
             }
@@ -200,7 +200,7 @@ public class SurveyActivityPresenter {
             String json = strings[0];
 
             if (json == null) {
-                throw new RuntimeException("The json data pased to Parse async task is null. ");
+                throw new RuntimeException("The json data passed to Parse async task is null. ");
             }
 
             JsonParser jsonParser = new JsonParser();

@@ -142,13 +142,26 @@ public class QuestionModal implements Parcelable, Serializable {
         return isPreviousPresent;
     }
 
-    public String getIterationTag() {
+    public boolean hasInput() {
+        return (questionType == QUESTION_TYPE.INPUT_GPS || questionType == QUESTION_TYPE.INPUT_KEYBOARD);
+    }
+
+    public String getTag(String tag) {
         for (String t : tags) {
-            if (t.equals(MULTIPLE_ITERATION) || t.equals(SINGLE_ITERATION)) {
+            if (t.equals(tag)) {
                 return t;
             }
         }
         return null;
+    }
+
+    public String getIterationTag() {
+        for (String t : tags) {
+            if (t.equals(MULTIPLE_ITERATION)) {
+                return MULTIPLE_ITERATION;
+            }
+        }
+        return SINGLE_ITERATION;
     }
 
     public void setOther(QuestionModal questionModal) {

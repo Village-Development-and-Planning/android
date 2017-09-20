@@ -71,7 +71,7 @@ public class OptionsFragment extends Fragment implements View.OnClickListener {
         optionsAdapter = new OptionsAdapter(optionDataArrayList, question_type);
         recyclerView.setAdapter(optionsAdapter);
 
-        if (question_type == QUESTION_TYPE.INPUT_BUTTON) {
+        if (question_type == QUESTION_TYPE.INPUT_GPS) {
             button.setText(Constants.isTamil ? getString(R.string.press_ta) : getString(R.string.press));
         }
 
@@ -79,7 +79,7 @@ public class OptionsFragment extends Fragment implements View.OnClickListener {
     }
 
     public ArrayList<OptionData> getSelectedOptions() {
-        if (question_type == QUESTION_TYPE.INPUT) {
+        if (question_type == QUESTION_TYPE.INPUT_KEYBOARD) {
             ArrayList<OptionData> result = new ArrayList<>();
             String option = input_edit_text.getText().toString();
             result.add(new OptionData("-1", true, option, "", true));
@@ -90,11 +90,11 @@ public class OptionsFragment extends Fragment implements View.OnClickListener {
     }
 
     public void manipulateViewVisibilityBasedOnOptionType() {
-        if (question_type == QUESTION_TYPE.INPUT) {
+        if (question_type == QUESTION_TYPE.INPUT_KEYBOARD) {
             input_edit_text.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
             button.setVisibility(View.GONE);
-        } else if (question_type == QUESTION_TYPE.INPUT_BUTTON) {
+        } else if (question_type == QUESTION_TYPE.INPUT_GPS) {
             input_edit_text.setVisibility(View.GONE);
             recyclerView.setVisibility(View.GONE);
             button.setVisibility(View.VISIBLE);
