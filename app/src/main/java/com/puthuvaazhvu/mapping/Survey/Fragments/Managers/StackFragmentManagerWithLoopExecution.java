@@ -61,6 +61,18 @@ public class StackFragmentManagerWithLoopExecution extends StackFragmentManagerW
         addFragment(q);
     }
 
+    /**
+     * Removes all the fragment until the first added fragment
+     */
+    public void removeTillLoopRootQuestion() {
+        ArrayList<QuestionModal> questionStack = getQuestionListStack();
+        if (questionStack.size() > 0) {
+            for (int i = 0; i < questionStack.size(); i++) {
+                removeFragment();
+            }
+        }
+    }
+
     private boolean shouldShowGPSQuestion(QuestionModal currentQuestion) {
         ArrayList<QuestionModal> questionStack = getQuestionListStack();
         return questionStack.size() == 1
@@ -73,10 +85,5 @@ public class StackFragmentManagerWithLoopExecution extends StackFragmentManagerW
         return questionStack.size() == 2
                 && questionStack.get(0).getQuestionType() == QUESTION_TYPE.LOOP
                 && questionStack.get(1).getTag(Constants.APIDataConstants.TAG_GPS) != null;
-    }
-
-    @Override
-    public void OnShowPreviousFragment(QuestionModal currQuestionModal) {
-        super.OnShowPreviousFragment(currQuestionModal);
     }
 }

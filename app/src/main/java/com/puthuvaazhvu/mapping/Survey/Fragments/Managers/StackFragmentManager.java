@@ -88,13 +88,16 @@ public class StackFragmentManager implements DynamicFragmentTypeCommunicationInt
         QuestionModal questionModal;
         while ((questionModal = pop()) != null) {
             statePagerAdapter.destroyItem(container, questionModal);
+            statePagerAdapter.finishUpdate(container);
         }
     }
 
     protected void removeFragment() {
         QuestionModal questionModal = pop();
-        if (questionModal != null)
+        if (questionModal != null) {
             statePagerAdapter.destroyItem(container, questionModal);
+            statePagerAdapter.finishUpdate(container);
+        }
     }
 
     /**
