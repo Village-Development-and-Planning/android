@@ -8,6 +8,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.puthuvaazhvu.mapping.Question.Loop.QuestionTreeRootLoopFragment;
+import com.puthuvaazhvu.mapping.Question.QuestionModal;
+import com.puthuvaazhvu.mapping.Question.SingleQuestion.QuestionFragment;
 import com.puthuvaazhvu.mapping.R;
 
 /**
@@ -18,6 +21,17 @@ public class NormalQuestionFragment extends BaseDynamicTypeFragment {
     TextView question_text;
     Button back_button;
     Button next_button;
+
+    public static NormalQuestionFragment getInstance(QuestionModal questionModal) {
+        NormalQuestionFragment questionFragment = new NormalQuestionFragment();
+
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("question_data", questionModal);
+
+        questionFragment.setArguments(bundle);
+
+        return questionFragment;
+    }
 
     @Nullable
     @Override

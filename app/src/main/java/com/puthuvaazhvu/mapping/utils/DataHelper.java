@@ -1,12 +1,10 @@
 package com.puthuvaazhvu.mapping.utils;
 
 import android.content.Context;
-import android.os.Environment;
 import android.util.Log;
 
 import com.puthuvaazhvu.mapping.Constants;
 import com.puthuvaazhvu.mapping.Options.Modal.OptionData;
-import com.puthuvaazhvu.mapping.Question.QUESTION_TYPE;
 import com.puthuvaazhvu.mapping.Question.QuestionModal;
 
 import java.io.IOException;
@@ -19,18 +17,25 @@ import java.util.ArrayList;
 
 public class DataHelper {
 
+    /**
+     * Helper to skip the question based on the pattern provided.
+     *
+     * @param node The root node in which the child needs to be checked.
+     * @param info The info object containing the skip pattern.
+     * @return true if the question needs to be shown.
+     */
     public static boolean shouldShowQuestion(QuestionModal node, QuestionModal.Info info) {
         if (info == null) {
             return true;
         }
 
         if (node.getRawNumber().equals(info.getQuestionNumberRaw())) {
-            return isOptionChecked(node, info.getOption());
+            return isOptionSelected(node, info.getOption());
         }
 
         for (QuestionModal questionModal : node.getChildren()) {
             if (questionModal.getRawNumber().equals(info.getQuestionNumberRaw())) {
-                return isOptionChecked(questionModal, info.getOption());
+                return isOptionSelected(questionModal, info.getOption());
             } else {
                 return shouldShowQuestion(questionModal, info);
             }
@@ -38,7 +43,14 @@ public class DataHelper {
         return true;
     }
 
-    public static boolean isOptionChecked(QuestionModal questionModal, String option) {
+    /**
+     * Helper to check if the option is selected or no.
+     *
+     * @param questionModal
+     * @param option
+     * @return true if the option is selected.
+     */
+    public static boolean isOptionSelected(QuestionModal questionModal, String option) {
         ArrayList<OptionData> optionDataArrayList = questionModal.getOptionDataList();
         for (int i = 0; i < optionDataArrayList.size(); i++) {
             if (optionDataArrayList.get(i).getPosition().equals(option)) {
