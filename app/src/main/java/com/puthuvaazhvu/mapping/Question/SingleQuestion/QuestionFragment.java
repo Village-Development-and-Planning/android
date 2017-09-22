@@ -27,6 +27,7 @@ import static com.puthuvaazhvu.mapping.Constants.DEBUG;
  * Created by muthuveerappans on 8/24/17.
  */
 
+@Deprecated
 public class QuestionFragment extends Fragment implements View.OnClickListener {
     TextView question_text;
     Button back_button;

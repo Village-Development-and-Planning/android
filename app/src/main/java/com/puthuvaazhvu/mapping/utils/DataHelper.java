@@ -18,16 +18,17 @@ import java.util.ArrayList;
  */
 
 public class DataHelper {
-    public static boolean shouldShowQuestion(QuestionModal root, QuestionModal.Info info) {
+
+    public static boolean shouldShowQuestion(QuestionModal node, QuestionModal.Info info) {
         if (info == null) {
             return true;
         }
 
-        if (root.getRawNumber().equals(info.getQuestionNumberRaw())) {
-            return isOptionChecked(root, info.getOption());
+        if (node.getRawNumber().equals(info.getQuestionNumberRaw())) {
+            return isOptionChecked(node, info.getOption());
         }
 
-        for (QuestionModal questionModal : root.getChildren()) {
+        for (QuestionModal questionModal : node.getChildren()) {
             if (questionModal.getRawNumber().equals(info.getQuestionNumberRaw())) {
                 return isOptionChecked(questionModal, info.getOption());
             } else {
@@ -47,6 +48,7 @@ public class DataHelper {
         return false;
     }
 
+    @Deprecated
     public static ArrayList<QuestionModal> convertTreeToList(QuestionModal questionModal) {
         ArrayList<QuestionModal> result = new ArrayList<>();
         result.add(questionModal);
@@ -56,6 +58,7 @@ public class DataHelper {
         return result;
     }
 
+    @Deprecated
     private static void convertTreeToListInner(QuestionModal questionModal, ArrayList<QuestionModal> result) {
         ArrayList<QuestionModal> children = questionModal.getChildren();
 
@@ -72,6 +75,7 @@ public class DataHelper {
      * @param currentQuestion The current question on which the options needs to be modified.
      * @param selectedOptions The selected options.
      */
+    @Deprecated
     public static void captureLoggedOptions(QuestionModal root
             , QuestionModal currentQuestion, ArrayList<OptionData> selectedOptions) {
 

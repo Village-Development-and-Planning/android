@@ -18,17 +18,18 @@ import static com.puthuvaazhvu.mapping.Constants.APIDataConstants.SINGLE_ITERATI
  */
 
 public class QuestionModal implements Parcelable, Serializable {
-    String questionID;
-    String iterationID;
-    String text;
-    String rawNumber;
-    ArrayList<String> tags;
-    ArrayList<OptionData> optionDataList;
-    ArrayList<QuestionModal> children;
-    QUESTION_TYPE questionType;
-    boolean isNextPresent;
-    boolean isPreviousPresent;
-    Info info;
+    private String questionID;
+    private String iterationID;
+    private String text;
+    private String rawNumber;
+    private ArrayList<String> tags;
+    private ArrayList<OptionData> optionDataList;
+    private ArrayList<QuestionModal> children;
+    private QUESTION_TYPE questionType;
+    private boolean isNextPresent;
+    private boolean isAnswered;
+    private boolean isPreviousPresent;
+    private Info info;
 
     public QuestionModal(String questionID
             , String rawNumber
@@ -39,6 +40,7 @@ public class QuestionModal implements Parcelable, Serializable {
             , ArrayList<String> tags
             , boolean isNextPresent
             , boolean isPreviousPresent
+            , boolean isAnswered
             , Info info) {
         this.questionID = questionID;
         this.text = text;
@@ -50,6 +52,7 @@ public class QuestionModal implements Parcelable, Serializable {
         this.tags = tags;
         this.rawNumber = rawNumber;
         this.info = info;
+        this.isAnswered = isAnswered;
     }
 
     protected QuestionModal(Parcel in) {
@@ -62,6 +65,7 @@ public class QuestionModal implements Parcelable, Serializable {
         isNextPresent = in.readByte() != 0;
         isPreviousPresent = in.readByte() != 0;
         info = in.readParcelable(Info.class.getClassLoader());
+        isAnswered = in.readByte() != 0;
     }
 
     @Override
@@ -75,6 +79,12 @@ public class QuestionModal implements Parcelable, Serializable {
         dest.writeByte((byte) (isNextPresent ? 1 : 0));
         dest.writeByte((byte) (isPreviousPresent ? 1 : 0));
         dest.writeParcelable(info, flags);
+        dest.writeByte((byte) (isAnswered ? 1 : 0));
+    }
+
+    @Override
+    public String toString() {
+        return questionID;
     }
 
     @Override
@@ -142,6 +152,10 @@ public class QuestionModal implements Parcelable, Serializable {
         return isPreviousPresent;
     }
 
+    public boolean isAnswered() {
+        return isAnswered;
+    }
+
     public boolean hasInput() {
         return (questionType == QUESTION_TYPE.INPUT_GPS || questionType == QUESTION_TYPE.INPUT_KEYBOARD);
     }
@@ -172,6 +186,7 @@ public class QuestionModal implements Parcelable, Serializable {
         this.questionType = questionModal.getQuestionType();
         this.isPreviousPresent = questionModal.isPreviousPresent();
         this.isNextPresent = questionModal.isNextPresent();
+        this.isAnswered = questionModal.isAnswered();
     }
 
     @Override
