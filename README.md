@@ -10,7 +10,7 @@ This class is responsible for traversing the questions depending on the given ch
 ```Java
 void moveToNextQuestion(Question node, ArrayList<Option> selectedOptions);
 ```
-+ save options
++ check and save options
 + if no children or all children answered call popQuestion(node).
 + get and push the next question
 
@@ -18,7 +18,7 @@ void moveToNextQuestion(Question node, ArrayList<Option> selectedOptions);
 void popQuestion(Question question);
 ```
 + if `strategy: 'parent'` recruse until the parent has unanswered children.
-+ if `strategy: 'repeat'` pop to the nearest parent which has `strategy: 'select'` in child flow. 
++ if `strategy: 'repeat'` pop to the nearest parent which has `strategy: 'select'` in child flow.
 + if no **strategy** provided, end of loop question. Pop everything.
 
 ```Java
