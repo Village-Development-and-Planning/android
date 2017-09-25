@@ -2,16 +2,15 @@ package com.puthuvaazhvu.mapping.Question.Loop;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.puthuvaazhvu.mapping.Options.Modal.OptionData;
+import com.puthuvaazhvu.mapping.Survey.Options.Modal.OptionData;
 import com.puthuvaazhvu.mapping.Question.Grid.QuestionTreeRootAsGridFragment;
 import com.puthuvaazhvu.mapping.Question.Grid.QuestionTreeRootAsGridFragmentCommunicationInterface;
-import com.puthuvaazhvu.mapping.Question.QuestionModal;
+import com.puthuvaazhvu.mapping.Survey.Modals.QuestionModal;
 import com.puthuvaazhvu.mapping.Question.SingleQuestion.QuestionFragment;
 import com.puthuvaazhvu.mapping.Question.SingleQuestion.QuestionFragmentCommunicationInterface;
 import com.puthuvaazhvu.mapping.R;
@@ -19,8 +18,6 @@ import com.puthuvaazhvu.mapping.Survey.BaseSurveyFragment;
 import com.puthuvaazhvu.mapping.utils.DeepCopy.DeepCopy;
 
 import java.util.ArrayList;
-
-import static com.puthuvaazhvu.mapping.Constants.DEBUG;
 
 /**
  * Created by muthuveerappans on 8/25/17.

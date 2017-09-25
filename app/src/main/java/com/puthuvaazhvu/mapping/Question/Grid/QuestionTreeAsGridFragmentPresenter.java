@@ -1,14 +1,8 @@
 package com.puthuvaazhvu.mapping.Question.Grid;
 
-import android.util.Log;
+import com.puthuvaazhvu.mapping.Survey.Modals.GridQuestionModal;
+import com.puthuvaazhvu.mapping.Survey.Modals.QuestionModal;
 
-import com.puthuvaazhvu.mapping.Constants;
-import com.puthuvaazhvu.mapping.Modals.Question;
-import com.puthuvaazhvu.mapping.Question.Grid.RootQuestionsGrid.GridQuestionModal;
-import com.puthuvaazhvu.mapping.Question.QuestionModal;
-import com.puthuvaazhvu.mapping.utils.DataHelper;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;

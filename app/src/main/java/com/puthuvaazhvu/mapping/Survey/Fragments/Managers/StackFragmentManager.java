@@ -1,19 +1,10 @@
 package com.puthuvaazhvu.mapping.Survey.Fragments.Managers;
 
-import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
-import com.puthuvaazhvu.mapping.Question.QuestionModal;
-import com.puthuvaazhvu.mapping.R;
+import com.puthuvaazhvu.mapping.Survey.Modals.QuestionModal;
 import com.puthuvaazhvu.mapping.Survey.Adapters.StatePagerAdapter;
-import com.puthuvaazhvu.mapping.Survey.Fragments.DynamicTypes.DynamicFragmentTypeCommunicationInterface;
-import com.puthuvaazhvu.mapping.Survey.Fragments.DynamicTypes.NormalQuestionFragment;
-import com.puthuvaazhvu.mapping.utils.LinkedList.LinkListStack;
 
 import java.util.ArrayList;
 
@@ -30,98 +21,60 @@ Pops the added fragments after all children questions are answered.
 - 2.2.1 -
 - 2.2 -
  */
-public class StackFragmentManager implements DynamicFragmentTypeCommunicationInterface {
+public class StackFragmentManager<T> {
     private final ViewGroup container;
-    private final QuestionModal questionModal;
     private final StatePagerAdapter statePagerAdapter;
-    private ArrayList<QuestionModal> questionListStack = new ArrayList<>();
+    private ArrayList<T> dataStack = new ArrayList<>();
 
     public StackFragmentManager(ViewGroup container
-            , QuestionModal questionModal
             , StatePagerAdapter statePagerAdapter) {
         this.statePagerAdapter = statePagerAdapter;
         this.container = container;
-        this.questionModal = questionModal;
     }
 
-    @Override
-    public void OnShowNextFragment(QuestionModal currQuestionModal) {
-        // get the next question
-        QuestionModal nextQuestion = getNext(currQuestionModal);
-        if (nextQuestion == null) {
-            // pop all the added fragments
-            removeAllFragments();
-            return;
+    public void addFragment(T data) {
+        push(data);
+        Fragment f = (Fragment) statePagerAdapter.instantiateItem(container, data);
+        statePagerAdapter.finishUpdate(container);
+        statePagerAdapter.setPrimaryItem(container, data, f);
+    }
+
+    public ArrayList<T> removeAllFragments() {
+        ArrayList<T> result = new ArrayList<>();
+        T data;
+        while ((data = pop()) != null) {
+            statePagerAdapter.destroyItem(container, data);
+            statePagerAdapter.finishUpdate(container);
+            result.add(data);
         }
-        // push to the stack
-        addFragment(nextQuestion);
+        return result;
     }
 
-    @Override
-    public void OnShowPreviousFragment(QuestionModal currQuestionModal) {
-        // pop action
-        removeFragment();
+    public T removeFragment() {
+        T data = pop();
+        if (data != null) {
+            statePagerAdapter.destroyItem(container, data);
+            statePagerAdapter.finishUpdate(container);
+        }
+        return data;
     }
 
-    public void push(QuestionModal questionModal) {
-        questionListStack.add(questionModal);
+    private void push(T data) {
+        dataStack.add(data);
     }
 
-    public QuestionModal pop() {
-        int indexToBeRemoved = questionListStack.size() - 1;
+    private T pop() {
+        int indexToBeRemoved = dataStack.size() - 1;
         if (indexToBeRemoved < 0) {
             // the list is empty
             return null;
         }
         // remove the last element. Replicate a linked-list.
-        return questionListStack.remove(questionListStack.size() - 1);
+        return dataStack.remove(dataStack.size() - 1);
     }
 
-    protected void addFragment(QuestionModal questionModal) {
-        push(questionModal);
-        Fragment f = (Fragment) statePagerAdapter.instantiateItem(container, questionModal);
-        statePagerAdapter.finishUpdate(container);
-        statePagerAdapter.setPrimaryItem(container, questionModal, f);
-    }
-
-    public void removeAllFragments() {
-        QuestionModal questionModal;
-        while ((questionModal = pop()) != null) {
-            statePagerAdapter.destroyItem(container, questionModal);
-            statePagerAdapter.finishUpdate(container);
-        }
-    }
-
-    protected void removeFragment() {
-        QuestionModal questionModal = pop();
-        if (questionModal != null) {
-            statePagerAdapter.destroyItem(container, questionModal);
-            statePagerAdapter.finishUpdate(container);
-        }
-    }
-
-    /**
-     * Recursively get the next question to be answered.
-     *
-     * @param node The node to search for the next question.
-     * @return The question to show.
-     */
-    public QuestionModal getNext(QuestionModal node) {
-        if (!node.isAnswered()) {
-            return node;
-        }
-        QuestionModal next = null;
-        for (QuestionModal q : node.getChildren()) {
-            next = getNext(q);
-            if (next != null) {
-                break;
-            }
-        }
-        return next;
-    }
-
-    public ArrayList<QuestionModal> getQuestionListStack() {
-        return questionListStack;
+    public ArrayList<T> getDataStack() {
+        return dataStack;
     }
 
 //    private class StackFragmentStatePagerAdapter extends StatePagerAdapter {

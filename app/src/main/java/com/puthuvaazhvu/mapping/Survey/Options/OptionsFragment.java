@@ -1,4 +1,4 @@
-package com.puthuvaazhvu.mapping.Options;
+package com.puthuvaazhvu.mapping.Survey.Options;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -12,12 +12,14 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.puthuvaazhvu.mapping.Constants;
-import com.puthuvaazhvu.mapping.Options.Adapter.OptionsAdapter;
-import com.puthuvaazhvu.mapping.Question.QUESTION_TYPE;
-import com.puthuvaazhvu.mapping.Options.Modal.OptionData;
+import com.puthuvaazhvu.mapping.Survey.Options.Adapter.OptionsAdapter;
+import com.puthuvaazhvu.mapping.Survey.Options.Modal.OptionData;
 import com.puthuvaazhvu.mapping.R;
 
 import java.util.ArrayList;
+
+import static com.puthuvaazhvu.mapping.Survey.Options.OptionTypes.BUTTON;
+import static com.puthuvaazhvu.mapping.Survey.Options.OptionTypes.TEXT_FIELD;
 
 /**
  * Created by muthuveerappans on 8/24/17.
@@ -28,16 +30,16 @@ public class OptionsFragment extends Fragment implements View.OnClickListener {
     EditText input_edit_text;
     Button button;
 
-    QUESTION_TYPE question_type;
+    OptionTypes optionType;
     ArrayList<OptionData> optionDataArrayList;
     OptionsAdapter optionsAdapter;
 
-    public static OptionsFragment getInstance(ArrayList<OptionData> optionDataList, QUESTION_TYPE option_type) {
+    public static OptionsFragment getInstance(ArrayList<OptionData> optionDataList, OptionTypes optionTypes) {
         OptionsFragment optionsFragment = new OptionsFragment();
 
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList("options_data", optionDataList);
-        bundle.putSerializable("question_type", option_type);
+        bundle.putSerializable("option_type", optionTypes);
 
         optionsFragment.setArguments(bundle);
 
@@ -57,7 +59,7 @@ public class OptionsFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        question_type = (QUESTION_TYPE) getArguments().getSerializable("question_type");
+        optionType = (OptionTypes) getArguments().getSerializable("option_type");
         optionDataArrayList = getArguments().getParcelableArrayList("options_data");
 
         input_edit_text = view.findViewById(R.id.input_edit_text);
@@ -68,10 +70,10 @@ public class OptionsFragment extends Fragment implements View.OnClickListener {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext()
                 , LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(linearLayoutManager);
-        optionsAdapter = new OptionsAdapter(optionDataArrayList, question_type);
+        optionsAdapter = new OptionsAdapter(optionDataArrayList, optionType);
         recyclerView.setAdapter(optionsAdapter);
 
-        if (question_type == QUESTION_TYPE.INPUT_GPS) {
+        if (optionType == OptionTypes.BUTTON) {
             button.setText(Constants.isTamil ? getString(R.string.press_ta) : getString(R.string.press));
         }
 
@@ -79,7 +81,7 @@ public class OptionsFragment extends Fragment implements View.OnClickListener {
     }
 
     public ArrayList<OptionData> getSelectedOptions() {
-        if (question_type == QUESTION_TYPE.INPUT_KEYBOARD) {
+        if (optionType == TEXT_FIELD) {
             ArrayList<OptionData> result = new ArrayList<>();
             String option = input_edit_text.getText().toString();
             result.add(new OptionData("-1", true, option, "", true));
@@ -90,11 +92,11 @@ public class OptionsFragment extends Fragment implements View.OnClickListener {
     }
 
     public void manipulateViewVisibilityBasedOnOptionType() {
-        if (question_type == QUESTION_TYPE.INPUT_KEYBOARD) {
+        if (optionType == TEXT_FIELD) {
             input_edit_text.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
             button.setVisibility(View.GONE);
-        } else if (question_type == QUESTION_TYPE.INPUT_GPS) {
+        } else if (optionType == BUTTON) {
             input_edit_text.setVisibility(View.GONE);
             recyclerView.setVisibility(View.GONE);
             button.setVisibility(View.VISIBLE);

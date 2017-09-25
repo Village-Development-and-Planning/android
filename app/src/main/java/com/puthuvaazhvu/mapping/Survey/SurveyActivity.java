@@ -15,7 +15,7 @@ import com.puthuvaazhvu.mapping.Constants;
 import com.puthuvaazhvu.mapping.Modals.Survey;
 import com.puthuvaazhvu.mapping.Question.Loop.QuestionTreeRootLoopFragment;
 import com.puthuvaazhvu.mapping.Question.Loop.QuestionTreeRootLoopFragmentCommunicationInterface;
-import com.puthuvaazhvu.mapping.Question.QuestionModal;
+import com.puthuvaazhvu.mapping.Survey.Modals.QuestionModal;
 import com.puthuvaazhvu.mapping.Question.QuestionTree.QuestionTreeFragment;
 import com.puthuvaazhvu.mapping.Question.QuestionTree.QuestionTreeFragmentCommunicationInterface;
 import com.puthuvaazhvu.mapping.R;

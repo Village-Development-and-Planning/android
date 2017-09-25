@@ -1,8 +1,7 @@
 package com.puthuvaazhvu.mapping.Survey;
 
-import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.Modals.Survey;
-import com.puthuvaazhvu.mapping.Question.QuestionModal;
+import com.puthuvaazhvu.mapping.Survey.Modals.QuestionModal;
 
 /**
  * Created by muthuveerappans on 8/24/17.

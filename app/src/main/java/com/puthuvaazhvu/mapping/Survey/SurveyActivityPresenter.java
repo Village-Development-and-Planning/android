@@ -1,6 +1,5 @@
 package com.puthuvaazhvu.mapping.Survey;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Environment;
 
@@ -10,11 +9,10 @@ import com.google.gson.JsonParser;
 import com.puthuvaazhvu.mapping.Constants;
 import com.puthuvaazhvu.mapping.Modals.Question;
 import com.puthuvaazhvu.mapping.Modals.Survey;
-import com.puthuvaazhvu.mapping.Options.Modal.OptionData;
+import com.puthuvaazhvu.mapping.Survey.Options.Modal.OptionData;
 import com.puthuvaazhvu.mapping.Parsers.SurveyParser;
-import com.puthuvaazhvu.mapping.Question.QUESTION_TYPE;
-import com.puthuvaazhvu.mapping.Question.QuestionModal;
-import com.puthuvaazhvu.mapping.utils.DataHelper;
+import com.puthuvaazhvu.mapping.Survey.Modals.QuestionType;
+import com.puthuvaazhvu.mapping.Survey.Modals.QuestionModal;
 import com.puthuvaazhvu.mapping.utils.FileIO.SaveOperationCallback;
 import com.puthuvaazhvu.mapping.utils.FileIO.SaveSurveyToFile;
 import com.puthuvaazhvu.mapping.utils.ModalAdapters;
@@ -78,13 +76,13 @@ public class SurveyActivityPresenter {
     public void getNextQuestionAndDirectToFragments() {
         QuestionModal questionModal = getNextSurveyQuestion();
         if (questionModal != null) {
-            switch (questionModal.getQuestionType()) {
+            switch (questionModal.getQuestionTypes()) {
                 case LOOP:
                     communicationInterface.loadLoopQuestionFragment(questionModal);
                     break;
                 default:
                     throw new RuntimeException("The question type "
-                            + questionModal.getQuestionType().name() + " is not handled in UI");
+                            + questionModal.getQuestionTypes().name() + " is not handled in UI");
             }
         } else {
             // all questions completed
@@ -169,7 +167,7 @@ public class SurveyActivityPresenter {
                 continue;
             }
             result = ModalAdapters.getAsQuestionModal(question, Constants.isTamil);
-            if (result.getQuestionType() != QUESTION_TYPE.LOOP) {
+            if (result.getQuestionTypes() != QuestionType.LOOP) {
                 result = null;
                 continue;
             }

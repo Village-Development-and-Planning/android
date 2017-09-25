@@ -2,15 +2,14 @@ package com.puthuvaazhvu.mapping.Question.QuestionTree;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.puthuvaazhvu.mapping.Options.Modal.OptionData;
-import com.puthuvaazhvu.mapping.Question.QUESTION_TYPE;
-import com.puthuvaazhvu.mapping.Question.QuestionModal;
+import com.puthuvaazhvu.mapping.Survey.Options.Modal.OptionData;
+import com.puthuvaazhvu.mapping.Survey.Modals.QuestionType;
+import com.puthuvaazhvu.mapping.Survey.Modals.QuestionModal;
 import com.puthuvaazhvu.mapping.Question.SingleQuestion.QuestionFragment;
 import com.puthuvaazhvu.mapping.Question.SingleQuestion.QuestionFragmentCommunicationInterface;
 import com.puthuvaazhvu.mapping.R;
@@ -104,7 +103,7 @@ public class QuestionTreeFragment extends BaseSurveyFragment implements Question
         }
 
         QuestionModal questionModal = questionModalArrayList.get(currentChildIndex);
-        if (questionModal.getQuestionType() == QUESTION_TYPE.NONE) {
+        if (questionModal.getQuestionTypes() == QuestionType.NONE) {
             questionModal = getPreviousQuestion();
         } else if (!DataHelper.shouldShowQuestion(root, questionModal.getInfo())) {
             questionModal = getPreviousQuestion();
@@ -120,7 +119,7 @@ public class QuestionTreeFragment extends BaseSurveyFragment implements Question
             questionModal = null;
         } else {
             questionModal = questionModalArrayList.get(currentChildIndex);
-            if (questionModal.getQuestionType() == QUESTION_TYPE.NONE) {
+            if (questionModal.getQuestionTypes() == QuestionType.NONE) {
                 questionModal = getNextQuestion();
             } else if (!DataHelper.shouldShowQuestion(root, questionModal.getInfo())) {
                 questionModal = getNextQuestion();

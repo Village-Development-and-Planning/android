@@ -1,6 +1,6 @@
 package com.puthuvaazhvu.mapping.Question.Loop;
 
-import com.puthuvaazhvu.mapping.Question.QuestionModal;
+import com.puthuvaazhvu.mapping.Survey.Modals.QuestionModal;
 
 import java.util.HashMap;
 

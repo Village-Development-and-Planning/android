@@ -1,6 +1,6 @@
 package com.puthuvaazhvu.mapping.Survey.Fragments.DynamicTypes;
 
-import com.puthuvaazhvu.mapping.Question.QuestionModal;
+import com.puthuvaazhvu.mapping.Survey.Modals.QuestionModal;
 
 /**
  * Created by muthuveerappans on 9/21/17.

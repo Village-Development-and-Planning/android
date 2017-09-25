@@ -1,7 +1,7 @@
 package com.puthuvaazhvu.mapping.Question.SingleQuestion;
 
-import com.puthuvaazhvu.mapping.Options.Modal.OptionData;
-import com.puthuvaazhvu.mapping.Question.QuestionModal;
+import com.puthuvaazhvu.mapping.Survey.Options.Modal.OptionData;
+import com.puthuvaazhvu.mapping.Survey.Modals.QuestionModal;
 
 import java.util.ArrayList;
 

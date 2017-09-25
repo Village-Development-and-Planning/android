@@ -4,8 +4,8 @@ import android.content.Context;
 import android.util.Log;
 
 import com.puthuvaazhvu.mapping.Constants;
-import com.puthuvaazhvu.mapping.Options.Modal.OptionData;
-import com.puthuvaazhvu.mapping.Question.QuestionModal;
+import com.puthuvaazhvu.mapping.Survey.Options.Modal.OptionData;
+import com.puthuvaazhvu.mapping.Survey.Modals.QuestionModal;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,6 +16,24 @@ import java.util.ArrayList;
  */
 
 public class DataHelper {
+    /**
+     * Helper to update the options of the given question with the latest one. It does using reference.
+     *
+     * @param singleQuestion The question to update the options.
+     *                       This will be updated with the given options by reference.
+     * @param optionDataList The new options set.
+     */
+    public static void updateOptions(QuestionModal singleQuestion, ArrayList<OptionData> optionDataList) {
+        ArrayList<OptionData> givenOptionsData = singleQuestion.getOptionDataList();
+        for (int i = 0; i < givenOptionsData.size(); i++) {
+            OptionData optionData = givenOptionsData.get(i);
+            for (OptionData od : optionDataList) {
+                if (od.getId().equals(optionData.getId())) {
+                    givenOptionsData.set(i, od);
+                }
+            }
+        }
+    }
 
     /**
      * Helper to skip the question based on the pattern provided.

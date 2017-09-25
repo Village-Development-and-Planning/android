@@ -1,11 +1,10 @@
 package com.puthuvaazhvu.mapping.utils;
 
-import com.puthuvaazhvu.mapping.Constants;
 import com.puthuvaazhvu.mapping.Modals.Option;
 import com.puthuvaazhvu.mapping.Modals.Question;
-import com.puthuvaazhvu.mapping.Question.QUESTION_TYPE;
-import com.puthuvaazhvu.mapping.Options.Modal.OptionData;
-import com.puthuvaazhvu.mapping.Question.QuestionModal;
+import com.puthuvaazhvu.mapping.Survey.Modals.QuestionType;
+import com.puthuvaazhvu.mapping.Survey.Options.Modal.OptionData;
+import com.puthuvaazhvu.mapping.Survey.Modals.QuestionModal;
 
 import java.util.ArrayList;
 
@@ -52,21 +51,21 @@ public class ModalAdapters {
                 , false);
     }
 
-    public static QUESTION_TYPE getQuestionTypeAsEnum(String type, ArrayList<String> tags) {
+    public static QuestionType getQuestionTypeAsEnum(String type, ArrayList<String> tags) {
         if (type.equals(INPUT)) {
             if (isTagPresent(TAG_GPS, tags)) {
-                return QUESTION_TYPE.INPUT_GPS;
+                return QuestionType.INPUT_GPS;
             } else {
-                return QUESTION_TYPE.INPUT_KEYBOARD;
+                return QuestionType.INPUT_KEYBOARD;
             }
         } else if (type.equals(LOOP)) {
-            return QUESTION_TYPE.LOOP;
+            return QuestionType.LOOP;
         } else if (type.equals(MULTIPLE_CHOICE)) {
-            return QUESTION_TYPE.MULTIPLE_CHOICE;
+            return QuestionType.MULTIPLE_CHOICE;
         } else if (type.equals(BINARY) || type.equals(SINGLE_CHOICE)) {
-            return QUESTION_TYPE.SINGLE_CHOICE;
+            return QuestionType.SINGLE_CHOICE;
         }
-        return QUESTION_TYPE.NONE;
+        return QuestionType.NONE;
     }
 
     public static boolean isTagPresent(String tag, ArrayList<String> tags) {

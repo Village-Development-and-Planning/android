@@ -13,9 +13,9 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.puthuvaazhvu.mapping.Constants;
-import com.puthuvaazhvu.mapping.Options.Modal.OptionData;
-import com.puthuvaazhvu.mapping.Options.OptionsFragment;
-import com.puthuvaazhvu.mapping.Question.QuestionModal;
+import com.puthuvaazhvu.mapping.Survey.Options.Modal.OptionData;
+import com.puthuvaazhvu.mapping.Survey.Options.OptionsFragment;
+import com.puthuvaazhvu.mapping.Survey.Modals.QuestionModal;
 import com.puthuvaazhvu.mapping.R;
 
 import java.util.ArrayList;
@@ -109,7 +109,7 @@ public class QuestionFragment extends Fragment implements View.OnClickListener {
 
     private void populateOptionsContainer() {
         optionsFragment = null;
-        optionsFragment = OptionsFragment.getInstance(questionModal.getOptionDataList(), questionModal.getQuestionType());
+        optionsFragment = OptionsFragment.getInstance(questionModal.getOptionDataList(), null);
 
         FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.options_container, optionsFragment);

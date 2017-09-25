@@ -12,7 +12,7 @@ import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.puthuvaazhvu.mapping.Question.QuestionModal;
+import com.puthuvaazhvu.mapping.Survey.Modals.GridQuestionModal;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.utils.RecyclerItemClickListener;
 

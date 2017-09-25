@@ -1,12 +1,10 @@
 package com.puthuvaazhvu.mapping.Question.Loop;
 
-import com.puthuvaazhvu.mapping.Options.Modal.OptionData;
-import com.puthuvaazhvu.mapping.Question.QuestionModal;
+import com.puthuvaazhvu.mapping.Survey.Options.Modal.OptionData;
+import com.puthuvaazhvu.mapping.Survey.Modals.QuestionModal;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
 
 /**
  * Created by muthuveerappans on 8/25/17.

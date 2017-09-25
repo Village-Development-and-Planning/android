@@ -46,5 +46,6 @@ public class Constants {
         public static int NULL_DATA = R.string.no_data;
         public static int ITERATION_ERROR = R.string.question_iteration_error;
         public static int SURVEY_INCOMPLETE = R.string.survey_incomplete;
+        public static int OPTIONS_NOT_SELECTED = R.string.options_not_selected;
     }
 }

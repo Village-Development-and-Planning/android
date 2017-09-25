@@ -1,17 +1,13 @@
-package com.puthuvaazhvu.mapping.Question;
+package com.puthuvaazhvu.mapping.Survey.Modals;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.puthuvaazhvu.mapping.Constants;
 import com.puthuvaazhvu.mapping.Modals.Question;
-import com.puthuvaazhvu.mapping.Options.Modal.OptionData;
+import com.puthuvaazhvu.mapping.Survey.Options.Modal.OptionData;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-
-import static com.puthuvaazhvu.mapping.Constants.APIDataConstants.MULTIPLE_ITERATION;
-import static com.puthuvaazhvu.mapping.Constants.APIDataConstants.SINGLE_ITERATION;
 
 /**
  * Created by muthuveerappans on 8/24/17.
@@ -22,10 +18,9 @@ public class QuestionModal implements Parcelable, Serializable {
     private String iterationID;
     private String text;
     private String rawNumber;
-    private ArrayList<String> tags;
     private ArrayList<OptionData> optionDataList;
     private ArrayList<QuestionModal> children;
-    private QUESTION_TYPE questionType;
+    private ArrayList<QuestionType> questionTypes;
     private boolean isNextPresent;
     private boolean isAnswered;
     private boolean isPreviousPresent;
@@ -35,9 +30,8 @@ public class QuestionModal implements Parcelable, Serializable {
             , String rawNumber
             , String text
             , ArrayList<OptionData> optionDataList
-            , QUESTION_TYPE questionType
+            , ArrayList<QuestionType> questionTypes
             , ArrayList<QuestionModal> children
-            , ArrayList<String> tags
             , boolean isNextPresent
             , boolean isPreviousPresent
             , boolean isAnswered
@@ -45,64 +39,20 @@ public class QuestionModal implements Parcelable, Serializable {
         this.questionID = questionID;
         this.text = text;
         this.optionDataList = optionDataList;
-        this.questionType = questionType;
         this.isNextPresent = isNextPresent;
         this.isPreviousPresent = isPreviousPresent;
         this.children = children;
-        this.tags = tags;
+        this.questionTypes = questionTypes;
         this.rawNumber = rawNumber;
         this.info = info;
         this.isAnswered = isAnswered;
     }
 
-    protected QuestionModal(Parcel in) {
-        questionID = in.readString();
-        text = in.readString();
-        rawNumber = in.readString();
-        tags = in.createStringArrayList();
-        optionDataList = in.createTypedArrayList(OptionData.CREATOR);
-        children = in.createTypedArrayList(QuestionModal.CREATOR);
-        isNextPresent = in.readByte() != 0;
-        isPreviousPresent = in.readByte() != 0;
-        info = in.readParcelable(Info.class.getClassLoader());
-        isAnswered = in.readByte() != 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(questionID);
-        dest.writeString(text);
-        dest.writeString(rawNumber);
-        dest.writeStringList(tags);
-        dest.writeTypedList(optionDataList);
-        dest.writeTypedList(children);
-        dest.writeByte((byte) (isNextPresent ? 1 : 0));
-        dest.writeByte((byte) (isPreviousPresent ? 1 : 0));
-        dest.writeParcelable(info, flags);
-        dest.writeByte((byte) (isAnswered ? 1 : 0));
-    }
 
     @Override
     public String toString() {
         return questionID;
     }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    public static final Creator<QuestionModal> CREATOR = new Creator<QuestionModal>() {
-        @Override
-        public QuestionModal createFromParcel(Parcel in) {
-            return new QuestionModal(in);
-        }
-
-        @Override
-        public QuestionModal[] newArray(int size) {
-            return new QuestionModal[size];
-        }
-    };
 
     public void setIterationID(String iterationID) {
         this.iterationID = iterationID;
@@ -114,10 +64,6 @@ public class QuestionModal implements Parcelable, Serializable {
 
     public String getRawNumber() {
         return rawNumber;
-    }
-
-    public ArrayList<String> getTags() {
-        return tags;
     }
 
     public ArrayList<QuestionModal> getChildren() {
@@ -140,8 +86,17 @@ public class QuestionModal implements Parcelable, Serializable {
         return optionDataList;
     }
 
-    public QUESTION_TYPE getQuestionType() {
-        return questionType;
+    public ArrayList<QuestionType> getQuestionTypes() {
+        return questionTypes;
+    }
+
+    public boolean hasType(QuestionType questionType) {
+        for (QuestionType q : questionTypes) {
+            if (q == questionType) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean isNextPresent() {
@@ -156,34 +111,12 @@ public class QuestionModal implements Parcelable, Serializable {
         return isAnswered;
     }
 
-    public boolean hasInput() {
-        return (questionType == QUESTION_TYPE.INPUT_GPS || questionType == QUESTION_TYPE.INPUT_KEYBOARD);
-    }
-
-    public String getTag(String tag) {
-        for (String t : tags) {
-            if (t.equals(tag)) {
-                return t;
-            }
-        }
-        return null;
-    }
-
-    public String getIterationTag() {
-        for (String t : tags) {
-            if (t.equals(MULTIPLE_ITERATION)) {
-                return MULTIPLE_ITERATION;
-            }
-        }
-        return SINGLE_ITERATION;
-    }
-
     public void setOther(QuestionModal questionModal) {
         this.questionID = questionModal.getQuestionID();
         this.text = questionModal.getText();
         this.children = questionModal.getChildren();
         this.optionDataList = questionModal.getOptionDataList();
-        this.questionType = questionModal.getQuestionType();
+        this.questionTypes = questionModal.getQuestionTypes();
         this.isPreviousPresent = questionModal.isPreviousPresent();
         this.isNextPresent = questionModal.isNextPresent();
         this.isAnswered = questionModal.isAnswered();
@@ -204,6 +137,54 @@ public class QuestionModal implements Parcelable, Serializable {
     public int hashCode() {
         return questionID != null ? questionID.hashCode() : 0;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.questionID);
+        dest.writeString(this.iterationID);
+        dest.writeString(this.text);
+        dest.writeString(this.rawNumber);
+        dest.writeTypedList(this.optionDataList);
+        dest.writeTypedList(this.children);
+        dest.writeList(this.questionTypes);
+        dest.writeByte(this.isNextPresent ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.isAnswered ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.isPreviousPresent ? (byte) 1 : (byte) 0);
+        dest.writeParcelable(this.info, flags);
+    }
+
+    protected QuestionModal(Parcel in) {
+        this.questionID = in.readString();
+        this.iterationID = in.readString();
+        this.text = in.readString();
+        this.rawNumber = in.readString();
+        this.optionDataList = in.createTypedArrayList(OptionData.CREATOR);
+        this.children = in.createTypedArrayList(QuestionModal.CREATOR);
+        this.questionTypes = new ArrayList<QuestionType>();
+        in.readList(this.questionTypes, QuestionType.class.getClassLoader());
+        this.isNextPresent = in.readByte() != 0;
+        this.isAnswered = in.readByte() != 0;
+        this.isPreviousPresent = in.readByte() != 0;
+        this.info = in.readParcelable(Info.class.getClassLoader());
+    }
+
+    public static final Creator<QuestionModal> CREATOR = new Creator<QuestionModal>() {
+        @Override
+        public QuestionModal createFromParcel(Parcel source) {
+            return new QuestionModal(source);
+        }
+
+        @Override
+        public QuestionModal[] newArray(int size) {
+            return new QuestionModal[size];
+        }
+    };
+
 
     public static class Info implements Parcelable, Serializable {
         String questionNumberRaw;
@@ -254,5 +235,4 @@ public class QuestionModal implements Parcelable, Serializable {
             return new Info(info.getQuestionNumberRaw(), info.getOption());
         }
     }
-
 }

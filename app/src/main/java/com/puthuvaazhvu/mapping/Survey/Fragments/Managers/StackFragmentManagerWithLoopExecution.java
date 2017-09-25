@@ -1,39 +1,39 @@
 package com.puthuvaazhvu.mapping.Survey.Fragments.Managers;
 
-import android.support.v4.app.FragmentManager;
 import android.view.ViewGroup;
 
 import com.puthuvaazhvu.mapping.Constants;
-import com.puthuvaazhvu.mapping.Question.QUESTION_TYPE;
-import com.puthuvaazhvu.mapping.Question.QuestionModal;
+import com.puthuvaazhvu.mapping.Survey.Modals.QuestionType;
+import com.puthuvaazhvu.mapping.Survey.Modals.QuestionModal;
 import com.puthuvaazhvu.mapping.Survey.Adapters.StatePagerAdapter;
 
 import java.util.ArrayList;
+
+import static com.puthuvaazhvu.mapping.Survey.Modals.QuestionType.GPS;
+import static com.puthuvaazhvu.mapping.Survey.Modals.QuestionType.GRID_MULTIPLE;
+import static com.puthuvaazhvu.mapping.Survey.Modals.QuestionType.LOOP_OPTIONS;
 
 /**
  * Created by muthuveerappans on 9/22/17.
  */
 
 public class StackFragmentManagerWithLoopExecution extends StackFragmentManagerWithSkipPattern {
-    QuestionModal questionModal;
+    private QuestionModal questionModal;
     private ArrayList<QuestionModal> childrenQuestionStack = new ArrayList<>();
 
     public StackFragmentManagerWithLoopExecution(ViewGroup container
             , QuestionModal questionModal, StatePagerAdapter statePagerAdapter) {
         super(container, questionModal, statePagerAdapter);
-        this.questionModal = questionModal;
-    }
-
-    public void startMainLoop() {
-        // add the root node fragment
-        addFragment(questionModal);
+        this.questionModal = getQuestionModal();
     }
 
     @Override
-    public void OnShowNextFragment(QuestionModal currQuestionModal) {
+    public void addNextFragment() {
         QuestionModal q = null;
+        ArrayList<QuestionModal> dataStack = getDataStack();
+
         // if loop question, show gps question (defaults to 0th position).
-        if (shouldShowGPSQuestion(currQuestionModal)) {
+        if (shouldShowGPSQuestion(questionModal)) {
             q = currQuestionModal.getChildren().get(0);
         }
         // if loop question with gps on top, show grid of children.
@@ -62,28 +62,14 @@ public class StackFragmentManagerWithLoopExecution extends StackFragmentManagerW
     }
 
     /**
-     * Removes all the fragment until the first added fragment
+     * Removes all the fragments until the first added fragment
      */
     public void removeTillLoopRootQuestion() {
-        ArrayList<QuestionModal> questionStack = getQuestionListStack();
+        ArrayList<QuestionModal> questionStack = getDataStack();
         if (questionStack.size() > 0) {
             for (int i = 0; i < questionStack.size(); i++) {
                 removeFragment();
             }
         }
-    }
-
-    private boolean shouldShowGPSQuestion(QuestionModal currentQuestion) {
-        ArrayList<QuestionModal> questionStack = getQuestionListStack();
-        return questionStack.size() == 1
-                && questionStack.get(0).getQuestionType() == QUESTION_TYPE.LOOP
-                && currentQuestion.getTag(Constants.APIDataConstants.TAG_GPS) != null;
-    }
-
-    private boolean shouldShowGridOfQuestions() {
-        ArrayList<QuestionModal> questionStack = getQuestionListStack();
-        return questionStack.size() == 2
-                && questionStack.get(0).getQuestionType() == QUESTION_TYPE.LOOP
-                && questionStack.get(1).getTag(Constants.APIDataConstants.TAG_GPS) != null;
     }
 }

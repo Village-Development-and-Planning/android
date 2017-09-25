@@ -2,7 +2,6 @@ package com.puthuvaazhvu.mapping.Survey.Fragments.DynamicTypes;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,22 +11,36 @@ import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.puthuvaazhvu.mapping.Question.Grid.RootQuestionsGrid.GridQuestionModal;
-import com.puthuvaazhvu.mapping.Question.Grid.RootQuestionsGrid.RootQuestionsGridHolderFragment;
+import com.puthuvaazhvu.mapping.Survey.Modals.GridQuestionModal;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.utils.RecyclerItemClickListener;
+
+import java.util.ArrayList;
 
 /**
  * Created by muthuveerappans on 9/21/17.
  */
 
 public class GridQuestionFragment extends BaseDynamicTypeFragment {
-    RecyclerView recyclerView;
-    QuestionsAdapter questionsAdapter;
+    private RecyclerView recyclerView;
+    private QuestionsAdapter questionsAdapter;
+    private ArrayList<GridQuestionModal> dataSet;
+
+    public static GridQuestionFragment getInstance(ArrayList<GridQuestionModal> questionModal) {
+        GridQuestionFragment questionFragment = new GridQuestionFragment();
+
+        Bundle bundle = new Bundle();
+        bundle.putParcelableArrayList("question_data", questionModal);
+
+        questionFragment.setArguments(bundle);
+
+        return questionFragment;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        dataSet = getArguments().getParcelableArrayList("question_data");
     }
 
     @Nullable
@@ -61,7 +74,8 @@ public class GridQuestionFragment extends BaseDynamicTypeFragment {
                 , new RecyclerItemClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-
+                GridQuestionModal gridQuestionModal = dataSet.get(position);
+                getDynamicFragmentTypeCommunicationInterface().OnShowNextFragment(gridQuestionModal);
             }
         }));
 
@@ -85,11 +99,14 @@ public class GridQuestionFragment extends BaseDynamicTypeFragment {
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
             QVH qvh = (QVH) holder;
+            GridQuestionModal gridQuestionModal = dataSet.get(position);
+            qvh.populateViews(gridQuestionModal.getText()
+                    , gridQuestionModal.getQuestionCount());
         }
 
         @Override
         public int getItemCount() {
-            return 10;
+            return dataSet.size();
         }
     }
 
@@ -107,8 +124,7 @@ public class GridQuestionFragment extends BaseDynamicTypeFragment {
             img_check_mark.setVisibility(View.GONE);
         }
 
-        public void populateViews(String text, boolean isQuestionAnswered, int count) {
-            //img_check_mark.setVisibility(isQuestionAnswered ? View.VISIBLE : View.GONE);
+        public void populateViews(String text, int count) {
             setQuestionText(text);
             badge.setText(String.valueOf(count));
 

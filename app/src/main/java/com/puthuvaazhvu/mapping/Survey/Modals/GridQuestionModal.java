@@ -1,11 +1,9 @@
-package com.puthuvaazhvu.mapping.Question.Grid.RootQuestionsGrid;
+package com.puthuvaazhvu.mapping.Survey.Modals;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.puthuvaazhvu.mapping.Options.Modal.OptionData;
-import com.puthuvaazhvu.mapping.Question.QUESTION_TYPE;
-import com.puthuvaazhvu.mapping.Question.QuestionModal;
+import com.puthuvaazhvu.mapping.Survey.Options.Modal.OptionData;
 
 import java.util.ArrayList;
 
@@ -14,15 +12,13 @@ import java.util.ArrayList;
  */
 
 public class GridQuestionModal extends QuestionModal implements Parcelable {
-    boolean isQuestionAnswered;
     int questionCount;
 
     private GridQuestionModal(String questionID
             , String rawNumber
             , String text
             , ArrayList<OptionData> optionDataList
-            , ArrayList<String> tags
-            , QUESTION_TYPE optionType
+            , ArrayList<QuestionType> questionTypes
             , ArrayList<QuestionModal> children
             , boolean isNextPresent
             , boolean isPreviousPresent
@@ -33,33 +29,28 @@ public class GridQuestionModal extends QuestionModal implements Parcelable {
                 , rawNumber
                 , text
                 , optionDataList
-                , optionType
+                , questionTypes
                 , children
-                , tags
                 , isNextPresent
                 , isPreviousPresent
+                , isQuestionAnswered
                 , info);
-        this.isQuestionAnswered = isQuestionAnswered;
         this.questionCount = count;
     }
 
     public GridQuestionModal(Parcel in) {
         super(in);
-        in.writeInt(isQuestionAnswered ? 1 : 0);
-    }
-
-    public boolean isQuestionAnswered() {
-        return isQuestionAnswered;
+        questionCount = in.readInt();
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
-        dest.writeInt(isQuestionAnswered ? 1 : 0);
+        dest.writeInt(questionCount);
     }
 
-    public void setQuestionAnswered(boolean questionAnswered) {
-        isQuestionAnswered = questionAnswered;
+    public int getQuestionCount() {
+        return questionCount;
     }
 
     public static final Parcelable.Creator<GridQuestionModal> CREATOR = new Parcelable.Creator<GridQuestionModal>() {
@@ -75,18 +66,16 @@ public class GridQuestionModal extends QuestionModal implements Parcelable {
     };
 
 
-
     public static GridQuestionModal questionModalAdapter(QuestionModal questionModal, int questionCount) {
         return new GridQuestionModal(questionModal.getQuestionID()
                 , questionModal.getRawNumber()
                 , questionModal.getText()
                 , questionModal.getOptionDataList()
-                , questionModal.getTags()
-                , questionModal.getQuestionType()
+                , questionModal.getQuestionTypes()
                 , questionModal.getChildren()
                 , questionModal.isNextPresent()
                 , questionModal.isPreviousPresent()
-                , false
+                , questionModal.isAnswered()
                 , questionCount
                 , questionModal.getInfo());
     }

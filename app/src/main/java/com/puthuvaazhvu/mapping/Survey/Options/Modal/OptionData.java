@@ -1,4 +1,4 @@
-package com.puthuvaazhvu.mapping.Options.Modal;
+package com.puthuvaazhvu.mapping.Survey.Options.Modal;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -84,5 +84,21 @@ public class OptionData implements Parcelable, Serializable {
         parcel.writeString(text);
         parcel.writeString(id);
         parcel.writeByte((byte) (isOptionDone ? 1 : 0));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        OptionData that = (OptionData) o;
+
+        return id != null ? id.equals(that.id) : that.id == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
     }
 }
