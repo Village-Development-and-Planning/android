@@ -3,6 +3,11 @@ package com.puthuvaazhvu.mapping.Modals;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.puthuvaazhvu.mapping.utils.JsonHelper;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,16 +16,34 @@ import java.util.List;
  */
 
 public class Survey implements Parcelable {
-    String id;
-    String name;
-    ArrayList<Question> questionList;
-    String modifiedAt;
+    private final String id;
+    private final String name;
+    private final String description;
+    private final ArrayList<Question> questionList;
+    private final String modifiedAt;
 
-    public Survey(String id, String name, ArrayList<Question> questionList, String modifiedAt) {
+    public Survey(String id, String name, String description, ArrayList<Question> questionList, String modifiedAt) {
         this.id = id;
         this.name = name;
         this.questionList = questionList;
         this.modifiedAt = modifiedAt;
+        this.description = description;
+    }
+
+    public Survey(JsonObject json) {
+        id = JsonHelper.getString(json, "_id");
+        name = JsonHelper.getString(json, "name");
+        modifiedAt = JsonHelper.getString(json, "modifiedAt");
+        description = JsonHelper.getString(json, "description");
+
+        JsonArray questionsArray = JsonHelper.getJsonArray(json, "questions");
+        questionList = new ArrayList<>();
+
+        if (questionsArray != null) {
+            for (JsonElement e : questionsArray) {
+                questionList.add(Question.populateQuestion(e.getAsJsonObject()));
+            }
+        }
     }
 
     protected Survey(Parcel in) {
@@ -28,6 +51,7 @@ public class Survey implements Parcelable {
         name = in.readString();
         questionList = in.createTypedArrayList(Question.CREATOR);
         modifiedAt = in.readString();
+        description = in.readString();
     }
 
     @Override
@@ -36,6 +60,7 @@ public class Survey implements Parcelable {
         dest.writeString(name);
         dest.writeTypedList(questionList);
         dest.writeString(modifiedAt);
+        dest.writeString(description);
     }
 
     @Override
@@ -69,5 +94,9 @@ public class Survey implements Parcelable {
 
     public String getModifiedAt() {
         return modifiedAt;
+    }
+
+    public String getDescription() {
+        return description;
     }
 }

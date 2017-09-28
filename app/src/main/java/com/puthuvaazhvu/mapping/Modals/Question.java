@@ -3,93 +3,98 @@ package com.puthuvaazhvu.mapping.Modals;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.puthuvaazhvu.mapping.Modals.Flow.FlowPattern;
+import com.puthuvaazhvu.mapping.utils.JsonHelper;
+
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by muthuveerappans on 8/24/17.
  */
 
 public class Question implements Parcelable {
-    String id;
-    String position;
-    Text text;
-    String type;
-    ArrayList<Option> optionList;
-    ArrayList<String> tags;
-    String modifiedAt;
-    String rawNumber;
-    ArrayList<Question> children;
-    Info info;
+    private final String id;
+    private final String position;
+    private final Text text;
+    private final String type;
+    private final ArrayList<Option> optionList;
+    private final ArrayList<Answer> answer;
+    private final ArrayList<Tag> tag;
+    private final String modifiedAt;
+    private final String rawNumber;
+    private final ArrayList<Question> children;
+    private final Info info;
+    private final FlowPattern flowPattern;
+    private Question parent;
 
-    public Question(String id
-            , String position
-            , String rawNumber
-            , Text text
-            , String type
-            , ArrayList<Option> optionList
-            , ArrayList<String> tags
-            , String modifiedAt
-            , ArrayList<Question> children
-            , Info info) {
+    public Question(String id, String position, Text text, String type, ArrayList<Option> optionList, ArrayList<Answer> answer, ArrayList<Tag> tag, String modifiedAt, String rawNumber, ArrayList<Question> children, Info info, FlowPattern flowPattern, Question parent) {
         this.id = id;
         this.position = position;
         this.text = text;
         this.type = type;
         this.optionList = optionList;
-        this.tags = tags;
+        this.answer = answer;
+        this.tag = tag;
         this.modifiedAt = modifiedAt;
-        this.children = children;
         this.rawNumber = rawNumber;
+        this.children = children;
         this.info = info;
+        this.flowPattern = flowPattern;
+        this.parent = parent;
     }
 
-    protected Question(Parcel in) {
-        id = in.readString();
-        position = in.readString();
-        text = in.readParcelable(Text.class.getClassLoader());
-        type = in.readString();
-        optionList = in.createTypedArrayList(Option.CREATOR);
-        tags = in.createStringArrayList();
-        modifiedAt = in.readString();
-        rawNumber = in.readString();
-        children = in.createTypedArrayList(Question.CREATOR);
-        info = in.readParcelable(Info.class.getClassLoader());
+    public Question(JsonObject json) {
+        this.position = JsonHelper.getString(json, "position");
+
+        JsonObject questionJson = JsonHelper.getJsonObject(json, "question");
+        this.id = JsonHelper.getString(questionJson, "_id");
+        this.type = JsonHelper.getString(questionJson, "type");
+        this.modifiedAt = JsonHelper.getString(questionJson, "modifiedAt");
+        this.rawNumber = JsonHelper.getString(questionJson, "number");
+
+        JsonObject flowJson = JsonHelper.getJsonObject(questionJson, "flow");
+        this.flowPattern = new FlowPattern(flowJson);
+
+        JsonObject infoJson = JsonHelper.getJsonObject(questionJson, "info");
+        this.info = new Info(infoJson);
+
+        JsonArray tagsArray = JsonHelper.getJsonArray(questionJson, "tags");
+        this.tag = Tag.getTags(tagsArray);
+
+        JsonObject textJson = JsonHelper.getJsonObject(questionJson, "text");
+        this.text = new Text(textJson);
+
+        JsonArray optionJsonArray = JsonHelper.getJsonArray(questionJson, "options");
+        this.optionList = Option.getOptions(optionJsonArray);
+
+        this.answer = new ArrayList<>();
+        this.children = new ArrayList<>();
+
+        this.parent = null;
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(id);
-        dest.writeString(position);
-        dest.writeParcelable(text, flags);
-        dest.writeString(type);
-        dest.writeTypedList(optionList);
-        dest.writeStringList(tags);
-        dest.writeString(modifiedAt);
-        dest.writeString(rawNumber);
-        dest.writeTypedList(children);
-        dest.writeParcelable(info, flags);
+    public void setParent(Question parent) {
+        parent.children.add(this);
+        this.parent = parent;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
+    public void addChild(Question child) {
+        this.children.add(child);
+        child.parent = this;
     }
 
-    public static final Creator<Question> CREATOR = new Creator<Question>() {
-        @Override
-        public Question createFromParcel(Parcel in) {
-            return new Question(in);
-        }
+    public boolean isRoot() {
+        return (this.parent == null);
+    }
 
-        @Override
-        public Question[] newArray(int size) {
-            return new Question[size];
-        }
-    };
-
-    public String getRawNumber() {
-        return rawNumber;
+    public boolean isLeaf() {
+        if (this.children.size() == 0)
+            return true;
+        else
+            return false;
     }
 
     public String getId() {
@@ -112,65 +117,120 @@ public class Question implements Parcelable {
         return optionList;
     }
 
-    public ArrayList<String> getTags() {
-        return tags;
+    public void addAnswer(Answer answer) {
+        this.answer.add(answer);
+    }
+
+    public ArrayList<Answer> getAnswer() {
+        return answer;
+    }
+
+    public ArrayList<Tag> getTag() {
+        return tag;
     }
 
     public String getModifiedAt() {
         return modifiedAt;
     }
 
+    public String getRawNumber() {
+        return rawNumber;
+    }
+
     public ArrayList<Question> getChildren() {
         return children;
+    }
+
+    public Question getParent() {
+        return parent;
     }
 
     public Info getInfo() {
         return info;
     }
 
-    public static class Info implements Parcelable {
-        String questionNumberRaw;
-        String option;
+    public FlowPattern getFlowPattern() {
+        return flowPattern;
+    }
 
-        public Info(String questionNumberRaw, String option) {
-            this.questionNumberRaw = questionNumberRaw;
-            this.option = option;
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.id);
+        dest.writeString(this.position);
+        dest.writeParcelable(this.text, flags);
+        dest.writeString(this.type);
+        dest.writeTypedList(this.optionList);
+        dest.writeTypedList(this.answer);
+        dest.writeTypedList(this.tag);
+        dest.writeString(this.modifiedAt);
+        dest.writeString(this.rawNumber);
+        dest.writeTypedList(this.children);
+        dest.writeParcelable(this.info, flags);
+        dest.writeParcelable(this.flowPattern, flags);
+        dest.writeParcelable(this.parent, flags);
+    }
+
+    protected Question(Parcel in) {
+        this.id = in.readString();
+        this.position = in.readString();
+        this.text = in.readParcelable(Text.class.getClassLoader());
+        this.type = in.readString();
+        this.optionList = in.createTypedArrayList(Option.CREATOR);
+        this.answer = in.createTypedArrayList(Answer.CREATOR);
+        this.tag = in.createTypedArrayList(Tag.CREATOR);
+        this.modifiedAt = in.readString();
+        this.rawNumber = in.readString();
+        this.children = in.createTypedArrayList(Question.CREATOR);
+        this.info = in.readParcelable(Info.class.getClassLoader());
+        this.flowPattern = in.readParcelable(FlowPattern.class.getClassLoader());
+        this.parent = in.readParcelable(Question.class.getClassLoader());
+    }
+
+    public static final Creator<Question> CREATOR = new Creator<Question>() {
+        @Override
+        public Question createFromParcel(Parcel source) {
+            return new Question(source);
         }
-
-        protected Info(Parcel in) {
-            questionNumberRaw = in.readString();
-            option = in.readString();
-        }
-
-        public String getQuestionNumberRaw() {
-            return questionNumberRaw;
-        }
-
-        public String getOption() {
-            return option;
-        }
-
-        public static final Creator<Info> CREATOR = new Creator<Info>() {
-            @Override
-            public Info createFromParcel(Parcel in) {
-                return new Info(in);
-            }
-
-            @Override
-            public Info[] newArray(int size) {
-                return new Info[size];
-            }
-        };
 
         @Override
-        public int describeContents() {
-            return 0;
+        public Question[] newArray(int size) {
+            return new Question[size];
         }
+    };
 
-        @Override
-        public void writeToParcel(Parcel parcel, int i) {
-            parcel.writeString(questionNumberRaw);
-            parcel.writeString(option);
+    public static Question populateQuestion(JsonObject nodeJson) {
+        return populateQuestionInternal(null, nodeJson);
+    }
+
+    /**
+     * Recursively populates the node.
+     *
+     * @param question The root node question. (Null usually, if it's starting node)
+     * @param nodeJson The corresponding JSON
+     * @return The populated Question object.
+     */
+    private static Question populateQuestionInternal(Question question, JsonObject nodeJson) {
+        if (question == null) // if null, start of the new node.
+            question = new Question(nodeJson);
+
+        JsonObject questionJson = JsonHelper.getJsonObject(nodeJson, "question");
+        if (questionJson != null) {
+            JsonArray childrenArray = JsonHelper.getJsonArray(questionJson, "children");
+            if (childrenArray != null) {
+                for (JsonElement e : childrenArray) {
+                    JsonObject o = e.getAsJsonObject();
+                    Question c = new Question(o);
+                    question.addChild(c);
+                    populateQuestionInternal(c, o);
+                }
+            }
         }
+        return question;
     }
 }

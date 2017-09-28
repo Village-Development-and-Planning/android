@@ -3,21 +3,34 @@ package com.puthuvaazhvu.mapping.Modals;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class Text implements Parcelable {
-    String id;
-    String english;
-    String tamil;
+import com.google.gson.JsonObject;
+import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
-    public Text(String id, String english, String tamil) {
+public class Text implements Parcelable {
+    private final String id;
+    private final String english;
+    private final String tamil;
+    private final String modifiedAt;
+
+    public Text(String id, String english, String tamil, String modifiedAt) {
         this.id = id;
         this.english = english;
         this.tamil = tamil;
+        this.modifiedAt = modifiedAt;
+    }
+
+    public Text(JsonObject jsonObject) {
+        english = JsonHelper.getString(jsonObject, "english");
+        tamil = JsonHelper.getString(jsonObject, "tamil");
+        id = JsonHelper.getString(jsonObject, "_id");
+        modifiedAt = JsonHelper.getString(jsonObject, "modifiedAt");
     }
 
     protected Text(Parcel in) {
         id = in.readString();
         english = in.readString();
         tamil = in.readString();
+        modifiedAt = in.readString();
     }
 
     @Override
@@ -25,6 +38,7 @@ public class Text implements Parcelable {
         dest.writeString(id);
         dest.writeString(english);
         dest.writeString(tamil);
+        dest.writeString(modifiedAt);
     }
 
     @Override
@@ -54,5 +68,9 @@ public class Text implements Parcelable {
 
     public String getTamil() {
         return tamil;
+    }
+
+    public String getModifiedAt() {
+        return modifiedAt;
     }
 }
