@@ -1,4 +1,4 @@
-package com.puthuvaazhvu.mapping.Modals;
+package com.puthuvaazhvu.mapping.modals;
 
 import android.os.Parcel;
 import android.os.Parcelable;

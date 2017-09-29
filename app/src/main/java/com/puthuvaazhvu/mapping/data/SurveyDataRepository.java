@@ -1,6 +1,6 @@
-package com.puthuvaazhvu.mapping.Data;
+package com.puthuvaazhvu.mapping.data;
 
-import com.puthuvaazhvu.mapping.Modals.Survey;
+import com.puthuvaazhvu.mapping.modals.Survey;
 
 import java.util.ArrayList;
 

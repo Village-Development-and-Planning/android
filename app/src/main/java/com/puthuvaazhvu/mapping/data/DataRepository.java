@@ -1,4 +1,4 @@
-package com.puthuvaazhvu.mapping.Data;
+package com.puthuvaazhvu.mapping.data;
 
 import java.util.ArrayList;
 

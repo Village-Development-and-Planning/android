@@ -1,13 +1,12 @@
 package com.puthuvaazhvu.mapping;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.puthuvaazhvu.mapping.Modals.Flow.ChildFlow;
-import com.puthuvaazhvu.mapping.Modals.Question;
-import com.puthuvaazhvu.mapping.Modals.Survey;
+import com.puthuvaazhvu.mapping.modals.Flow.ChildFlow;
+import com.puthuvaazhvu.mapping.modals.Question;
+import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.utils.Utils;
 
 import org.junit.Before;
@@ -17,7 +16,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;

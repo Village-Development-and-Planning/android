@@ -19,7 +19,7 @@
         android:id="@+id/options_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:listitem="@layout/radio_button_option"
+        tools:listitem="@layout/radio_button_option_row"
         tools:visibility="gone" />
 
     <Button

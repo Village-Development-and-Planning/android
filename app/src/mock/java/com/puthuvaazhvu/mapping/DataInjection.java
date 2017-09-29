@@ -1,8 +1,8 @@
 package com.puthuvaazhvu.mapping;
 
-import com.puthuvaazhvu.mapping.Data.DataRepository;
-import com.puthuvaazhvu.mapping.Data.SurveyDataRepository;
-import com.puthuvaazhvu.mapping.Modals.Survey;
+import com.puthuvaazhvu.mapping.data.DataRepository;
+import com.puthuvaazhvu.mapping.data.SurveyDataRepository;
+import com.puthuvaazhvu.mapping.modals.Survey;
 
 /**
  * Created by muthuveerappans on 9/28/17.

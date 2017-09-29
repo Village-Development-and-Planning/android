@@ -1,4 +1,4 @@
-package com.puthuvaazhvu.mapping.Modals;
+package com.puthuvaazhvu.mapping.modals;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -9,7 +9,6 @@ import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by muthuveerappans on 8/24/17.

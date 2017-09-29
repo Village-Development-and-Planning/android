@@ -1,4 +1,4 @@
-package com.puthuvaazhvu.mapping.Modals;
+package com.puthuvaazhvu.mapping.modals;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -6,7 +6,7 @@ import android.os.Parcelable;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.puthuvaazhvu.mapping.Modals.Flow.FlowPattern;
+import com.puthuvaazhvu.mapping.modals.Flow.FlowPattern;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
 import java.util.ArrayList;

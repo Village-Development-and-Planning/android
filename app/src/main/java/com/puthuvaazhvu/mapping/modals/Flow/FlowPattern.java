@@ -1,4 +1,4 @@
-package com.puthuvaazhvu.mapping.Modals.Flow;
+package com.puthuvaazhvu.mapping.modals.Flow;
 
 import android.os.Parcel;
 import android.os.Parcelable;
