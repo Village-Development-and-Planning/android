@@ -213,7 +213,7 @@ public class Question implements Parcelable {
      *
      * @param question The root node question. (Null usually, if it's starting node)
      * @param nodeJson The corresponding JSON
-     * @return The populated Question object.
+     * @return The populated SingleQuestion object.
      */
     private static Question populateQuestionInternal(Question question, JsonObject nodeJson) {
         if (question == null) // if null, start of the new node.

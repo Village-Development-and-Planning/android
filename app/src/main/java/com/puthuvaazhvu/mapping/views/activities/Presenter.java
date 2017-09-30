@@ -18,7 +18,7 @@ public class Presenter implements Contract.UserAction {
 
     @Override
     public void getSurvey() {
-        DataInjection.provideSurveyDataRepository().getData(null // Todo: add some specifier for a survey
+        DataInjection.provideSurveyDataRepository().getData(null // Todo: add some identifier for a survey
                 , new DataRepository.DataLoadedCallback<Survey>() {
                     @Override
                     public void onDataLoaded(Survey data) {

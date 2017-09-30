@@ -52,7 +52,7 @@ public interface Contract {
          * This also calls the appropriate callback to show/remove the specific fragment(s).
          *
          * @param current Current question that was answered.
-         * @return Next Question from the tree.
+         * @return Next SingleQuestion from the tree.
          */
         Question getNext(Question current);
     }

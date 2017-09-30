@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * Created by muthuveerappans on 9/30/17.
  */
 
-public interface StackFragmentManager {
+public interface StackFragment {
     void pushFragment(String tag, Fragment fragment);
 
     void popFragment(Fragment fragment);

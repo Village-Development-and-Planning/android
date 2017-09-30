@@ -1,4 +1,4 @@
-package com.puthuvaazhvu.mapping.views.Operation;
+package com.puthuvaazhvu.mapping.views.managers.operation;
 
 import android.support.v4.app.Fragment;
 import android.util.Log;

@@ -24,7 +24,7 @@ void popQuestion(Question question);
 ```Java
 Question getNextQuestion(Question node);
 ```
-+ get next question in option data based on **child flow**
++ get next question in optionData optionData based on **child flow**
 + if answered
 	+ recruse until an unanswered question is found
 

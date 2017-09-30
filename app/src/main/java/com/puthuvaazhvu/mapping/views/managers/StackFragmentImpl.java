@@ -10,12 +10,12 @@ import java.util.ArrayList;
  * Created by muthuveerappans on 9/30/17.
  */
 
-public class StackFragmentManagerImpl implements StackFragmentManager {
+public class StackFragmentImpl implements StackFragment {
     private ArrayList<Fragment> fragments = new ArrayList<>();
     private final FragmentManager fragmentManager;
     private FragmentTransaction fragmentTransaction;
 
-    public StackFragmentManagerImpl(FragmentManager fragmentManager) {
+    public StackFragmentImpl(FragmentManager fragmentManager) {
         this.fragmentManager = fragmentManager;
     }
 
