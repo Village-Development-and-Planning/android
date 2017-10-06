@@ -153,6 +153,9 @@ public class Question implements Parcelable {
         return flowPattern;
     }
 
+    public boolean isAnswered() {
+        return this.answer.size() > 0;
+    }
 
     @Override
     public int describeContents() {

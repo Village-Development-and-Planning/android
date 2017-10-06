@@ -27,7 +27,7 @@ public interface Contract {
          *
          * @param question
          */
-        void shouldShowQuestion(Question question);
+        void shouldShowSingleQuestion(Question question);
 
         /**
          * Callback called when a particular question should be removed from the stack.
@@ -47,13 +47,15 @@ public interface Contract {
     interface UserAction {
         void getSurvey(); // Todo: Add something to uniquely identify and get the survey.
 
+        void getNext();
+
         /**
-         * Gets the next question to be shown.
-         * This also calls the appropriate callback to show/remove the specific fragment(s).
+         * sets the current question and updates the pointer to point to that question so that it's shown on the UI.
          *
-         * @param current Current question that was answered.
-         * @return Next SingleQuestion from the tree.
+         * @param currentQuestion The current question to set the pointer to.
          */
-        Question getNext(Question current);
+        public void setCurrentQuestion(Question currentQuestion);
+
+        public void setCurrentQuestionRoot(Question questionRoot, int index);
     }
 }

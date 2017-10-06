@@ -1,4 +1,4 @@
-package com.puthuvaazhvu.mapping;
+package com.puthuvaazhvu.mapping.Models;
 
 import android.content.Context;
 
@@ -32,7 +32,7 @@ import static org.mockito.Matchers.notNull;
  */
 
 @RunWith(MockitoJUnitRunner.class)
-public class DataModelTest {
+public class DataModelTest extends SurveyDataModelTest {
 
     @Mock
     private Context context;
@@ -42,26 +42,10 @@ public class DataModelTest {
         MockitoAnnotations.initMocks(this);
     }
 
+    @Override
     @Test
     public void testSurveyModel() {
-        String fileName = "survey_4.json";
-        String surveyDataString = Utils.readFromInputStream(getDataFormFile(this, fileName));
-
-        assertThat(surveyDataString, notNullValue());
-
-        assertThat(surveyDataString, containsString("_id"));
-
-        JsonParser jsonParser = new JsonParser();
-        JsonObject surveyJson = jsonParser.parse(surveyDataString).getAsJsonObject();
-
-        assertThat(surveyJson, notNullValue());
-
-        Survey survey = new Survey(surveyJson);
-
-        assertThat(survey, is(notNullValue()));
-
-        // check the first branch of children has the correct size.
-        assertThat(survey.getQuestionList().size(), equalTo(6));
+        super.testSurveyModel();
 
         Question habitationQuestion = survey.getQuestionList().get(5);
         assertThat(habitationQuestion.getRawNumber(), is("2"));
