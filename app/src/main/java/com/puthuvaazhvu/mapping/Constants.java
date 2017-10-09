@@ -6,4 +6,10 @@ package com.puthuvaazhvu.mapping;
 
 public class Constants {
     public static String LOG_TAG = "mapping.logs";
+    public static Language APP_LANGUAGE = Language.ENGLISH;
+
+    public static enum Language {
+        ENGLISH,
+        TAMIL
+    }
 }

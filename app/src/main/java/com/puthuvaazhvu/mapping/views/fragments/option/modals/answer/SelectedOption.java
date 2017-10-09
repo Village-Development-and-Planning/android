@@ -8,20 +8,14 @@ import android.os.Parcelable;
  */
 
 public class SelectedOption implements Parcelable {
-    private String id;
-    private String text;
+    private String json;
 
-    public SelectedOption(String id, String text) {
-        this.id = id;
-        this.text = text;
+    public SelectedOption(String json) {
+        this.json = json;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public String getText() {
-        return text;
+    public String getJson() {
+        return json;
     }
 
 
@@ -32,13 +26,11 @@ public class SelectedOption implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.id);
-        dest.writeString(this.text);
+        dest.writeString(this.json);
     }
 
     protected SelectedOption(Parcel in) {
-        this.id = in.readString();
-        this.text = in.readString();
+        this.json = in.readString();
     }
 
     public static final Creator<SelectedOption> CREATOR = new Creator<SelectedOption>() {

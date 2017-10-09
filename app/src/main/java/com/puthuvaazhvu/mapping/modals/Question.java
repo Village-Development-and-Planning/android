@@ -6,6 +6,8 @@ import android.os.Parcelable;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.puthuvaazhvu.mapping.Constants;
+import com.puthuvaazhvu.mapping.modals.Flow.AnswerFlow;
 import com.puthuvaazhvu.mapping.modals.Flow.FlowPattern;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
@@ -56,24 +58,46 @@ public class Question implements Parcelable {
         this.rawNumber = JsonHelper.getString(questionJson, "number");
 
         JsonObject flowJson = JsonHelper.getJsonObject(questionJson, "flow");
-        this.flowPattern = new FlowPattern(flowJson);
+        if (flowJson != null)
+            this.flowPattern = new FlowPattern(flowJson);
+        else this.flowPattern = null;
 
         JsonObject infoJson = JsonHelper.getJsonObject(questionJson, "info");
-        this.info = new Info(infoJson);
+        if (infoJson != null)
+            this.info = new Info(infoJson);
+        else this.info = null;
 
         JsonArray tagsArray = JsonHelper.getJsonArray(questionJson, "tags");
-        this.tag = Tag.getTags(tagsArray);
+        if (tagsArray != null)
+            this.tag = Tag.getTags(tagsArray);
+        else this.tag = null;
 
         JsonObject textJson = JsonHelper.getJsonObject(questionJson, "text");
-        this.text = new Text(textJson);
+        if (textJson != null)
+            this.text = new Text(textJson);
+        else this.text = null;
 
         JsonArray optionJsonArray = JsonHelper.getJsonArray(questionJson, "options");
-        this.optionList = Option.getOptions(optionJsonArray);
+        if (optionJsonArray != null)
+            this.optionList = Option.getOptions(optionJsonArray);
+        else this.optionList = null;
 
         this.answer = new ArrayList<>();
         this.children = new ArrayList<>();
 
         this.parent = null;
+    }
+
+    public String getTextString() {
+        if (text == null) {
+            return null;
+        }
+        switch (Constants.APP_LANGUAGE) {
+            case TAMIL:
+                return text.getTamil();
+            default:
+                return text.getEnglish();
+        }
     }
 
     public void setParent(Question parent) {
@@ -154,7 +178,12 @@ public class Question implements Parcelable {
     }
 
     public boolean isAnswered() {
-        return this.answer.size() > 0;
+        boolean isScopeOnce = false;
+        AnswerFlow answerFlow = getFlowPattern().getAnswerFlow();
+        if (answerFlow != null) {
+            isScopeOnce = answerFlow.getMode() == AnswerFlow.Modes.ONCE;
+        }
+        return this.answer.size() > 0 && isScopeOnce;
     }
 
     @Override

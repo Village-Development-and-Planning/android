@@ -30,7 +30,7 @@ public class CascadeOperation {
         operation.removeNode(fragment);
     }
 
-    public void popManyOperation(ArrayList<String> tags) {
+    public void popManyOperation(String[] tags) {
         ArrayList<Fragment> fragments = new ArrayList<>();
         for (String t : tags) {
             Fragment fragment = stackFragment.getFragment(t);

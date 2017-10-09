@@ -9,7 +9,6 @@ import com.puthuvaazhvu.mapping.views.fragments.option.adapters.CheckBoxOptionsL
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.Data;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.Option;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.MultipleAnswer;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.SelectedOption;
 
 import java.util.ArrayList;
 
@@ -53,10 +52,10 @@ public class CheckBoxOptionsList extends OptionsList {
 
     private Data populateAnswers() {
         ArrayList<Option> options = data.getOptions();
-        ArrayList<SelectedOption> selectedOptions = new ArrayList<>();
+        ArrayList<Option> selectedOptions = new ArrayList<>();
         for (Option o : options) {
             if (o.isSelected()) {
-                selectedOptions.add(new SelectedOption(o.getId(), o.getText()));
+                selectedOptions.add(o);
             }
         }
         MultipleAnswer multipleAnswer = new MultipleAnswer(data.getQuestionID(), data.getQuestionText(), selectedOptions);

@@ -3,6 +3,7 @@ package com.puthuvaazhvu.mapping.views.fragments.question.modals;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.puthuvaazhvu.mapping.Constants;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.*;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.Data;
 
@@ -71,4 +72,12 @@ public class Question implements Parcelable {
             return new Question[size];
         }
     };
+
+    public static Question adapter(com.puthuvaazhvu.mapping.modals.Question question) {
+        Question q = new Question(question.getId(),
+                question.getTextString(),
+                question.getRawNumber(),
+                question.getPosition());
+        return q;
+    }
 }

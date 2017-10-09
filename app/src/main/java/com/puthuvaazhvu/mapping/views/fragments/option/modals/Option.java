@@ -3,6 +3,8 @@ package com.puthuvaazhvu.mapping.views.fragments.option.modals;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.puthuvaazhvu.mapping.Constants;
+
 /**
  * Created by muthuveerappans on 9/30/17.
  */
@@ -64,4 +66,10 @@ public class Option implements Parcelable {
             return new Option[size];
         }
     };
+
+    public static Option adapter(com.puthuvaazhvu.mapping.modals.Option option, boolean isSelected) {
+        return new Option(option.getId(),
+                option.getTextString(),
+                isSelected);
+    }
 }

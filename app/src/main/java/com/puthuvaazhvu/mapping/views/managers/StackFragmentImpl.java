@@ -34,6 +34,14 @@ public class StackFragmentImpl implements StackFragment {
     }
 
     @Override
+    public void popFragment(String tag) {
+        Fragment fragment = getFragment(tag);
+        if (fragment != null) {
+            popFragment(fragment);
+        }
+    }
+
+    @Override
     public Fragment getFragment(String tag) {
         return fragmentManager.findFragmentByTag(tag);
     }
@@ -50,6 +58,17 @@ public class StackFragmentImpl implements StackFragment {
             this.fragments.remove(f);
         }
         commitTransaction();
+    }
+
+    @Override
+    public void popMany(String[] tags) {
+        ArrayList<Fragment> fragments = new ArrayList<>();
+        for (String t : tags) {
+            Fragment fragment = getFragment(t);
+            if (fragment != null)
+                fragments.add(fragment);
+        }
+        popMany(fragments);
     }
 
     private void addFragment(Fragment fragment, String tag) {

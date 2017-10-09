@@ -2,6 +2,10 @@ package com.puthuvaazhvu.mapping.views.activities;
 
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
+import com.puthuvaazhvu.mapping.views.fragments.question.modals.Data;
+import com.puthuvaazhvu.mapping.views.fragments.question.modals.GridData;
+import com.puthuvaazhvu.mapping.views.helpers.data.QuestionDataHelper;
+import com.puthuvaazhvu.mapping.views.helpers.flow.QuestionFlowHelper;
 
 import java.util.ArrayList;
 
@@ -18,16 +22,17 @@ public interface Contract {
         /**
          * Callback called when the children questions need to be shown in a grid
          *
-         * @param question THe single question that should be shown.
+         * @param question The single question that should be shown.
+         * @param tag      Tag for the fragment
          */
-        void shouldShowGrid(Question question);
+        void shouldShowGrid(String tag, ArrayList<GridData> question);
 
         /**
          * Callback called when particular single question should be shown as it is.
          *
          * @param question
          */
-        void shouldShowSingleQuestion(Question question);
+        void shouldShowSingleQuestion(Data question);
 
         /**
          * Callback called when a particular question should be removed from the stack.
@@ -45,17 +50,33 @@ public interface Contract {
     }
 
     interface UserAction {
+        /**
+         * Get's the survey from the {@link com.puthuvaazhvu.mapping.data.DataRepository}
+         */
         void getSurvey(); // Todo: Add something to uniquely identify and get the survey.
 
+        /**
+         * Get's the next question to be shown in the UI
+         */
         void getNext();
 
         /**
-         * sets the current question and updates the pointer to point to that question so that it's shown on the UI.
-         *
-         * @param currentQuestion The current question to set the pointer to.
+         * Main starting point of the questions flow for the UI
          */
-        public void setCurrentQuestion(Question currentQuestion);
+        void startSurvey(Survey survey);
 
-        public void setCurrentQuestionRoot(Question questionRoot, int index);
+        /**
+         * Helper to update the given question with the updated answer data.
+         *
+         * @param currentQuestion
+         */
+        void updateCurrentQuestion(Data currentQuestion);
+
+        /**
+         * Set the current question for the pointer to point to. This will be shown in the UI.
+         *
+         * @param currentQuestion The question the imaginary pointer to point to.
+         */
+        void setCurrentQuestion(Data currentQuestion);
     }
 }

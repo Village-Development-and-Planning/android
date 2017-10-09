@@ -15,6 +15,11 @@ public class GridData extends Data implements Parcelable {
         this.count = count;
     }
 
+    public GridData(Question question, com.puthuvaazhvu.mapping.views.fragments.option.modals.Data optionData, int count) {
+        super(question, optionData);
+        this.count = count;
+    }
+
     public int getCount() {
         return count;
     }
@@ -46,4 +51,9 @@ public class GridData extends Data implements Parcelable {
             return new GridData[size];
         }
     };
+
+    public static GridData adapter(com.puthuvaazhvu.mapping.modals.Question question) {
+        Data data = Data.adapter(question);
+        return new GridData(data.getQuestion(), data.getOptionData(), question.getAnswer().size());
+    }
 }

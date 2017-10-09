@@ -1,12 +1,9 @@
-package com.puthuvaazhvu.mapping.Models;
+package com.puthuvaazhvu.mapping.modals;
 
 import android.content.Context;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.puthuvaazhvu.mapping.modals.Flow.ChildFlow;
-import com.puthuvaazhvu.mapping.modals.Question;
-import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.utils.Utils;
 
 import org.junit.Before;
@@ -20,7 +17,6 @@ import java.io.InputStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
@@ -33,7 +29,7 @@ public class SurveyDataModelTest {
     @Mock
     private Context context;
 
-    protected Survey survey;
+    public Survey survey;
 
     @Before
     public void setup() {
@@ -42,7 +38,7 @@ public class SurveyDataModelTest {
 
     @Test
     public void testSurveyModel() {
-        String fileName = "survey_4.json";
+        String fileName = "survey_6.json";
         String surveyDataString = Utils.readFromInputStream(getDataFormFile(this, fileName));
 
         assertThat(surveyDataString, notNullValue());
@@ -57,9 +53,6 @@ public class SurveyDataModelTest {
         survey = new Survey(surveyJson);
 
         assertThat(survey, is(notNullValue()));
-
-        // check the first branch of children has the correct size.
-        assertThat(survey.getQuestionList().size(), equalTo(6));
     }
 
     private static InputStream getDataFormFile(Object obj, String fileName) {

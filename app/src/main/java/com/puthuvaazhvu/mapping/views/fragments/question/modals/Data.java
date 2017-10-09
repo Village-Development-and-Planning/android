@@ -3,6 +3,10 @@ package com.puthuvaazhvu.mapping.views.fragments.question.modals;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.puthuvaazhvu.mapping.modals.Option;
+
+import java.util.ArrayList;
+
 /**
  * Created by muthuveerappans on 10/1/17.
  */
@@ -16,6 +20,11 @@ public class Data implements Parcelable {
         this.question = question;
         this.optionData = optionData;
         this.responseData = responseData;
+    }
+
+    public Data(Question question, com.puthuvaazhvu.mapping.views.fragments.option.modals.Data optionData) {
+        this.question = question;
+        this.optionData = optionData;
     }
 
     public Question getQuestion() {
@@ -50,6 +59,13 @@ public class Data implements Parcelable {
         this.question = in.readParcelable(Question.class.getClassLoader());
         this.optionData = in.readParcelable(com.puthuvaazhvu.mapping.views.fragments.option.modals.Data.class.getClassLoader());
         this.responseData = in.readParcelable(com.puthuvaazhvu.mapping.views.fragments.option.modals.Data.class.getClassLoader());
+    }
+
+    public static Data adapter(com.puthuvaazhvu.mapping.modals.Question question) {
+        Question q = Question.adapter(question);
+        com.puthuvaazhvu.mapping.views.fragments.option.modals.Data optionData
+                = com.puthuvaazhvu.mapping.views.fragments.option.modals.Data.adapter(question);
+        return new Data(q, optionData);
     }
 
 }

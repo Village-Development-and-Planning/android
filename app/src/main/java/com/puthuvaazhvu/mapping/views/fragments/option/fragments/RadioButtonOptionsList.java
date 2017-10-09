@@ -8,7 +8,6 @@ import android.view.View;
 import com.puthuvaazhvu.mapping.views.fragments.option.adapters.RadioButtonOptionsListAdapter;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.Data;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.Option;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.SelectedOption;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.SingleAnswer;
 
 import java.util.ArrayList;
@@ -53,15 +52,13 @@ public class RadioButtonOptionsList extends OptionsList {
 
     private Data populateAnswers() {
         ArrayList<Option> options = data.getOptions();
-        SelectedOption selectedOption = null;
         for (Option o : options) {
             if (o.isSelected()) {
-                selectedOption = new SelectedOption(o.getId(), o.getText());
+                SingleAnswer singleAnswer = new SingleAnswer(data.getQuestionID(), data.getQuestionText(), o.getId(), o.getText());
+                data.setAnswer(singleAnswer);
                 break;
             }
         }
-        SingleAnswer singleAnswer = new SingleAnswer(data.getQuestionID(), data.getQuestionText(), selectedOption);
-        data.setAnswer(singleAnswer);
 
         return data;
     }

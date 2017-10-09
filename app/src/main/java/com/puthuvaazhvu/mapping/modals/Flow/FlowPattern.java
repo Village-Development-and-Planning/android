@@ -41,11 +41,12 @@ public class FlowPattern implements Parcelable {
         JsonArray postJsonArray = JsonHelper.getJsonArray(jsonObject, "post");
         JsonObject exitJson = JsonHelper.getJsonObject(jsonObject, "exit");
 
-        this.postFlow = null;
-        this.preFlow = null;
+        if (preJson != null)
+            this.preFlow = new PreFlow(preJson);
+        else this.preFlow = null;
 
         // TODO: Do post flow
-        // TODO: Do pre flow
+        this.postFlow = null;
 
         if (questionJson != null)
             this.questionFlow = new QuestionFlow(questionJson);

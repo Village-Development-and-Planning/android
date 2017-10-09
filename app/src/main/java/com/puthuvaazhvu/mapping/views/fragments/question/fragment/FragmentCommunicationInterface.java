@@ -9,7 +9,7 @@ import com.puthuvaazhvu.mapping.views.fragments.question.modals.Data;
  */
 
 public interface FragmentCommunicationInterface {
-    void onQuestionAnswered(Data data);
+    void onQuestionAnswered(Data data, boolean isNewRoot, boolean shouldLogOption);
 
     void onBackPressedFromQuestion(Data currentData);
 }

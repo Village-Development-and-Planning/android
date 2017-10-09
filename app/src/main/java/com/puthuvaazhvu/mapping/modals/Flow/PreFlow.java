@@ -3,19 +3,52 @@ package com.puthuvaazhvu.mapping.modals.Flow;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class PreFlow implements Parcelable {
-    private final String[] fill;
-    private final String questionSkip;
-    private final String[] optionSkip;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
-    public PreFlow(String[] fill, String questionSkip, String[] optionSkip) {
+import java.util.ArrayList;
+import java.util.Arrays;
+
+public class PreFlow implements Parcelable {
+    private final ArrayList<String> fill;
+    private final String questionSkipRawNumber;
+    private final ArrayList<String> optionSkip;
+
+    public PreFlow(ArrayList<String> fill, String questionSkipRawNumber, ArrayList<String> optionSkip) {
         this.fill = fill;
-        this.questionSkip = questionSkip;
+        this.questionSkipRawNumber = questionSkipRawNumber;
         this.optionSkip = optionSkip;
     }
 
-    // TODO:
+    public PreFlow(JsonObject jsonObject) {
+        JsonArray fillJsonArray = JsonHelper.getJsonArray(jsonObject, "fill");
 
+        if (fillJsonArray != null)
+            fill = (JsonHelper.getStringArray(fillJsonArray));
+        else fill = null;
+
+        JsonObject skipUnlessJson = JsonHelper.getJsonObject(jsonObject, "skipUnless");
+        if (skipUnlessJson != null) {
+            questionSkipRawNumber = JsonHelper.getString(skipUnlessJson, "question");
+            optionSkip = new ArrayList<>(Arrays.asList(JsonHelper.getString(skipUnlessJson, "option").split(",")));
+        } else {
+            questionSkipRawNumber = null;
+            optionSkip = null;
+        }
+    }
+
+    public ArrayList<String> getFill() {
+        return fill;
+    }
+
+    public String getQuestionSkipRawNumber() {
+        return questionSkipRawNumber;
+    }
+
+    public ArrayList<String> getOptionSkip() {
+        return optionSkip;
+    }
 
     @Override
     public int describeContents() {
@@ -24,15 +57,15 @@ public class PreFlow implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeStringArray(this.fill);
-        dest.writeString(this.questionSkip);
-        dest.writeStringArray(this.optionSkip);
+        dest.writeStringList(this.fill);
+        dest.writeString(this.questionSkipRawNumber);
+        dest.writeStringList(this.optionSkip);
     }
 
     protected PreFlow(Parcel in) {
-        this.fill = in.createStringArray();
-        this.questionSkip = in.readString();
-        this.optionSkip = in.createStringArray();
+        this.fill = in.createStringArrayList();
+        this.questionSkipRawNumber = in.readString();
+        this.optionSkip = in.createStringArrayList();
     }
 
     public static final Creator<PreFlow> CREATOR = new Creator<PreFlow>() {

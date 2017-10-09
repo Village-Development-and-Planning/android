@@ -40,6 +40,9 @@ public class AnswerFlow implements Parcelable {
         }
     }
 
+    public Modes getMode() {
+        return mode;
+    }
 
     @Override
     public int describeContents() {

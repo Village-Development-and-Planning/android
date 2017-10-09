@@ -111,7 +111,7 @@ public class SingleQuestion extends Question implements View.OnClickListener {
                 backButtonPressedInsideQuestion(data);
                 break;
             case R.id.next_button:
-                sendQuestionToCaller(getUpdatedQuestion());
+                sendQuestionToCaller(getUpdatedQuestion(), true, false);
                 break;
         }
     }

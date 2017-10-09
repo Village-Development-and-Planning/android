@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.puthuvaazhvu.mapping.Constants;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
 import java.util.ArrayList;
@@ -60,6 +61,15 @@ public class Option implements Parcelable {
             return new Option[size];
         }
     };
+
+    public String getTextString() {
+        switch (Constants.APP_LANGUAGE) {
+            case TAMIL:
+                return text.getTamil();
+            default:
+                return text.getEnglish();
+        }
+    }
 
     public String getId() {
         return id;

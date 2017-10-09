@@ -2,18 +2,55 @@ package com.puthuvaazhvu.mapping.views.fragments.option.modals.answer;
 
 import android.os.Parcel;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.puthuvaazhvu.mapping.views.fragments.option.modals.Option;
+
 import java.util.ArrayList;
 
 /**
  * Created by muthuveerappans on 9/30/17.
  */
 
-public class MultipleAnswer extends Answer {
-    private final ArrayList<SelectedOption> selectedOptionArrayList;
+/*
+    Json data of the form:
+    {
+        id: <val>,
+        type: <val>,
+        data: [{
+            id: <val>,
+            data: {
+                text: <val>
+            }
+        }]
+    }
+ */
 
-    public MultipleAnswer(String questionID, String questionText, ArrayList<SelectedOption> selectedOptionArrayList) {
+public class MultipleAnswer extends Answer {
+    private ArrayList<Option> options;
+
+    public MultipleAnswer(String questionID, String questionText, ArrayList<Option> options) {
         super(questionID, questionText);
-        this.selectedOptionArrayList = selectedOptionArrayList;
+        this.options = options;
+    }
+
+    @Override
+    public SelectedOption getSelectedOptions() {
+        JsonObject root = new JsonObject();
+        String optionID = null;
+        root.addProperty("id", optionID);
+        root.addProperty("type", Types.MULTIPLE);
+        JsonArray jsonArray = new JsonArray();
+        for (Option o : options) {
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("id", o.getId());
+            JsonObject data = new JsonObject();
+            data.addProperty("text", o.getText());
+            jsonObject.add("data", data);
+            jsonArray.add(jsonObject);
+        }
+        root.add("data", jsonArray);
+        return new SelectedOption(jsonArray.toString());
     }
 
     @Override
@@ -24,12 +61,12 @@ public class MultipleAnswer extends Answer {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
-        dest.writeTypedList(this.selectedOptionArrayList);
+        dest.writeTypedList(this.options);
     }
 
     protected MultipleAnswer(Parcel in) {
         super(in);
-        this.selectedOptionArrayList = in.createTypedArrayList(SelectedOption.CREATOR);
+        this.options = in.createTypedArrayList(Option.CREATOR);
     }
 
     public static final Creator<MultipleAnswer> CREATOR = new Creator<MultipleAnswer>() {

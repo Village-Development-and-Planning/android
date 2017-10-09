@@ -71,7 +71,7 @@ public class GridQuestions extends Question {
             @Override
             public void onItemClick(View view, int position) {
                 Data data = datas.get(position);
-                sendQuestionToCaller(data); // send the selected question only
+                sendQuestionToCaller(data, true, false); // send the selected question only
             }
         }));
 

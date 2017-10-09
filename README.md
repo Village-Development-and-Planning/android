@@ -8,7 +8,7 @@ This class is responsible for traversing the questions depending on the given ch
 
 #### Implementation
 ```Java
-void moveToNextQuestion(Question node, ArrayList<Option> selectedOptions);
+void moveToNextQuestion(Question node, ArrayList<Option> selectedOptionses);
 ```
 + check and save options
 + if no children or all children answered call popQuestion(node).

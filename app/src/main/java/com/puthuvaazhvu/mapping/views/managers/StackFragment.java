@@ -13,9 +13,13 @@ public interface StackFragment {
 
     void popFragment(Fragment fragment);
 
+    void popFragment(String tag);
+
     Fragment getFragment(String tag);
 
     void popMany(ArrayList<Fragment> fragments);
+
+    void popMany(String[] tags);
 
     int getStackCount();
 }

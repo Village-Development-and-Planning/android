@@ -65,6 +65,13 @@ public class QuestionFlow implements Parcelable {
         }
     }
 
+    public Validation getValidation() {
+        return validation;
+    }
+
+    public UI getUiMode() {
+        return uiMode;
+    }
 
     @Override
     public int describeContents() {

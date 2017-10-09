@@ -35,13 +35,11 @@ public class Survey implements Parcelable {
         modifiedAt = JsonHelper.getString(json, "modifiedAt");
         description = JsonHelper.getString(json, "description");
 
-        JsonArray questionsArray = JsonHelper.getJsonArray(json, "questions");
+        JsonObject questionsJson = JsonHelper.getJsonObject(json, "question");
         questionList = new ArrayList<>();
 
-        if (questionsArray != null) {
-            for (JsonElement e : questionsArray) {
-                questionList.add(Question.populateQuestion(e.getAsJsonObject()));
-            }
+        if (questionsJson != null) {
+            questionList.add(Question.populateQuestion(json));
         }
     }
 

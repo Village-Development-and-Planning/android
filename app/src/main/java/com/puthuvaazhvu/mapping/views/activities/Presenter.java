@@ -1,17 +1,14 @@
 package com.puthuvaazhvu.mapping.views.activities;
 
-import android.support.annotation.VisibleForTesting;
-import android.support.v4.app.FragmentManager;
-
-import com.puthuvaazhvu.mapping.DataInjection;
 import com.puthuvaazhvu.mapping.data.DataRepository;
 import com.puthuvaazhvu.mapping.modals.Flow.ChildFlow;
-import com.puthuvaazhvu.mapping.modals.Flow.ExitFlow;
-import com.puthuvaazhvu.mapping.modals.Flow.FlowPattern;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
-import com.puthuvaazhvu.mapping.views.managers.StackFragmentImpl;
-import com.puthuvaazhvu.mapping.views.managers.operation.CascadeOperation;
+import com.puthuvaazhvu.mapping.views.fragments.question.modals.Data;
+import com.puthuvaazhvu.mapping.views.fragments.question.modals.GridData;
+import com.puthuvaazhvu.mapping.views.helpers.data.QuestionDataHelper;
+import com.puthuvaazhvu.mapping.views.helpers.flow.QuestionFlowHelper;
+import com.puthuvaazhvu.mapping.views.helpers.flow.QuestionFlowHelperImpl;
 
 import java.util.ArrayList;
 
@@ -22,11 +19,10 @@ import java.util.ArrayList;
 public class Presenter implements Contract.UserAction {
     private final Contract.View activityView;
     private final DataRepository<Survey> dataRepository;
-
     private Survey survey;
     private Question currentQuestion;
-    private int currentRootQuestionIndex = 0;
-    private ArrayList<Question> questionsToBeRemoved = new ArrayList<>();
+    private QuestionFlowHelper questionFlowHelper;
+    private QuestionDataHelper questionDataHelper;
 
     public Presenter(Contract.View view, DataRepository<Survey> dataRepository) {
         this.activityView = view;
@@ -39,87 +35,80 @@ public class Presenter implements Contract.UserAction {
                 , new DataRepository.DataLoadedCallback<Survey>() {
                     @Override
                     public void onDataLoaded(Survey data) {
-                        Presenter.this.survey = data;
                         activityView.onSurveyLoaded(data);
                     }
                 });
     }
 
     @Override
+    public void startSurvey(Survey survey) {
+        // always the survey has only one root question
+        Question root = survey.getQuestionList().get(0);
+
+        // init
+        QuestionFlowHelper questionFlowHelper = new QuestionFlowHelperImpl(root);
+        QuestionDataHelper questionDataHelper = new QuestionDataHelper(root);
+
+        setData(survey, questionFlowHelper, questionDataHelper);
+
+        // set the first question
+        getNext();
+    }
+
+    public void setData(Survey data, QuestionFlowHelper questionFlowHelper, QuestionDataHelper questionDataHelper) {
+        this.survey = data;
+        this.questionFlowHelper = questionFlowHelper;
+        this.questionDataHelper = questionDataHelper;
+    }
+
+    @Override
+    public void setCurrentQuestion(Data currentQuestion) {
+        if (questionDataHelper == null) {
+            throw new IllegalArgumentException("The method is called too early? Call getSurvey() first.");
+        }
+
+        // search for the ID in the current root index only
+        this.currentQuestion = questionDataHelper.find(currentQuestion.getQuestion().getId());
+
+        // call UI with the set question
+        sendDataToCaller(this.currentQuestion);
+    }
+
+    @Override
+    public void updateCurrentQuestion(Data data) {
+        if (data.getQuestion().getId().equals(currentQuestion.getId())) {
+            currentQuestion = QuestionDataHelper.OtherHelpers.updateQuestion(data, currentQuestion);
+        } else {
+            throw new IllegalArgumentException("The current question and the answered question are not the same.\n" +
+                    "Current Question ID: " + currentQuestion.getId() + "\n" +
+                    "Answered Question ID: " + data.getQuestion().getId());
+        }
+    }
+
+    @Override
     public void getNext() {
-        // remove the answered questions from the stack
+        // 1. remove the answered questions from the stack
         removeQuestionsFromStack();
 
-        currentQuestion = getNextQuestion();
-        // Todo: show the UI.
+        // 2. get the next question to be shown
+        currentQuestion = questionFlowHelper.getNext();
+
+        // 3. show the new question
+        sendDataToCaller(currentQuestion);
     }
 
-    public Question getCurrentQuestion() {
-        return currentQuestion;
-    }
-
-    public int getCurrentRootQuestionIndex() {
-        return currentRootQuestionIndex;
+    private void sendDataToCaller(Question currentQuestion) {
+        // only if grid for children, show grid. else show normal question view
+        if (currentQuestion.getFlowPattern().getChildFlow().getUiToBeShown() == ChildFlow.UI.GRID) {
+            ArrayList<GridData> data = QuestionDataHelper.Adapters.getDataForGrid(currentQuestion);
+            activityView.shouldShowGrid(currentQuestion.getId(), data);
+        } else {
+            Data data = Data.adapter(currentQuestion);
+            activityView.shouldShowSingleQuestion(data);
+        }
     }
 
     private void removeQuestionsFromStack() {
-        activityView.remove(questionsToBeRemoved);
-
-        // clear the remove reference list as we can add new set of questions later and
-        // we don't remove the old questions again.
-        questionsToBeRemoved.clear();
-    }
-
-    private Question getNextQuestion() {
-        if (currentQuestion == null) {
-            // start of the survey
-            currentQuestion = survey.getQuestionList().get(currentRootQuestionIndex);
-            currentRootQuestionIndex += 1;
-        } else if (currentQuestion.isRoot() && currentQuestion.isLeaf()) {
-            // one among the survey children question
-            currentQuestion = survey.getQuestionList().get(currentRootQuestionIndex);
-            currentRootQuestionIndex += 1;
-        } else {
-            // the current question has children
-            ChildFlow childFlow = currentQuestion.getFlowPattern().getChildFlow();
-            ChildFlow.Modes childFlowMode = childFlow.getMode();
-            switch (childFlowMode) {
-                case CASCADE:
-                    ArrayList<Question> children = currentQuestion.getChildren();
-                    Question nextQuestion = null;
-                    for (Question q : children) {
-                        if (q.isAnswered()) {
-                            questionsToBeRemoved.add(q);
-                            continue;
-                        }
-                        nextQuestion = q;
-                        break;
-                    }
-                    if (nextQuestion == null) {
-                        currentQuestion = currentQuestion.getParent();
-                        currentQuestion = getNextQuestion();
-                    } else {
-                        currentQuestion = nextQuestion;
-                    }
-                    break;
-            }
-        }
-        return currentQuestion;
-    }
-
-    @Override
-    public void setCurrentQuestion(Question currentQuestion) {
-        this.currentQuestion = currentQuestion;
-    }
-
-    @Override
-    public void setCurrentQuestionRoot(Question questionRoot, int index) {
-        currentRootQuestionIndex = index;
-        if (currentRootQuestionIndex >= survey.getQuestionList().size()) {
-            // all questions have been answered. So throw an exception for debugging
-            throw new IllegalArgumentException("No more questions in the survey.");
-        } else {
-            this.currentQuestion = survey.getQuestionList().get(currentRootQuestionIndex);
-        }
+        activityView.remove(questionFlowHelper.clearToBeRemovedList());
     }
 }

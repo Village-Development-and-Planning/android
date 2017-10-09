@@ -9,7 +9,7 @@ import android.widget.EditText;
 
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.Data;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.SelectedOption;
+import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.InputAnswer;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.SingleAnswer;
 
 /**
@@ -43,8 +43,7 @@ public class EditTextOption extends Options {
     @Override
     public Data getUpdatedData() {
         String input = editText.getText().toString();
-        SelectedOption selectedOption = new SelectedOption(null, input); // null id for input options
-        SingleAnswer singleAnswer = new SingleAnswer(data.getQuestionID(), data.getQuestionText(), selectedOption);
+        SingleAnswer singleAnswer = new InputAnswer(data.getQuestionID(), data.getQuestionText(), input);
         data.setAnswer(singleAnswer);
         return data;
     }

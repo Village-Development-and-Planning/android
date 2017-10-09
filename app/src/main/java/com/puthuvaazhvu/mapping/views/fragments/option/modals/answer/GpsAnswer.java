@@ -2,10 +2,23 @@ package com.puthuvaazhvu.mapping.views.fragments.option.modals.answer;
 
 import android.os.Parcel;
 
+import com.google.gson.JsonObject;
+
 /**
  * Created by muthuveerappans on 9/30/17.
  */
 
+/*
+    Json data of the form:
+    {
+        id: <val>,
+        type: <val>,
+        data: {
+            lat: <val>,
+            lng: <cal>
+        }
+    }
+ */
 public class GpsAnswer extends Answer {
     private final long lat;
     private final long lng;
@@ -22,6 +35,19 @@ public class GpsAnswer extends Answer {
 
     public long getLng() {
         return lng;
+    }
+
+    @Override
+    public SelectedOption getSelectedOptions() {
+        String optionID = null;
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("id", optionID);
+        jsonObject.addProperty("type", Types.GPS);
+        JsonObject data = new JsonObject();
+        jsonObject.add("data", data);
+        data.addProperty("lat", lat);
+        data.addProperty("lng", lng);
+        return new SelectedOption(jsonObject.toString());
     }
 
     @Override
