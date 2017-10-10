@@ -111,15 +111,15 @@ public class SingleQuestion extends Question implements View.OnClickListener {
                 backButtonPressedInsideQuestion(data);
                 break;
             case R.id.next_button:
-                sendQuestionToCaller(getUpdatedQuestion(), true, false);
+                sendQuestionToCaller(getUpdatedQuestion(), false, true);
                 break;
         }
     }
 
     private Data getUpdatedQuestion() {
         if (optionFragment == null) {
-            throw new IllegalArgumentException("The options fragment is null here. " +
-                    "Either check if you have called the method too early or there is some internal problem");
+            Log.e(Constants.LOG_TAG, "The options fragment is null. Possibly default case is executed in loadCorrectOptionFragment() method.");
+            return data;
         }
         com.puthuvaazhvu.mapping.views.fragments.option.modals.Data response = optionFragment.getUpdatedData();
         data.setResponseData(response);

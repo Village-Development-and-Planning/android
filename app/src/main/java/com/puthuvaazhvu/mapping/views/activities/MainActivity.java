@@ -10,11 +10,12 @@ import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.fragments.question.fragment.FragmentCommunicationInterface;
 import com.puthuvaazhvu.mapping.views.fragments.question.fragment.GridQuestions;
+import com.puthuvaazhvu.mapping.views.fragments.question.fragment.Info;
 import com.puthuvaazhvu.mapping.views.fragments.question.fragment.SingleQuestion;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.Data;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.GridData;
-import com.puthuvaazhvu.mapping.views.managers.StackFragment;
-import com.puthuvaazhvu.mapping.views.managers.StackFragmentImpl;
+import com.puthuvaazhvu.mapping.views.managers.StackFragmentManager;
+import com.puthuvaazhvu.mapping.views.managers.StackFragmentManagerImpl;
 import com.puthuvaazhvu.mapping.views.managers.operation.CascadeOperation;
 
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ public class MainActivity extends AppCompatActivity
         implements Contract.View, FragmentCommunicationInterface {
 
     private CascadeOperation cascadeOperation;
-    private StackFragment stackFragment;
+    private StackFragmentManager stackFragmentManager;
     private Contract.UserAction presenter;
 
     @Override
@@ -31,8 +32,8 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        stackFragment = new StackFragmentImpl(getSupportFragmentManager());
-        cascadeOperation = new CascadeOperation(stackFragment);
+        stackFragmentManager = new StackFragmentManagerImpl(getSupportFragmentManager());
+        cascadeOperation = new CascadeOperation(stackFragmentManager);
 
         presenter = new Presenter(this, DataInjection.provideSurveyDataRepository());
     }
@@ -60,6 +61,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    public void shouldShowQuestionAsInfo(Data question) {
+        Info fragment = Info.getInstance(question);
+        cascadeOperation.pushOperation(question.getQuestion().getId(), fragment);
+    }
+
+    @Override
     public void remove(Question question) {
         cascadeOperation.popOperation(question.getId());
     }
@@ -80,7 +87,8 @@ public class MainActivity extends AppCompatActivity
             presenter.setCurrentQuestion(data);
         } else {
             // normal stack flow
-            presenter.updateCurrentQuestion(data);
+            if (shouldLogOption)
+                presenter.updateCurrentQuestion(data);
             presenter.getNext();
         }
     }

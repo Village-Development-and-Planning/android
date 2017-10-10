@@ -15,7 +15,7 @@ public class QuestionFlow implements Parcelable {
     }
 
     public enum UI {
-        NONE, SINGLE_CHOICE, MULTIPLE_CHOICE, GPS, INPUT
+        NONE, SINGLE_CHOICE, MULTIPLE_CHOICE, GPS, INPUT, INFO
     }
 
     public QuestionFlow(Validation validation, UI uiMode) {
@@ -45,6 +45,8 @@ public class QuestionFlow implements Parcelable {
                 return UI.GPS;
             case "INPUT":
                 return UI.INPUT;
+            case "INFO":
+                return UI.INFO;
             default:
                 return UI.NONE;
         }

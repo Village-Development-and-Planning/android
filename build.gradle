@@ -15,9 +15,29 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
+        maven {
+            url "https://maven.google.com"
+        }
     }
 }
 
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+
+// Define versions in a single place
+ext {
+    // Sdk and tools
+    minSdkVersion = 16
+    targetSdkVersion = 26
+    compileSdkVersion = 26
+    buildToolsVersion = '26.0.0'
+
+    supportLibraryVersion = '26.1.0'
+    constraintLayoutVersion = '1.0.2'
+    junitVersion = '4.12'
+    mockitoVersion = '1.10.19'
+    gsonVersion = '2.7'
+    hamcrestVersion = '1.3'
+    espressoVersion = '2.2.2'
 }

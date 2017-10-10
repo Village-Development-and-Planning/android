@@ -2,7 +2,7 @@ package com.puthuvaazhvu.mapping.views.managers.operation;
 
 import android.support.v4.app.Fragment;
 
-import com.puthuvaazhvu.mapping.views.managers.StackFragment;
+import com.puthuvaazhvu.mapping.views.managers.StackFragmentManager;
 
 import java.util.ArrayList;
 
@@ -10,34 +10,52 @@ import java.util.ArrayList;
  * Created by muthuveerappans on 9/30/17.
  */
 
+/**
+ * Helper class that does stack operation on the fragments.
+ * Uses {@link StackFragmentManager} to manipulate the fragments in a stack on the UI.
+ */
 public class CascadeOperation {
-    private final StackFragment stackFragment;
+    private final StackFragmentManager stackFragmentManager;
     private final Operation operation;
 
-    public CascadeOperation(StackFragment stackFragment) {
-        this.stackFragment = stackFragment;
+    public CascadeOperation(StackFragmentManager stackFragmentManager) {
+        this.stackFragmentManager = stackFragmentManager;
         this.operation = new Operation();
     }
 
     public void pushOperation(String tag, Fragment fragment) {
-        stackFragment.pushFragment(tag, fragment);
+        stackFragmentManager.pushFragment(tag, fragment);
         operation.addFirst(fragment);
     }
 
     public void popOperation(String tag) {
-        Fragment fragment = stackFragment.getFragment(tag);
-        stackFragment.popFragment(fragment);
+        Fragment fragment = stackFragmentManager.getFragment(tag);
         operation.removeNode(fragment);
+        stackFragmentManager.popFragment(fragment);
     }
 
     public void popManyOperation(String[] tags) {
         ArrayList<Fragment> fragments = new ArrayList<>();
         for (String t : tags) {
-            Fragment fragment = stackFragment.getFragment(t);
-            fragments.add(fragment);
-            operation.removeNode(fragment);
+            Fragment fragment = stackFragmentManager.getFragment(t);
+            if (fragment!=null){
+                fragments.add(fragment);
+                operation.removeNode(fragment);
+            }
         }
-        stackFragment.popMany(fragments);
+        stackFragmentManager.popMany(fragments);
+    }
+
+    public Fragment getFragment(String tag) {
+        return stackFragmentManager.getFragment(tag);
+    }
+
+    public Fragment getHeadFragment() {
+        return operation.getHead();
+    }
+
+    public Fragment getTailFragment() {
+        return operation.getTail();
     }
 
     /**

@@ -183,7 +183,7 @@ public class Question implements Parcelable {
         if (answerFlow != null) {
             isScopeOnce = answerFlow.getMode() == AnswerFlow.Modes.ONCE;
         }
-        return this.answer.size() > 0 && isScopeOnce;
+        return this.answer.size() > 0 && isScopeOnce; // automatically skip if answered once (only for scope: once)
     }
 
     @Override

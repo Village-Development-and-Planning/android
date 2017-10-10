@@ -35,6 +35,13 @@ public interface Contract {
         void shouldShowSingleQuestion(Data question);
 
         /**
+         * Callback called when the type of the {@link Question} is INFO.
+         *
+         * @param question
+         */
+        public void shouldShowQuestionAsInfo(Data question);
+
+        /**
          * Callback called when a particular question should be removed from the stack.
          *
          * @param question The question to be removed.

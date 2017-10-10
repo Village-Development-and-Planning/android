@@ -8,6 +8,8 @@ import com.puthuvaazhvu.mapping.views.fragments.option.modals.Option;
 
 import java.util.ArrayList;
 
+import static com.google.gson.JsonNull.INSTANCE;
+
 /**
  * Created by muthuveerappans on 9/30/17.
  */
@@ -37,8 +39,7 @@ public class MultipleAnswer extends Answer {
     @Override
     public SelectedOption getSelectedOptions() {
         JsonObject root = new JsonObject();
-        String optionID = null;
-        root.addProperty("id", optionID);
+        root.add("id", INSTANCE);
         root.addProperty("type", Types.MULTIPLE);
         JsonArray jsonArray = new JsonArray();
         for (Option o : options) {
@@ -50,7 +51,7 @@ public class MultipleAnswer extends Answer {
             jsonArray.add(jsonObject);
         }
         root.add("data", jsonArray);
-        return new SelectedOption(jsonArray.toString());
+        return new SelectedOption(root.toString());
     }
 
     @Override

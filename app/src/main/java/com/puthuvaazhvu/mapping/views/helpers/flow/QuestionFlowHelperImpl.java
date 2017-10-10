@@ -79,10 +79,8 @@ public class QuestionFlowHelperImpl implements QuestionFlowHelper {
 
     @Override
     public ArrayList<Question> clearToBeRemovedList() {
-        ArrayList<Question> result = new ArrayList<>();
-        for (int i = 0; i < toBeRemoved.size(); i++) {
-            result.add(toBeRemoved.remove(i));
-        }
+        ArrayList<Question> result = (ArrayList<Question>) toBeRemoved.clone();
+        toBeRemoved.clear();
         return result;
     }
 

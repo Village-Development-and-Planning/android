@@ -33,10 +33,26 @@ public class Operation {
             this.prev = prev;
         }
 
+        public boolean isHead() {
+            return prev == null;
+        }
+
+        public boolean isTail() {
+            return next == null;
+        }
+
         @Override
         public String toString() {
             return element.getTag();
         }
+    }
+
+    public Fragment getHead() {
+        return head.element;
+    }
+
+    public Fragment getTail() {
+        return tail.element;
     }
 
     /**
@@ -118,10 +134,22 @@ public class Operation {
      */
     public void removeNode(Fragment node) {
         Node n = findNode(node);
-        n.prev.next = n.next;
-        n.next.prev = n.prev;
+
+        if (n.isHead() && n.isTail()) {
+            head = null;
+        } else if (n.isHead()) {
+            head = n.next;
+            head.prev = null;
+        } else if (n.isTail()) {
+            tail = n.prev;
+            tail.next = null;
+        } else {
+            n.prev.next = n.next;
+            n.next.prev = n.prev;
+        }
         n.prev = null;
         n.next = null;
+        size--;
     }
 
     /**

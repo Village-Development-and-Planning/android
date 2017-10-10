@@ -1,8 +1,11 @@
 package com.puthuvaazhvu.mapping.views.helpers.data;
 
+import android.util.Log;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.puthuvaazhvu.mapping.Constants;
 import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
@@ -60,8 +63,9 @@ public class QuestionDataHelper {
             com.puthuvaazhvu.mapping.views.fragments.option.modals.Data responseData = data.getResponseData();
 
             if (responseData == null) {
-                throw new IllegalArgumentException("The response data for the given question id "
+                Log.e(Constants.LOG_TAG, "The response data for the given question id "
                         + data.getQuestion().getId() + " is null.");
+                return question;
             }
 
             com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.Answer responseAnswer = responseData.getAnswer();
@@ -71,7 +75,7 @@ public class QuestionDataHelper {
 
             ArrayList<Option> loggedOption = new ArrayList<>();
 
-            if (optionID != null) {
+            if (optionID != null && !optionID.isEmpty()) {
                 Option option = getOption(question, optionID);
                 if (option != null) {
                     loggedOption.add(option);

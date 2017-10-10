@@ -1,7 +1,10 @@
 package com.puthuvaazhvu.mapping.views.activities;
 
+import android.support.annotation.VisibleForTesting;
+
 import com.puthuvaazhvu.mapping.data.DataRepository;
 import com.puthuvaazhvu.mapping.modals.Flow.ChildFlow;
+import com.puthuvaazhvu.mapping.modals.Flow.QuestionFlow;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.Data;
@@ -55,6 +58,7 @@ public class Presenter implements Contract.UserAction {
         getNext();
     }
 
+    @VisibleForTesting
     public void setData(Survey data, QuestionFlowHelper questionFlowHelper, QuestionDataHelper questionDataHelper) {
         this.survey = data;
         this.questionFlowHelper = questionFlowHelper;
@@ -87,11 +91,12 @@ public class Presenter implements Contract.UserAction {
 
     @Override
     public void getNext() {
-        // 1. remove the answered questions from the stack
-        removeQuestionsFromStack();
-
-        // 2. get the next question to be shown
+        // 1. get the next question to be shown
         currentQuestion = questionFlowHelper.getNext();
+
+        // 2. remove the answered questions from the stack.
+        //    This comes 2nd because the remove question are populated in the flow helper only.
+        removeQuestionsFromStack();
 
         // 3. show the new question
         sendDataToCaller(currentQuestion);
@@ -104,11 +109,16 @@ public class Presenter implements Contract.UserAction {
             activityView.shouldShowGrid(currentQuestion.getId(), data);
         } else {
             Data data = Data.adapter(currentQuestion);
-            activityView.shouldShowSingleQuestion(data);
+            if (currentQuestion.getFlowPattern().getQuestionFlow().getUiMode() == QuestionFlow.UI.INFO)
+                activityView.shouldShowQuestionAsInfo(data);
+            else
+                activityView.shouldShowSingleQuestion(data);
         }
     }
 
     private void removeQuestionsFromStack() {
-        activityView.remove(questionFlowHelper.clearToBeRemovedList());
+        ArrayList<Question> toBeRemoved = questionFlowHelper.clearToBeRemovedList();
+        if (!toBeRemoved.isEmpty())
+            activityView.remove(toBeRemoved);
     }
 }
