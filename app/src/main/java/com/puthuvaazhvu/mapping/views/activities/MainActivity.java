@@ -8,10 +8,12 @@ import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.utils.Utils;
+import com.puthuvaazhvu.mapping.views.fragments.question.fragment.ConformationQuestionFragment;
 import com.puthuvaazhvu.mapping.views.fragments.question.fragment.FragmentCommunicationInterface;
-import com.puthuvaazhvu.mapping.views.fragments.question.fragment.GridQuestions;
-import com.puthuvaazhvu.mapping.views.fragments.question.fragment.Info;
-import com.puthuvaazhvu.mapping.views.fragments.question.fragment.SingleQuestion;
+import com.puthuvaazhvu.mapping.views.fragments.question.fragment.GridQuestionsFragment;
+import com.puthuvaazhvu.mapping.views.fragments.question.fragment.InfoFragment;
+import com.puthuvaazhvu.mapping.views.fragments.question.fragment.QuestionFragment;
+import com.puthuvaazhvu.mapping.views.fragments.question.fragment.SingleQuestionFragment;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.Data;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.GridData;
 import com.puthuvaazhvu.mapping.views.managers.StackFragmentManager;
@@ -32,7 +34,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        stackFragmentManager = new StackFragmentManagerImpl(getSupportFragmentManager());
+        stackFragmentManager = new StackFragmentManagerImpl(getSupportFragmentManager(), R.id.container);
         cascadeOperation = new CascadeOperation(stackFragmentManager);
 
         presenter = new Presenter(this, DataInjection.provideSurveyDataRepository());
@@ -50,19 +52,25 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void shouldShowGrid(String tag, ArrayList<GridData> question) {
-        com.puthuvaazhvu.mapping.views.fragments.question.fragment.Question fragment = GridQuestions.getInstance(question);
+        QuestionFragment fragment = GridQuestionsFragment.getInstance(question);
         cascadeOperation.pushOperation(tag, fragment);
     }
 
     @Override
     public void shouldShowSingleQuestion(Data question) {
-        com.puthuvaazhvu.mapping.views.fragments.question.fragment.Question fragment = SingleQuestion.getInstance(question);
+        QuestionFragment fragment = SingleQuestionFragment.getInstance(question);
         cascadeOperation.pushOperation(question.getQuestion().getId(), fragment);
     }
 
     @Override
     public void shouldShowQuestionAsInfo(Data question) {
-        Info fragment = Info.getInstance(question);
+        InfoFragment fragment = InfoFragment.getInstance(question);
+        cascadeOperation.pushOperation(question.getQuestion().getId(), fragment);
+    }
+
+    @Override
+    public void shouldShowConformationQuestion(Data question) {
+        ConformationQuestionFragment fragment = ConformationQuestionFragment.getInstance(question);
         cascadeOperation.pushOperation(question.getQuestion().getId(), fragment);
     }
 
@@ -84,17 +92,39 @@ public class MainActivity extends AppCompatActivity
     public void onQuestionAnswered(Data data, boolean isNewRoot, boolean shouldLogOption) {
         if (isNewRoot) {
             // if a question is clicked
-            presenter.setCurrentQuestion(data);
+            setCurrentQuestion(data);
         } else {
             // normal stack flow
             if (shouldLogOption)
-                presenter.updateCurrentQuestion(data);
-            presenter.getNext();
+                updateCurrentQuestion(data);
+            getNextQuestion();
         }
+    }
+
+    public void setCurrentQuestion(Data data) {
+        presenter.setCurrentQuestion(data);
+    }
+
+    public void updateCurrentQuestion(Data data) {
+        presenter.updateCurrentQuestion(data);
+    }
+
+    public void getNextQuestion() {
+        presenter.getNext();
     }
 
     @Override
     public void onBackPressedFromQuestion(Data currentData) {
         // TODO:
+    }
+
+    @Override
+    public void onErrorWhileAnswering(final String message) {
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Utils.showErrorMessage(message, MainActivity.this);
+            }
+        });
     }
 }

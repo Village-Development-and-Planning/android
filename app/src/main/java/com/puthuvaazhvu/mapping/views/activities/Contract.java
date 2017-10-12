@@ -41,6 +41,8 @@ public interface Contract {
          */
         public void shouldShowQuestionAsInfo(Data question);
 
+        public void shouldShowConformationQuestion(Data question);
+
         /**
          * Callback called when a particular question should be removed from the stack.
          *

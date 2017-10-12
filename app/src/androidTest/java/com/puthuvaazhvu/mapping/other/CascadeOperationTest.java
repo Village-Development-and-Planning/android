@@ -5,6 +5,7 @@ import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.app.Fragment;
 
+import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.views.activities.MainActivity;
 import com.puthuvaazhvu.mapping.views.managers.StackFragmentManager;
 import com.puthuvaazhvu.mapping.views.managers.StackFragmentManagerImpl;
@@ -36,7 +37,7 @@ public class CascadeOperationTest {
     @Before
     public void setup() {
         StackFragmentManager stackFragmentManager = new StackFragmentManagerImpl(mainActivityActivityTestRule.getActivity()
-                .getSupportFragmentManager());
+                .getSupportFragmentManager(), R.id.container);
         cascadeOperation = new CascadeOperation(stackFragmentManager);
     }
 

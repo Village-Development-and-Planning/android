@@ -95,6 +95,19 @@ public class MainPresenterTest {
 
         verify(viewCallback).shouldShowGrid(anyString(), gridDataCaptor.capture());
         assertThat(gridDataCaptor.getValue().size(), is(question_2_1_7.getChildren().size()));
+
+        // try passing a conformation question
+        // 2.1
+        Question question_2_1 = survey.getQuestionList().get(0)
+                .getChildren().get(1).getChildren().get(1);
+        mockData = Data.adapter(question_2_1);
+        presenter.setCurrentQuestion(mockData);
+
+        ArgumentCaptor<Data> singleQuestionCaptor = ArgumentCaptor.forClass(Data.class);
+
+        verify(viewCallback).shouldShowConformationQuestion(singleQuestionCaptor.capture());
+        assertThat(singleQuestionCaptor.getValue().getQuestion().getRawNumber()
+                , is("2.1"));
     }
 
     @Test

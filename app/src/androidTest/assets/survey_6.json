@@ -425,7 +425,7 @@
                           ]
                         },
                         "question": {
-                          "ui": "",
+                          "ui": "SINGLE_CHOICE",
                           "validation": null
                         },
                         "answer": {
@@ -440,7 +440,24 @@
                         }
                       },
                       "children": [],
-                      "options": [],
+                      "options": [
+                        {
+                          "position": "1",
+                          "option": {
+                            "_id": "59d94d5ff5d04d1d3e12ee45",
+                            "type": "GENERIC",
+                            "text": {
+                              "english": "TEST",
+                              "tamil": "test",
+                              "_id": "59d94d5ff5d04d1d3e12ee46",
+                              "modifiedAt": "2017-10-07T21:55:43.497Z"
+                            },
+                            "__v": 0,
+                            "modifiedAt": "2017-10-07T21:55:43.494Z"
+                          },
+                          "_id": "59d94d60f5d04d1d3e12f402"
+                        }
+                      ],
                       "tags": [
                         "FILL_ROAD_NAME"
                       ],
@@ -12123,7 +12140,8 @@
                           "_id": "59d94d61f5d04d1d3e12f92b"
                         }
                       ],
-                      "options": [],
+                      "options": [
+                      ],
                       "tags": [
                         "GRID_MULTIPLE"
                       ],
@@ -12132,7 +12150,8 @@
                     "_id": "59d94d61f5d04d1d3e12f951"
                   }
                 ],
-                "options": [],
+                "options": [
+                ],
                 "tags": [
                   "LOOP_MULTIPLE"
                 ],
@@ -23449,7 +23468,24 @@
               "_id": "59d94d61f5d04d1d3e12f95a"
             }
           ],
-          "options": [],
+          "options": [
+            {
+              "position": "1",
+              "option": {
+                "_id": "59d94d5ff5d04d1d3e12ee45",
+                "type": "GENERIC",
+                "text": {
+                  "english": "TEST",
+                  "tamil": "test",
+                  "_id": "59d94d5ff5d04d1d3e12ee46",
+                  "modifiedAt": "2017-10-07T21:55:43.497Z"
+                },
+                "__v": 0,
+                "modifiedAt": "2017-10-07T21:55:43.494Z"
+              },
+              "_id": "59d94d60f5d04d1d3e12f402"
+            }
+          ],
           "tags": [
             "FILL_HABITATION_NAME, LOOP_OPTIONS"
           ],

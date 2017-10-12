@@ -13,7 +13,7 @@ import com.puthuvaazhvu.mapping.views.fragments.option.modals.Data;
  * Created by muthuveerappans on 9/30/17.
  */
 
-public abstract class Options extends Fragment {
+public abstract class OptionsFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

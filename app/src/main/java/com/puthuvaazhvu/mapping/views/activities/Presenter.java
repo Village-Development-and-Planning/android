@@ -74,6 +74,9 @@ public class Presenter implements Contract.UserAction {
         // search for the ID in the current root index only
         this.currentQuestion = questionDataHelper.find(currentQuestion.getQuestion().getId());
 
+        // update the current question in the flow helper class
+        questionFlowHelper.setCurrent(this.currentQuestion);
+
         // call UI with the set question
         sendDataToCaller(this.currentQuestion);
     }
@@ -84,8 +87,8 @@ public class Presenter implements Contract.UserAction {
             currentQuestion = QuestionDataHelper.OtherHelpers.updateQuestion(data, currentQuestion);
         } else {
             throw new IllegalArgumentException("The current question and the answered question are not the same.\n" +
-                    "Current Question ID: " + currentQuestion.getId() + "\n" +
-                    "Answered Question ID: " + data.getQuestion().getId());
+                    "Current QuestionFragment ID: " + currentQuestion.getId() + "\n" +
+                    "Answered QuestionFragment ID: " + data.getQuestion().getId());
         }
     }
 
@@ -111,6 +114,8 @@ public class Presenter implements Contract.UserAction {
             Data data = Data.adapter(currentQuestion);
             if (currentQuestion.getFlowPattern().getQuestionFlow().getUiMode() == QuestionFlow.UI.INFO)
                 activityView.shouldShowQuestionAsInfo(data);
+            else if (currentQuestion.getFlowPattern().getQuestionFlow().getUiMode() == QuestionFlow.UI.CONFIRMATION)
+                activityView.shouldShowConformationQuestion(data);
             else
                 activityView.shouldShowSingleQuestion(data);
         }

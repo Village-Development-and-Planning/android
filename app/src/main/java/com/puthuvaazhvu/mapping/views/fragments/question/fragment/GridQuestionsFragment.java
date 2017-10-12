@@ -22,13 +22,13 @@ import java.util.ArrayList;
  * Created by muthuveerappans on 10/1/17.
  */
 
-public class GridQuestions extends Question {
+public class GridQuestionsFragment extends QuestionFragment {
     private ArrayList<GridData> datas;
     private RecyclerView recyclerView;
     private QuestionsAdapter questionsAdapter;
 
-    public static GridQuestions getInstance(ArrayList<GridData> datas) {
-        GridQuestions fragment = new GridQuestions();
+    public static GridQuestionsFragment getInstance(ArrayList<GridData> datas) {
+        GridQuestionsFragment fragment = new GridQuestionsFragment();
 
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList("data", datas);

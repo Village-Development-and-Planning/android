@@ -26,6 +26,10 @@ public class Utils {
         return String.valueOf(UUID.randomUUID());
     }
 
+    public static String getErrorMessage(int id, Context context) {
+        return context.getResources().getString(id);
+    }
+
     public static void showErrorMessage(int msgID, Context context) {
         showErrorMessage(context.getString(msgID), context);
     }

@@ -16,16 +16,16 @@ import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.SingleAnswe
  * Created by muthuveerappans on 9/30/17.
  */
 
-public class EditTextOption extends Options {
+public class EditTextOptionFragment extends OptionsFragment {
     private Data data;
     private EditText editText;
 
-    public static EditTextOption getInstance(Data data) {
-        EditTextOption editTextOption = new EditTextOption();
+    public static EditTextOptionFragment getInstance(Data data) {
+        EditTextOptionFragment editTextOptionFragment = new EditTextOptionFragment();
         Bundle bundle = new Bundle();
         bundle.putParcelable("data", data);
-        editTextOption.setArguments(bundle);
-        return editTextOption;
+        editTextOptionFragment.setArguments(bundle);
+        return editTextOptionFragment;
     }
 
     @Nullable
@@ -43,8 +43,10 @@ public class EditTextOption extends Options {
     @Override
     public Data getUpdatedData() {
         String input = editText.getText().toString();
-        SingleAnswer singleAnswer = new InputAnswer(data.getQuestionID(), data.getQuestionText(), input);
-        data.setAnswer(singleAnswer);
+        if (!input.isEmpty()) {
+            SingleAnswer singleAnswer = new InputAnswer(data.getQuestionID(), data.getQuestionText(), input);
+            data.setAnswer(singleAnswer);
+        }
         return data;
     }
 }

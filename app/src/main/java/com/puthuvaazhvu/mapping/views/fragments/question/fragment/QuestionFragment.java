@@ -14,7 +14,7 @@ import com.puthuvaazhvu.mapping.views.fragments.question.modals.Data;
  * Created by muthuveerappans on 10/1/17.
  */
 
-public abstract class Question extends Fragment {
+public abstract class QuestionFragment extends Fragment {
     protected FragmentCommunicationInterface communicationInterface;
 
     @Override
@@ -38,5 +38,9 @@ public abstract class Question extends Fragment {
 
     public void backButtonPressedInsideQuestion(Data data) {
         communicationInterface.onBackPressedFromQuestion(data);
+    }
+
+    public void onError(String message) {
+        communicationInterface.onErrorWhileAnswering(message);
     }
 }

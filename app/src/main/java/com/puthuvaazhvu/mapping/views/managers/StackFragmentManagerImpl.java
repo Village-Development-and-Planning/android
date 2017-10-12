@@ -13,9 +13,11 @@ import java.util.ArrayList;
 public class StackFragmentManagerImpl implements StackFragmentManager {
     private ArrayList<Fragment> fragments = new ArrayList<>();
     private final FragmentManager fragmentManager;
+    private final int containerViewID;
 
-    public StackFragmentManagerImpl(FragmentManager fragmentManager) {
+    public StackFragmentManagerImpl(FragmentManager fragmentManager, int containerViewID) {
         this.fragmentManager = fragmentManager;
+        this.containerViewID = containerViewID;
     }
 
     @Override
@@ -57,7 +59,7 @@ public class StackFragmentManagerImpl implements StackFragmentManager {
     }
 
     private void addFragment(FragmentTransaction transaction, Fragment fragment, String tag) {
-        transaction.add(fragment, tag);
+        transaction.add(containerViewID, fragment, tag);
     }
 
     private void removeFragment(FragmentTransaction transaction, Fragment fragment) {

@@ -29,7 +29,7 @@ import static org.mockito.Mockito.verify;
  */
 
 @RunWith(MockitoJUnitRunner.class)
-public class QuestionFlowHelperTest {
+public class QuestionFragmentFlowHelperTest {
 
     private SurveyDataModelTest surveyDataModelTest;
     private Survey survey;
@@ -44,6 +44,61 @@ public class QuestionFlowHelperTest {
         survey = surveyDataModelTest.survey;
         root = survey.getQuestionList().get(0);
         questionFlowHelper = new QuestionFlowHelperImpl(root);
+    }
+
+    @Test
+    public void test_shouldSkip_method() {
+        String mockOption = "{\n" +
+                "\"position\": \"1\",\n" +
+                "\"option\": {\n" +
+                "\"_id\": \"59d891bc7370f54913320606\",\n" +
+                "\"type\": \"GENERIC\",\n" +
+                "\"text\": {\n" +
+                "\"english\": \"Yes\",\n" +
+                "\"tamil\": \"ஆம்\",\n" +
+                "\"_id\": \"59d891bc7370f54913320607\",\n" +
+                "\"modifiedAt\": \"2017-10-07T08:35:08.409Z\"\n" +
+                "},\n" +
+                "\"__v\": 0,\n" +
+                "\"modifiedAt\": \"2017-10-07T08:35:08.409Z\"\n" +
+                "},\n" +
+                "\"_id\": \"59d891bd7370f54913320fb0\"\n" +
+                "}";
+        JsonParser jsonParser = new JsonParser();
+        JsonObject mockJson = jsonParser.parse(mockOption).getAsJsonObject();
+
+        Question question_2_1_7 = root.getChildren().get(1).getChildren().get(1).getChildren().get(6);
+
+        // add mock answer to question 2.1.7.4
+        Question question_2_1_7_4 = question_2_1_7.getChildren().get(1);
+        ArrayList<Option> mockOptions = new ArrayList<>();
+        Option o = new Option(mockJson);
+        assertThat(o.getId(), is("59d891bc7370f54913320606"));
+        mockOptions.add(o);
+        question_2_1_7_4.addAnswer(new Answer(mockOptions, question_2_1_7_4));
+
+        Question question_2_1_7_4_2_ = question_2_1_7_4.getChildren().get(1);
+        assertThat(question_2_1_7_4_2_.getRawNumber(), is("2.1.7.4.2"));
+        PreFlow preFlow = question_2_1_7_4_2_.getFlowPattern().getPreFlow();
+
+        boolean shouldSkip =
+                questionFlowHelper.shouldSkip(preFlow.getQuestionSkipRawNumber(), preFlow.getOptionSkip(), question_2_1_7_4_2_);
+        assertThat(shouldSkip, is(false));
+    }
+
+    @Test
+    public void test_getQuestionsReverse_method() {
+        Question q_2_1_7 =
+                root.getChildren().get(1).getChildren().get(1).getChildren().get(6);
+
+        Question q_2_1_7_3_4 = q_2_1_7.getChildren().get(0).getChildren().get(3);
+        assertThat(q_2_1_7_3_4.getRawNumber(), is("2.1.7.3.4"));
+
+        Question result = questionFlowHelper.getQuestionReverse("2.1.7", q_2_1_7_3_4);
+        assertThat(result.getRawNumber(), is("2.1.7"));
+
+        result = questionFlowHelper.getQuestionReverse("2.2", q_2_1_7_3_4);
+        assertThat(result, is(nullValue()));
     }
 
     @Test
@@ -153,61 +208,6 @@ public class QuestionFlowHelperTest {
 
         // add the options
         to.addAnswer(new Answer(mockOptions, to));
-    }
-
-    @Test
-    public void test_shouldSkip_method() {
-        String mockOption = "{\n" +
-                "\"position\": \"1\",\n" +
-                "\"option\": {\n" +
-                "\"_id\": \"59d891bc7370f54913320606\",\n" +
-                "\"type\": \"GENERIC\",\n" +
-                "\"text\": {\n" +
-                "\"english\": \"Yes\",\n" +
-                "\"tamil\": \"ஆம்\",\n" +
-                "\"_id\": \"59d891bc7370f54913320607\",\n" +
-                "\"modifiedAt\": \"2017-10-07T08:35:08.409Z\"\n" +
-                "},\n" +
-                "\"__v\": 0,\n" +
-                "\"modifiedAt\": \"2017-10-07T08:35:08.409Z\"\n" +
-                "},\n" +
-                "\"_id\": \"59d891bd7370f54913320fb0\"\n" +
-                "}";
-        JsonParser jsonParser = new JsonParser();
-        JsonObject mockJson = jsonParser.parse(mockOption).getAsJsonObject();
-
-        Question question_2_1_7 = root.getChildren().get(1).getChildren().get(1).getChildren().get(6);
-
-        // add mock answer to question 2.1.7.4
-        Question question_2_1_7_4 = question_2_1_7.getChildren().get(1);
-        ArrayList<Option> mockOptions = new ArrayList<>();
-        Option o = new Option(mockJson);
-        assertThat(o.getId(), is("59d891bc7370f54913320606"));
-        mockOptions.add(o);
-        question_2_1_7_4.addAnswer(new Answer(mockOptions, question_2_1_7_4));
-
-        Question question_2_1_7_4_2_ = question_2_1_7_4.getChildren().get(1);
-        assertThat(question_2_1_7_4_2_.getRawNumber(), is("2.1.7.4.2"));
-        PreFlow preFlow = question_2_1_7_4_2_.getFlowPattern().getPreFlow();
-
-        boolean shouldSkip =
-                questionFlowHelper.shouldSkip(preFlow.getQuestionSkipRawNumber(), preFlow.getOptionSkip(), question_2_1_7_4_2_);
-        assertThat(shouldSkip, is(false));
-    }
-
-    @Test
-    public void test_getQuestionsReverse_method() {
-        Question q_2_1_7 =
-                root.getChildren().get(1).getChildren().get(1).getChildren().get(6);
-
-        Question q_2_1_7_3_4 = q_2_1_7.getChildren().get(0).getChildren().get(3);
-        assertThat(q_2_1_7_3_4.getRawNumber(), is("2.1.7.3.4"));
-
-        Question result = questionFlowHelper.getQuestionReverse("2.1.7", q_2_1_7_3_4);
-        assertThat(result.getRawNumber(), is("2.1.7"));
-
-        result = questionFlowHelper.getQuestionReverse("2.2", q_2_1_7_3_4);
-        assertThat(result, is(nullValue()));
     }
 
 }

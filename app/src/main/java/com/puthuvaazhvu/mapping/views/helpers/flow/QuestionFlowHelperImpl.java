@@ -2,6 +2,7 @@ package com.puthuvaazhvu.mapping.views.helpers.flow;
 
 import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Flow.ChildFlow;
+import com.puthuvaazhvu.mapping.modals.Flow.ExitFlow;
 import com.puthuvaazhvu.mapping.modals.Flow.PreFlow;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
@@ -20,6 +21,56 @@ public class QuestionFlowHelperImpl implements QuestionFlowHelper {
     public QuestionFlowHelperImpl(Question root) {
         this.root = root;
         this.current = root;
+    }
+
+    // TODO: if loop reset the answer
+    private Question getNext_new(boolean shouldCheckExitFlow) {
+        if (shouldCheckExitFlow) {
+            ExitFlow exitFlow = current.getFlowPattern().getExitFlow();
+            switch (exitFlow.getMode()) {
+                // do nothing for loop as we need to repeat that question
+                case PARENT:
+                    current = current.getParent();
+                    break;
+            }
+        }
+
+        // child flow
+        ChildFlow childFlow = current.getFlowPattern().getChildFlow();
+        ChildFlow.Modes childFlowMode = childFlow.getMode();
+        Question nextQuestion = null;
+
+        if (childFlowMode == ChildFlow.Modes.CASCADE) {
+            ArrayList<Question> children = current.getChildren();
+            for (Question q : children) {
+                boolean shouldSkip = false; // skip pattern
+                PreFlow preFlow = q.getFlowPattern().getPreFlow();
+                if (preFlow != null) {
+                    String preFlowQuestionNumber = preFlow.getQuestionSkipRawNumber();
+                    ArrayList<String> optionsSkip = preFlow.getOptionSkip();
+
+                    if (preFlowQuestionNumber != null && optionsSkip != null) {
+                        shouldSkip = shouldSkip(preFlowQuestionNumber, optionsSkip, q); // check for skip
+                    }
+                }
+
+                if (q.isAnswered() || shouldSkip) {
+                    toBeRemoved.add(q);
+                    continue;
+                }
+                nextQuestion = q;
+                break;
+            }
+        } else if (childFlowMode == ChildFlow.Modes.SELECT) {
+            nextQuestion = current;
+        }
+
+        if (nextQuestion == null) {
+            current = getNext_new(true);
+        } else {
+            current = nextQuestion;
+        }
+        return current;
     }
 
     @Override

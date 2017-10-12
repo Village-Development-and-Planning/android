@@ -10,7 +10,7 @@ public class ExitFlow implements Parcelable {
     private final Modes mode;
 
     public enum Modes {
-        NONE, PARENT, REPEAT, LOOP
+        NONE, PARENT, LOOP
     }
 
     public ExitFlow(Modes mode) {
@@ -34,8 +34,6 @@ public class ExitFlow implements Parcelable {
         switch (mode) {
             case "parent":
                 return Modes.PARENT;
-            case "repeat":
-                return Modes.REPEAT;
             case "LOOP":
                 return Modes.LOOP;
             default:

@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.MultipleAnswer;
@@ -15,13 +16,14 @@ import com.puthuvaazhvu.mapping.views.fragments.question.modals.Data;
  * Created by muthuveerappans on 10/10/17.
  */
 
-public class Info extends Question implements View.OnClickListener {
+public class InfoFragment extends QuestionFragment implements View.OnClickListener {
     private Data data;
 
     private Button next_button, back_button;
+    private TextView question_text;
 
-    public static Info getInstance(Data data) {
-        Info fragment = new Info();
+    public static InfoFragment getInstance(Data data) {
+        InfoFragment fragment = new InfoFragment();
 
         Bundle bundle = new Bundle();
         bundle.putParcelable("data", data);
@@ -44,6 +46,9 @@ public class Info extends Question implements View.OnClickListener {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        question_text = view.findViewById(R.id.question_text);
+        question_text.setText(data.getQuestion().getText());
+
         back_button = view.findViewById(R.id.back_button);
         next_button = view.findViewById(R.id.next_button);
 

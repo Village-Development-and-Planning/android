@@ -12,4 +12,6 @@ public interface FragmentCommunicationInterface {
     void onQuestionAnswered(Data data, boolean isNewRoot, boolean shouldLogOption);
 
     void onBackPressedFromQuestion(Data currentData);
+
+    void onErrorWhileAnswering(String message);
 }

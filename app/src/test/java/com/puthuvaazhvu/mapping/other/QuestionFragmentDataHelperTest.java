@@ -26,7 +26,7 @@ import static org.hamcrest.Matchers.is;
  * Created by muthuveerappans on 10/9/17.
  */
 
-public class QuestionDataHelperTest {
+public class QuestionFragmentDataHelperTest {
     private SurveyDataModelTest surveyDataModelTest;
     private Question root;
     private Survey survey;

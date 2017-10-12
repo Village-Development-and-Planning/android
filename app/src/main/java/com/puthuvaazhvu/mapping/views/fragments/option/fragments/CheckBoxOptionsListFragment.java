@@ -5,10 +5,10 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-import com.puthuvaazhvu.mapping.views.fragments.option.adapters.RadioButtonOptionsListAdapter;
+import com.puthuvaazhvu.mapping.views.fragments.option.adapters.CheckBoxOptionsListAdapter;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.Data;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.Option;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.SingleAnswer;
+import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.MultipleAnswer;
 
 import java.util.ArrayList;
 
@@ -16,23 +16,23 @@ import java.util.ArrayList;
  * Created by muthuveerappans on 9/30/17.
  */
 
-public class RadioButtonOptionsList extends OptionsList {
-    private RadioButtonOptionsListAdapter adapter;
+public class CheckBoxOptionsListFragment extends OptionsListFragment {
+    private CheckBoxOptionsListAdapter adapter;
     private Data data;
 
-    public static RadioButtonOptionsList getInstance(Data data) {
-        RadioButtonOptionsList radioButtonOptionsList = new RadioButtonOptionsList();
+    public static CheckBoxOptionsListFragment getInstance(Data data) {
+        CheckBoxOptionsListFragment checkBoxOptionsList = new CheckBoxOptionsListFragment();
         Bundle bundle = new Bundle();
         bundle.putParcelable("data", data);
-        radioButtonOptionsList.setArguments(bundle);
-        return radioButtonOptionsList;
+        checkBoxOptionsList.setArguments(bundle);
+        return checkBoxOptionsList;
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         data = getArguments().getParcelable("data");
-        adapter = new RadioButtonOptionsListAdapter(data.getOptions());
+        adapter = new CheckBoxOptionsListAdapter(data.getOptions());
     }
 
     @Override
@@ -52,13 +52,14 @@ public class RadioButtonOptionsList extends OptionsList {
 
     private Data populateAnswers() {
         ArrayList<Option> options = data.getOptions();
+        ArrayList<Option> selectedOptions = new ArrayList<>();
         for (Option o : options) {
             if (o.isSelected()) {
-                SingleAnswer singleAnswer = new SingleAnswer(data.getQuestionID(), data.getQuestionText(), o.getId(), o.getText());
-                data.setAnswer(singleAnswer);
-                break;
+                selectedOptions.add(o);
             }
         }
+        MultipleAnswer multipleAnswer = new MultipleAnswer(data.getQuestionID(), data.getQuestionText(), selectedOptions);
+        data.setAnswer(multipleAnswer);
 
         return data;
     }

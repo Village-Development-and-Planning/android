@@ -69,6 +69,13 @@ public class QuestionDataHelper {
             }
 
             com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.Answer responseAnswer = responseData.getAnswer();
+
+            if (responseAnswer == null) {
+                Log.e(Constants.LOG_TAG, "The response answer for the given question id "
+                        + data.getQuestion().getId() + " is null.");
+                return question;
+            }
+
             String optionID = responseAnswer.getOptionID();
             String optionType = responseAnswer.getOptionType();
             JsonElement dataElement = responseAnswer.getOptionData();

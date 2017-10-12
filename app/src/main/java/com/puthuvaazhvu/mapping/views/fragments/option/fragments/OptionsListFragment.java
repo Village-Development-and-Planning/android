@@ -14,7 +14,7 @@ import com.puthuvaazhvu.mapping.R;
  * Created by muthuveerappans on 9/30/17.
  */
 
-public abstract class OptionsList extends Options {
+public abstract class OptionsListFragment extends OptionsFragment {
     protected RecyclerView recyclerView;
 
     @Nullable

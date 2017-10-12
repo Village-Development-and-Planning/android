@@ -18,6 +18,7 @@ import java.util.ArrayList;
 
 public class RadioButtonOptionsListAdapter extends RecyclerView.Adapter<RBVH> {
     private final ArrayList<Option> optionArrayList;
+    private boolean onBind;
 
     public RadioButtonOptionsListAdapter(ArrayList<Option> optionArrayList) {
         this.optionArrayList = optionArrayList;
@@ -26,7 +27,7 @@ public class RadioButtonOptionsListAdapter extends RecyclerView.Adapter<RBVH> {
     @Override
     public RBVH onCreateViewHolder(ViewGroup parent, int viewType) {
         RBVH rbvh =
-                new RBVH(LayoutInflater.from(parent.getContext()).inflate(R.layout.check_box_option_row, parent, false));
+                new RBVH(LayoutInflater.from(parent.getContext()).inflate(R.layout.radio_button_option_row, parent, false));
         rbvh.setRadioButtonClickListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -36,7 +37,9 @@ public class RadioButtonOptionsListAdapter extends RecyclerView.Adapter<RBVH> {
                 }
                 option.setSelected(b);
 
-                RadioButtonOptionsListAdapter.this.notifyDataSetChanged();
+                // fix https://stackoverflow.com/questions/27070220/android-recyclerview-notifydatasetchanged-illegalstateexception
+                if (!onBind)
+                    RadioButtonOptionsListAdapter.this.notifyDataSetChanged();
             }
         });
         return rbvh;
@@ -46,7 +49,10 @@ public class RadioButtonOptionsListAdapter extends RecyclerView.Adapter<RBVH> {
     public void onBindViewHolder(RBVH holder, int position) {
         Option option = optionArrayList.get(position);
         holder.getRadio_button().setTag(option);
-        holder.populateViews(option.getText(), option.isSelected());
+
+        onBind = true;
+        holder.populateViews(option.getText(), option.isSelected(), option.getId());
+        onBind = false;
     }
 
     @Override
@@ -63,9 +69,10 @@ class RBVH extends RecyclerView.ViewHolder {
         radio_button = itemView.findViewById(R.id.radio_button);
     }
 
-    public void populateViews(String text, boolean isChecked) {
+    public void populateViews(String text, boolean isChecked, String id) {
         radio_button.setText(text);
         radio_button.setChecked(isChecked);
+        radio_button.setContentDescription(id); // to uniquely identify this view. Specifically used for testing
     }
 
     public void setRadioButtonClickListener(CompoundButton.OnCheckedChangeListener checkBoxClickListener) {
