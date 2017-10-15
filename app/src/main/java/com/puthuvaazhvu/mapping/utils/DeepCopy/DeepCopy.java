@@ -1,9 +1,5 @@
 package com.puthuvaazhvu.mapping.utils.DeepCopy;
 
-import android.util.Log;
-
-import com.puthuvaazhvu.mapping.Constants;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;

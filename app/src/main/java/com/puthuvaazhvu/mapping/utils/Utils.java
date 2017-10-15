@@ -9,7 +9,7 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.puthuvaazhvu.mapping.Constants;
+import com.puthuvaazhvu.mapping.other.Constants;
 
 import java.io.IOException;
 import java.io.InputStream;

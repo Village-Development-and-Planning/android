@@ -1,4 +1,4 @@
-package com.puthuvaazhvu.mapping;
+package com.puthuvaazhvu.mapping.other;
 
 /**
  * Created by muthuveerappans on 9/28/17.

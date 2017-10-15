@@ -1,51 +1,35 @@
 package com.puthuvaazhvu.mapping.activities;
 
-import android.content.Context;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.puthuvaazhvu.mapping.R;
-import com.puthuvaazhvu.mapping.modals.Question;
-import com.puthuvaazhvu.mapping.modals.Survey;
-import com.puthuvaazhvu.mapping.utils.Utils;
+import com.puthuvaazhvu.mapping.activities.robot.QuestionFragmentRobot;
 import com.puthuvaazhvu.mapping.views.activities.MainActivity;
+import com.puthuvaazhvu.mapping.views.fragments.option.modals.OptionData;
+import com.puthuvaazhvu.mapping.views.fragments.option.modals.SingleOptionData;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
+import com.puthuvaazhvu.mapping.views.fragments.question.modals.SingleQuestion;
 
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.ArrayList;
 
-import static android.support.test.InstrumentationRegistry.getInstrumentation;
-import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
-import static android.support.test.espresso.action.ViewActions.closeSoftKeyboard;
-import static android.support.test.espresso.action.ViewActions.typeText;
-import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.matcher.RootMatchers.withDecorView;
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static android.support.v4.util.Preconditions.checkArgument;
-import static com.puthuvaazhvu.mapping.activities.matchers.LastChildMatcher.matchLastChild;
-import static com.puthuvaazhvu.mapping.activities.matchers.RecyclerViewTextMatcher.withItemText;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.IsNot.not;
 
 /**
@@ -60,260 +44,193 @@ public class MainActivityTest {
     public ActivityTestRule<MainActivity> mActivityTestRule =
             new ActivityTestRule<>(MainActivity.class);
 
-    private Survey survey;
-    private Question root;
     private MainActivity activity;
     private ViewGroup container;
 
-    public static Matcher<View> matchLast(final Matcher<View> matcher, final ViewGroup root) {
-        return new TypeSafeMatcher<View>() {
-            int childCount = 0;
-            int currentIndex = 0;
-
-            @Override
-            public void describeTo(Description description) {
-                matcher.describeTo(description);
-            }
-
-            @Override
-            public boolean matchesSafely(View view) {
-                for (int i = 0; i < root.getChildCount(); i++) {
-                    childCount = i;
-                }
-                return matcher.matches(view) && currentIndex++ == childCount;
-            }
-        };
-    }
-
     @Before
     public void init() throws IOException {
-        String fileName = "survey_6.json";
-        String surveyDataString = Utils.readFromInputStream(getDataFormFile(fileName));
-
-        assertThat(surveyDataString, notNullValue());
-
-        assertThat(surveyDataString, containsString("_id"));
-
-        JsonParser jsonParser = new JsonParser();
-        JsonObject surveyJson = jsonParser.parse(surveyDataString).getAsJsonObject();
-
-        assertThat(surveyJson, notNullValue());
-
-        survey = new Survey(surveyJson);
-
-        assertThat(survey, is(notNullValue()));
-
         activity = mActivityTestRule.getActivity();
         container = activity.findViewById(R.id.container);
-
-        root = survey.getQuestionList().get(0);
-    }
-
-//    @Test
-//    public void testGridFragmentFlow() {
-//        SingleQuestion visibleQuestion;
-//        SingleQuestion parent = root.getChildren().get(1).getChildren().get(1).getChildren().get(6);
-//
-//        // 2.1.7
-//        waitToSync();
-//        visibleQuestion = parent;
-//        assertThat(visibleQuestion.getRawNumber(), is("2.1.7"));
-//        moveToQuestionAt(visibleQuestion);
-//        selectOption(visibleQuestion, "YES");
-//        checkQuestionTextInFragment(visibleQuestion);
-//        checkAndMoveToNextFragment(container);
-//
-//        // 2.1.7.3
-//        waitToSync();
-//        visibleQuestion = parent.getChildren().get(0);
-//        assertThat(visibleQuestion.getRawNumber(), is("2.1.7.3"));
-//        moveToQuestionAt(visibleQuestion);
-//        selectOption(visibleQuestion, "NO");
-//        checkQuestionTextInFragment(visibleQuestion);
-//        checkAndMoveToNextFragment(container);
-//
-//        // 2.1.7
-//        waitToSync();
-//        visibleQuestion = parent;
-//        checkQuestionTextInFragment(visibleQuestion);
-//    }
-
-    @Test
-    public void testConformationFlow() {
-        activity.onSurveyLoaded(survey);
-
-        Question visibleQuestion;
-        Question parent = root.getChildren().get(1).getChildren().get(1);
-
-        // 2.1
-        waitToSync();
-        visibleQuestion = parent;
-        assertThat(visibleQuestion.getRawNumber(), is("2.1"));
-        setCurrentQuestion(visibleQuestion);
-        checkQuestionTextInFragment(visibleQuestion);
-        checkAndMoveToNextFragment(container);
-
-        // 2.1.1
-        waitToSync();
-        visibleQuestion = parent.getChildren().get(0);
-        assertThat(visibleQuestion.getRawNumber(), is("2.1.1"));
-        selectRandomOptionInList(visibleQuestion);
-        checkQuestionTextInFragment(visibleQuestion);
     }
 
     @Test
-    public void testFragmentCascadeFlow() {
-        Question visibleQuestion;
-        Question parent = root.getChildren().get(0);
+    public void test_info_question_UI() {
 
-        // load the survey to the activity. At this point the first question should be shown on the screen.
-        activity.onSurveyLoaded(survey);
-
-        // 1
-        waitToSync();
-        visibleQuestion = parent;
-        assertThat(visibleQuestion.getRawNumber(), is("1"));
-        // enter something in the edt
-        enterSomethingInFragmentEdt();
-        checkQuestionTextInFragment(visibleQuestion);
-        checkAndMoveToNextFragment(container);
-
-        // 1.2
-        waitToSync();
-        visibleQuestion = parent.getChildren().get(0);
-        assertThat(visibleQuestion.getRawNumber(), is("1.2"));
-        checkQuestionTextInFragment(visibleQuestion);
-        checkAndMoveToNextFragment(container);
-
-        // 1.3
-        waitToSync();
-        visibleQuestion = parent.getChildren().get(1);
-        checkQuestionTextInFragment(visibleQuestion);
-        checkAndMoveToNextFragment(container);
-
-        // 1.4
-        waitToSync();
-        visibleQuestion = parent.getChildren().get(2);
-        checkQuestionTextInFragment(visibleQuestion);
-        checkAndMoveToNextFragment(container);
-
-        // 1.5
-        waitToSync();
-        visibleQuestion = parent.getChildren().get(3);
-        checkQuestionTextInFragment(visibleQuestion);
-        checkAndMoveToNextFragment(container);
-
-        // 2 - select a random option
-        waitToSync();
-        visibleQuestion = root.getChildren().get(1);
-        selectRandomOptionInList(visibleQuestion);
     }
 
     @Test
-    public void testFragmentOptionsNotSelectedError() {
-        // load the survey to the activity. At this point the first question should be shown on the screen.
-        activity.onSurveyLoaded(survey);
+    public void test_grid_questions_UI() {
 
-        Question visibleQuestion;
-
-        // 2 - No option selected
-        waitToSync();
-        visibleQuestion = root.getChildren().get(1).getChildren().get(1).getChildren().get(2);
-        assertThat(visibleQuestion.getRawNumber(), is("2.1.3"));
-        setCurrentQuestion(visibleQuestion);
-        checkQuestionTextInFragment(visibleQuestion);
-        checkAndMoveToNextFragment(container);
-
-        checkForToast(activity.getString(R.string.options_not_entered_err));
     }
 
     @Test
-    public void testFragmentSkip() {
-        // load the survey to the activity. At this point the first question should be shown on the screen.
-        activity.onSurveyLoaded(survey);
+    public void test_conformationQuestion_UI() {
+        // mock ui data
+        String questionID = "1";
+        String text = "TEST QUESTION";
+        String rawNumber = "1.0";
+        String questionPosition = "0";
 
-        Question visibleQuestion;
+        SingleQuestion singleQuestion = new SingleQuestion(questionID, text, rawNumber, questionPosition);
 
-        // 2.1.5 - option NO
-        waitToSync();
-        visibleQuestion = root.getChildren().get(1).getChildren().get(1).getChildren().get(4);
-        setCurrentQuestion(visibleQuestion);
-        selectOption(visibleQuestion, "NO");
-        checkQuestionTextInFragment(visibleQuestion);
-        checkAndMoveToNextFragment(container);
+        OptionData optionData = new OptionData(questionID
+                , text
+                , null
+                , OptionData.Type.NONE
+                , null
+                , null);
 
-        // 2.1.6
-        waitToSync();
-        visibleQuestion = root.getChildren().get(1).getChildren().get(1).getChildren().get(5);
-        assertThat(visibleQuestion.getRawNumber(), is("2.1.6"));
-        setCurrentQuestion(visibleQuestion);
-        selectRandomOptionInList(visibleQuestion);
-        checkQuestionTextInFragment(visibleQuestion);
-        checkAndMoveToNextFragment(container);
+        QuestionData questionData = new QuestionData(singleQuestion, optionData, null);
+
+        assertThat(questionData.getSingleQuestion().getId(), is("1"));
+        assertThat(questionData.getOptionOptionData().getOptions(), nullValue());
+
+        activity.shouldShowConformationQuestion(questionData);
+
+        QuestionFragmentRobot questionFragmentRobot = new QuestionFragmentRobot(activity);
+
+        questionFragmentRobot.waitToSync();
+
+        questionFragmentRobot.checkQuestionTextInFragment(text);
     }
 
-    private void setCurrentQuestion(Question visibleQuestion) {
-        activity.moveToQuestionAt(QuestionData.adapter(visibleQuestion));
-        waitToSync();
+    @Test
+    public void test_singleQuestion_input_options_UI() {
+        // mock ui data
+        String questionID = "1";
+        String text = "TEST QUESTION";
+        String rawNumber = "1.0";
+        String questionPosition = "0";
+
+        SingleQuestion singleQuestion = new SingleQuestion(questionID, text, rawNumber, questionPosition);
+
+        OptionData optionData = new OptionData(questionID
+                , text
+                , null
+                , OptionData.Type.EDIT_TEXT
+                , null
+                , null);
+
+        QuestionData questionData = new QuestionData(singleQuestion, optionData, null);
+
+        assertThat(questionData.getSingleQuestion().getId(), is("1"));
+        assertThat(questionData.getOptionOptionData().getOptions(), nullValue());
+
+        activity.shouldShowSingleQuestion(questionData);
+
+        QuestionFragmentRobot questionFragmentRobot = new QuestionFragmentRobot(activity);
+
+        questionFragmentRobot.waitToSync();
+
+        questionFragmentRobot.checkQuestionTextInFragment(text);
+
+        // should show error when edt is empty
+        // check if error is displayed if no option is selected
+        questionFragmentRobot.checkAndClickNextButton(container);
+        questionFragmentRobot.checkForToast(activity.getString(R.string.options_not_entered_err));
+
+        questionFragmentRobot.enterInFragmentEdt("INPUT TEST");
+
+        questionFragmentRobot.waitToSync();
+
+        questionFragmentRobot.checkAndClickNextButton(container);
+
+        assertThat(optionData.getAnswerData().getOption().get(0).getText().getEnglish(), is("INPUT TEST"));
     }
 
-    private void selectOption(Question question, String optionText) {
-        String text = "";
-        String contentDescription = "";
-        com.puthuvaazhvu.mapping.modals.Option option;
-        int i = 0;
+    @Test
+    public void test_singleQuestion_radioButton_options_UI() {
+        // mock ui data
+        String questionID = "1";
+        String text = "TEST QUESTION";
+        String rawNumber = "1.0";
+        String questionPosition = "0";
 
-        do {
-            option = question.getOptionList().get(i++);
-            text = option.getText().getEnglish();
-        } while (!text.toUpperCase().equals(optionText));
+        SingleQuestion singleQuestion = new SingleQuestion(questionID, text, rawNumber, questionPosition);
 
-        contentDescription = option.getId();
-        selectOption(text, contentDescription);
+        ArrayList<SingleOptionData> singleOptionData = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            singleOptionData.add(new SingleOptionData("" + i, "TEST OPTION " + i, "" + i, false));
+        }
+
+        OptionData optionData = new OptionData(questionID
+                , text
+                , null
+                , OptionData.Type.RADIO_BUTTON_LIST
+                , null
+                , singleOptionData);
+
+        QuestionData questionData = new QuestionData(singleQuestion, optionData, null);
+
+        assertThat(questionData.getSingleQuestion().getId(), is("1"));
+        assertThat(questionData.getOptionOptionData().getOptions().size(), is(5));
+
+        activity.shouldShowSingleQuestion(questionData);
+
+        QuestionFragmentRobot questionFragmentRobot = new QuestionFragmentRobot(activity);
+
+        questionFragmentRobot.waitToSync();
+
+        questionFragmentRobot.checkQuestionTextInFragment(text);
+
+        // check if error is displayed if no option is selected
+        questionFragmentRobot.checkAndClickNextButton(container);
+        questionFragmentRobot.checkForToast(activity.getString(R.string.options_not_entered_err));
+
+        questionFragmentRobot.selectOption("TEST OPTION 0");
+        questionFragmentRobot.selectOption("TEST OPTION 1");
+
+        assertThat(optionData.getOptions().get(0).isSelected(), is(false));
+        assertThat(optionData.getOptions().get(1).isSelected(), is(true));
     }
 
-    private void selectRandomOptionInList(Question question) {
-        // get a random option
-        com.puthuvaazhvu.mapping.modals.Option randomOption = question.getOptionList().get(0);
-        String text = randomOption.getTextString();
-        String contentDescription = randomOption.getId();
-        selectOption(text, contentDescription);
-    }
+    @Test
+    public void test_singleQuestion_checkbox_options_UI() {
+        // mock ui data
+        String questionID = "1";
+        String text = "TEST QUESTION";
+        String rawNumber = "1.0";
+        String questionPosition = "0";
 
-    private void selectOption(String text, String contentDescription) {
-        onView(withItemText(text, contentDescription))
-                .check(matches(isDisplayed())).perform(click());
-    }
+        SingleQuestion singleQuestion = new SingleQuestion(questionID, text, rawNumber, questionPosition);
 
-    private void checkQuestionTextInFragment(Question visibleQuestion) {
-        onView(allOf(withId(R.id.question_text), withText(visibleQuestion.getTextString())))
-                .check(matches(isDisplayed()));
-    }
+        ArrayList<SingleOptionData> singleOptionData = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            singleOptionData.add(new SingleOptionData("" + i, "TEST OPTION " + i, "" + i, false));
+        }
 
-    private void checkAndMoveToNextFragment(ViewGroup container) {
-        onView(matchLastChild(container, withId(R.id.next_button))).perform(click());
-    }
+        OptionData optionData = new OptionData(questionID
+                , text
+                , null
+                , OptionData.Type.CHECKBOX_LIST
+                , null
+                , singleOptionData);
 
-    private void checkForToast(String message) {
-        waitToSync();
-        onView(withText(message))
-                .inRoot(withDecorView(not(is(activity.getWindow().getDecorView())))).check(matches(isDisplayed()));
-    }
+        QuestionData questionData = new QuestionData(singleQuestion, optionData, null);
 
-    private void enterSomethingInFragmentEdt() {
-        onView(withId(R.id.input_edit_text)).check(matches(isDisplayed()));
-        onView(withId(R.id.input_edit_text)).perform(typeText("TEST"), closeSoftKeyboard());
-        onView(withText("TEST")).check(matches(isDisplayed()));
-    }
+        assertThat(questionData.getSingleQuestion().getId(), is("1"));
+        assertThat(questionData.getOptionOptionData().getOptions().size(), is(5));
 
-    private static InputStream getDataFormFile(String fileName) throws IOException {
-        Context testContext = InstrumentationRegistry.getContext();
-        InputStream testInput = testContext.getResources().getAssets().open(fileName);
-        return testInput;
-    }
+        activity.shouldShowSingleQuestion(questionData);
 
-    private void waitToSync() {
-        // Without waitForIdleSync(); our test would have nulls in fragment references.
-        getInstrumentation().waitForIdleSync();
+        QuestionFragmentRobot questionFragmentRobot = new QuestionFragmentRobot(activity);
+
+        questionFragmentRobot.waitToSync();
+
+        questionFragmentRobot.checkQuestionTextInFragment(text);
+
+        // check if error is displayed if no option is selected
+        questionFragmentRobot.checkAndClickNextButton(container);
+        questionFragmentRobot.checkForToast(activity.getString(R.string.options_not_entered_err));
+
+        questionFragmentRobot.selectOption("TEST OPTION 0");
+        questionFragmentRobot.selectOption("TEST OPTION 1");
+
+        assertThat(optionData.getOptions().get(0).isSelected(), is(true));
+        assertThat(optionData.getOptions().get(1).isSelected(), is(true));
+
+        // test un-checking
+        questionFragmentRobot.selectOption("TEST OPTION 1");
+        assertThat(optionData.getOptions().get(1).isSelected(), is(false));
     }
 }

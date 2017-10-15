@@ -4,7 +4,7 @@ import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.GridQuestionData;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
-import com.puthuvaazhvu.mapping.views.helpers.flow.FlowHelperBase;
+import com.puthuvaazhvu.mapping.views.helpers.FlowHelper;
 
 import java.util.ArrayList;
 
@@ -78,7 +78,7 @@ public interface Contract {
         /**
          * Main starting point of the questions flow for the UI
          */
-        void startSurvey(Survey survey, FlowHelperBase surveyQuestionFlow);
+        void startSurvey(Survey survey, FlowHelper flowHelper);
 
         /**
          * Helper to update the given question with the updated answer data.

@@ -1,7 +1,8 @@
-package com.puthuvaazhvu.mapping.views.helpers.flow;
+package com.puthuvaazhvu.mapping.views.helpers;
 
 import com.puthuvaazhvu.mapping.modals.Question;
-import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
+
+import java.util.ArrayList;
 
 /**
  * Created by muthuveerappans on 10/15/17.
@@ -12,7 +13,7 @@ public interface IFlowHelper {
     /**
      * Gets the current question that the imaginary pointer is pointing to
      *
-     * @return - The current pointed question
+     * @return - The currently pointed question
      */
     Question getCurrent();
 
@@ -21,10 +22,10 @@ public interface IFlowHelper {
      *
      * @return Instance of {@link IFlowHelper}
      */
-    IFlowHelper finishCurrentQuestion();
+    IFlowHelper finishCurrent();
 
     /**
-     * Moves
+     * Moves to the particular child of the current question
      *
      * @param index
      * @return Instance of {@link IFlowHelper}
@@ -34,10 +35,12 @@ public interface IFlowHelper {
     /**
      * Updates the current question with the answer
      *
-     * @param questionData The data that contains the answer
+     * @param responseData The data that contains the answer
      * @return Instance of {@link IFlowHelper}
      */
-    IFlowHelper update(QuestionData questionData);
+    IFlowHelper update(ResponseData responseData);
+
+    ArrayList<Question> emptyToBeRemovedList();
 
     /**
      * Get's the next question

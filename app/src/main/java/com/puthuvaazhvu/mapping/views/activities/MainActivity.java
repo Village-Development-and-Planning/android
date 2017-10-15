@@ -19,8 +19,8 @@ import com.puthuvaazhvu.mapping.views.fragments.question.fragment.QuestionFragme
 import com.puthuvaazhvu.mapping.views.fragments.question.fragment.SingleQuestionFragment;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.GridQuestionData;
-import com.puthuvaazhvu.mapping.views.helpers.flow.FlowHelperBase;
-import com.puthuvaazhvu.mapping.views.helpers.flow.SurveyFlowHelper;
+import com.puthuvaazhvu.mapping.views.helpers.FlowHelper;
+import com.puthuvaazhvu.mapping.views.helpers.FlowImplementation;
 import com.puthuvaazhvu.mapping.views.managers.StackFragmentManager;
 import com.puthuvaazhvu.mapping.views.managers.StackFragmentManagerImpl;
 import com.puthuvaazhvu.mapping.views.managers.operation.CascadeOperation;
@@ -34,7 +34,8 @@ public class MainActivity extends AppCompatActivity
     private StackFragmentManager stackFragmentManager;
     private Contract.UserAction presenter;
 
-    private FlowHelperBase flowHelperBase;
+    private FlowHelper flowHelper;
+    private FlowImplementation flowImplementation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,8 +63,9 @@ public class MainActivity extends AppCompatActivity
         rootData.setResponseData(responseData);
         updateCurrentQuestion(rootData);
 
-        flowHelperBase = new SurveyFlowHelper(root);
-        presenter.startSurvey(survey, flowHelperBase);
+        flowImplementation = new FlowImplementation(root);
+        flowHelper = new FlowHelper(flowImplementation);
+        presenter.startSurvey(survey, flowHelper);
     }
 
     @Override

@@ -1,27 +1,20 @@
 package com.puthuvaazhvu.mapping.other;
 
-import android.test.suitebuilder.annotation.Suppress;
-
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.puthuvaazhvu.mapping.modals.SurveyDataModelTest;
-import com.puthuvaazhvu.mapping.modals.Answer;
-import com.puthuvaazhvu.mapping.modals.Flow.PreFlow;
-import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.OptionData;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.InputAnswerData;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.SingleAnswerData;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
-import com.puthuvaazhvu.mapping.views.helpers.flow.FlowHelperBase;
-import com.puthuvaazhvu.mapping.views.helpers.flow.FlowType;
-import com.puthuvaazhvu.mapping.views.helpers.flow.SurveyFlowHelper;
+import com.puthuvaazhvu.mapping.views.helpers.FlowType;
+import com.puthuvaazhvu.mapping.views.helpers.IFlowHelper;
+import com.puthuvaazhvu.mapping.views.helpers.FlowImplementation;
+import com.puthuvaazhvu.mapping.views.helpers.ResponseData;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
@@ -43,7 +36,7 @@ public class FlowTest {
 
     private SurveyDataModelTest surveyDataModelTest;
     private Survey survey;
-    private FlowHelperBase surveyFlow;
+    private FlowImplementation flowImplementation;
     private Question root;
 
     @Before
@@ -53,13 +46,13 @@ public class FlowTest {
         surveyDataModelTest.testSurveyModel();
         survey = surveyDataModelTest.survey;
         root = survey.getQuestionList().get(0);
-        surveyFlow = new SurveyFlowHelper(root);
+        flowImplementation = new FlowImplementation(root);
     }
 
     @Test
     public void test_update_method() {
         Question question = root.getChildren().get(0);
-        surveyFlow.setCurrentForTesting(question);
+        flowImplementation.setCurrentForTesting(question);
         QuestionData data = QuestionData.adapter(question);
 
         assertThat(question.getRawNumber(), is("1"));
@@ -69,7 +62,7 @@ public class FlowTest {
         responseData.setAnswerData(new InputAnswerData(question.getId(), question.getTextString(), "TEST"));
         data.setResponseData(responseData);
 
-        Question current = surveyFlow.update(data).getCurrent();
+        Question current = flowImplementation.update(ResponseData.adapter(data)).getCurrent();
 
         assertThat(current.getAnswer().size(), is(1));
         assertThat(current.getAnswer().get(0).getOptions().get(0).getTextString(), is("TEST"));
@@ -81,7 +74,7 @@ public class FlowTest {
         responseData.setAnswerData(new InputAnswerData(question.getId(), question.getTextString(), "TEST1"));
         data.setResponseData(responseData);
 
-        current = surveyFlow.update(data).getCurrent();
+        current = flowImplementation.update(ResponseData.adapter(data)).getCurrent();
 
         assertThat(current.getAnswer().size(), is(1));
         assertThat(current.getAnswer().get(0).getOptions().get(0).getTextString(), is("TEST1"));
@@ -89,7 +82,7 @@ public class FlowTest {
 
         //                           -- answer scope multiple ---
         question = root.getChildren().get(1).getChildren().get(1).getChildren().get(6).getChildren().get(0);
-        surveyFlow.setCurrentForTesting(question);
+        flowImplementation.setCurrentForTesting(question);
         data = QuestionData.adapter(question);
 
         assertThat(question.getRawNumber(), is("2.1.7.3"));
@@ -99,7 +92,7 @@ public class FlowTest {
         responseData.setAnswerData(new SingleAnswerData(question.getId(), question.getTextString(), "1", "TEST", "0"));
         data.setResponseData(responseData);
 
-        current = surveyFlow.update(data).getCurrent();
+        current = flowImplementation.update(ResponseData.adapter(data)).getCurrent();
         assertThat(current.getAnswer().get(0).getOptions().get(0).getId(), is("1"));
 
         // add mock answer
@@ -107,7 +100,7 @@ public class FlowTest {
         responseData.setAnswerData(new SingleAnswerData(question.getId(), question.getTextString(), "2", "TEST1", "0"));
         data.setResponseData(responseData);
 
-        current = surveyFlow.update(data).getCurrent();
+        current = flowImplementation.update(ResponseData.adapter(data)).getCurrent();
 
         assertThat(current.getAnswer().size(), is(2));
         assertThat(current.getAnswer().get(1).getOptions().get(0).getId(), is("2"));
@@ -116,7 +109,7 @@ public class FlowTest {
     @Test
     public void test_moveToIndex_method() {
         Question question = root.getChildren().get(0);
-        surveyFlow.setCurrentForTesting(question);
+        flowImplementation.setCurrentForTesting(question);
         QuestionData data = QuestionData.adapter(question);
 
         // add mock answer
@@ -126,9 +119,9 @@ public class FlowTest {
 
         assertThat(question.getRawNumber(), is("1"));
 
-        surveyFlow.update(data);
+        flowImplementation.update(ResponseData.adapter(data));
 
-        Question current = surveyFlow.moveToIndex(3).getCurrent();
+        Question current = flowImplementation.moveToIndex(3).getCurrent();
 
         assertThat(current.getAnswer().isEmpty(), is(true));
         assertThat(current.getRawNumber(), is("1.5"));
@@ -137,7 +130,7 @@ public class FlowTest {
     @Test
     public void test_getNext_gridFlow() {
         Question question = root.getChildren().get(1).getChildren().get(1).getChildren().get(6);
-        surveyFlow.setCurrentForTesting(question);
+        flowImplementation.setCurrentForTesting(question);
         QuestionData data = QuestionData.adapter(question);
 
         assertThat(question.getRawNumber(), is("2.1.7"));
@@ -149,38 +142,38 @@ public class FlowTest {
 
         Question current;
 
-        surveyFlow.update(data).getCurrent();
+        flowImplementation.update(ResponseData.adapter(data)).getCurrent();
 
         // get the next question
-        FlowHelperBase.FlowData flowData = surveyFlow.getNext();
+        IFlowHelper.FlowData flowData = flowImplementation.getNext();
 
         assertThat(flowData, notNullValue());
         assertThat(flowData.flowType, is(FlowType.GRID));
 
         // move to the first child question (mock click of the first question in the grid)
-        current = surveyFlow.moveToIndex(0).getCurrent();
+        current = flowImplementation.moveToIndex(0).getCurrent();
         assertThat(current.getRawNumber(), is("2.1.7.3"));
 
         // add mock answer
-        data = QuestionData.adapter(surveyFlow.getCurrent());
+        data = QuestionData.adapter(flowImplementation.getCurrent());
 
         responseData = OptionData.adapter(question);
         responseData.setAnswerData(new SingleAnswerData(question.getId(), question.getTextString(), "1", "TEST1", "0"));
         data.setResponseData(responseData);
 
-        surveyFlow.update(data);
+        flowImplementation.update(ResponseData.adapter(data));
 
         // finish the current question
-        surveyFlow.finishCurrentQuestion();
+        flowImplementation.finishCurrent();
 
-        current = surveyFlow.getCurrent();
+        current = flowImplementation.getCurrent();
         assertThat(current.getRawNumber(), is("2.1.7"));
     }
 
     @Test
     public void test_loopFlow_multiple() {
         Question question = root.getChildren().get(1).getChildren().get(1);
-        surveyFlow.setCurrentForTesting(question);
+        flowImplementation.setCurrentForTesting(question);
         QuestionData data = QuestionData.adapter(question);
 
         assertThat(question.getRawNumber(), is("2.1"));
@@ -190,7 +183,7 @@ public class FlowTest {
         responseData.setAnswerData(new SingleAnswerData(question.getId(), question.getTextString(), "1", "TEST", "0"));
         data.setResponseData(responseData);
 
-        Question current = surveyFlow.update(data).getCurrent();
+        Question current = flowImplementation.update(ResponseData.adapter(data)).getCurrent();
 
         assertThat(current.getRawNumber(), is("2.1"));
 
@@ -203,8 +196,8 @@ public class FlowTest {
             q.setFinished(true);
         }
 
-        surveyFlow.setCurrentForTesting(current);
-        FlowHelperBase.FlowData flowData = surveyFlow.getNext();
+        flowImplementation.setCurrentForTesting(current);
+        IFlowHelper.FlowData flowData = flowImplementation.getNext();
 
         assertThat(flowData.flowType, is(FlowType.SINGLE));
         assertThat(flowData.question.getRawNumber(), is("2.1"));
@@ -221,7 +214,7 @@ public class FlowTest {
 
         // *** ROOT ***
         Question question = root;
-        surveyFlow.setCurrentForTesting(question);
+        flowImplementation.setCurrentForTesting(question);
         QuestionData data = QuestionData.adapter(question);
 
         assertThat(question.getType(), is("ROOT"));
@@ -231,7 +224,7 @@ public class FlowTest {
         responseData.setAnswerData(new SingleAnswerData(question.getId(), question.getTextString(), "1", "TEST", "0"));
         data.setResponseData(responseData);
 
-        Question current = surveyFlow.update(data).getCurrent();
+        Question current = flowImplementation.update(ResponseData.adapter(data)).getCurrent();
 
         // add mock answer to all the children
         ArrayList<Question> children = current.getAnswer().get(0).getChildren();
@@ -242,7 +235,7 @@ public class FlowTest {
 
         // *** 2 ***
         question = children.get(1);
-        surveyFlow.setCurrentForTesting(question);
+        flowImplementation.setCurrentForTesting(question);
         data = QuestionData.adapter(question);
 
         assertThat(question.getRawNumber(), is("2"));
@@ -252,7 +245,7 @@ public class FlowTest {
         responseData.setAnswerData(new SingleAnswerData(question.getId(), question.getTextString(), "1", "TEST", "0"));
         data.setResponseData(responseData);
 
-        current = surveyFlow.update(data).getCurrent();
+        current = flowImplementation.update(ResponseData.adapter(data)).getCurrent();
 
         children = current.getAnswer().get(0).getChildren();
 
@@ -272,16 +265,16 @@ public class FlowTest {
                     , "0"));
             data.setResponseData(responseData);
 
-            surveyFlow.setCurrentForTesting(question);
-            surveyFlow.update(data);
+            flowImplementation.setCurrentForTesting(question);
+            flowImplementation.update(ResponseData.adapter(data));
 
             if (c.getRawNumber().equals("2.1")) {
                 c.setFinished(true);
             }
         }
 
-        surveyFlow.setCurrentForTesting(current); // current should be populated by now
-        FlowHelperBase.FlowData flowData = surveyFlow.getNext();
+        flowImplementation.setCurrentForTesting(current); // current should be populated by now
+        IFlowHelper.FlowData flowData = flowImplementation.getNext();
 
         assertThat(flowData.flowType, is(FlowType.END));
         assertThat(flowData.question, nullValue());
@@ -290,7 +283,7 @@ public class FlowTest {
     @Test
     public void test_getNext_skipFlow() {
         Question question = root.getChildren().get(1).getChildren().get(1).getChildren().get(6).getChildren().get(0);
-        surveyFlow.setCurrentForTesting(question);
+        flowImplementation.setCurrentForTesting(question);
         QuestionData data = QuestionData.adapter(question);
 
         assertThat(question.getRawNumber(), is("2.1.7.3"));
@@ -301,9 +294,9 @@ public class FlowTest {
         responseData.setAnswerData(new SingleAnswerData(question.getId(), question.getTextString(), "1", "NO", "0"));
         data.setResponseData(responseData);
 
-        surveyFlow.update(data);
+        flowImplementation.update(ResponseData.adapter(data));
 
-        FlowHelperBase.FlowData flowData = surveyFlow.getNext();
+        IFlowHelper.FlowData flowData = flowImplementation.getNext();
 
         assertThat(flowData.flowType, is(FlowType.GRID));
         assertThat(flowData.question.getRawNumber(), is("2.1.7"));

@@ -1,4 +1,6 @@
-package com.puthuvaazhvu.mapping.views.helpers.flow;
+package com.puthuvaazhvu.mapping.views.helpers;
+
+import android.support.annotation.VisibleForTesting;
 
 import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Flow.AnswerFlow;
@@ -8,27 +10,103 @@ import com.puthuvaazhvu.mapping.modals.Flow.PreFlow;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.utils.DeepCopy.DeepCopy;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.OptionData;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.AnswerData;
-import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
 
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 
 import java.util.ArrayList;
 
 /**
- * Created by muthuveerappans on 10/13/17.
+ * Created by muthuveerappans on 10/15/17.
  */
 
-public class SurveyFlowHelper extends FlowHelperBase {
+public class FlowImplementation implements IFlowHelper {
     private static final int STACK_SIZE = 50; // max question count the stack can hold
 
     private final CircularFifoQueue<Answer> stack; // holds the answered questions (irrespective of copies)
 
+    private final ArrayList<Question> toBeRemoved = new ArrayList<>();
 
-    public SurveyFlowHelper(Question root) {
-        super(root);
+    private Question current;
+
+    public FlowImplementation(Question root) {
+        this.current = root;
         stack = new CircularFifoQueue<>(STACK_SIZE);
+    }
+
+    @Override
+    public Question getCurrent() {
+        return current;
+    }
+
+    @Override
+    public IFlowHelper finishCurrent() {
+        Answer latestAnswer = current.getLatestAnswer();
+
+        if (latestAnswer != null) {
+            Question reference = latestAnswer.getQuestionReference();
+            reference.setFinished(true); // set the finished flag to true so we can skip this Q when necessary
+            setCurrent(reference.getParent());
+        } else {
+            throw new IllegalArgumentException("The answers list is empty. Check if the current question "
+                    + current.getRawNumber() + " is answered first.");
+        }
+
+        return this;
+    }
+
+    @Override
+    public IFlowHelper moveToIndex(int index) {
+        Answer latestAnswer = current.getLatestAnswer();
+
+        if (latestAnswer != null) {
+            try {
+                setCurrent(latestAnswer.getChildren().get(index));
+            } catch (ArrayIndexOutOfBoundsException e) {
+                throw new IllegalArgumentException("The index " + index + " is not present inside the answers.");
+            }
+        } else {
+            throw new IllegalArgumentException("The answers list is empty. Check if the current question "
+                    + current.getRawNumber() + "is answered first.");
+        }
+
+        return this;
+    }
+
+    @Override
+    public IFlowHelper update(ResponseData responseData) {
+        String questionID = responseData.getId();
+        if (!questionID.equals(current.getId())) {
+            throw new IllegalArgumentException("ID mismatch " + "current: " + current.getId()
+                    + " received: " + questionID);
+        }
+
+        ArrayList<Option> loggedOption = new ArrayList<>();
+        loggedOption.addAll(responseData.getResponse());
+
+        Answer answer = new Answer(loggedOption
+                , (ArrayList<Question>) DeepCopy.copy(current.getChildren())
+                , current);
+
+        ArrayList<Answer> answersLogged = current.getAnswer();
+        AnswerFlow answerFlow = current.getFlowPattern().getAnswerFlow();
+        if (answerFlow != null && answerFlow.getMode() == AnswerFlow.Modes.ONCE && answersLogged.size() > 0) {
+            // already answered
+            current.addAnswer(0, answer);
+        } else {
+            current.addAnswer(answer);
+        }
+
+        // add answered question to the stack
+        stack.add(answer);
+
+        return this;
+    }
+
+    @Override
+    public ArrayList<Question> emptyToBeRemovedList() {
+        ArrayList<Question> result = (ArrayList<Question>) toBeRemoved.clone();
+        toBeRemoved.clear();
+        return result;
     }
 
     @Override
@@ -63,7 +141,7 @@ public class SurveyFlowHelper extends FlowHelperBase {
                     if (answerFlow.getMode() == AnswerFlow.Modes.OPTION) {
 
                         if (shouldSkipBasedOnAnswerScope(current)) {
-                            finishCurrentQuestion();
+                            finishCurrent();
                         }
 
                     } else {
@@ -128,85 +206,15 @@ public class SurveyFlowHelper extends FlowHelperBase {
         return flowData;
     }
 
-    @Override
-    public FlowHelperBase update(QuestionData questionData) {
-        if (!questionData.getSingleQuestion().getId().equals(current.getId())) {
-            throw new IllegalArgumentException("ID mismatch " + "current: " + current.getId()
-                    + " received: " + questionData.getSingleQuestion().getId());
-        }
-
-        OptionData responseData = questionData.getResponseData();
-        if (responseData == null) {
-            throw new IllegalArgumentException("The response questionData for the given question id "
-                    + questionData.getSingleQuestion().getId() + " is null.");
-        }
-
-        AnswerData responseAnswerData = responseData.getAnswerData();
-        if (responseAnswerData == null) {
-            throw new IllegalArgumentException("The response answer for the given question id "
-                    + questionData.getSingleQuestion().getId() + " is null.");
-        }
-
-        ArrayList<Option> loggedOption = new ArrayList<>();
-        loggedOption.addAll(responseAnswerData.getOption());
-
-        Answer answer = new Answer(loggedOption
-                , (ArrayList<Question>) DeepCopy.copy(current.getChildren())
-                , current);
-
-        ArrayList<Answer> answersLogged = current.getAnswer();
-        AnswerFlow answerFlow = current.getFlowPattern().getAnswerFlow();
-        if (answerFlow != null && answerFlow.getMode() == AnswerFlow.Modes.ONCE && answersLogged.size() > 0) {
-            // already answered
-            current.addAnswer(0, answer);
-        } else {
-            current.addAnswer(answer);
-        }
-
-        // add answered question to the stack
-        stack.add(answer);
-
-        return this;
+    private void addToRemovedList(Question question) {
+        toBeRemoved.add(question);
     }
 
-    @Override
-    public FlowHelperBase moveToIndex(int index) {
-        Answer latestAnswer = current.getLatestAnswer();
-
-        if (latestAnswer != null) {
-            try {
-                setCurrent(latestAnswer.getChildren().get(index));
-            } catch (ArrayIndexOutOfBoundsException e) {
-                throw new IllegalArgumentException("The index " + index + " is not present inside the answers.");
-            }
-        } else {
-            throw new IllegalArgumentException("The answers list is empty. Check if the current question "
-                    + current.getRawNumber() + "is answered first.");
-        }
-
-        return this;
-    }
-
-    @Override
-    public FlowHelperBase finishCurrentQuestion() {
-        Answer latestAnswer = current.getLatestAnswer();
-
-        if (latestAnswer != null) {
-            Question reference = latestAnswer.getQuestionReference();
-            reference.setFinished(true); // set the finished flag to true so we can skip this Q when necessary
-            setCurrent(reference.getParent());
-        } else {
-            throw new IllegalArgumentException("The answers list is empty. Check if the current question "
-                    + current.getRawNumber() + " is answered first.");
-        }
-
-        return this;
-    }
 
     /* skip when
-        + AnswerData scope demands
-        + skip pattern matches
-    */
+    + AnswerData scope demands
+    + skip pattern matches
+*/
     private boolean shouldSkip(Question question) {
 
         return shouldSkipBasedOnAnswerScope(question) ||
@@ -271,4 +279,14 @@ public class SurveyFlowHelper extends FlowHelperBase {
         }
         return correctness == optionsSkipPositions.size();
     }
+
+    private void setCurrent(Question current) {
+        this.current = current;
+    }
+
+    @VisibleForTesting
+    public void setCurrentForTesting(Question current) {
+        this.current = current;
+    }
+
 }

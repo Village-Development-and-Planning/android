@@ -1,22 +1,21 @@
 package com.puthuvaazhvu.mapping.views.activities;
 
-import android.support.annotation.VisibleForTesting;
-
+import com.puthuvaazhvu.mapping.BuildConfig;
 import com.puthuvaazhvu.mapping.data.DataRepository;
-import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Flow.QuestionFlow;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.OptionData;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.AnswerData;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.SingleAnswerData;
+import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.GridQuestionData;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
-import com.puthuvaazhvu.mapping.views.helpers.flow.FlowType;
-import com.puthuvaazhvu.mapping.views.helpers.flow.FlowHelperBase;
-import com.puthuvaazhvu.mapping.views.helpers.flow.SurveyFlowHelper;
+import com.puthuvaazhvu.mapping.views.helpers.FlowHelper;
+import com.puthuvaazhvu.mapping.views.helpers.FlowType;
+import com.puthuvaazhvu.mapping.views.helpers.IFlowHelper;
+import com.puthuvaazhvu.mapping.views.helpers.ResponseData;
 
 import java.util.ArrayList;
+
+import timber.log.Timber;
 
 /**
  * Created by muthuveerappans on 9/30/17.
@@ -26,7 +25,7 @@ public class Presenter implements Contract.UserAction {
     private final Contract.View activityView;
     private final DataRepository<Survey> dataRepository;
 
-    private FlowHelperBase surveyQuestionFlow;
+    private FlowHelper flowHelper;
 
     private Survey survey;
 
@@ -47,26 +46,27 @@ public class Presenter implements Contract.UserAction {
     }
 
     @Override
-    public void startSurvey(Survey survey, FlowHelperBase surveyQuestionFlow) {
+    public void startSurvey(Survey survey, FlowHelper flowHelper) {
         // init
-        setSurveyQuestionFlow(surveyQuestionFlow);
+        setSurveyQuestionFlow(flowHelper);
         this.survey = survey;
 
         // set the first question
         getNext();
     }
 
-    public void setSurveyQuestionFlow(FlowHelperBase surveyQuestionFlow) {
-        this.surveyQuestionFlow = surveyQuestionFlow;
+    public void setSurveyQuestionFlow(FlowHelper flowHelper) {
+        this.flowHelper = flowHelper;
     }
 
     @Override
     public void moveToQuestionAt(int index) {
-        if (surveyQuestionFlow == null) {
-            throw new IllegalArgumentException("The method is called too early? Call startSurvey()/getSurvey() first.");
+        if (flowHelper == null) {
+            Timber.e(Constants.LOG_TAG, "The method is called too early? Call startSurvey()/getSurvey() first.");
+            return;
         }
 
-        Question current = surveyQuestionFlow.moveToIndex(index).getCurrent();
+        Question current = flowHelper.moveToIndex(index).getCurrent();
 
         // call UI with the set question
         showSingleQuestionUI(current);
@@ -74,13 +74,22 @@ public class Presenter implements Contract.UserAction {
 
     @Override
     public void updateCurrentQuestion(QuestionData questionData) {
-        surveyQuestionFlow.update(questionData);
+        if (flowHelper == null) {
+            Timber.e(Constants.LOG_TAG, "The method is called too early? Call startSurvey()/getSurvey() first.");
+            return;
+        }
+        flowHelper.update(ResponseData.adapter(questionData));
     }
 
     @Override
     public void getNext() {
+        if (flowHelper == null) {
+            Timber.e(Constants.LOG_TAG, "The method is called too early? Call startSurvey()/getSurvey() first.");
+            return;
+        }
+
         // 1. get the next question to be shown
-        FlowHelperBase.FlowData flowData = surveyQuestionFlow.getNext();
+        IFlowHelper.FlowData flowData = flowHelper.getNext();
 
         // 2. remove the answered questions from the stack.
         //    This comes 2nd because the remove question are populated in the flow helper only.
@@ -120,7 +129,7 @@ public class Presenter implements Contract.UserAction {
     }
 
     private void removeQuestionsFromStack() {
-        ArrayList<Question> toBeRemoved = surveyQuestionFlow.clearToBeRemovedList();
+        ArrayList<Question> toBeRemoved = flowHelper.emptyToBeRemovedList();
         if (!toBeRemoved.isEmpty())
             activityView.remove(toBeRemoved);
     }

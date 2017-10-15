@@ -6,20 +6,18 @@ import com.puthuvaazhvu.mapping.modals.Flow.FlowPattern;
 import com.puthuvaazhvu.mapping.modals.Flow.QuestionFlow;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
-import com.puthuvaazhvu.mapping.modals.SurveyDataModelTest;
 import com.puthuvaazhvu.mapping.views.activities.Contract;
 import com.puthuvaazhvu.mapping.views.activities.Presenter;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
-import com.puthuvaazhvu.mapping.views.helpers.flow.FlowHelperBase;
-import com.puthuvaazhvu.mapping.views.helpers.flow.FlowType;
-import com.puthuvaazhvu.mapping.views.helpers.flow.SurveyFlowHelper;
+import com.puthuvaazhvu.mapping.views.helpers.FlowHelper;
+import com.puthuvaazhvu.mapping.views.helpers.FlowType;
+import com.puthuvaazhvu.mapping.views.helpers.IFlowHelper;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
@@ -29,6 +27,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -45,7 +44,7 @@ public class MainPresenterTest {
     Question questionMock;
 
     @Mock
-    SurveyFlowHelper surveyFlowHelperMock;
+    FlowHelper flowHelper;
 
     private Presenter presenter;
 
@@ -70,13 +69,13 @@ public class MainPresenterTest {
 
     @Test
     public void test_startSurvey_method() {
-        FlowHelperBase.FlowData flowData = new FlowHelperBase.FlowData();
+        IFlowHelper.FlowData flowData = new IFlowHelper.FlowData();
         flowData.flowType = FlowType.SINGLE;
         flowData.question = questionMock;
 
-        when(surveyFlowHelperMock.getNext()).thenReturn(flowData);
+        when(flowHelper.getNext()).thenReturn(flowData);
 
-        presenter.startSurvey(null, surveyFlowHelperMock);
+        presenter.startSurvey(null, flowHelper);
 
         ArgumentCaptor<QuestionData> captor = ArgumentCaptor.forClass(QuestionData.class);
         verify(viewCallback).shouldShowSingleQuestion(captor.capture());
@@ -102,16 +101,18 @@ public class MainPresenterTest {
         QuestionFlow mockQuestionFlow = new QuestionFlow(QuestionFlow.Validation.NONE, QuestionFlow.UI.SINGLE_CHOICE);
         FlowPattern mockFlowPattern = new FlowPattern(null, mockQuestionFlow, null, null, null, null);
 
-        FlowHelperBase flowHelperBase = new SurveyFlowHelper(questionMock);
-        when(surveyFlowHelperMock.moveToIndex(anyInt())).thenReturn(flowHelperBase);
-        when(surveyFlowHelperMock.getCurrent()).thenReturn(questionMock);
+        IFlowHelper iFlowHelper = mock(IFlowHelper.class);
+        when(iFlowHelper.getCurrent()).thenReturn(questionMock);
 
-        FlowHelperBase.FlowData f = new FlowHelperBase.FlowData();
+        when(flowHelper.moveToIndex(anyInt())).thenReturn(iFlowHelper);
+        when(flowHelper.getCurrent()).thenReturn(questionMock);
+
+        IFlowHelper.FlowData f = new IFlowHelper.FlowData();
         f.question = questionMock;
         f.flowType = FlowType.SINGLE;
-        when(surveyFlowHelperMock.getNext()).thenReturn(f);
+        when(flowHelper.getNext()).thenReturn(f);
 
-        presenter.setSurveyQuestionFlow(surveyFlowHelperMock);
+        presenter.setSurveyQuestionFlow(flowHelper);
         presenter.moveToQuestionAt(1);
 
         ArgumentCaptor<QuestionData> captor = ArgumentCaptor.forClass(QuestionData.class);
@@ -126,14 +127,14 @@ public class MainPresenterTest {
 
         when(questionMock.getChildren()).thenReturn(new ArrayList<Question>());
 
-        presenter.setSurveyQuestionFlow(surveyFlowHelperMock);
+        presenter.setSurveyQuestionFlow(flowHelper);
 
         //              -- SINGLE --
 
-        FlowHelperBase.FlowData f = new FlowHelperBase.FlowData();
+        IFlowHelper.FlowData f = new IFlowHelper.FlowData();
         f.flowType = FlowType.SINGLE;
         f.question = questionMock;
-        when(surveyFlowHelperMock.getNext()).thenReturn(f);
+        when(flowHelper.getNext()).thenReturn(f);
 
         presenter.getNext();
 
@@ -142,10 +143,10 @@ public class MainPresenterTest {
 
         //              -- GRID --
 
-        f = new FlowHelperBase.FlowData();
+        f = new IFlowHelper.FlowData();
         f.flowType = FlowType.GRID;
         f.question = questionMock;
-        when(surveyFlowHelperMock.getNext()).thenReturn(f);
+        when(flowHelper.getNext()).thenReturn(f);
 
         presenter.getNext();
 

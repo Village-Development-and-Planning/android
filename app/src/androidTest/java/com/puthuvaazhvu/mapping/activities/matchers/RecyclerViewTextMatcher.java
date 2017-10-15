@@ -26,17 +26,15 @@ import static org.hamcrest.Matchers.not;
 
 public class RecyclerViewTextMatcher extends TypeSafeMatcher<View> {
     private final String itemText;
-    private final String contentDescription;
 
-    public RecyclerViewTextMatcher(String itemText, String contentDescription) {
+    public RecyclerViewTextMatcher(String itemText) {
         this.itemText = itemText;
-        this.contentDescription = contentDescription;
     }
 
     @Override
     public boolean matchesSafely(View item) {
         Matcher<View> itemMatcher = allOf(isDescendantOfA(isAssignableFrom(RecyclerView.class))
-                , withText(itemText), is(not(isChecked())), withContentDescription(contentDescription));
+                , withText(itemText));
 
         return itemMatcher.matches(item);
     }
@@ -47,7 +45,7 @@ public class RecyclerViewTextMatcher extends TypeSafeMatcher<View> {
     }
 
     @Factory
-    public static Matcher<View> withItemText(String text, String contentDescription) {
-        return new RecyclerViewTextMatcher(text, contentDescription);
+    public static Matcher<View> withItemText(String text) {
+        return new RecyclerViewTextMatcher(text);
     }
 }

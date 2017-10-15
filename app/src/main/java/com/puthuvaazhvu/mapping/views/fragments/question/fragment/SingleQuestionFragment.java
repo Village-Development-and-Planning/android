@@ -6,7 +6,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.View;
 
-import com.puthuvaazhvu.mapping.Constants;
+import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.fragments.option.fragments.CheckBoxOptionsListFragment;
@@ -112,6 +112,7 @@ public class SingleQuestionFragment extends SingleQuestionFragmentBase implement
     }
 
     private boolean isQuestionAnswered(QuestionData questionData) {
-        return questionData.getResponseData().getAnswerData() != null;
+        return questionData.getResponseData().getAnswerData() != null
+                && !questionData.getResponseData().getAnswerData().getOption().isEmpty();
     }
 }

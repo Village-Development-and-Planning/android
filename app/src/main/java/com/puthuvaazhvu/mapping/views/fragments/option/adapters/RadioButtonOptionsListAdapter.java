@@ -31,15 +31,16 @@ public class RadioButtonOptionsListAdapter extends RecyclerView.Adapter<RBVH> {
         rbvh.setRadioButtonClickListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                SingleOptionData singleOptionData = (SingleOptionData) compoundButton.getTag();
-                for (SingleOptionData o : singleOptionDataArrayList) {
-                    o.setSelected(false);
-                }
-                singleOptionData.setSelected(b);
 
                 // fix https://stackoverflow.com/questions/27070220/android-recyclerview-notifydatasetchanged-illegalstateexception
-                if (!onBind)
+                if (!onBind) {
+                    SingleOptionData singleOptionData = (SingleOptionData) compoundButton.getTag();
+                    for (SingleOptionData o : singleOptionDataArrayList) {
+                        o.setSelected(false);
+                    }
+                    singleOptionData.setSelected(b);
                     RadioButtonOptionsListAdapter.this.notifyDataSetChanged();
+                }
             }
         });
         return rbvh;
