@@ -1,15 +1,18 @@
 package com.puthuvaazhvu.mapping.presenters;
 
-import com.puthuvaazhvu.mapping.modals.SurveyDataModelTest;
 import com.puthuvaazhvu.mapping.data.DataRepository;
+import com.puthuvaazhvu.mapping.modals.Answer;
+import com.puthuvaazhvu.mapping.modals.Flow.FlowPattern;
+import com.puthuvaazhvu.mapping.modals.Flow.QuestionFlow;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
+import com.puthuvaazhvu.mapping.modals.SurveyDataModelTest;
 import com.puthuvaazhvu.mapping.views.activities.Contract;
 import com.puthuvaazhvu.mapping.views.activities.Presenter;
-import com.puthuvaazhvu.mapping.views.fragments.question.modals.Data;
-import com.puthuvaazhvu.mapping.views.helpers.data.QuestionDataHelper;
-import com.puthuvaazhvu.mapping.views.helpers.flow.QuestionFlowHelper;
-import com.puthuvaazhvu.mapping.views.helpers.flow.QuestionFlowHelperImpl;
+import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
+import com.puthuvaazhvu.mapping.views.helpers.flow.FlowHelperBase;
+import com.puthuvaazhvu.mapping.views.helpers.flow.FlowType;
+import com.puthuvaazhvu.mapping.views.helpers.flow.SurveyFlowHelper;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -23,38 +26,61 @@ import java.util.ArrayList;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.isNotNull;
-import static org.mockito.Matchers.isNull;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Created by muthuveerappans on 10/6/17.
+ * Created by muthuveerappans on 10/14/17.
  */
 
 @RunWith(MockitoJUnitRunner.class)
 public class MainPresenterTest {
-
     @Mock
     DataRepository<Survey> dataRepository;
 
+    @Mock
+    Question questionMock;
+
+    @Mock
+    SurveyFlowHelper surveyFlowHelperMock;
+
     private Presenter presenter;
-    private SurveyDataModelTest surveyDataModelTest;
-    private Survey survey;
 
     @Mock
     private Contract.View viewCallback;
 
     @Before
     public void setup() {
-        MockitoAnnotations.initMocks(this);
         presenter = new Presenter(viewCallback, dataRepository);
-        surveyDataModelTest = new SurveyDataModelTest();
-        surveyDataModelTest.testSurveyModel();
-        survey = surveyDataModelTest.survey;
+        initQuestionMock();
+    }
+
+    public void initQuestionMock() {
+        QuestionFlow mockQuestionFlow = new QuestionFlow(QuestionFlow.Validation.NONE, QuestionFlow.UI.SINGLE_CHOICE);
+        FlowPattern mockFlowPattern = new FlowPattern(null, mockQuestionFlow, null, null, null, null);
+
+        when(questionMock.getChildren()).thenReturn(new ArrayList<Question>());
+        when(questionMock.getFlowPattern()).thenReturn(mockFlowPattern);
+        when(questionMock.getRawNumber()).thenReturn("1");
+        when(questionMock.getLatestAnswer()).thenReturn(new Answer(null, new ArrayList<Question>(), null));
+    }
+
+    @Test
+    public void test_startSurvey_method() {
+        FlowHelperBase.FlowData flowData = new FlowHelperBase.FlowData();
+        flowData.flowType = FlowType.SINGLE;
+        flowData.question = questionMock;
+
+        when(surveyFlowHelperMock.getNext()).thenReturn(flowData);
+
+        presenter.startSurvey(null, surveyFlowHelperMock);
+
+        ArgumentCaptor<QuestionData> captor = ArgumentCaptor.forClass(QuestionData.class);
+        verify(viewCallback).shouldShowSingleQuestion(captor.capture());
+        assertThat(captor.getValue(), notNullValue());
     }
 
     @Test
@@ -65,79 +91,65 @@ public class MainPresenterTest {
         ArgumentCaptor<DataRepository.DataLoadedCallback> captor
                 = ArgumentCaptor.forClass(DataRepository.DataLoadedCallback.class);
         verify(dataRepository).getData(anyString(), captor.capture());
-        captor.getValue().onDataLoaded(survey);
+        captor.getValue().onDataLoaded(null);
 
         // Check if the survey is passed to the view callback
-        verify(viewCallback).onSurveyLoaded(survey);
+        verify(viewCallback).onSurveyLoaded(null);
     }
 
     @Test
-    public void test_setCurrentQuestion_method() {
-        Question root = survey.getQuestionList().get(0);
-        presenter.setData(survey, new QuestionFlowHelperImpl(root), new QuestionDataHelper(root));
+    public void test_moveToQuestionAt_method() {
+        QuestionFlow mockQuestionFlow = new QuestionFlow(QuestionFlow.Validation.NONE, QuestionFlow.UI.SINGLE_CHOICE);
+        FlowPattern mockFlowPattern = new FlowPattern(null, mockQuestionFlow, null, null, null, null);
 
-        // get a mock question form survey
-        Data mockData = Data.adapter(survey.getQuestionList().get(0).getChildren().get(0));
-        presenter.setCurrentQuestion(mockData);
+        FlowHelperBase flowHelperBase = new SurveyFlowHelper(questionMock);
+        when(surveyFlowHelperMock.moveToIndex(anyInt())).thenReturn(flowHelperBase);
+        when(surveyFlowHelperMock.getCurrent()).thenReturn(questionMock);
 
-        ArgumentCaptor<Data> captor = ArgumentCaptor.forClass(Data.class);
+        FlowHelperBase.FlowData f = new FlowHelperBase.FlowData();
+        f.question = questionMock;
+        f.flowType = FlowType.SINGLE;
+        when(surveyFlowHelperMock.getNext()).thenReturn(f);
 
+        presenter.setSurveyQuestionFlow(surveyFlowHelperMock);
+        presenter.moveToQuestionAt(1);
+
+        ArgumentCaptor<QuestionData> captor = ArgumentCaptor.forClass(QuestionData.class);
         verify(viewCallback).shouldShowSingleQuestion(captor.capture());
-        assertThat(captor.getValue().getQuestion().getId(), is(mockData.getQuestion().getId()));
 
-        // try passing a grid question
-        Question question_2_1_7 = survey.getQuestionList().get(0)
-                .getChildren().get(1).getChildren().get(1).getChildren().get(6);
-        mockData = Data.adapter(question_2_1_7);
-        presenter.setCurrentQuestion(mockData);
-
-        ArgumentCaptor<ArrayList> gridDataCaptor = ArgumentCaptor.forClass(ArrayList.class);
-
-        verify(viewCallback).shouldShowGrid(anyString(), gridDataCaptor.capture());
-        assertThat(gridDataCaptor.getValue().size(), is(question_2_1_7.getChildren().size()));
-
-        // try passing a conformation question
-        // 2.1
-        Question question_2_1 = survey.getQuestionList().get(0)
-                .getChildren().get(1).getChildren().get(1);
-        mockData = Data.adapter(question_2_1);
-        presenter.setCurrentQuestion(mockData);
-
-        ArgumentCaptor<Data> singleQuestionCaptor = ArgumentCaptor.forClass(Data.class);
-
-        verify(viewCallback).shouldShowConformationQuestion(singleQuestionCaptor.capture());
-        assertThat(singleQuestionCaptor.getValue().getQuestion().getRawNumber()
-                , is("2.1"));
+        assertThat(captor.getValue().getSingleQuestion().getRawNumber(), is("1"));
     }
 
     @Test
     public void test_getNext_method() {
-        // get a mock question form survey
-        // try passing a grid question
-        Question question_2_1_7 = survey.getQuestionList().get(0)
-                .getChildren().get(1).getChildren().get(1).getChildren().get(6);
+        ArgumentCaptor<QuestionData> captor = ArgumentCaptor.forClass(QuestionData.class);
 
-        QuestionFlowHelper questionFlowHelper = mock(QuestionFlowHelper.class);
-        QuestionDataHelper questionDataHelper = mock(QuestionDataHelper.class);
+        when(questionMock.getChildren()).thenReturn(new ArrayList<Question>());
 
-        when(questionFlowHelper.getNext()).thenReturn(question_2_1_7);
+        presenter.setSurveyQuestionFlow(surveyFlowHelperMock);
 
-        presenter.setData(survey, questionFlowHelper, questionDataHelper);
+        //              -- SINGLE --
+
+        FlowHelperBase.FlowData f = new FlowHelperBase.FlowData();
+        f.flowType = FlowType.SINGLE;
+        f.question = questionMock;
+        when(surveyFlowHelperMock.getNext()).thenReturn(f);
+
         presenter.getNext();
 
-        ArgumentCaptor<ArrayList> gridDataCaptor = ArgumentCaptor.forClass(ArrayList.class);
-
-        verify(viewCallback).shouldShowGrid(anyString(), gridDataCaptor.capture());
-        assertThat(gridDataCaptor.getValue().size(), is(question_2_1_7.getChildren().size()));
-    }
-
-    @Test
-    public void test_startSurvey_method() {
-        presenter.startSurvey(survey);
-
-        ArgumentCaptor<Data> captor = ArgumentCaptor.forClass(Data.class);
         verify(viewCallback).shouldShowSingleQuestion(captor.capture());
-        assertThat(captor.getValue().getQuestion().getRawNumber(), is("1"));
-    }
+        assertThat(captor.getValue(), notNullValue());
 
+        //              -- GRID --
+
+        f = new FlowHelperBase.FlowData();
+        f.flowType = FlowType.GRID;
+        f.question = questionMock;
+        when(surveyFlowHelperMock.getNext()).thenReturn(f);
+
+        presenter.getNext();
+
+        verify(viewCallback).shouldShowSingleQuestion(captor.capture());
+        assertThat(captor.getValue(), notNullValue());
+    }
 }

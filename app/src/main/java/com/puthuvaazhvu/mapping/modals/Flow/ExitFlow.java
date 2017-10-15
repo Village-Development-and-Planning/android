@@ -6,11 +6,13 @@ import android.os.Parcelable;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
-public class ExitFlow implements Parcelable {
+import java.io.Serializable;
+
+public class ExitFlow implements Parcelable, Serializable {
     private final Modes mode;
 
     public enum Modes {
-        NONE, PARENT, LOOP
+        NONE, PARENT, LOOP, END
     }
 
     public ExitFlow(Modes mode) {
@@ -36,6 +38,8 @@ public class ExitFlow implements Parcelable {
                 return Modes.PARENT;
             case "LOOP":
                 return Modes.LOOP;
+            case "END":
+                return Modes.END;
             default:
                 return Modes.NONE;
         }

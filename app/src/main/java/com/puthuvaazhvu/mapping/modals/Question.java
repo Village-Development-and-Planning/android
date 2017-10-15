@@ -11,13 +11,14 @@ import com.puthuvaazhvu.mapping.modals.Flow.AnswerFlow;
 import com.puthuvaazhvu.mapping.modals.Flow.FlowPattern;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * Created by muthuveerappans on 8/24/17.
  */
 
-public class Question implements Parcelable {
+public class Question implements Parcelable, Serializable {
     private final String id;
     private final String position;
     private final Text text;
@@ -31,6 +32,7 @@ public class Question implements Parcelable {
     private final Info info;
     private final FlowPattern flowPattern;
     private Question parent;
+    private boolean isFinished = false; // you can set to true for the question to skip
 
     public Question(String id, String position, Text text, String type, ArrayList<Option> optionList, ArrayList<Answer> answer, ArrayList<Tag> tag, String modifiedAt, String rawNumber, ArrayList<Question> children, Info info, FlowPattern flowPattern, Question parent) {
         this.id = id;
@@ -46,6 +48,23 @@ public class Question implements Parcelable {
         this.info = info;
         this.flowPattern = flowPattern;
         this.parent = parent;
+    }
+
+    // shallow copy
+    public Question(Question other) {
+        id = other.getId();
+        position = other.getPosition();
+        text = other.getText();
+        type = other.getType();
+        optionList = other.getOptionList();
+        answer = other.getAnswer();
+        tag = other.getTag();
+        modifiedAt = other.getModifiedAt();
+        rawNumber = other.getRawNumber();
+        children = other.getChildren();
+        info = other.getInfo();
+        flowPattern = other.getFlowPattern();
+        parent = other.getParent();
     }
 
     public Question(JsonObject json) {
@@ -100,8 +119,20 @@ public class Question implements Parcelable {
         }
     }
 
+    public boolean isFinished() {
+        return isFinished;
+    }
+
+    public void setFinished(boolean finished) {
+        isFinished = finished;
+    }
+
     public void setParent(Question parent) {
         parent.children.add(this);
+        this.parent = parent;
+    }
+
+    public void replaceParent(Question parent) {
         this.parent = parent;
     }
 
@@ -145,6 +176,10 @@ public class Question implements Parcelable {
         this.answer.add(answer);
     }
 
+    public void addAnswer(int index, Answer answer) {
+        this.answer.set(index, answer);
+    }
+
     public ArrayList<Answer> getAnswer() {
         return answer;
     }
@@ -177,13 +212,11 @@ public class Question implements Parcelable {
         return flowPattern;
     }
 
-    public boolean isAnswered() {
-        boolean isScopeOnce = false;
-        AnswerFlow answerFlow = getFlowPattern().getAnswerFlow();
-        if (answerFlow != null) {
-            isScopeOnce = answerFlow.getMode() == AnswerFlow.Modes.ONCE;
+    public Answer getLatestAnswer() {
+        if (answer == null || answer.isEmpty()) {
+            return null;
         }
-        return this.answer.size() > 0 && isScopeOnce; // automatically skip if answered once (only for scope: once)
+        return answer.get(answer.size() - 1); // The required answer is always at the last index.
     }
 
     @Override

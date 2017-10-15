@@ -6,7 +6,9 @@ import android.os.Parcelable;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
-public class ChildFlow implements Parcelable {
+import java.io.Serializable;
+
+public class ChildFlow implements Parcelable, Serializable {
     private final Modes mode;
     private final UI uiToBeShown;
     private final RepeatMode repeatMode;

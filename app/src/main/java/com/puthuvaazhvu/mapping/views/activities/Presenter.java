@@ -3,15 +3,18 @@ package com.puthuvaazhvu.mapping.views.activities;
 import android.support.annotation.VisibleForTesting;
 
 import com.puthuvaazhvu.mapping.data.DataRepository;
-import com.puthuvaazhvu.mapping.modals.Flow.ChildFlow;
+import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Flow.QuestionFlow;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
-import com.puthuvaazhvu.mapping.views.fragments.question.modals.Data;
-import com.puthuvaazhvu.mapping.views.fragments.question.modals.GridData;
-import com.puthuvaazhvu.mapping.views.helpers.data.QuestionDataHelper;
-import com.puthuvaazhvu.mapping.views.helpers.flow.QuestionFlowHelper;
-import com.puthuvaazhvu.mapping.views.helpers.flow.QuestionFlowHelperImpl;
+import com.puthuvaazhvu.mapping.views.fragments.option.modals.OptionData;
+import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.AnswerData;
+import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.SingleAnswerData;
+import com.puthuvaazhvu.mapping.views.fragments.question.modals.GridQuestionData;
+import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
+import com.puthuvaazhvu.mapping.views.helpers.flow.FlowType;
+import com.puthuvaazhvu.mapping.views.helpers.flow.FlowHelperBase;
+import com.puthuvaazhvu.mapping.views.helpers.flow.SurveyFlowHelper;
 
 import java.util.ArrayList;
 
@@ -22,10 +25,10 @@ import java.util.ArrayList;
 public class Presenter implements Contract.UserAction {
     private final Contract.View activityView;
     private final DataRepository<Survey> dataRepository;
+
+    private FlowHelperBase surveyQuestionFlow;
+
     private Survey survey;
-    private Question currentQuestion;
-    private QuestionFlowHelper questionFlowHelper;
-    private QuestionDataHelper questionDataHelper;
 
     public Presenter(Contract.View view, DataRepository<Survey> dataRepository) {
         this.activityView = view;
@@ -44,85 +47,80 @@ public class Presenter implements Contract.UserAction {
     }
 
     @Override
-    public void startSurvey(Survey survey) {
-        // always the survey has only one root question
-        Question root = survey.getQuestionList().get(0);
-
+    public void startSurvey(Survey survey, FlowHelperBase surveyQuestionFlow) {
         // init
-        QuestionFlowHelper questionFlowHelper = new QuestionFlowHelperImpl(root);
-        QuestionDataHelper questionDataHelper = new QuestionDataHelper(root);
-
-        setData(survey, questionFlowHelper, questionDataHelper);
+        setSurveyQuestionFlow(surveyQuestionFlow);
+        this.survey = survey;
 
         // set the first question
         getNext();
     }
 
-    @VisibleForTesting
-    public void setData(Survey data, QuestionFlowHelper questionFlowHelper, QuestionDataHelper questionDataHelper) {
-        this.survey = data;
-        this.questionFlowHelper = questionFlowHelper;
-        this.questionDataHelper = questionDataHelper;
+    public void setSurveyQuestionFlow(FlowHelperBase surveyQuestionFlow) {
+        this.surveyQuestionFlow = surveyQuestionFlow;
     }
 
     @Override
-    public void setCurrentQuestion(Data currentQuestion) {
-        if (questionDataHelper == null) {
-            throw new IllegalArgumentException("The method is called too early? Call getSurvey() first.");
+    public void moveToQuestionAt(int index) {
+        if (surveyQuestionFlow == null) {
+            throw new IllegalArgumentException("The method is called too early? Call startSurvey()/getSurvey() first.");
         }
 
-        // search for the ID in the current root index only
-        this.currentQuestion = questionDataHelper.find(currentQuestion.getQuestion().getId());
-
-        // update the current question in the flow helper class
-        questionFlowHelper.setCurrent(this.currentQuestion);
+        Question current = surveyQuestionFlow.moveToIndex(index).getCurrent();
 
         // call UI with the set question
-        sendDataToCaller(this.currentQuestion);
+        showSingleQuestionUI(current);
     }
 
     @Override
-    public void updateCurrentQuestion(Data data) {
-        if (data.getQuestion().getId().equals(currentQuestion.getId())) {
-            currentQuestion = QuestionDataHelper.OtherHelpers.updateQuestion(data, currentQuestion);
-        } else {
-            throw new IllegalArgumentException("The current question and the answered question are not the same.\n" +
-                    "Current QuestionFragment ID: " + currentQuestion.getId() + "\n" +
-                    "Answered QuestionFragment ID: " + data.getQuestion().getId());
-        }
+    public void updateCurrentQuestion(QuestionData questionData) {
+        surveyQuestionFlow.update(questionData);
     }
 
     @Override
     public void getNext() {
         // 1. get the next question to be shown
-        currentQuestion = questionFlowHelper.getNext();
+        FlowHelperBase.FlowData flowData = surveyQuestionFlow.getNext();
 
         // 2. remove the answered questions from the stack.
         //    This comes 2nd because the remove question are populated in the flow helper only.
         removeQuestionsFromStack();
 
         // 3. show the new question
-        sendDataToCaller(currentQuestion);
-    }
+        Question question = flowData.question;
 
-    private void sendDataToCaller(Question currentQuestion) {
         // only if grid for children, show grid. else show normal question view
-        if (currentQuestion.getFlowPattern().getChildFlow().getUiToBeShown() == ChildFlow.UI.GRID) {
-            ArrayList<GridData> data = QuestionDataHelper.Adapters.getDataForGrid(currentQuestion);
-            activityView.shouldShowGrid(currentQuestion.getId(), data);
-        } else {
-            Data data = Data.adapter(currentQuestion);
-            if (currentQuestion.getFlowPattern().getQuestionFlow().getUiMode() == QuestionFlow.UI.INFO)
-                activityView.shouldShowQuestionAsInfo(data);
-            else if (currentQuestion.getFlowPattern().getQuestionFlow().getUiMode() == QuestionFlow.UI.CONFIRMATION)
-                activityView.shouldShowConformationQuestion(data);
-            else
-                activityView.shouldShowSingleQuestion(data);
+        if (flowData.flowType == FlowType.GRID) {
+            showGridUI(question);
+        } else if (flowData.flowType == FlowType.SINGLE) {
+            showSingleQuestionUI(question);
+        } else if (flowData.flowType == FlowType.END) {
+            activityView.onSurveyEnd();
         }
     }
 
+    private void showGridUI(Question question) {
+        // get the children of the latest answer
+        ArrayList<Question> children = question.getLatestAnswer().getChildren();
+        ArrayList<GridQuestionData> data = GridQuestionData.adapter(children);
+        activityView.shouldShowGrid(question.getId(), data);
+    }
+
+    private void showSingleQuestionUI(Question question) {
+
+        QuestionData questionData = QuestionData.adapter(question);
+
+        // check and show UI accordingly
+        if (question.getFlowPattern().getQuestionFlow().getUiMode() == QuestionFlow.UI.INFO)
+            activityView.shouldShowQuestionAsInfo(questionData);
+        else if (question.getFlowPattern().getQuestionFlow().getUiMode() == QuestionFlow.UI.CONFIRMATION)
+            activityView.shouldShowConformationQuestion(questionData);
+        else
+            activityView.shouldShowSingleQuestion(questionData);
+    }
+
     private void removeQuestionsFromStack() {
-        ArrayList<Question> toBeRemoved = questionFlowHelper.clearToBeRemovedList();
+        ArrayList<Question> toBeRemoved = surveyQuestionFlow.clearToBeRemovedList();
         if (!toBeRemoved.isEmpty())
             activityView.remove(toBeRemoved);
     }

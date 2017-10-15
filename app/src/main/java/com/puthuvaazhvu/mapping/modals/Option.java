@@ -9,13 +9,14 @@ import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.Constants;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * Created by muthuveerappans on 8/24/17.
  */
 
-public class Option implements Parcelable {
+public class Option implements Parcelable, Serializable {
     private final String id;
     private final String type;
     private final Text text;

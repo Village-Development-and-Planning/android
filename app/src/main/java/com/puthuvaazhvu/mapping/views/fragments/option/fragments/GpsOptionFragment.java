@@ -2,14 +2,11 @@ package com.puthuvaazhvu.mapping.views.fragments.option.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.puthuvaazhvu.mapping.R;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.Data;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.GpsAnswer;
+import com.puthuvaazhvu.mapping.views.fragments.option.modals.OptionData;
+import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.GpsAnswerData;
 
 /**
  * Created by muthuveerappans on 9/30/17.
@@ -17,28 +14,28 @@ import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.GpsAnswer;
 
 public class GpsOptionFragment extends ButtonOptionsFragment implements View.OnClickListener {
     private Button button;
-    private Data data;
+    private OptionData optionData;
     private long lat, lng;
 
-    public static GpsOptionFragment getInstance(Data data) {
+    public static GpsOptionFragment getInstance(OptionData optionData) {
         GpsOptionFragment gpsOptionFragment = new GpsOptionFragment();
         Bundle bundle = new Bundle();
-        bundle.putParcelable("data", data);
+        bundle.putParcelable("optionData", optionData);
         gpsOptionFragment.setArguments(bundle);
         return gpsOptionFragment;
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        data = getArguments().getParcelable("data");
+        optionData = getArguments().getParcelable("optionData");
         button = getButton();
     }
 
     @Override
-    public Data getUpdatedData() {
-        GpsAnswer gpsAnswer = new GpsAnswer(data.getQuestionID(), data.getQuestionText(), lat, lng);
-        data.setAnswer(gpsAnswer);
-        return data;
+    public OptionData getUpdatedData() {
+        GpsAnswerData gpsAnswer = new GpsAnswerData(optionData.getQuestionID(), optionData.getQuestionText(), lat, lng);
+        optionData.setAnswerData(gpsAnswer);
+        return optionData;
     }
 
     @Override

@@ -7,11 +7,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
+import java.io.Serializable;
+
 /**
  * Created by muthuveerappans on 9/26/17.
  */
 
-public class FlowPattern implements Parcelable {
+public class FlowPattern implements Parcelable, Serializable {
     private final PreFlow preFlow;
     private final QuestionFlow questionFlow;
     private final AnswerFlow answerFlow;

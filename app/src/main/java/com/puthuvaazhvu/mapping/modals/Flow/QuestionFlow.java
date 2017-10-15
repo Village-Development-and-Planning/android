@@ -6,7 +6,9 @@ import android.os.Parcelable;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
-public class QuestionFlow implements Parcelable {
+import java.io.Serializable;
+
+public class QuestionFlow implements Parcelable, Serializable {
     private final Validation validation;
     private final UI uiMode;
 

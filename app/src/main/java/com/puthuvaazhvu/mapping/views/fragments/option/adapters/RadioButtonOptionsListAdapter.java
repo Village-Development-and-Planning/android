@@ -8,7 +8,7 @@ import android.widget.CompoundButton;
 import android.widget.RadioButton;
 
 import com.puthuvaazhvu.mapping.R;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.Option;
+import com.puthuvaazhvu.mapping.views.fragments.option.modals.SingleOptionData;
 
 import java.util.ArrayList;
 
@@ -17,11 +17,11 @@ import java.util.ArrayList;
  */
 
 public class RadioButtonOptionsListAdapter extends RecyclerView.Adapter<RBVH> {
-    private final ArrayList<Option> optionArrayList;
+    private final ArrayList<SingleOptionData> singleOptionDataArrayList;
     private boolean onBind;
 
-    public RadioButtonOptionsListAdapter(ArrayList<Option> optionArrayList) {
-        this.optionArrayList = optionArrayList;
+    public RadioButtonOptionsListAdapter(ArrayList<SingleOptionData> singleOptionDataArrayList) {
+        this.singleOptionDataArrayList = singleOptionDataArrayList;
     }
 
     @Override
@@ -31,11 +31,11 @@ public class RadioButtonOptionsListAdapter extends RecyclerView.Adapter<RBVH> {
         rbvh.setRadioButtonClickListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                Option option = (Option) compoundButton.getTag();
-                for (Option o : optionArrayList) {
+                SingleOptionData singleOptionData = (SingleOptionData) compoundButton.getTag();
+                for (SingleOptionData o : singleOptionDataArrayList) {
                     o.setSelected(false);
                 }
-                option.setSelected(b);
+                singleOptionData.setSelected(b);
 
                 // fix https://stackoverflow.com/questions/27070220/android-recyclerview-notifydatasetchanged-illegalstateexception
                 if (!onBind)
@@ -47,17 +47,17 @@ public class RadioButtonOptionsListAdapter extends RecyclerView.Adapter<RBVH> {
 
     @Override
     public void onBindViewHolder(RBVH holder, int position) {
-        Option option = optionArrayList.get(position);
-        holder.getRadio_button().setTag(option);
+        SingleOptionData singleOptionData = singleOptionDataArrayList.get(position);
+        holder.getRadio_button().setTag(singleOptionData);
 
         onBind = true;
-        holder.populateViews(option.getText(), option.isSelected(), option.getId());
+        holder.populateViews(singleOptionData.getText(), singleOptionData.isSelected(), singleOptionData.getId());
         onBind = false;
     }
 
     @Override
     public int getItemCount() {
-        return optionArrayList.size();
+        return singleOptionDataArrayList.size();
     }
 }
 

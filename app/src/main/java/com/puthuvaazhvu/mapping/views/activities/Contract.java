@@ -2,10 +2,9 @@ package com.puthuvaazhvu.mapping.views.activities;
 
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
-import com.puthuvaazhvu.mapping.views.fragments.question.modals.Data;
-import com.puthuvaazhvu.mapping.views.fragments.question.modals.GridData;
-import com.puthuvaazhvu.mapping.views.helpers.data.QuestionDataHelper;
-import com.puthuvaazhvu.mapping.views.helpers.flow.QuestionFlowHelper;
+import com.puthuvaazhvu.mapping.views.fragments.question.modals.GridQuestionData;
+import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
+import com.puthuvaazhvu.mapping.views.helpers.flow.FlowHelperBase;
 
 import java.util.ArrayList;
 
@@ -25,23 +24,30 @@ public interface Contract {
          * @param question The single question that should be shown.
          * @param tag      Tag for the fragment
          */
-        void shouldShowGrid(String tag, ArrayList<GridData> question);
+        void shouldShowGrid(String tag, ArrayList<GridQuestionData> question);
 
         /**
          * Callback called when particular single question should be shown as it is.
          *
          * @param question
          */
-        void shouldShowSingleQuestion(Data question);
+        void shouldShowSingleQuestion(QuestionData question);
 
         /**
          * Callback called when the type of the {@link Question} is INFO.
          *
          * @param question
          */
-        public void shouldShowQuestionAsInfo(Data question);
+        void shouldShowQuestionAsInfo(QuestionData question);
 
-        public void shouldShowConformationQuestion(Data question);
+        /**
+         * Callback called when the type of the {@link Question} is CONFORMATION.
+         *
+         * @param question
+         */
+        void shouldShowConformationQuestion(QuestionData question);
+
+        void onSurveyEnd();
 
         /**
          * Callback called when a particular question should be removed from the stack.
@@ -72,20 +78,20 @@ public interface Contract {
         /**
          * Main starting point of the questions flow for the UI
          */
-        void startSurvey(Survey survey);
+        void startSurvey(Survey survey, FlowHelperBase surveyQuestionFlow);
 
         /**
          * Helper to update the given question with the updated answer data.
          *
          * @param currentQuestion
          */
-        void updateCurrentQuestion(Data currentQuestion);
+        void updateCurrentQuestion(QuestionData currentQuestion);
 
         /**
          * Set the current question for the pointer to point to. This will be shown in the UI.
          *
-         * @param currentQuestion The question the imaginary pointer to point to.
+         * @param index The index of the child question for the current pointer to point to.
          */
-        void setCurrentQuestion(Data currentQuestion);
+        void moveToQuestionAt(int index);
     }
 }

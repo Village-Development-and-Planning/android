@@ -3,21 +3,27 @@ package com.puthuvaazhvu.mapping.views.fragments.option.modals;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.puthuvaazhvu.mapping.Constants;
+import com.puthuvaazhvu.mapping.modals.Option;
 
 /**
  * Created by muthuveerappans on 9/30/17.
  */
 
-public class Option implements Parcelable {
-    private String id;
-    private String text;
+public class SingleOptionData implements Parcelable {
+    private final String id;
+    private final String text;
+    private final String position;
     private boolean isSelected;
 
-    public Option(String id, String text, boolean isSelected) {
+    public SingleOptionData(String id, String text, String position, boolean isSelected) {
         this.id = id;
         this.text = text;
+        this.position = position;
         this.isSelected = isSelected;
+    }
+
+    public String getPosition() {
+        return position;
     }
 
     public String getId() {
@@ -45,31 +51,33 @@ public class Option implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.id);
         dest.writeString(this.text);
+        dest.writeString(this.position);
         dest.writeByte(this.isSelected ? (byte) 1 : (byte) 0);
     }
 
-    protected Option(Parcel in) {
+    protected SingleOptionData(Parcel in) {
         this.id = in.readString();
         this.text = in.readString();
+        this.position = in.readString();
         this.isSelected = in.readByte() != 0;
-        int tmpOptionType = in.readInt();
     }
 
-    public static final Creator<Option> CREATOR = new Creator<Option>() {
+    public static final Creator<SingleOptionData> CREATOR = new Creator<SingleOptionData>() {
         @Override
-        public Option createFromParcel(Parcel source) {
-            return new Option(source);
+        public SingleOptionData createFromParcel(Parcel source) {
+            return new SingleOptionData(source);
         }
 
         @Override
-        public Option[] newArray(int size) {
-            return new Option[size];
+        public SingleOptionData[] newArray(int size) {
+            return new SingleOptionData[size];
         }
     };
 
-    public static Option adapter(com.puthuvaazhvu.mapping.modals.Option option, boolean isSelected) {
-        return new Option(option.getId(),
+    public static SingleOptionData adapter(Option option, boolean isSelected) {
+        return new SingleOptionData(option.getId(),
                 option.getTextString(),
+                option.getPosition(),
                 isSelected);
     }
 }

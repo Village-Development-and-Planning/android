@@ -2,27 +2,22 @@ package com.puthuvaazhvu.mapping.views.fragments.question.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
 
-import com.puthuvaazhvu.mapping.R;
-import com.puthuvaazhvu.mapping.views.fragments.question.modals.Data;
+import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
 
 /**
  * Created by muthuveerappans on 10/12/17.
  */
 
 public class ConformationQuestionFragment extends SingleQuestionFragmentBase {
-    private Data data;
+    private QuestionData questionData;
 
-    public static ConformationQuestionFragment getInstance(Data data) {
+    public static ConformationQuestionFragment getInstance(QuestionData questionData) {
         ConformationQuestionFragment fragment = new ConformationQuestionFragment();
 
         Bundle bundle = new Bundle();
-        bundle.putParcelable("data", data);
+        bundle.putParcelable("questionData", questionData);
         fragment.setArguments(bundle);
 
         return fragment;
@@ -30,19 +25,19 @@ public class ConformationQuestionFragment extends SingleQuestionFragmentBase {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        data = getArguments().getParcelable("data");
+        questionData = getArguments().getParcelable("questionData");
 
-        String questionText = data.getQuestion().getText();
+        String questionText = questionData.getSingleQuestion().getText();
         getQuestion_text().setText(questionText);
     }
 
     @Override
     public void onBackButtonPressed(View view) {
-        backButtonPressedInsideQuestion(data);
+        backButtonPressedInsideQuestion(questionData);
     }
 
     @Override
     public void onNextButtonPressed(View view) {
-        sendQuestionToCaller(data, false, false);
+        sendQuestionToCaller(questionData, false, false);
     }
 }

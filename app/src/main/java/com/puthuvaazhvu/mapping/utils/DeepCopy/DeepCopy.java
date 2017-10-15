@@ -31,9 +31,9 @@ public class DeepCopy {
                     new ObjectInputStream(fbos.getInputStream());
             obj = in.readObject();
         } catch (IOException e) {
-            Log.e(Constants.LOG_TAG, "Error in Deep Copy. " + e.getMessage());
+            throw new IllegalArgumentException("Error in Deep Copy. " + e.getMessage());
         } catch (ClassNotFoundException cnfe) {
-            Log.e(Constants.LOG_TAG, "Error in Deep Copy. " + cnfe.getMessage());
+            throw new IllegalArgumentException("Error in Deep Copy. " + cnfe.getMessage());
         }
         return obj;
     }

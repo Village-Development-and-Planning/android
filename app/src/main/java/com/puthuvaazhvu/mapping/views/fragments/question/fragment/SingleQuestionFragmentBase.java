@@ -9,8 +9,6 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.puthuvaazhvu.mapping.R;
-import com.puthuvaazhvu.mapping.utils.Utils;
-import com.puthuvaazhvu.mapping.views.fragments.question.modals.Data;
 
 /**
  * Created by muthuveerappans on 10/12/17.

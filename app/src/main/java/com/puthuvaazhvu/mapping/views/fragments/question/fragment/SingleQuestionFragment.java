@@ -4,11 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
 
 import com.puthuvaazhvu.mapping.Constants;
 import com.puthuvaazhvu.mapping.R;
@@ -18,22 +14,23 @@ import com.puthuvaazhvu.mapping.views.fragments.option.fragments.EditTextOptionF
 import com.puthuvaazhvu.mapping.views.fragments.option.fragments.GpsOptionFragment;
 import com.puthuvaazhvu.mapping.views.fragments.option.fragments.OptionsFragment;
 import com.puthuvaazhvu.mapping.views.fragments.option.fragments.RadioButtonOptionsListFragment;
-import com.puthuvaazhvu.mapping.views.fragments.question.modals.Data;
+import com.puthuvaazhvu.mapping.views.fragments.option.modals.OptionData;
+import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
 
 /**
  * Created by muthuveerappans on 9/30/17.
  */
 
 public class SingleQuestionFragment extends SingleQuestionFragmentBase implements View.OnClickListener {
-    private Data data;
+    private QuestionData questionData;
 
     private OptionsFragment optionFragment;
 
-    public static SingleQuestionFragment getInstance(Data data) {
+    public static SingleQuestionFragment getInstance(QuestionData questionData) {
         SingleQuestionFragment fragment = new SingleQuestionFragment();
 
         Bundle bundle = new Bundle();
-        bundle.putParcelable("data", data);
+        bundle.putParcelable("questionData", questionData);
         fragment.setArguments(bundle);
 
         return fragment;
@@ -41,9 +38,9 @@ public class SingleQuestionFragment extends SingleQuestionFragmentBase implement
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        data = getArguments().getParcelable("data");
+        questionData = getArguments().getParcelable("questionData");
 
-        String questionText = data.getQuestion().getText();
+        String questionText = questionData.getSingleQuestion().getText();
         getQuestion_text().setText(questionText);
 
         loadCorrectOptionFragment();
@@ -51,14 +48,14 @@ public class SingleQuestionFragment extends SingleQuestionFragmentBase implement
 
     @Override
     public void onBackButtonPressed(View view) {
-        backButtonPressedInsideQuestion(data);
+        backButtonPressedInsideQuestion(questionData);
     }
 
     @Override
     public void onNextButtonPressed(View view) {
-        Data updatedData = getUpdatedQuestion();
-        if (isQuestionAnswered(updatedData)) {
-            sendQuestionToCaller(updatedData, false, true);
+        QuestionData updatedQuestionData = getUpdatedQuestion();
+        if (isQuestionAnswered(updatedQuestionData)) {
+            sendQuestionToCaller(updatedQuestionData, false, true);
         } else {
             onError(Utils.getErrorMessage(R.string.options_not_entered_err, getContext()));
         }
@@ -68,30 +65,30 @@ public class SingleQuestionFragment extends SingleQuestionFragmentBase implement
      * Helper to load the options based on the correct option type provided.
      */
     private void loadCorrectOptionFragment() {
-        com.puthuvaazhvu.mapping.views.fragments.option.modals.Data optionData = data.getOptionData();
-        com.puthuvaazhvu.mapping.views.fragments.option.modals.Data.Type type = optionData.getType();
+        OptionData optionOptionData = questionData.getOptionOptionData();
+        OptionData.Type type = optionOptionData.getType();
 
         OptionsFragment optionsFragmentFragment = null;
 
         switch (type) {
             case CHECKBOX_LIST:
-                optionsFragmentFragment = CheckBoxOptionsListFragment.getInstance(optionData);
+                optionsFragmentFragment = CheckBoxOptionsListFragment.getInstance(optionOptionData);
                 break;
             case RADIO_BUTTON_LIST:
-                optionsFragmentFragment = RadioButtonOptionsListFragment.getInstance(optionData);
+                optionsFragmentFragment = RadioButtonOptionsListFragment.getInstance(optionOptionData);
                 break;
             case BUTTON:
-                optionsFragmentFragment = GpsOptionFragment.getInstance(optionData);
+                optionsFragmentFragment = GpsOptionFragment.getInstance(optionOptionData);
                 break;
             case EDIT_TEXT:
-                optionsFragmentFragment = EditTextOptionFragment.getInstance(optionData);
+                optionsFragmentFragment = EditTextOptionFragment.getInstance(optionOptionData);
                 break;
             default:
                 Log.e(Constants.LOG_TAG, "OptionsFragment type is NONE. So no options UI loaded.");
                 return;
         }
 
-        loadOptionFragment(optionsFragmentFragment, "option:" + optionData.getQuestionID());
+        loadOptionFragment(optionsFragmentFragment, "option:" + optionOptionData.getQuestionID());
     }
 
     private void loadOptionFragment(OptionsFragment optionFragment, String tag) {
@@ -103,18 +100,18 @@ public class SingleQuestionFragment extends SingleQuestionFragmentBase implement
         transaction.commit();
     }
 
-    private Data getUpdatedQuestion() {
+    private QuestionData getUpdatedQuestion() {
         if (optionFragment == null) {
             Log.e(Constants.LOG_TAG, "The options fragment is null. Possibly default case is executed in loadCorrectOptionFragment() method.");
-            return data;
+            return questionData;
         }
-        com.puthuvaazhvu.mapping.views.fragments.option.modals.Data response = optionFragment.getUpdatedData();
-        data.setResponseData(response);
+        OptionData response = optionFragment.getUpdatedData();
+        questionData.setResponseData(response);
 
-        return data;
+        return questionData;
     }
 
-    private boolean isQuestionAnswered(Data data) {
-        return data.getResponseData().getAnswer() != null;
+    private boolean isQuestionAnswered(QuestionData questionData) {
+        return questionData.getResponseData().getAnswerData() != null;
     }
 }

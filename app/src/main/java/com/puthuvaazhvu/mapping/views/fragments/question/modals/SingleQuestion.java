@@ -3,21 +3,17 @@ package com.puthuvaazhvu.mapping.views.fragments.question.modals;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.puthuvaazhvu.mapping.Constants;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.*;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.Data;
-
 /**
  * Created by muthuveerappans on 10/1/17.
  */
 
-public class Question implements Parcelable {
+public class SingleQuestion implements Parcelable {
     private String id;
     private String text;
     private String rawNumber;
     private String position;
 
-    public Question(String id, String text, String rawNumber, String position) {
+    public SingleQuestion(String id, String text, String rawNumber, String position) {
         this.id = id;
         this.text = text;
         this.rawNumber = rawNumber;
@@ -54,27 +50,27 @@ public class Question implements Parcelable {
         dest.writeString(this.position);
     }
 
-    protected Question(Parcel in) {
+    protected SingleQuestion(Parcel in) {
         this.id = in.readString();
         this.text = in.readString();
         this.rawNumber = in.readString();
         this.position = in.readString();
     }
 
-    public static final Creator<Question> CREATOR = new Creator<Question>() {
+    public static final Creator<SingleQuestion> CREATOR = new Creator<SingleQuestion>() {
         @Override
-        public Question createFromParcel(Parcel source) {
-            return new Question(source);
+        public SingleQuestion createFromParcel(Parcel source) {
+            return new SingleQuestion(source);
         }
 
         @Override
-        public Question[] newArray(int size) {
-            return new Question[size];
+        public SingleQuestion[] newArray(int size) {
+            return new SingleQuestion[size];
         }
     };
 
-    public static Question adapter(com.puthuvaazhvu.mapping.modals.Question question) {
-        Question q = new Question(question.getId(),
+    public static SingleQuestion adapter(com.puthuvaazhvu.mapping.modals.Question question) {
+        SingleQuestion q = new SingleQuestion(question.getId(),
                 question.getTextString(),
                 question.getRawNumber(),
                 question.getPosition());

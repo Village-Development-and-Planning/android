@@ -6,7 +6,9 @@ import android.os.Parcelable;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
-public class Text implements Parcelable {
+import java.io.Serializable;
+
+public class Text implements Parcelable, Serializable {
     private final String id;
     private final String english;
     private final String tamil;

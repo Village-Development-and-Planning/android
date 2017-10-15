@@ -8,13 +8,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * Created by muthuveerappans on 8/24/17.
  */
 
-public class Survey implements Parcelable {
+public class Survey implements Parcelable, Serializable {
     private final String id;
     private final String name;
     private final String description;

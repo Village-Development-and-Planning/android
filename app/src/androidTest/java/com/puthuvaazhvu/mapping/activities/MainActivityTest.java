@@ -2,21 +2,11 @@ package com.puthuvaazhvu.mapping.activities;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
-import android.support.test.espresso.UiController;
-import android.support.test.espresso.ViewAction;
-import android.support.test.espresso.ViewAssertion;
-import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -25,13 +15,7 @@ import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.activities.MainActivity;
-import com.puthuvaazhvu.mapping.views.fragments.option.fragments.EditTextOptionFragment;
-import com.puthuvaazhvu.mapping.views.fragments.option.fragments.OptionsListFragment;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.Option;
-import com.puthuvaazhvu.mapping.views.fragments.question.fragment.InfoFragment;
-import com.puthuvaazhvu.mapping.views.fragments.question.fragment.QuestionFragment;
-import com.puthuvaazhvu.mapping.views.fragments.question.fragment.SingleQuestionFragment;
-import com.puthuvaazhvu.mapping.views.fragments.question.modals.Data;
+import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -51,12 +35,7 @@ import static android.support.test.espresso.action.ViewActions.closeSoftKeyboard
 import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.RootMatchers.withDecorView;
-import static android.support.test.espresso.matcher.ViewMatchers.Visibility.VISIBLE;
-import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
-import static android.support.test.espresso.matcher.ViewMatchers.isDescendantOfA;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static android.support.test.espresso.matcher.ViewMatchers.isRoot;
-import static android.support.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static android.support.v4.util.Preconditions.checkArgument;
@@ -132,14 +111,14 @@ public class MainActivityTest {
 
 //    @Test
 //    public void testGridFragmentFlow() {
-//        Question visibleQuestion;
-//        Question parent = root.getChildren().get(1).getChildren().get(1).getChildren().get(6);
+//        SingleQuestion visibleQuestion;
+//        SingleQuestion parent = root.getChildren().get(1).getChildren().get(1).getChildren().get(6);
 //
 //        // 2.1.7
 //        waitToSync();
 //        visibleQuestion = parent;
 //        assertThat(visibleQuestion.getRawNumber(), is("2.1.7"));
-//        setCurrentQuestion(visibleQuestion);
+//        moveToQuestionAt(visibleQuestion);
 //        selectOption(visibleQuestion, "YES");
 //        checkQuestionTextInFragment(visibleQuestion);
 //        checkAndMoveToNextFragment(container);
@@ -148,7 +127,7 @@ public class MainActivityTest {
 //        waitToSync();
 //        visibleQuestion = parent.getChildren().get(0);
 //        assertThat(visibleQuestion.getRawNumber(), is("2.1.7.3"));
-//        setCurrentQuestion(visibleQuestion);
+//        moveToQuestionAt(visibleQuestion);
 //        selectOption(visibleQuestion, "NO");
 //        checkQuestionTextInFragment(visibleQuestion);
 //        checkAndMoveToNextFragment(container);
@@ -274,7 +253,7 @@ public class MainActivityTest {
     }
 
     private void setCurrentQuestion(Question visibleQuestion) {
-        activity.setCurrentQuestion(Data.adapter(visibleQuestion));
+        activity.moveToQuestionAt(QuestionData.adapter(visibleQuestion));
         waitToSync();
     }
 

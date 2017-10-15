@@ -2,13 +2,13 @@
     <string name="app_name">Mapping</string>
 
     <!--errors-->
-    <string name="no_data">Cannot get the required optionData.</string>
+    <string name="no_data">Cannot get the required optionOptionData.</string>
     <string name="question_iteration_error">Cannot proceed</string>
     <string name="survey_incomplete">Please complete all the questions</string>
     <string name="enter_cst">Enter your CST code</string>
     <string name="tag_line">A Tamilnadu government initiative.</string>
     <string name="press">PRESS</string>
-    <string name="options_not_entered_err">Please provide valid options</string>
+    <string name="options_not_entered_err">Please provide valid singleOptionData</string>
 
     <!--tamil translation-->
     <string name="next_ta">அடுத்த</string>

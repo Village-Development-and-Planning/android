@@ -8,7 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.puthuvaazhvu.mapping.views.fragments.question.modals.Data;
+import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
 
 /**
  * Created by muthuveerappans on 10/1/17.
@@ -32,12 +32,12 @@ public abstract class QuestionFragment extends Fragment {
     @Override
     public abstract View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState);
 
-    public void sendQuestionToCaller(Data data, boolean isNewRoot, boolean shouldLogOption) {
-        communicationInterface.onQuestionAnswered(data, isNewRoot, shouldLogOption);
+    public void sendQuestionToCaller(QuestionData questionData, boolean isNewRoot, boolean shouldLogOption) {
+        communicationInterface.onQuestionAnswered(questionData, isNewRoot, shouldLogOption);
     }
 
-    public void backButtonPressedInsideQuestion(Data data) {
-        communicationInterface.onBackPressedFromQuestion(data);
+    public void backButtonPressedInsideQuestion(QuestionData questionData) {
+        communicationInterface.onBackPressedFromQuestion(questionData);
     }
 
     public void onError(String message) {

@@ -6,7 +6,7 @@ import android.os.Parcelable;
 import com.puthuvaazhvu.mapping.modals.Flow.FlowPattern;
 import com.puthuvaazhvu.mapping.modals.Flow.QuestionFlow;
 import com.puthuvaazhvu.mapping.modals.Question;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.Answer;
+import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.AnswerData;
 
 import java.util.ArrayList;
 
@@ -14,7 +14,7 @@ import java.util.ArrayList;
  * Created by muthuveerappans on 9/30/17.
  */
 
-public class Data implements Parcelable {
+public class OptionData implements Parcelable {
     public enum Type {
         NONE, CHECKBOX_LIST, RADIO_BUTTON_LIST, BUTTON, EDIT_TEXT
     }
@@ -25,26 +25,26 @@ public class Data implements Parcelable {
 
     private final String questionID;
     private final String questionText;
-    private Answer answer;
+    private AnswerData answerData;
     private final Type type;
     private final Validation validation;
-    private final ArrayList<Option> options;
+    private final ArrayList<SingleOptionData> singleOptionDatas;
 
-    public Data(String questionID, String questionText, Answer answer, Type type, Validation validation, ArrayList<Option> options) {
+    public OptionData(String questionID, String questionText, AnswerData answerData, Type type, Validation validation, ArrayList<SingleOptionData> singleOptionDatas) {
         this.questionID = questionID;
         this.questionText = questionText;
-        this.answer = answer;
+        this.answerData = answerData;
         this.type = type;
         this.validation = validation;
-        this.options = options;
+        this.singleOptionDatas = singleOptionDatas;
     }
 
-    public Data(String questionID, String questionText, Type type, Validation validation, ArrayList<Option> options) {
+    public OptionData(String questionID, String questionText, Type type, Validation validation, ArrayList<SingleOptionData> singleOptionDatas) {
         this.questionID = questionID;
         this.questionText = questionText;
         this.type = type;
         this.validation = validation;
-        this.options = options;
+        this.singleOptionDatas = singleOptionDatas;
     }
 
     public String getQuestionID() {
@@ -55,8 +55,8 @@ public class Data implements Parcelable {
         return questionText;
     }
 
-    public Answer getAnswer() {
-        return answer;
+    public AnswerData getAnswerData() {
+        return answerData;
     }
 
     public Type getType() {
@@ -67,12 +67,12 @@ public class Data implements Parcelable {
         return validation;
     }
 
-    public ArrayList<Option> getOptions() {
-        return options;
+    public ArrayList<SingleOptionData> getOptions() {
+        return singleOptionDatas;
     }
 
-    public void setAnswer(Answer answer) {
-        this.answer = answer;
+    public void setAnswerData(AnswerData answerData) {
+        this.answerData = answerData;
     }
 
     @Override
@@ -84,49 +84,60 @@ public class Data implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.questionID);
         dest.writeString(this.questionText);
-        dest.writeParcelable(this.answer, flags);
+        dest.writeParcelable(this.answerData, flags);
         dest.writeInt(this.type == null ? -1 : this.type.ordinal());
         dest.writeInt(this.validation == null ? -1 : this.validation.ordinal());
-        dest.writeTypedList(this.options);
+        dest.writeTypedList(this.singleOptionDatas);
     }
 
-    protected Data(Parcel in) {
+    protected OptionData(Parcel in) {
         this.questionID = in.readString();
         this.questionText = in.readString();
-        this.answer = in.readParcelable(Answer.class.getClassLoader());
+        this.answerData = in.readParcelable(AnswerData.class.getClassLoader());
         int tmpType = in.readInt();
         this.type = tmpType == -1 ? null : Type.values()[tmpType];
         int tmpValidation = in.readInt();
         this.validation = tmpValidation == -1 ? null : Validation.values()[tmpValidation];
-        this.options = in.createTypedArrayList(Option.CREATOR);
+        this.singleOptionDatas = in.createTypedArrayList(SingleOptionData.CREATOR);
     }
 
-    public static final Creator<Data> CREATOR = new Creator<Data>() {
+    public static final Creator<OptionData> CREATOR = new Creator<OptionData>() {
         @Override
-        public Data createFromParcel(Parcel source) {
-            return new Data(source);
+        public OptionData createFromParcel(Parcel source) {
+            return new OptionData(source);
         }
 
         @Override
-        public Data[] newArray(int size) {
-            return new Data[size];
+        public OptionData[] newArray(int size) {
+            return new OptionData[size];
         }
     };
 
-    public static Data adapter(Question question) {
+    public static OptionData adapter(Question question) {
         String questionID = question.getId();
         String questionText = question.getTextString();
 
         ArrayList<com.puthuvaazhvu.mapping.modals.Option> optionsGiven = question.getOptionList();
-        ArrayList<Option> optionsConverted = new ArrayList<>(optionsGiven.size());
-        for (int i = 0; i < optionsGiven.size(); i++) {
-            optionsConverted.add(Option.adapter(optionsGiven.get(i), false));
+        ArrayList<SingleOptionData> optionsConverted = null;
+
+        if (optionsGiven != null) {
+            optionsConverted = new ArrayList<>(optionsGiven.size());
+            for (int i = 0; i < optionsGiven.size(); i++) {
+                optionsConverted.add(SingleOptionData.adapter(optionsGiven.get(i), false));
+            }
         }
 
-        Type type = getTypeFromFlow(question.getFlowPattern().getQuestionFlow());
-        Validation validation = getValidationFromFlow(question.getFlowPattern().getQuestionFlow());
+        FlowPattern flowPattern = question.getFlowPattern();
 
-        return new Data(questionID, questionText, type, validation, optionsConverted);
+        Type type = null;
+        Validation validation = null;
+
+        if (flowPattern != null) {
+            type = getTypeFromFlow(flowPattern.getQuestionFlow());
+            validation = getValidationFromFlow(question.getFlowPattern().getQuestionFlow());
+        }
+
+        return new OptionData(questionID, questionText, type, validation, optionsConverted);
     }
 
     public static Validation getValidationFromFlow(QuestionFlow flow) {

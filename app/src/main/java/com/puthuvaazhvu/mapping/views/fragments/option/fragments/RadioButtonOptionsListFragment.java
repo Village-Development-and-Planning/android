@@ -6,9 +6,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.puthuvaazhvu.mapping.views.fragments.option.adapters.RadioButtonOptionsListAdapter;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.Data;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.Option;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.SingleAnswer;
+import com.puthuvaazhvu.mapping.views.fragments.option.modals.OptionData;
+import com.puthuvaazhvu.mapping.views.fragments.option.modals.SingleOptionData;
+import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.SingleAnswerData;
 
 import java.util.ArrayList;
 
@@ -18,12 +18,12 @@ import java.util.ArrayList;
 
 public class RadioButtonOptionsListFragment extends OptionsListFragment {
     private RadioButtonOptionsListAdapter adapter;
-    private Data data;
+    private OptionData optionData;
 
-    public static RadioButtonOptionsListFragment getInstance(Data data) {
+    public static RadioButtonOptionsListFragment getInstance(OptionData optionData) {
         RadioButtonOptionsListFragment radioButtonOptionsListFragment = new RadioButtonOptionsListFragment();
         Bundle bundle = new Bundle();
-        bundle.putParcelable("data", data);
+        bundle.putParcelable("optionData", optionData);
         radioButtonOptionsListFragment.setArguments(bundle);
         return radioButtonOptionsListFragment;
     }
@@ -31,8 +31,8 @@ public class RadioButtonOptionsListFragment extends OptionsListFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        data = getArguments().getParcelable("data");
-        adapter = new RadioButtonOptionsListAdapter(data.getOptions());
+        optionData = getArguments().getParcelable("optionData");
+        adapter = new RadioButtonOptionsListAdapter(optionData.getOptions());
     }
 
     @Override
@@ -46,20 +46,24 @@ public class RadioButtonOptionsListFragment extends OptionsListFragment {
     }
 
     @Override
-    public Data getUpdatedData() {
+    public OptionData getUpdatedData() {
         return populateAnswers();
     }
 
-    private Data populateAnswers() {
-        ArrayList<Option> options = data.getOptions();
-        for (Option o : options) {
+    private OptionData populateAnswers() {
+        ArrayList<SingleOptionData> singleOptionDatas = optionData.getOptions();
+        for (SingleOptionData o : singleOptionDatas) {
             if (o.isSelected()) {
-                SingleAnswer singleAnswer = new SingleAnswer(data.getQuestionID(), data.getQuestionText(), o.getId(), o.getText());
-                data.setAnswer(singleAnswer);
+                SingleAnswerData singleAnswer = new SingleAnswerData(optionData.getQuestionID()
+                        , optionData.getQuestionText()
+                        , o.getId()
+                        , o.getText()
+                        , o.getPosition());
+                optionData.setAnswerData(singleAnswer);
                 break;
             }
         }
 
-        return data;
+        return optionData;
     }
 }

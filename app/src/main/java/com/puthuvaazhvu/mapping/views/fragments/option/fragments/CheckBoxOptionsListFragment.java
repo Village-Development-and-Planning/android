@@ -6,9 +6,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.puthuvaazhvu.mapping.views.fragments.option.adapters.CheckBoxOptionsListAdapter;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.Data;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.Option;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.MultipleAnswer;
+import com.puthuvaazhvu.mapping.views.fragments.option.modals.OptionData;
+import com.puthuvaazhvu.mapping.views.fragments.option.modals.SingleOptionData;
+import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.MultipleAnswerData;
 
 import java.util.ArrayList;
 
@@ -18,12 +18,12 @@ import java.util.ArrayList;
 
 public class CheckBoxOptionsListFragment extends OptionsListFragment {
     private CheckBoxOptionsListAdapter adapter;
-    private Data data;
+    private OptionData optionData;
 
-    public static CheckBoxOptionsListFragment getInstance(Data data) {
+    public static CheckBoxOptionsListFragment getInstance(OptionData optionData) {
         CheckBoxOptionsListFragment checkBoxOptionsList = new CheckBoxOptionsListFragment();
         Bundle bundle = new Bundle();
-        bundle.putParcelable("data", data);
+        bundle.putParcelable("optionData", optionData);
         checkBoxOptionsList.setArguments(bundle);
         return checkBoxOptionsList;
     }
@@ -31,8 +31,8 @@ public class CheckBoxOptionsListFragment extends OptionsListFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        data = getArguments().getParcelable("data");
-        adapter = new CheckBoxOptionsListAdapter(data.getOptions());
+        optionData = getArguments().getParcelable("optionData");
+        adapter = new CheckBoxOptionsListAdapter(optionData.getOptions());
     }
 
     @Override
@@ -46,21 +46,21 @@ public class CheckBoxOptionsListFragment extends OptionsListFragment {
     }
 
     @Override
-    public Data getUpdatedData() {
+    public OptionData getUpdatedData() {
         return populateAnswers();
     }
 
-    private Data populateAnswers() {
-        ArrayList<Option> options = data.getOptions();
-        ArrayList<Option> selectedOptions = new ArrayList<>();
-        for (Option o : options) {
+    private OptionData populateAnswers() {
+        ArrayList<SingleOptionData> singleOptionDatas = optionData.getOptions();
+        ArrayList<SingleOptionData> selectedSingleOptionDatas = new ArrayList<>();
+        for (SingleOptionData o : singleOptionDatas) {
             if (o.isSelected()) {
-                selectedOptions.add(o);
+                selectedSingleOptionDatas.add(o);
             }
         }
-        MultipleAnswer multipleAnswer = new MultipleAnswer(data.getQuestionID(), data.getQuestionText(), selectedOptions);
-        data.setAnswer(multipleAnswer);
+        MultipleAnswerData multipleAnswer = new MultipleAnswerData(optionData.getQuestionID(), optionData.getQuestionText(), selectedSingleOptionDatas);
+        optionData.setAnswerData(multipleAnswer);
 
-        return data;
+        return optionData;
     }
 }

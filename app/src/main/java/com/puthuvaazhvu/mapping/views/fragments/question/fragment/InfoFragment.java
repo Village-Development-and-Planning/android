@@ -9,24 +9,24 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.puthuvaazhvu.mapping.R;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.MultipleAnswer;
-import com.puthuvaazhvu.mapping.views.fragments.question.modals.Data;
+import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.MultipleAnswerData;
+import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
 
 /**
  * Created by muthuveerappans on 10/10/17.
  */
 
 public class InfoFragment extends QuestionFragment implements View.OnClickListener {
-    private Data data;
+    private QuestionData questionData;
 
     private Button next_button, back_button;
     private TextView question_text;
 
-    public static InfoFragment getInstance(Data data) {
+    public static InfoFragment getInstance(QuestionData questionData) {
         InfoFragment fragment = new InfoFragment();
 
         Bundle bundle = new Bundle();
-        bundle.putParcelable("data", data);
+        bundle.putParcelable("questionData", questionData);
         fragment.setArguments(bundle);
 
         return fragment;
@@ -35,7 +35,7 @@ public class InfoFragment extends QuestionFragment implements View.OnClickListen
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        data = getArguments().getParcelable("data");
+        questionData = getArguments().getParcelable("questionData");
     }
 
     @Nullable
@@ -47,7 +47,7 @@ public class InfoFragment extends QuestionFragment implements View.OnClickListen
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         question_text = view.findViewById(R.id.question_text);
-        question_text.setText(data.getQuestion().getText());
+        question_text.setText(questionData.getSingleQuestion().getText());
 
         back_button = view.findViewById(R.id.back_button);
         next_button = view.findViewById(R.id.next_button);
@@ -60,7 +60,7 @@ public class InfoFragment extends QuestionFragment implements View.OnClickListen
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.back_button:
-                backButtonPressedInsideQuestion(data);
+                backButtonPressedInsideQuestion(questionData);
                 break;
             case R.id.next_button:
                 sendQuestionToCaller(getUpdatedQuestion(), false, true);
@@ -68,12 +68,12 @@ public class InfoFragment extends QuestionFragment implements View.OnClickListen
         }
     }
 
-    private Data getUpdatedQuestion() {
-        // set the option data as the response data
-        MultipleAnswer multipleAnswer = new MultipleAnswer(data.getQuestion().getId()
-                , data.getQuestion().getText(), data.getOptionData().getOptions());
-        data.getOptionData().setAnswer(multipleAnswer);
-        data.setResponseData(data.getOptionData());
-        return data;
+    private QuestionData getUpdatedQuestion() {
+        // set the option questionData as the response questionData
+        MultipleAnswerData multipleAnswer = new MultipleAnswerData(questionData.getSingleQuestion().getId()
+                , questionData.getSingleQuestion().getText(), questionData.getOptionOptionData().getOptions());
+        questionData.getOptionOptionData().setAnswerData(multipleAnswer);
+        questionData.setResponseData(questionData.getOptionOptionData());
+        return questionData;
     }
 }

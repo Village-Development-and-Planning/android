@@ -8,22 +8,22 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 
 import com.puthuvaazhvu.mapping.R;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.Data;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.InputAnswer;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.SingleAnswer;
+import com.puthuvaazhvu.mapping.views.fragments.option.modals.OptionData;
+import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.InputAnswerData;
+import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.SingleAnswerData;
 
 /**
  * Created by muthuveerappans on 9/30/17.
  */
 
 public class EditTextOptionFragment extends OptionsFragment {
-    private Data data;
+    private OptionData optionData;
     private EditText editText;
 
-    public static EditTextOptionFragment getInstance(Data data) {
+    public static EditTextOptionFragment getInstance(OptionData optionData) {
         EditTextOptionFragment editTextOptionFragment = new EditTextOptionFragment();
         Bundle bundle = new Bundle();
-        bundle.putParcelable("data", data);
+        bundle.putParcelable("optionData", optionData);
         editTextOptionFragment.setArguments(bundle);
         return editTextOptionFragment;
     }
@@ -36,17 +36,17 @@ public class EditTextOptionFragment extends OptionsFragment {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        data = getArguments().getParcelable("data");
+        optionData = getArguments().getParcelable("optionData");
         editText = view.findViewById(R.id.input_edit_text);
     }
 
     @Override
-    public Data getUpdatedData() {
+    public OptionData getUpdatedData() {
         String input = editText.getText().toString();
         if (!input.isEmpty()) {
-            SingleAnswer singleAnswer = new InputAnswer(data.getQuestionID(), data.getQuestionText(), input);
-            data.setAnswer(singleAnswer);
+            SingleAnswerData singleAnswer = new InputAnswerData(optionData.getQuestionID(), optionData.getQuestionText(), input);
+            optionData.setAnswerData(singleAnswer);
         }
-        return data;
+        return optionData;
     }
 }

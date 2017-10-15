@@ -7,10 +7,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class PreFlow implements Parcelable {
+public class PreFlow implements Parcelable, Serializable {
     private final ArrayList<String> fill;
     private final String questionSkipRawNumber;
     private final ArrayList<String> optionSkip;

@@ -51,8 +51,11 @@ dependencies {
     compile "com.android.support:recyclerview-v7:$rootProject.ext.supportLibraryVersion"
     compile "com.android.support:support-v4:$rootProject.supportLibraryVersion"
     compile "com.android.support:cardview-v7:$rootProject.ext.supportLibraryVersion"
+    compile "com.android.support:design:$rootProject.ext.supportLibraryVersion"
     compile group: 'com.google.code.gson', name: 'gson', version: "$rootProject.ext.gsonVersion"
     compile "com.android.support.constraint:constraint-layout:$rootProject.ext.constraintLayoutVersion"
+    compile "org.apache.commons:commons-collections4:$rootProject.ext.apacheCommonsLangVersion"
+
     // JUnit 4 framework for testing
     testCompile "junit:junit:$rootProject.ext.junitVersion"
     // Mockito framework for testing

@@ -6,13 +6,14 @@ import android.os.Parcelable;
 import com.google.gson.JsonArray;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * Created by muthuveerappans on 9/26/17.
  */
 
-public class Tag implements Parcelable {
+public class Tag implements Parcelable, Serializable {
     private String tag;
 
     public Tag(String tag) {

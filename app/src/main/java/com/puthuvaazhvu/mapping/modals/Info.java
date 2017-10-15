@@ -6,7 +6,9 @@ import android.os.Parcelable;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
-public class Info implements Parcelable {
+import java.io.Serializable;
+
+public class Info implements Parcelable, Serializable {
     private final String questionNumberRaw;
     private final String option;
 

@@ -13,8 +13,9 @@ import android.widget.TextView;
 
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.utils.RecyclerItemClickListener;
-import com.puthuvaazhvu.mapping.views.fragments.question.modals.Data;
-import com.puthuvaazhvu.mapping.views.fragments.question.modals.GridData;
+import com.puthuvaazhvu.mapping.views.fragments.question.modals.GridQuestionData;
+import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
+import com.puthuvaazhvu.mapping.views.fragments.question.modals.SingleQuestion;
 
 import java.util.ArrayList;
 
@@ -23,11 +24,11 @@ import java.util.ArrayList;
  */
 
 public class GridQuestionsFragment extends QuestionFragment {
-    private ArrayList<GridData> datas;
+    private ArrayList<GridQuestionData> data;
     private RecyclerView recyclerView;
     private QuestionsAdapter questionsAdapter;
 
-    public static GridQuestionsFragment getInstance(ArrayList<GridData> datas) {
+    public static GridQuestionsFragment getInstance(ArrayList<GridQuestionData> datas) {
         GridQuestionsFragment fragment = new GridQuestionsFragment();
 
         Bundle bundle = new Bundle();
@@ -45,7 +46,7 @@ public class GridQuestionsFragment extends QuestionFragment {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        datas = getArguments().getParcelableArrayList("data");
+        data = getArguments().getParcelableArrayList("data");
 
         recyclerView = view.findViewById(R.id.grid_questions_recycler_view);
 
@@ -70,8 +71,9 @@ public class GridQuestionsFragment extends QuestionFragment {
                 , new RecyclerItemClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                Data data = datas.get(position);
-                sendQuestionToCaller(data, true, false); // send the selected question only
+                QuestionData questionData = data.get(position);
+                questionData.setPosition(position);
+                sendQuestionToCaller(questionData, true, false); // send the selected question only
             }
         }));
 
@@ -89,14 +91,14 @@ public class GridQuestionsFragment extends QuestionFragment {
 
         @Override
         public void onBindViewHolder(QVH holder, int position) {
-            GridData data = datas.get(position);
-            com.puthuvaazhvu.mapping.views.fragments.question.modals.Question question = data.getQuestion();
-            holder.populateViews(question.getText(), data.getCount());
+            GridQuestionData data = GridQuestionsFragment.this.data.get(position);
+            SingleQuestion singleQuestion = data.getSingleQuestion();
+            holder.populateViews(singleQuestion.getText(), data.getCount());
         }
 
         @Override
         public int getItemCount() {
-            return datas.size();
+            return data.size();
         }
     }
 

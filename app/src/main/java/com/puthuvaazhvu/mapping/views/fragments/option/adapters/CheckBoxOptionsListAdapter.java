@@ -8,7 +8,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
 import com.puthuvaazhvu.mapping.R;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.Option;
+import com.puthuvaazhvu.mapping.views.fragments.option.modals.SingleOptionData;
 
 import java.util.ArrayList;
 
@@ -17,10 +17,10 @@ import java.util.ArrayList;
  */
 
 public class CheckBoxOptionsListAdapter extends RecyclerView.Adapter<CBVH> {
-    private final ArrayList<Option> optionArrayList;
+    private final ArrayList<SingleOptionData> singleOptionDataArrayList;
 
-    public CheckBoxOptionsListAdapter(ArrayList<Option> optionArrayList) {
-        this.optionArrayList = optionArrayList;
+    public CheckBoxOptionsListAdapter(ArrayList<SingleOptionData> singleOptionDataArrayList) {
+        this.singleOptionDataArrayList = singleOptionDataArrayList;
     }
 
     @Override
@@ -30,8 +30,8 @@ public class CheckBoxOptionsListAdapter extends RecyclerView.Adapter<CBVH> {
         cbvh.setCheckBoxClickListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                Option option = (Option) compoundButton.getTag();
-                option.setSelected(b);
+                SingleOptionData singleOptionData = (SingleOptionData) compoundButton.getTag();
+                singleOptionData.setSelected(b);
             }
         });
         return cbvh;
@@ -39,14 +39,14 @@ public class CheckBoxOptionsListAdapter extends RecyclerView.Adapter<CBVH> {
 
     @Override
     public void onBindViewHolder(CBVH holder, int position) {
-        Option option = optionArrayList.get(position);
-        holder.getCheck_box().setTag(option);
-        holder.populateViews(option.getText(), option.isSelected());
+        SingleOptionData singleOptionData = singleOptionDataArrayList.get(position);
+        holder.getCheck_box().setTag(singleOptionData);
+        holder.populateViews(singleOptionData.getText(), singleOptionData.isSelected());
     }
 
     @Override
     public int getItemCount() {
-        return optionArrayList.size();
+        return singleOptionDataArrayList.size();
     }
 }
 

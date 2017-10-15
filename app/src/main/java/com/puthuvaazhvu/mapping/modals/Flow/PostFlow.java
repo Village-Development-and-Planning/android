@@ -3,7 +3,9 @@ package com.puthuvaazhvu.mapping.modals.Flow;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class PostFlow implements Parcelable {
+import java.io.Serializable;
+
+public class PostFlow implements Parcelable, Serializable {
 
     @Override
     public int describeContents() {

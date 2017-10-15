@@ -7,7 +7,9 @@ import android.os.Parcelable;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
-public class AnswerFlow implements Parcelable {
+import java.io.Serializable;
+
+public class AnswerFlow implements Parcelable, Serializable {
     private final Modes mode;
 
     public enum Modes {
@@ -31,7 +33,7 @@ public class AnswerFlow implements Parcelable {
         switch (mode) {
             case "once":
                 return Modes.ONCE;
-            case "option":
+            case "options":
                 return Modes.OPTION;
             case "multiple":
                 return Modes.MULTIPLE;

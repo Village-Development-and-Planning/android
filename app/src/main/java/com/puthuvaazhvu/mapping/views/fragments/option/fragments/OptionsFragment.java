@@ -7,7 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.Data;
+import com.puthuvaazhvu.mapping.views.fragments.option.modals.OptionData;
 
 /**
  * Created by muthuveerappans on 9/30/17.
@@ -23,7 +23,7 @@ public abstract class OptionsFragment extends Fragment {
     @Override
     public abstract View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState);
 
-    public Data getUpdatedData() {
+    public OptionData getUpdatedData() {
         return null;
     }
 }
