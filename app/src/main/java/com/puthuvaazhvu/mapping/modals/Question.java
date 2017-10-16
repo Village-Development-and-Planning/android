@@ -85,10 +85,11 @@ public class Question implements Parcelable, Serializable {
             this.info = new Info(infoJson);
         else this.info = null;
 
-        JsonArray tagsArray = JsonHelper.getJsonArray(questionJson, "tags");
-        if (tagsArray != null)
-            this.tag = Tag.getTags(tagsArray);
-        else this.tag = null;
+        this.tag = null; // not considering tag
+//        JsonArray tagsArray = JsonHelper.getJsonArray(questionJson, "tags");
+//        if (tagsArray != null)
+//            this.tag = Tag.getTags(tagsArray);
+//        else this.tag = null;
 
         JsonObject textJson = JsonHelper.getJsonObject(questionJson, "text");
         if (textJson != null)

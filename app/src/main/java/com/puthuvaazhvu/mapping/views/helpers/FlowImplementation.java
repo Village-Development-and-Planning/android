@@ -16,6 +16,8 @@ import org.apache.commons.collections4.queue.CircularFifoQueue;
 
 import java.util.ArrayList;
 
+import timber.log.Timber;
+
 /**
  * Created by muthuveerappans on 10/15/17.
  */
@@ -66,7 +68,7 @@ public class FlowImplementation implements IFlowHelper {
                 throw new IllegalArgumentException("The index " + index + " is not present inside the answers.");
             }
         } else {
-            throw new IllegalArgumentException("The answers list is empty. Check if the current question "
+            Timber.e("The answers list is empty. Check if the current question "
                     + current.getRawNumber() + " is answered first.");
         }
 
@@ -77,8 +79,8 @@ public class FlowImplementation implements IFlowHelper {
     public IFlowHelper update(ResponseData responseData) {
         String questionID = responseData.getId();
         if (!questionID.equals(current.getId())) {
-            throw new IllegalArgumentException("ID mismatch " + "current: " + current.getId()
-                    + " received: " + questionID);
+            Timber.e("ID mismatch " + "current: " + current.getId() + " received: " + questionID);
+            return this;
         }
 
         ArrayList<Option> loggedOption = new ArrayList<>();

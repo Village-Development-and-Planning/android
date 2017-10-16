@@ -203,4 +203,9 @@ public class MainActivity extends AppCompatActivity
     public void executePendingCommands() {
         stackFragmentManagerInvoker.executeCommand();
     }
+
+    public void forceCrash() {
+        throw new RuntimeException("This is a test crash");
+    }
+
 }

@@ -38,6 +38,7 @@ public class EditTextOptionFragment extends OptionsFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         optionData = getArguments().getParcelable("optionData");
         editText = view.findViewById(R.id.input_edit_text);
+        editText.setContentDescription(optionData.getQuestionID());
     }
 
     @Override

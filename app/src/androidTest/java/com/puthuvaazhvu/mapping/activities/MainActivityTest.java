@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.activities.robot.QuestionFragmentRobot;
+import com.puthuvaazhvu.mapping.modals.Question;
+import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.views.activities.MainActivity;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.OptionData;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.SingleOptionData;
@@ -48,10 +50,13 @@ public class MainActivityTest {
     private MainActivity activity;
     private ViewGroup container;
 
+    private Survey survey;
+
     @Before
     public void init() throws IOException {
         activity = mActivityTestRule.getActivity();
         container = activity.findViewById(R.id.container);
+        survey = ModalHelpers.getSurvey(activity);
     }
 
     @Test
@@ -61,32 +66,16 @@ public class MainActivityTest {
 
     @Test
     public void test_grid_questions_UI() {
-        // generate mock UI data
-        QuestionData parentQuestionData = new QuestionData(
-                new SingleQuestion("1", "TEST", "1", null)
-                , null
-                , null);
+        //mock UI data
+        // 2.1.7
+        Question question = survey.getQuestionList().get(0)
+                .getChildren().get(1).getChildren().get(1).getChildren().get(6);
 
-        ArrayList<GridQuestionData> gridQuestionData = new ArrayList<>();
+        QuestionData parentQuestionData = QuestionData.adapter(question);
 
-        for (int i = 0; i < 10; i++) {
-            // mock ui data
-            String questionID = "" + i;
-            String text = "TEST QUESTION " + i;
-            String rawNumber = "" + i;
-            String questionPosition = "" + i;
+        ArrayList<GridQuestionData> gridQuestionData = GridQuestionData.adapter(question.getChildren());
 
-            SingleQuestion singleQuestion = new SingleQuestion(questionID, text, rawNumber, questionPosition);
-
-            OptionData optionData = new OptionData(questionID
-                    , text
-                    , null
-                    , OptionData.Type.NONE
-                    , null
-                    , null);
-
-            gridQuestionData.add(new GridQuestionData(singleQuestion, optionData, i));
-        }
+        assertThat(question.getRawNumber(), is("2.1.7"));
 
         activity.shouldShowGrid(parentQuestionData, gridQuestionData);
 
@@ -94,30 +83,17 @@ public class MainActivityTest {
 
         questionFragmentRobot.waitToSync();
 
-        questionFragmentRobot.checkTextInRecyclerView("TEST QUESTION 1");
+        questionFragmentRobot.checkTextInRecyclerView("Tag a street light");
     }
 
     @Test
     public void test_conformationQuestion_UI() {
         // mock ui data
-        String questionID = "1";
-        String text = "TEST QUESTION";
-        String rawNumber = "1.0";
-        String questionPosition = "0";
+        Question question = survey.getQuestionList().get(0).getChildren().get(0).getChildren().get(0);
 
-        SingleQuestion singleQuestion = new SingleQuestion(questionID, text, rawNumber, questionPosition);
+        assertThat(question.getRawNumber(), is("1.2"));
 
-        OptionData optionData = new OptionData(questionID
-                , text
-                , null
-                , OptionData.Type.NONE
-                , null
-                , null);
-
-        QuestionData questionData = new QuestionData(singleQuestion, optionData, null);
-
-        assertThat(questionData.getSingleQuestion().getId(), is("1"));
-        assertThat(questionData.getOptionOptionData().getOptions(), nullValue());
+        QuestionData questionData = QuestionData.adapter(question);
 
         activity.shouldShowConformationQuestion(questionData);
 
@@ -125,34 +101,23 @@ public class MainActivityTest {
 
         questionFragmentRobot.waitToSync();
 
-        questionFragmentRobot.checkQuestionTextInFragment(text);
+        questionFragmentRobot.checkQuestionTextInFragment(question.getTextString());
 
         questionFragmentRobot.checkAndClickNextButton(container);
 
-        assertThat(questionData.getResponseData().getAnswerData().getOption().get(0).getTextString(), is("CONFORMATION_DUMMY"));
+        assertThat(questionData.getResponseData().getAnswerData().getOption().get(0).getTextString(), is("YES"));
     }
 
     @Test
     public void test_singleQuestion_input_options_UI() {
         // mock ui data
-        String questionID = "1";
-        String text = "TEST QUESTION";
-        String rawNumber = "1.0";
-        String questionPosition = "0";
+        // 2.1.7.3.2
+        Question question = survey.getQuestionList().get(0)
+                .getChildren().get(1).getChildren().get(1).getChildren().get(6).getChildren().get(0).getChildren().get(1);
 
-        SingleQuestion singleQuestion = new SingleQuestion(questionID, text, rawNumber, questionPosition);
+        assertThat(question.getRawNumber(), is("2.1.7.3.2"));
 
-        OptionData optionData = new OptionData(questionID
-                , text
-                , null
-                , OptionData.Type.EDIT_TEXT
-                , null
-                , null);
-
-        QuestionData questionData = new QuestionData(singleQuestion, optionData, null);
-
-        assertThat(questionData.getSingleQuestion().getId(), is("1"));
-        assertThat(questionData.getOptionOptionData().getOptions(), nullValue());
+        QuestionData questionData = QuestionData.adapter(question);
 
         activity.shouldShowSingleQuestion(questionData);
 
@@ -160,48 +125,32 @@ public class MainActivityTest {
 
         questionFragmentRobot.waitToSync();
 
-        questionFragmentRobot.checkQuestionTextInFragment(text);
+        questionFragmentRobot.checkQuestionTextInFragment(question.getTextString());
 
         // should show error when edt is empty
         // check if error is displayed if no option is selected
         questionFragmentRobot.checkAndClickNextButton(container);
         questionFragmentRobot.checkForToast(activity.getString(R.string.options_not_entered_err));
 
-        questionFragmentRobot.enterInFragmentEdt("INPUT TEST");
+        questionFragmentRobot.enterInFragmentEdt("INPUT TEST", question.getId());
 
         questionFragmentRobot.waitToSync();
 
         questionFragmentRobot.checkAndClickNextButton(container);
 
-        assertThat(optionData.getAnswerData().getOption().get(0).getText().getEnglish(), is("INPUT TEST"));
+        assertThat(questionData.getResponseData().getAnswerData().getOption().get(0).getText().getEnglish(), is("INPUT TEST"));
     }
 
     @Test
     public void test_singleQuestion_radioButton_options_UI() {
         // mock ui data
-        String questionID = "1";
-        String text = "TEST QUESTION";
-        String rawNumber = "1.0";
-        String questionPosition = "0";
+        // 2.1.3
+        Question question = survey.getQuestionList().get(0)
+                .getChildren().get(1).getChildren().get(1).getChildren().get(2);
 
-        SingleQuestion singleQuestion = new SingleQuestion(questionID, text, rawNumber, questionPosition);
+        assertThat(question.getRawNumber(), is("2.1.3"));
 
-        ArrayList<SingleOptionData> singleOptionData = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            singleOptionData.add(new SingleOptionData("" + i, "TEST OPTION " + i, "" + i, false));
-        }
-
-        OptionData optionData = new OptionData(questionID
-                , text
-                , null
-                , OptionData.Type.RADIO_BUTTON_LIST
-                , null
-                , singleOptionData);
-
-        QuestionData questionData = new QuestionData(singleQuestion, optionData, null);
-
-        assertThat(questionData.getSingleQuestion().getId(), is("1"));
-        assertThat(questionData.getOptionOptionData().getOptions().size(), is(5));
+        QuestionData questionData = QuestionData.adapter(question);
 
         activity.shouldShowSingleQuestion(questionData);
 
@@ -209,45 +158,29 @@ public class MainActivityTest {
 
         questionFragmentRobot.waitToSync();
 
-        questionFragmentRobot.checkQuestionTextInFragment(text);
+        questionFragmentRobot.checkQuestionTextInFragment(question.getTextString());
 
         // check if error is displayed if no option is selected
         questionFragmentRobot.checkAndClickNextButton(container);
         questionFragmentRobot.checkForToast(activity.getString(R.string.options_not_entered_err));
 
-        questionFragmentRobot.selectOption("TEST OPTION 0");
-        questionFragmentRobot.selectOption("TEST OPTION 1");
+        questionFragmentRobot.selectOption(question.getOptionList().get(0).getTextString());
+        questionFragmentRobot.selectOption(question.getOptionList().get(1).getTextString());
 
-        assertThat(optionData.getOptions().get(0).isSelected(), is(false));
-        assertThat(optionData.getOptions().get(1).isSelected(), is(true));
+        assertThat(questionData.getOptionOptionData().getOptions().get(0).isSelected(), is(false));
+        assertThat(questionData.getOptionOptionData().getOptions().get(1).isSelected(), is(true));
     }
 
     @Test
     public void test_singleQuestion_checkbox_options_UI() {
         // mock ui data
-        String questionID = "1";
-        String text = "TEST QUESTION";
-        String rawNumber = "1.0";
-        String questionPosition = "0";
+        // 2.1.7.4.4
+        Question question = survey.getQuestionList().get(0)
+                .getChildren().get(1).getChildren().get(1).getChildren().get(6).getChildren().get(1).getChildren().get(3);
 
-        SingleQuestion singleQuestion = new SingleQuestion(questionID, text, rawNumber, questionPosition);
+        assertThat(question.getRawNumber(), is("2.1.7.4.4"));
 
-        ArrayList<SingleOptionData> singleOptionData = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            singleOptionData.add(new SingleOptionData("" + i, "TEST OPTION " + i, "" + i, false));
-        }
-
-        OptionData optionData = new OptionData(questionID
-                , text
-                , null
-                , OptionData.Type.CHECKBOX_LIST
-                , null
-                , singleOptionData);
-
-        QuestionData questionData = new QuestionData(singleQuestion, optionData, null);
-
-        assertThat(questionData.getSingleQuestion().getId(), is("1"));
-        assertThat(questionData.getOptionOptionData().getOptions().size(), is(5));
+        QuestionData questionData = QuestionData.adapter(question);
 
         activity.shouldShowSingleQuestion(questionData);
 
@@ -255,20 +188,20 @@ public class MainActivityTest {
 
         questionFragmentRobot.waitToSync();
 
-        questionFragmentRobot.checkQuestionTextInFragment(text);
+        questionFragmentRobot.checkQuestionTextInFragment(question.getTextString());
 
         // check if error is displayed if no option is selected
         questionFragmentRobot.checkAndClickNextButton(container);
         questionFragmentRobot.checkForToast(activity.getString(R.string.options_not_entered_err));
 
-        questionFragmentRobot.selectOption("TEST OPTION 0");
-        questionFragmentRobot.selectOption("TEST OPTION 1");
+        questionFragmentRobot.selectOption(question.getOptionList().get(0).getTextString());
+        questionFragmentRobot.selectOption(question.getOptionList().get(1).getTextString());
 
-        assertThat(optionData.getOptions().get(0).isSelected(), is(true));
-        assertThat(optionData.getOptions().get(1).isSelected(), is(true));
+        assertThat(questionData.getOptionOptionData().getOptions().get(0).isSelected(), is(true));
+        assertThat(questionData.getOptionOptionData().getOptions().get(1).isSelected(), is(true));
 
         // test un-checking
-        questionFragmentRobot.selectOption("TEST OPTION 1");
-        assertThat(optionData.getOptions().get(1).isSelected(), is(false));
+        questionFragmentRobot.selectOption(question.getOptionList().get(1).getTextString());
+        assertThat(questionData.getOptionOptionData().getOptions().get(1).isSelected(), is(false));
     }
 }

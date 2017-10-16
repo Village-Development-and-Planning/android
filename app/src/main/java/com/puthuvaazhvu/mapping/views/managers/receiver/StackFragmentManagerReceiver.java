@@ -58,6 +58,10 @@ public class StackFragmentManagerReceiver implements IStackFragmentManager {
         return fragments.size();
     }
 
+    public ArrayList<Fragment> getAdddeFragments() {
+        return fragments;
+    }
+
     private void addFragment(FragmentTransaction transaction, Fragment fragment, String tag) {
         transaction.add(containerViewID, fragment, tag);
     }

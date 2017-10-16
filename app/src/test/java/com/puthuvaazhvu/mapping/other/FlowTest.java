@@ -1,6 +1,6 @@
 package com.puthuvaazhvu.mapping.other;
 
-import com.puthuvaazhvu.mapping.modals.SurveyDataModelTest;
+import com.puthuvaazhvu.mapping.modals.ModalHelpers;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.OptionData;
@@ -34,17 +34,13 @@ import static org.mockito.Mockito.verify;
 @RunWith(MockitoJUnitRunner.class)
 public class FlowTest {
 
-    private SurveyDataModelTest surveyDataModelTest;
     private Survey survey;
     private FlowImplementation flowImplementation;
     private Question root;
 
     @Before
     public void setup() {
-        surveyDataModelTest = new SurveyDataModelTest();
-
-        surveyDataModelTest.testSurveyModel();
-        survey = surveyDataModelTest.survey;
+        survey = ModalHelpers.getSurvey(this);
         root = survey.getQuestionList().get(0);
         flowImplementation = new FlowImplementation(root);
     }

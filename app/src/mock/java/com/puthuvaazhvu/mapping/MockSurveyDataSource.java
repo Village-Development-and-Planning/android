@@ -26,7 +26,7 @@ public class MockSurveyDataSource implements DataSource<Survey> {
 
     @Override
     public void getData(String selection, DataSourceCallback<Survey> callback) {
-        String fileName = "survey_6.json";
+        String fileName = "survey_data.json";
         String surveyDataString = Utils.readFromAssetsFile(context, fileName);
 
         JsonParser jsonParser = new JsonParser();

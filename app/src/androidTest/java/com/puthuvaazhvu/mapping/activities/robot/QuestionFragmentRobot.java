@@ -14,6 +14,7 @@ import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.RootMatchers.withDecorView;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.puthuvaazhvu.mapping.activities.matchers.LastChildMatcher.matchLastChild;
@@ -66,6 +67,12 @@ public class QuestionFragmentRobot {
     public void enterInFragmentEdt(String text) {
         onView(withId(R.id.input_edit_text)).check(matches(isDisplayed()));
         onView(withId(R.id.input_edit_text)).perform(typeText(text), closeSoftKeyboard());
+        onView(withText(text)).check(matches(isDisplayed()));
+    }
+
+    public void enterInFragmentEdt(String text, String contentDescription) {
+        onView(allOf(withId(R.id.input_edit_text), withContentDescription(contentDescription))).check(matches(isDisplayed()));
+        onView(allOf(withId(R.id.input_edit_text), withContentDescription(contentDescription))).perform(typeText(text), closeSoftKeyboard());
         onView(withText(text)).check(matches(isDisplayed()));
     }
 }

@@ -1,5 +1,7 @@
 package com.puthuvaazhvu.mapping.views.activities;
 
+import android.support.annotation.VisibleForTesting;
+
 import com.puthuvaazhvu.mapping.BuildConfig;
 import com.puthuvaazhvu.mapping.data.DataRepository;
 import com.puthuvaazhvu.mapping.modals.Flow.QuestionFlow;
@@ -140,4 +142,5 @@ public class Presenter implements Contract.UserAction {
         if (!toBeRemoved.isEmpty())
             activityView.remove(toBeRemoved);
     }
+
 }

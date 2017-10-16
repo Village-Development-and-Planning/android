@@ -38,9 +38,7 @@ public class DataModelTest {
 
     @Test
     public void testSurveyModel() {
-        surveyDataModelTest.testSurveyModel();
-
-        Survey survey = surveyDataModelTest.survey;
+        Survey survey = ModalHelpers.getSurvey(this);
 
         Question root = survey.getQuestionList().get(0);
 
@@ -52,7 +50,7 @@ public class DataModelTest {
 
         Question habitationQuestion = root.getChildren().get(1);
         assertThat(habitationQuestion.getRawNumber(), is("2"));
-        assertThat(habitationQuestion.getChildren().size(), is(14));
+        assertThat(habitationQuestion.getChildren().size(), is(3));
 
         Question roadQuestion = habitationQuestion.getChildren().get(1);
         assertThat(roadQuestion.getRawNumber(), is("2.1"));
@@ -62,15 +60,10 @@ public class DataModelTest {
         Question squareQuestion = habitationQuestion.getChildren().get(2);
         assertThat(squareQuestion.getRawNumber(), is("2.2"));
         assertThat(squareQuestion.getParent().getRawNumber(), is("2"));
-        assertThat(squareQuestion.getChildren().size(), is(15));
+        assertThat(squareQuestion.getChildren().size(), is(22));
 
         assertThat(squareQuestion.getChildren().get(3).getChildren().get(0).getRawNumber(), is("2.2.3.1"));
         assertThat(squareQuestion.getChildren().get(3).getChildren().get(0).getParent().getParent().getRawNumber(), is("2.2"));
-
-        Question lastPointOfTheVillageCenterQuestion = habitationQuestion.getChildren().get(13);
-        assertThat(lastPointOfTheVillageCenterQuestion.getRawNumber(), is("2.2.21"));
-        assertThat(lastPointOfTheVillageCenterQuestion.getParent().getRawNumber(), is("2"));
-        assertThat(lastPointOfTheVillageCenterQuestion.getChildren().size(), is(1));
 
         // pre flow test
         Question facilitiesInRoadQuestion = roadQuestion.getChildren().get(6);
