@@ -8,6 +8,9 @@
     "flow": {
       "child": {
         "strategy": "cascade"
+      },
+      "exit": {
+        "strategy": "END"
       }
     },
     "__v": 0,
@@ -12033,7 +12036,7 @@
                               "_id": "59d94d60f5d04d1d3e12f50d",
                               "modifiedAt": "2017-10-07T21:55:44.768Z"
                             },
-                            "type": "CONFORMATION",
+                            "type": "CONFIRMATION",
                             "number": "2.1.7.21",
                             "__v": 0,
                             "flow": {
@@ -12041,7 +12044,7 @@
                                 "fill": []
                               },
                               "question": {
-                                "ui": "CONFORMATION",
+                                "ui": "CONFIRMATION",
                                 "validation": null
                               },
                               "answer": {
@@ -12169,7 +12172,7 @@
                   "_id": "59d94d61f5d04d1d3e12f93f",
                   "modifiedAt": "2017-10-07T21:55:45.215Z"
                 },
-                "type": "GENERIC",
+                "type": "CONFIRMATION",
                 "number": "2.2",
                 "__v": 0,
                 "flow": {
@@ -12177,7 +12180,7 @@
                     "fill": []
                   },
                   "question": {
-                    "ui": "",
+                    "ui": "CONFIRMATION",
                     "validation": null
                   },
                   "answer": {
@@ -12243,7 +12246,7 @@
                         "_id": "59d94d5ff5d04d1d3e12f21a",
                         "modifiedAt": "2017-10-07T21:55:43.901Z"
                       },
-                      "type": "NONE",
+                      "type": "CONFIRMATION",
                       "number": "2.2.1",
                       "__v": 0,
                       "flow": {
@@ -12251,7 +12254,7 @@
                           "fill": []
                         },
                         "question": {
-                          "ui": "NONE",
+                          "ui": "CONFIRMATION",
                           "validation": null
                         },
                         "answer": {
@@ -23369,7 +23372,7 @@
                     "fill": []
                   },
                   "question": {
-                    "ui": "",
+                    "ui": "SINGLE_CHOICE",
                     "validation": null
                   },
                   "answer": {
@@ -23402,7 +23405,7 @@
                           "fill": []
                         },
                         "question": {
-                          "ui": "",
+                          "ui": "GPS",
                           "validation": null
                         },
                         "answer": {

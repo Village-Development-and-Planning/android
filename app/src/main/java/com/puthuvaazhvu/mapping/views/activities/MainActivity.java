@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onSurveyEnd() {
-
+        Timber.i("The survey is completed");
     }
 
     @Override

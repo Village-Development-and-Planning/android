@@ -8,6 +8,9 @@
     "flow": {
       "child": {
         "strategy": "cascade"
+      },
+      "exit": {
+        "strategy": "END"
       }
     },
     "__v": 0,
