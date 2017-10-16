@@ -1,6 +1,7 @@
 package com.puthuvaazhvu.mapping.views.helpers;
 
 import android.support.annotation.VisibleForTesting;
+import android.util.Log;
 
 import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Flow.AnswerFlow;
@@ -66,7 +67,7 @@ public class FlowImplementation implements IFlowHelper {
             }
         } else {
             throw new IllegalArgumentException("The answers list is empty. Check if the current question "
-                    + current.getRawNumber() + "is answered first.");
+                    + current.getRawNumber() + " is answered first.");
         }
 
         return this;
@@ -154,6 +155,8 @@ public class FlowImplementation implements IFlowHelper {
             }
 
         } while (nextQuestion == null);
+
+        setCurrent(flowData.question);
 
         return flowData;
     }

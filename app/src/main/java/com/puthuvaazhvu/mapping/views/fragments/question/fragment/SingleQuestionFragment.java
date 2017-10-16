@@ -17,6 +17,8 @@ import com.puthuvaazhvu.mapping.views.fragments.option.fragments.RadioButtonOpti
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.OptionData;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
 
+import timber.log.Timber;
+
 /**
  * Created by muthuveerappans on 9/30/17.
  */
@@ -55,7 +57,7 @@ public class SingleQuestionFragment extends SingleQuestionFragmentBase implement
     public void onNextButtonPressed(View view) {
         QuestionData updatedQuestionData = getUpdatedQuestion();
         if (isQuestionAnswered(updatedQuestionData)) {
-            sendQuestionToCaller(updatedQuestionData, false, true);
+            sendQuestionToCaller(updatedQuestionData, false);
         } else {
             onError(Utils.getErrorMessage(R.string.options_not_entered_err, getContext()));
         }
@@ -84,7 +86,7 @@ public class SingleQuestionFragment extends SingleQuestionFragmentBase implement
                 optionsFragmentFragment = EditTextOptionFragment.getInstance(optionOptionData);
                 break;
             default:
-                Log.e(Constants.LOG_TAG, "OptionsFragment type is NONE. So no options UI loaded.");
+                Timber.e("OptionsFragment type is NONE. So no options UI loaded.");
                 return;
         }
 
@@ -102,7 +104,7 @@ public class SingleQuestionFragment extends SingleQuestionFragmentBase implement
 
     private QuestionData getUpdatedQuestion() {
         if (optionFragment == null) {
-            Log.e(Constants.LOG_TAG, "The options fragment is null. Possibly default case is executed in loadCorrectOptionFragment() method.");
+            Timber.e("The options fragment is null. Possibly default case is executed in loadCorrectOptionFragment() method.");
             return questionData;
         }
         OptionData response = optionFragment.getUpdatedData();
@@ -112,6 +114,11 @@ public class SingleQuestionFragment extends SingleQuestionFragmentBase implement
     }
 
     private boolean isQuestionAnswered(QuestionData questionData) {
+        if (questionData.getResponseData() == null) {
+            Timber.e("The response for the question " + questionData.getSingleQuestion().getRawNumber() + " is empty");
+            return false;
+        }
+
         return questionData.getResponseData().getAnswerData() != null
                 && !questionData.getResponseData().getAnswerData().getOption().isEmpty();
     }

@@ -8,7 +8,9 @@
     <string name="enter_cst">Enter your CST code</string>
     <string name="tag_line">A Tamilnadu government initiative.</string>
     <string name="press">PRESS</string>
-    <string name="options_not_entered_err">Please provide valid singleOptionData</string>
+    <string name="options_not_entered_err">Please provide valid options</string>
+    <string name="no">NO</string>
+    <string name="yes">YES</string>
 
     <!--tamil translation-->
     <string name="next_ta">அடுத்த</string>

@@ -34,13 +34,13 @@ public class ResponseData {
         OptionData responseData = questionData.getResponseData();
         if (responseData == null) {
             throw new IllegalArgumentException("The response questionData for the given question id "
-                    + questionData.getSingleQuestion().getId() + " is null.");
+                    + questionData.getSingleQuestion().getRawNumber() + " is null.");
         }
 
         AnswerData responseAnswerData = responseData.getAnswerData();
         if (responseAnswerData == null) {
             throw new IllegalArgumentException("The response answer for the given question id "
-                    + questionData.getSingleQuestion().getId() + " is null.");
+                    + questionData.getSingleQuestion().getRawNumber() + " is null.");
         }
 
         ArrayList<Option> response = new ArrayList<>();

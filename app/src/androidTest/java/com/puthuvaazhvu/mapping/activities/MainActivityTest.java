@@ -10,6 +10,7 @@ import com.puthuvaazhvu.mapping.activities.robot.QuestionFragmentRobot;
 import com.puthuvaazhvu.mapping.views.activities.MainActivity;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.OptionData;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.SingleOptionData;
+import com.puthuvaazhvu.mapping.views.fragments.question.modals.GridQuestionData;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.SingleQuestion;
 
@@ -60,7 +61,40 @@ public class MainActivityTest {
 
     @Test
     public void test_grid_questions_UI() {
+        // generate mock UI data
+        QuestionData parentQuestionData = new QuestionData(
+                new SingleQuestion("1", "TEST", "1", null)
+                , null
+                , null);
 
+        ArrayList<GridQuestionData> gridQuestionData = new ArrayList<>();
+
+        for (int i = 0; i < 10; i++) {
+            // mock ui data
+            String questionID = "" + i;
+            String text = "TEST QUESTION " + i;
+            String rawNumber = "" + i;
+            String questionPosition = "" + i;
+
+            SingleQuestion singleQuestion = new SingleQuestion(questionID, text, rawNumber, questionPosition);
+
+            OptionData optionData = new OptionData(questionID
+                    , text
+                    , null
+                    , OptionData.Type.NONE
+                    , null
+                    , null);
+
+            gridQuestionData.add(new GridQuestionData(singleQuestion, optionData, i));
+        }
+
+        activity.shouldShowGrid(parentQuestionData, gridQuestionData);
+
+        QuestionFragmentRobot questionFragmentRobot = new QuestionFragmentRobot(activity);
+
+        questionFragmentRobot.waitToSync();
+
+        questionFragmentRobot.checkTextInRecyclerView("TEST QUESTION 1");
     }
 
     @Test
@@ -92,6 +126,10 @@ public class MainActivityTest {
         questionFragmentRobot.waitToSync();
 
         questionFragmentRobot.checkQuestionTextInFragment(text);
+
+        questionFragmentRobot.checkAndClickNextButton(container);
+
+        assertThat(questionData.getResponseData().getAnswerData().getOption().get(0).getTextString(), is("CONFORMATION_DUMMY"));
     }
 
     @Test

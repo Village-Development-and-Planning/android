@@ -8,11 +8,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.utils.RecyclerItemClickListener;
+import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.InputAnswerData;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.GridQuestionData;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.SingleQuestion;
@@ -23,16 +25,22 @@ import java.util.ArrayList;
  * Created by muthuveerappans on 10/1/17.
  */
 
-public class GridQuestionsFragment extends QuestionFragment {
+public class GridQuestionsFragment extends QuestionFragment implements View.OnClickListener {
     private ArrayList<GridQuestionData> data;
+    private QuestionData parentData;
+
     private RecyclerView recyclerView;
     private QuestionsAdapter questionsAdapter;
 
-    public static GridQuestionsFragment getInstance(ArrayList<GridQuestionData> datas) {
+    private Button next_button;
+    private Button back_button;
+
+    public static GridQuestionsFragment getInstance(QuestionData parentQuestion, ArrayList<GridQuestionData> data) {
         GridQuestionsFragment fragment = new GridQuestionsFragment();
 
         Bundle bundle = new Bundle();
-        bundle.putParcelableArrayList("data", datas);
+        bundle.putParcelableArrayList("data", data);
+        bundle.putParcelable("parent_data", parentQuestion);
         fragment.setArguments(bundle);
 
         return fragment;
@@ -47,6 +55,7 @@ public class GridQuestionsFragment extends QuestionFragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         data = getArguments().getParcelableArrayList("data");
+        parentData = getArguments().getParcelable("parent_data");
 
         recyclerView = view.findViewById(R.id.grid_questions_recycler_view);
 
@@ -73,12 +82,27 @@ public class GridQuestionsFragment extends QuestionFragment {
             public void onItemClick(View view, int position) {
                 QuestionData questionData = data.get(position);
                 questionData.setPosition(position);
-                sendQuestionToCaller(questionData, true, false); // send the selected question only
+                sendQuestionToCaller(questionData, true); // send the selected question only
             }
         }));
 
+        next_button = view.findViewById(R.id.next_button);
+        back_button = view.findViewById(R.id.back_button);
+
+        next_button.setOnClickListener(this);
+        back_button.setOnClickListener(this);
+
         questionsAdapter = new QuestionsAdapter();
         recyclerView.setAdapter(questionsAdapter);
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.next_button) {
+            finishCurrentQuestion(parentData, false);
+        } else if (v.getId() == R.id.back_button) {
+            backButtonPressedInsideQuestion(parentData);
+        }
     }
 
     private class QuestionsAdapter extends RecyclerView.Adapter<QVH> {

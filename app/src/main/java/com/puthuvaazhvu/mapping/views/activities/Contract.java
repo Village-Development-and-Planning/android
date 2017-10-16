@@ -22,9 +22,9 @@ public interface Contract {
          * Callback called when the children questions need to be shown in a grid
          *
          * @param question The single question that should be shown.
-         * @param tag      Tag for the fragment
+         * @param parent   parent question
          */
-        void shouldShowGrid(String tag, ArrayList<GridQuestionData> question);
+        void shouldShowGrid(QuestionData parent, ArrayList<GridQuestionData> question);
 
         /**
          * Callback called when particular single question should be shown as it is.
@@ -68,7 +68,7 @@ public interface Contract {
         /**
          * Get's the survey from the {@link com.puthuvaazhvu.mapping.data.DataRepository}
          */
-        void getSurvey(); // Todo: Add something to uniquely identify and get the survey.
+        void loadSurvey(); // Todo: Add something to uniquely identify and get the survey.
 
         /**
          * Get's the next question to be shown in the UI
@@ -78,7 +78,9 @@ public interface Contract {
         /**
          * Main starting point of the questions flow for the UI
          */
-        void startSurvey(Survey survey, FlowHelper flowHelper);
+        void initData(Survey survey, FlowHelper flowHelper);
+
+        void finishCurrent(QuestionData questionData);
 
         /**
          * Helper to update the given question with the updated answer data.

@@ -35,7 +35,7 @@ public class Presenter implements Contract.UserAction {
     }
 
     @Override
-    public void getSurvey() {
+    public void loadSurvey() {
         dataRepository.getData(null // Todo: add some identifier for the survey
                 , new DataRepository.DataLoadedCallback<Survey>() {
                     @Override
@@ -46,13 +46,20 @@ public class Presenter implements Contract.UserAction {
     }
 
     @Override
-    public void startSurvey(Survey survey, FlowHelper flowHelper) {
+    public void initData(Survey survey, FlowHelper flowHelper) {
         // init
         setSurveyQuestionFlow(flowHelper);
         this.survey = survey;
+    }
 
-        // set the first question
-        getNext();
+    @Override
+    public void finishCurrent(QuestionData questionData) {
+        if (flowHelper == null) {
+            Timber.e(Constants.LOG_TAG, "The method is called too early? Call initData()/loadSurvey() first.");
+            return;
+        }
+
+        flowHelper.finishCurrentQuestion();
     }
 
     public void setSurveyQuestionFlow(FlowHelper flowHelper) {
@@ -62,7 +69,7 @@ public class Presenter implements Contract.UserAction {
     @Override
     public void moveToQuestionAt(int index) {
         if (flowHelper == null) {
-            Timber.e(Constants.LOG_TAG, "The method is called too early? Call startSurvey()/getSurvey() first.");
+            Timber.e(Constants.LOG_TAG, "The method is called too early? Call initData()/loadSurvey() first.");
             return;
         }
 
@@ -75,7 +82,7 @@ public class Presenter implements Contract.UserAction {
     @Override
     public void updateCurrentQuestion(QuestionData questionData) {
         if (flowHelper == null) {
-            Timber.e(Constants.LOG_TAG, "The method is called too early? Call startSurvey()/getSurvey() first.");
+            Timber.e(Constants.LOG_TAG, "The method is called too early? Call initData()/loadSurvey() first.");
             return;
         }
         flowHelper.update(ResponseData.adapter(questionData));
@@ -84,7 +91,7 @@ public class Presenter implements Contract.UserAction {
     @Override
     public void getNext() {
         if (flowHelper == null) {
-            Timber.e(Constants.LOG_TAG, "The method is called too early? Call startSurvey()/getSurvey() first.");
+            Timber.e(Constants.LOG_TAG, "The method is called too early? Call initData()/loadSurvey() first.");
             return;
         }
 
@@ -93,7 +100,7 @@ public class Presenter implements Contract.UserAction {
 
         // 2. remove the answered questions from the stack.
         //    This comes 2nd because the remove question are populated in the flow helper only.
-        removeQuestionsFromStack();
+        // removeQuestionsFromStack();
 
         // 3. show the new question
         Question question = flowData.question;
@@ -112,7 +119,7 @@ public class Presenter implements Contract.UserAction {
         // get the children of the latest answer
         ArrayList<Question> children = question.getLatestAnswer().getChildren();
         ArrayList<GridQuestionData> data = GridQuestionData.adapter(children);
-        activityView.shouldShowGrid(question.getId(), data);
+        activityView.shouldShowGrid(QuestionData.adapter(question), data);
     }
 
     private void showSingleQuestionUI(Question question) {

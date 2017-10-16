@@ -63,7 +63,7 @@ public class InfoFragment extends QuestionFragment implements View.OnClickListen
                 backButtonPressedInsideQuestion(questionData);
                 break;
             case R.id.next_button:
-                sendQuestionToCaller(getUpdatedQuestion(), false, true);
+                sendQuestionToCaller(getUpdatedQuestion(), false);
                 break;
         }
     }

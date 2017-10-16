@@ -53,6 +53,11 @@ public class QuestionFragmentRobot {
                 .check(matches(isDisplayed()));
     }
 
+    public void checkTextInRecyclerView(String text) {
+        onView(withItemText(text))
+                .check(matches(isDisplayed()));
+    }
+
     public void selectOption(String text) {
         onView(withItemText(text))
                 .check(matches(isDisplayed())).perform(click());

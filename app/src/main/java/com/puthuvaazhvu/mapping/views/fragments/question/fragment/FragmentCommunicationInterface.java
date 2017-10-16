@@ -7,7 +7,9 @@ import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
  */
 
 public interface FragmentCommunicationInterface {
-    void onQuestionAnswered(QuestionData questionData, boolean isNewRoot, boolean shouldLogOption);
+    void onQuestionAnswered(QuestionData questionData, boolean isNewRoot);
+
+    void finishCurrentQuestion(QuestionData questionData, boolean shouldLogOptions);
 
     void onBackPressedFromQuestion(QuestionData currentQuestionData);
 

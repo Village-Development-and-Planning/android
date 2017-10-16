@@ -45,7 +45,7 @@ public class Utils {
             InputStream is = context.getAssets().open(fileName);
             json = readFromInputStream(is);
         } catch (IOException ex) {
-            Log.i(Constants.LOG_TAG, "Error reading the JSON file from assets. " + ex.getMessage());
+            Log.e(Constants.LOG_TAG, "Error reading the JSON file from assets. " + ex.getMessage());
         }
         return json;
     }

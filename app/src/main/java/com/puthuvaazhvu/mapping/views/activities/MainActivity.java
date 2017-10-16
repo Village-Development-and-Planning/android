@@ -1,5 +1,6 @@
 package com.puthuvaazhvu.mapping.views.activities;
 
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -21,17 +22,21 @@ import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.GridQuestionData;
 import com.puthuvaazhvu.mapping.views.helpers.FlowHelper;
 import com.puthuvaazhvu.mapping.views.helpers.FlowImplementation;
-import com.puthuvaazhvu.mapping.views.managers.StackFragmentManager;
-import com.puthuvaazhvu.mapping.views.managers.StackFragmentManagerImpl;
-import com.puthuvaazhvu.mapping.views.managers.operation.CascadeOperation;
+import com.puthuvaazhvu.mapping.views.managers.StackFragmentManagerInvoker;
+import com.puthuvaazhvu.mapping.views.managers.commands.FragmentPopCommand;
+import com.puthuvaazhvu.mapping.views.managers.commands.FragmentPushCommand;
+import com.puthuvaazhvu.mapping.views.managers.receiver.StackFragmentManagerReceiver;
 
 import java.util.ArrayList;
+
+import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity
         implements Contract.View, FragmentCommunicationInterface {
 
-    private CascadeOperation cascadeOperation;
-    private StackFragmentManager stackFragmentManager;
+    private StackFragmentManagerInvoker stackFragmentManagerInvoker;
+    private StackFragmentManagerReceiver stackFragmentManagerReceiver;
+
     private Contract.UserAction presenter;
 
     private FlowHelper flowHelper;
@@ -42,10 +47,11 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        stackFragmentManager = new StackFragmentManagerImpl(getSupportFragmentManager(), R.id.container);
-        cascadeOperation = new CascadeOperation(stackFragmentManager);
+        stackFragmentManagerInvoker = new StackFragmentManagerInvoker();
+        stackFragmentManagerReceiver = new StackFragmentManagerReceiver(getSupportFragmentManager(), R.id.container);
 
-        presenter = new Presenter(this, DataInjection.provideSurveyDataRepository());
+        presenter = new Presenter(this, DataInjection.provideSurveyDataRepository(this));
+        presenter.loadSurvey();
     }
 
     @Override
@@ -57,15 +63,19 @@ public class MainActivity extends AppCompatActivity
 
         OptionData responseData = OptionData.adapter(root);
 
-        AnswerData answerData = new SingleAnswerData(root.getId(), root.getTextString(), null, "DUMMY", "0");
+        AnswerData answerData = new SingleAnswerData(root.getId(), root.getTextString(), null, "DUMMY_ANSWER", "0");
         responseData.setAnswerData(answerData);
 
         rootData.setResponseData(responseData);
-        updateCurrentQuestion(rootData);
 
         flowImplementation = new FlowImplementation(root);
         flowHelper = new FlowHelper(flowImplementation);
-        presenter.startSurvey(survey, flowHelper);
+        presenter.initData(survey, flowHelper);
+
+        updateCurrentQuestion(rootData);
+
+        // set the first question
+        presenter.getNext();
     }
 
     @Override
@@ -74,27 +84,31 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void shouldShowGrid(String tag, ArrayList<GridQuestionData> question) {
-        QuestionFragment fragment = GridQuestionsFragment.getInstance(question);
-        cascadeOperation.pushOperation(tag, fragment);
+    public void shouldShowGrid(QuestionData parent, ArrayList<GridQuestionData> question) {
+        QuestionFragment fragment = GridQuestionsFragment.getInstance(parent, question);
+        addPushFragmentCommand(fragment, parent.getSingleQuestion().getId());
+        executePendingCommands();
     }
 
     @Override
     public void shouldShowSingleQuestion(QuestionData question) {
         QuestionFragment fragment = SingleQuestionFragment.getInstance(question);
-        cascadeOperation.pushOperation(question.getSingleQuestion().getId(), fragment);
+        addPushFragmentCommand(fragment, question.getSingleQuestion().getId());
+        executePendingCommands();
     }
 
     @Override
     public void shouldShowQuestionAsInfo(QuestionData question) {
         InfoFragment fragment = InfoFragment.getInstance(question);
-        cascadeOperation.pushOperation(question.getSingleQuestion().getId(), fragment);
+        addPushFragmentCommand(fragment, question.getSingleQuestion().getId());
+        executePendingCommands();
     }
 
     @Override
     public void shouldShowConformationQuestion(QuestionData question) {
         ConformationQuestionFragment fragment = ConformationQuestionFragment.getInstance(question);
-        cascadeOperation.pushOperation(question.getSingleQuestion().getId(), fragment);
+        addPushFragmentCommand(fragment, question.getSingleQuestion().getId());
+        executePendingCommands();
     }
 
     @Override
@@ -104,20 +118,20 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void remove(Question question) {
-        cascadeOperation.popOperation(question.getId());
+        addPopFragmentCommand(question.getId());
     }
 
     @Override
     public void remove(ArrayList<Question> questions) {
-        String tags[] = new String[questions.size()];
         for (int i = 0; i < questions.size(); i++) {
-            tags[i] = questions.get(i).getId();
+            String tag = questions.get(i).getId();
+            addPopFragmentCommand(tag);
         }
-        cascadeOperation.popManyOperation(tags);
+        executePendingCommands();
     }
 
     @Override
-    public void onQuestionAnswered(QuestionData questionData, boolean isNewRoot, boolean shouldLogOption) {
+    public void onQuestionAnswered(QuestionData questionData, boolean isNewRoot) {
         if (isNewRoot) {
             // if a question is clicked
             int position = questionData.getPosition();
@@ -130,10 +144,35 @@ public class MainActivity extends AppCompatActivity
 
         } else {
             // normal stack flow
-            if (shouldLogOption)
-                updateCurrentQuestion(questionData);
+            updateCurrentQuestion(questionData);
             getNextQuestion();
         }
+    }
+
+    @Override
+    public void finishCurrentQuestion(QuestionData questionData, boolean shouldLogOptions) {
+        if (shouldLogOptions) {
+            updateCurrentQuestion(questionData);
+        }
+        presenter.finishCurrent(questionData);
+        presenter.getNext();
+    }
+
+    @Override
+    public void onBackPressedFromQuestion(QuestionData currentQuestionData) {
+        // TODO: error ID mismatch
+//        addPopFragmentCommand(currentQuestionData.getSingleQuestion().getId());
+//        executePendingCommands();
+    }
+
+    @Override
+    public void onErrorWhileAnswering(final String message) {
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Utils.showErrorMessage(message, MainActivity.this);
+            }
+        });
     }
 
     public void moveToQuestionAt(int index) {
@@ -148,18 +187,20 @@ public class MainActivity extends AppCompatActivity
         presenter.getNext();
     }
 
-    @Override
-    public void onBackPressedFromQuestion(QuestionData currentQuestionData) {
-        // TODO:
+    public void addPushFragmentCommand(Fragment fragment, String tag) {
+        stackFragmentManagerInvoker.addCommand(new FragmentPushCommand(stackFragmentManagerReceiver, tag, fragment));
     }
 
-    @Override
-    public void onErrorWhileAnswering(final String message) {
-        this.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Utils.showErrorMessage(message, MainActivity.this);
-            }
-        });
+    public void addPopFragmentCommand(String tag) {
+        // don't pop if the stack count is 1.
+        if (stackFragmentManagerReceiver.getStackCount() == 1) {
+            Timber.e("There is only one fragment in the stack.");
+            return;
+        }
+        stackFragmentManagerInvoker.addCommand(new FragmentPopCommand(stackFragmentManagerReceiver, tag));
+    }
+
+    public void executePendingCommands() {
+        stackFragmentManagerInvoker.executeCommand();
     }
 }

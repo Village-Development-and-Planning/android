@@ -32,8 +32,12 @@ public abstract class QuestionFragment extends Fragment {
     @Override
     public abstract View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState);
 
-    public void sendQuestionToCaller(QuestionData questionData, boolean isNewRoot, boolean shouldLogOption) {
-        communicationInterface.onQuestionAnswered(questionData, isNewRoot, shouldLogOption);
+    public void sendQuestionToCaller(QuestionData questionData, boolean isNewRoot) {
+        communicationInterface.onQuestionAnswered(questionData, isNewRoot);
+    }
+
+    public void finishCurrentQuestion(QuestionData questionData, boolean shouldLogOptions) {
+        communicationInterface.finishCurrentQuestion(questionData, shouldLogOptions);
     }
 
     public void backButtonPressedInsideQuestion(QuestionData questionData) {

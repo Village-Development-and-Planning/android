@@ -1,4 +1,4 @@
-package com.puthuvaazhvu.mapping.views.managers;
+package com.puthuvaazhvu.mapping.views.managers.receiver;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -10,12 +10,12 @@ import java.util.ArrayList;
  * Created by muthuveerappans on 9/30/17.
  */
 
-public class StackFragmentManagerImpl implements StackFragmentManager {
+public class StackFragmentManagerReceiver implements IStackFragmentManager {
     private ArrayList<Fragment> fragments = new ArrayList<>();
     private final FragmentManager fragmentManager;
     private final int containerViewID;
 
-    public StackFragmentManagerImpl(FragmentManager fragmentManager, int containerViewID) {
+    public StackFragmentManagerReceiver(FragmentManager fragmentManager, int containerViewID) {
         this.fragmentManager = fragmentManager;
         this.containerViewID = containerViewID;
     }

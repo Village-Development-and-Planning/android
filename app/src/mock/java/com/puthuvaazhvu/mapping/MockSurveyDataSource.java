@@ -1,5 +1,7 @@
 package com.puthuvaazhvu.mapping;
 
+import android.content.Context;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -11,8 +13,10 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 public class MockSurveyDataSource implements DataSource<Survey> {
+    private final Context context;
 
-    public MockSurveyDataSource() {
+    public MockSurveyDataSource(Context context) {
+        this.context = context;
     }
 
     @Override
@@ -22,8 +26,8 @@ public class MockSurveyDataSource implements DataSource<Survey> {
 
     @Override
     public void getData(String selection, DataSourceCallback<Survey> callback) {
-        String fileName = "survey_4.json";
-        String surveyDataString = Utils.readFromInputStream(getDataFormFile(this, fileName));
+        String fileName = "survey_6.json";
+        String surveyDataString = Utils.readFromAssetsFile(context, fileName);
 
         JsonParser jsonParser = new JsonParser();
         JsonElement surveyJsonElement = jsonParser.parse(surveyDataString);
