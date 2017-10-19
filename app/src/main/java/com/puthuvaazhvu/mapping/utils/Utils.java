@@ -11,12 +11,15 @@ import android.widget.Toast;
 
 import com.puthuvaazhvu.mapping.other.Constants;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+
+import timber.log.Timber;
 
 /**
  * Created by muthuveerappans on 9/14/17.
@@ -131,5 +134,34 @@ public class Utils {
         Collections.sort(one);
         Collections.sort(two);
         return one.equals(two);
+    }
+
+    public static File getDataDirectory(boolean forRead) {
+        boolean positive = false;
+        File dataDir = null;
+
+        if ((forRead && isExternalStorageReadable()) ||
+                (!forRead && isExternalStorageWritable())) {
+
+            File root = Environment.getExternalStorageDirectory();
+            if (!root.exists()) {
+                positive = root.mkdir();
+            }
+
+            dataDir = new File(root, Constants.DATA_DIR);
+            if (positive && !dataDir.exists()) {
+                positive = dataDir.mkdir();
+
+                if (positive) {
+                    Timber.i("Created data directory at : " + dataDir.getAbsolutePath());
+                }
+            }
+
+            if (!positive)
+                Timber.e("Error creating data directory at : " + dataDir.getAbsolutePath());
+
+        }
+
+        return positive ? dataDir : null;
     }
 }

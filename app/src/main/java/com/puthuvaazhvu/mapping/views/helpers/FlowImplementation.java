@@ -1,20 +1,20 @@
 package com.puthuvaazhvu.mapping.views.helpers;
 
 import android.support.annotation.VisibleForTesting;
-import android.util.Log;
 
 import com.puthuvaazhvu.mapping.modals.Answer;
-import com.puthuvaazhvu.mapping.modals.Flow.AnswerFlow;
-import com.puthuvaazhvu.mapping.modals.Flow.ChildFlow;
-import com.puthuvaazhvu.mapping.modals.Flow.ExitFlow;
-import com.puthuvaazhvu.mapping.modals.Flow.PreFlow;
+import com.puthuvaazhvu.mapping.modals.flow.AnswerFlow;
+import com.puthuvaazhvu.mapping.modals.flow.ChildFlow;
+import com.puthuvaazhvu.mapping.modals.flow.ExitFlow;
+import com.puthuvaazhvu.mapping.modals.flow.PreFlow;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
-import com.puthuvaazhvu.mapping.utils.DeepCopy.DeepCopy;
+import com.puthuvaazhvu.mapping.utils.deep_copy.DeepCopy;
 
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import timber.log.Timber;
 
@@ -43,7 +43,7 @@ public class FlowImplementation implements IFlowHelper {
 
     @Override
     public IFlowHelper finishCurrent() {
-        Answer latestAnswer = current.getLatestAnswer();
+        Answer latestAnswer = current.getCurrentAnswer();
 
         if (latestAnswer != null) {
             Question reference = latestAnswer.getQuestionReference();
@@ -59,7 +59,7 @@ public class FlowImplementation implements IFlowHelper {
 
     @Override
     public IFlowHelper moveToIndex(int index) {
-        Answer latestAnswer = current.getLatestAnswer();
+        Answer latestAnswer = current.getCurrentAnswer();
 
         if (latestAnswer != null) {
             try {
@@ -86,18 +86,12 @@ public class FlowImplementation implements IFlowHelper {
         ArrayList<Option> loggedOption = new ArrayList<>();
         loggedOption.addAll(responseData.getResponse());
 
-        Answer answer = new Answer(loggedOption
-                , (ArrayList<Question>) DeepCopy.copy(current.getChildren())
-                , current);
+        Answer answer = new Answer(
+                loggedOption,
+                (ArrayList<Question>) DeepCopy.copy(current.getChildren()),
+                current);
 
-        ArrayList<Answer> answersLogged = current.getAnswer();
-        AnswerFlow answerFlow = current.getFlowPattern().getAnswerFlow();
-        if (answerFlow != null && answerFlow.getMode() == AnswerFlow.Modes.ONCE && answersLogged.size() > 0) {
-            // already answered
-            current.addAnswer(0, answer);
-        } else {
-            current.addAnswer(answer);
-        }
+        current.setAnswer(answer);
 
         // add answered question to the stack
         stack.add(answer);
@@ -134,19 +128,16 @@ public class FlowImplementation implements IFlowHelper {
 
                 } else if (exitFlow.getMode() == ExitFlow.Modes.PARENT) {
 
-                    Question parent = current.getLatestAnswer().getQuestionReference().getParent();
+                    Question parent = current.getCurrentAnswer().getQuestionReference().getParent();
                     setCurrent(parent);
 
                 } else if (exitFlow.getMode() == ExitFlow.Modes.LOOP) {
 
                     AnswerFlow answerFlow = current.getFlowPattern().getAnswerFlow();
 
-                    if (answerFlow.getMode() == AnswerFlow.Modes.OPTION) {
-
-                        if (shouldSkipBasedOnAnswerScope(current)) {
-                            finishCurrent();
-                        }
-
+                    if (answerFlow.getMode() == AnswerFlow.Modes.OPTION &&
+                            shouldSkipBasedOnAnswerScope(current)) {
+                        finishCurrent();
                     } else {
                         // return normal flow
                         flowData.flowType = FlowType.SINGLE;
@@ -182,7 +173,7 @@ public class FlowImplementation implements IFlowHelper {
 
         }
 
-        Answer latestAnswer = current.getLatestAnswer();
+        Answer latestAnswer = current.getCurrentAnswer();
 
         // if the current question does'nt have an answer make it the current one.
         if (latestAnswer == null) {
@@ -213,6 +204,17 @@ public class FlowImplementation implements IFlowHelper {
 
     private void addToRemovedList(Question question) {
         toBeRemoved.add(question);
+
+        // to avoid out of memory error
+        if (toBeRemoved.size() > 100) {
+            Iterator iterator = toBeRemoved.iterator();
+            int i = 0;
+            while (i < 50) {
+                iterator.next();
+                iterator.remove();
+                i++;
+            }
+        }
     }
 
 
@@ -253,9 +255,9 @@ public class FlowImplementation implements IFlowHelper {
         AnswerFlow.Modes answerMode = question.getFlowPattern().getAnswerFlow().getMode();
 
         if (answerMode == AnswerFlow.Modes.ONCE) {
-            shouldSkip = question.getAnswer().size() == 1;
+            shouldSkip = question.getAnswers().size() == 1;
         } else if (answerMode == AnswerFlow.Modes.OPTION) {
-            shouldSkip = question.getOptionList().size() == question.getAnswer().size();
+            shouldSkip = question.getOptionList().size() == question.getAnswers().size();
         }
 
         return shouldSkip;

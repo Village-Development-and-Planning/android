@@ -3,6 +3,10 @@ package com.puthuvaazhvu.mapping.modals;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -10,7 +14,7 @@ import java.util.ArrayList;
  * Created by muthuveerappans on 9/26/17.
  */
 
-public class Answer implements Parcelable, Serializable {
+public class Answer extends BaseObject implements Parcelable {
     private final ArrayList<Option> options;
     private final ArrayList<Question> children;
     private final Question questionReference;
@@ -20,8 +24,10 @@ public class Answer implements Parcelable, Serializable {
         this.children = children;
         this.questionReference = questionReference;
 
-        for (Question ac : children) {
-            ac.replaceParent(questionReference); // set the children parent as the current parent for back reference.
+        if (children != null) {
+            for (Question ac : children) {
+                ac.replaceParent(questionReference); // set the children parent as the current parent for back reference.
+            }
         }
     }
 
@@ -74,4 +80,26 @@ public class Answer implements Parcelable, Serializable {
             return new Answer[size];
         }
     };
+
+    @Override
+    public JsonElement getAsJson() {
+        JsonObject jsonObject = new JsonObject();
+
+        JsonArray loggedOptionsArray = new JsonArray();
+
+        for (Option option : options) {
+            loggedOptionsArray.add(option.getAsJson());
+        }
+
+        JsonArray childrenArray = new JsonArray();
+
+        for (Question c : children) {
+            childrenArray.add(c.getAsJson());
+        }
+
+        jsonObject.add("logged_options", loggedOptionsArray);
+        jsonObject.add("children", childrenArray);
+
+        return jsonObject;
+    }
 }

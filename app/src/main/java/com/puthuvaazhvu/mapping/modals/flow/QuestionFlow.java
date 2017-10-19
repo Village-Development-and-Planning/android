@@ -1,16 +1,23 @@
-package com.puthuvaazhvu.mapping.modals.Flow;
+package com.puthuvaazhvu.mapping.modals.flow;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.puthuvaazhvu.mapping.modals.BaseObject;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
 import java.io.Serializable;
 
-public class QuestionFlow implements Parcelable, Serializable {
+public class QuestionFlow extends BaseObject implements Parcelable {
     private final Validation validation;
     private final UI uiMode;
+
+    @Override
+    public JsonElement getAsJson() {
+        return null;
+    }
 
     public enum Validation {
         NONE, NUMBER, SURVEYOR_CODE

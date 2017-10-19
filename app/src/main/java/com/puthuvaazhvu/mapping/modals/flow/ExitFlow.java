@@ -1,15 +1,22 @@
-package com.puthuvaazhvu.mapping.modals.Flow;
+package com.puthuvaazhvu.mapping.modals.flow;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.puthuvaazhvu.mapping.modals.BaseObject;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
 import java.io.Serializable;
 
-public class ExitFlow implements Parcelable, Serializable {
+public class ExitFlow extends BaseObject implements Parcelable {
     private final Modes mode;
+
+    @Override
+    public JsonElement getAsJson() {
+        return null;
+    }
 
     public enum Modes {
         NONE, PARENT, LOOP, END

@@ -15,7 +15,7 @@ import java.util.ArrayList;
  * Created by muthuveerappans on 8/24/17.
  */
 
-public class Survey implements Parcelable, Serializable {
+public class Survey extends BaseObject implements Parcelable {
     private final String id;
     private final String name;
     private final String description;
@@ -96,5 +96,24 @@ public class Survey implements Parcelable, Serializable {
 
     public String getDescription() {
         return description;
+    }
+
+    @Override
+    public JsonElement getAsJson() {
+        JsonObject jsonObject = new JsonObject();
+
+        jsonObject.addProperty("id", id);
+        jsonObject.addProperty("name", name);
+        jsonObject.addProperty("description", description);
+
+        JsonArray questionsArray = new JsonArray();
+
+        for (Question q : questionList) {
+            questionsArray.add(q.getAsJson());
+        }
+
+        jsonObject.add("questions", questionsArray);
+
+        return jsonObject;
     }
 }

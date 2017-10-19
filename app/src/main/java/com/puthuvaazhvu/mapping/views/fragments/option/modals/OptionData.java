@@ -3,8 +3,8 @@ package com.puthuvaazhvu.mapping.views.fragments.option.modals;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.puthuvaazhvu.mapping.modals.Flow.FlowPattern;
-import com.puthuvaazhvu.mapping.modals.Flow.QuestionFlow;
+import com.puthuvaazhvu.mapping.modals.flow.FlowPattern;
+import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.AnswerData;
 

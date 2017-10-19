@@ -1,4 +1,4 @@
-package com.puthuvaazhvu.mapping.utils.DeepCopy;
+package com.puthuvaazhvu.mapping.utils.deep_copy;
 
 import java.io.IOException;
 import java.io.InputStream;

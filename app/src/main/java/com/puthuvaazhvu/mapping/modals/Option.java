@@ -3,20 +3,24 @@ package com.puthuvaazhvu.mapping.modals;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
 import java.io.Serializable;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 /**
  * Created by muthuveerappans on 8/24/17.
  */
 
-public class Option implements Parcelable, Serializable {
+public class Option extends BaseObject implements Parcelable {
     private final String id;
     private final String type;
     private final Text text;
@@ -112,5 +116,20 @@ public class Option implements Parcelable, Serializable {
             optionList.add(new Option(e.getAsJsonObject()));
         }
         return optionList;
+    }
+
+    @Override
+    public JsonElement getAsJson() {
+        JsonObject jsonObject = new JsonObject();
+
+        jsonObject.addProperty("id", id);
+        jsonObject.addProperty("type", type);
+        jsonObject.addProperty("position", position);
+        jsonObject.addProperty("modifiedAt", modifiedAt);
+
+        if (text != null)
+            jsonObject.add("text", text.getAsJson());
+
+        return jsonObject;
     }
 }

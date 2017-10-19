@@ -1,4 +1,4 @@
-package com.puthuvaazhvu.mapping.utils.LinkedList;
+package com.puthuvaazhvu.mapping.utils.linkedlist;
 
 public class LinkListStack<T> {
 

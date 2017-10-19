@@ -1,10 +1,12 @@
-package com.puthuvaazhvu.mapping.modals.Flow;
+package com.puthuvaazhvu.mapping.modals.flow;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.puthuvaazhvu.mapping.modals.BaseObject;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
 import java.io.Serializable;
@@ -13,7 +15,7 @@ import java.io.Serializable;
  * Created by muthuveerappans on 9/26/17.
  */
 
-public class FlowPattern implements Parcelable, Serializable {
+public class FlowPattern extends BaseObject implements Parcelable {
     private final PreFlow preFlow;
     private final QuestionFlow questionFlow;
     private final AnswerFlow answerFlow;
@@ -126,4 +128,9 @@ public class FlowPattern implements Parcelable, Serializable {
             return new FlowPattern[size];
         }
     };
+
+    @Override
+    public JsonElement getAsJson() {
+        return null;
+    }
 }

@@ -60,10 +60,10 @@ public class FlowTest {
 
         Question current = flowImplementation.update(ResponseData.adapter(data)).getCurrent();
 
-        assertThat(current.getAnswer().size(), is(1));
-        assertThat(current.getAnswer().get(0).getOptions().get(0).getTextString(), is("TEST"));
-        assertThat(current.getAnswer().get(0).getChildren().size(), is(question.getChildren().size()));
-        assertThat(current.getAnswer().get(0).getChildren().get(0).getParent(), is(question));
+        assertThat(current.getAnswers().size(), is(1));
+        assertThat(current.getAnswers().get(0).getOptions().get(0).getTextString(), is("TEST"));
+        assertThat(current.getAnswers().get(0).getChildren().size(), is(question.getChildren().size()));
+        assertThat(current.getAnswers().get(0).getChildren().get(0).getParent(), is(question));
 
         //                           -- answer scope single ---
 
@@ -72,9 +72,9 @@ public class FlowTest {
 
         current = flowImplementation.update(ResponseData.adapter(data)).getCurrent();
 
-        assertThat(current.getAnswer().size(), is(1));
-        assertThat(current.getAnswer().get(0).getOptions().get(0).getTextString(), is("TEST1"));
-        assertThat(current.getAnswer().get(0).getChildren().size(), is(question.getChildren().size()));
+        assertThat(current.getAnswers().size(), is(1));
+        assertThat(current.getAnswers().get(0).getOptions().get(0).getTextString(), is("TEST1"));
+        assertThat(current.getAnswers().get(0).getChildren().size(), is(question.getChildren().size()));
 
         //                           -- answer scope multiple ---
         question = root.getChildren().get(1).getChildren().get(1).getChildren().get(6).getChildren().get(0);
@@ -89,7 +89,7 @@ public class FlowTest {
         data.setResponseData(responseData);
 
         current = flowImplementation.update(ResponseData.adapter(data)).getCurrent();
-        assertThat(current.getAnswer().get(0).getOptions().get(0).getId(), is("1"));
+        assertThat(current.getAnswers().get(0).getOptions().get(0).getId(), is("1"));
 
         // add mock answer
         responseData = OptionData.adapter(question);
@@ -98,8 +98,8 @@ public class FlowTest {
 
         current = flowImplementation.update(ResponseData.adapter(data)).getCurrent();
 
-        assertThat(current.getAnswer().size(), is(2));
-        assertThat(current.getAnswer().get(1).getOptions().get(0).getId(), is("2"));
+        assertThat(current.getAnswers().size(), is(2));
+        assertThat(current.getAnswers().get(1).getOptions().get(0).getId(), is("2"));
     }
 
     @Test
@@ -119,7 +119,7 @@ public class FlowTest {
 
         Question current = flowImplementation.moveToIndex(3).getCurrent();
 
-        assertThat(current.getAnswer().isEmpty(), is(true));
+        assertThat(current.getAnswers().isEmpty(), is(true));
         assertThat(current.getRawNumber(), is("1.5"));
     }
 
@@ -184,7 +184,7 @@ public class FlowTest {
         assertThat(current.getRawNumber(), is("2.1"));
 
         // add mock answer to all the children
-        ArrayList<Question> children = current.getAnswer().get(0).getChildren();
+        ArrayList<Question> children = current.getAnswers().get(0).getChildren();
 
         assertThat(children.size(), is(question.getChildren().size()));
 
@@ -217,13 +217,13 @@ public class FlowTest {
 
         // add mock answer
         OptionData responseData = OptionData.adapter(question);
-        responseData.setAnswerData(new SingleAnswerData(question.getId(), question.getTextString(), "1", "TEST", "0"));
+        responseData.setAnswerData(new SingleAnswerData(question.getId(), question.getTextString(), "1", "DUMMY FOR ROOT", "0"));
         data.setResponseData(responseData);
 
         Question current = flowImplementation.update(ResponseData.adapter(data)).getCurrent();
 
         // add mock answer to all the children
-        ArrayList<Question> children = current.getAnswer().get(0).getChildren();
+        ArrayList<Question> children = current.getAnswers().get(0).getChildren();
 
         assertThat(children.size(), is(question.getChildren().size()));
 
@@ -243,7 +243,7 @@ public class FlowTest {
 
         current = flowImplementation.update(ResponseData.adapter(data)).getCurrent();
 
-        children = current.getAnswer().get(0).getChildren();
+        children = current.getAnswers().get(0).getChildren();
 
         assertThat(children.size(), is(question.getChildren().size()));
 
@@ -272,8 +272,8 @@ public class FlowTest {
         flowImplementation.setCurrentForTesting(current); // current should be populated by now
         IFlowHelper.FlowData flowData = flowImplementation.getNext();
 
-        assertThat(flowData.flowType, is(FlowType.END));
-        assertThat(flowData.question, nullValue());
+        assertThat(flowData.flowType, is(FlowType.SINGLE));
+        assertThat(flowData.question.getRawNumber(), is("2"));
     }
 
     @Test

@@ -3,12 +3,13 @@ package com.puthuvaazhvu.mapping.modals;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
 import java.io.Serializable;
 
-public class Info implements Parcelable, Serializable {
+public class Info extends BaseObject implements Parcelable {
     private final String questionNumberRaw;
     private final String option;
 
@@ -56,5 +57,15 @@ public class Info implements Parcelable, Serializable {
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(questionNumberRaw);
         parcel.writeString(option);
+    }
+
+    @Override
+    public JsonElement getAsJson() {
+        JsonObject jsonObject = new JsonObject();
+
+        jsonObject.addProperty("question_number", questionNumberRaw);
+        jsonObject.addProperty("option", option);
+
+        return jsonObject;
     }
 }

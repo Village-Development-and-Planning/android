@@ -5,6 +5,7 @@ import com.google.gson.JsonParser;
 import com.puthuvaazhvu.mapping.utils.Utils;
 
 import java.io.InputStream;
+import java.util.Random;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -16,7 +17,7 @@ import static org.hamcrest.Matchers.notNullValue;
 
 public class ModalHelpers {
     public static Survey getSurvey(Object obj) {
-        String fileName = "survey_data.json";
+        String fileName = "survey_data_test_unit.json";
         String surveyDataString = Utils.readFromInputStream(getDataFormFile(obj, fileName));
 
         assertThat(surveyDataString, notNullValue());

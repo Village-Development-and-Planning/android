@@ -202,12 +202,12 @@
         "question": {
           "options": [
             {
-              "position": "1",
+              "position": "0",
               "option": {
                 "_id": "59d94d5ff5d04d1d3e12ee45",
                 "type": "GENERIC",
                 "text": {
-                  "english": "TEST HABITATION",
+                  "english": "TEST HABITATION 1",
                   "tamil": "test",
                   "_id": "59d94d5ff5d04d1d3e12ee46",
                   "modifiedAt": "2017-10-07T21:55:43.497Z"
@@ -215,7 +215,23 @@
                 "__v": 0,
                 "modifiedAt": "2017-10-07T21:55:43.494Z"
               },
-              "_id": "59d94d60f5d04d1d3e12f402"
+              "_id": "59d94d60f5d04d1d3e12f4022"
+            },
+            {
+              "position": "1",
+              "option": {
+                "_id": "59d94d5ff5d04d1d3e12ee46",
+                "type": "GENERIC",
+                "text": {
+                  "english": "TEST HABITATION 2",
+                  "tamil": "test",
+                  "_id": "59d94d5ff5d04d1d3e12ee49",
+                  "modifiedAt": "2017-10-07T21:55:43.497Z"
+                },
+                "__v": 0,
+                "modifiedAt": "2017-10-07T21:55:43.494Z"
+              },
+              "_id": "59d94d60f5d04d1d3e12f4021"
             }
           ],
           "children": [

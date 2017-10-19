@@ -97,5 +97,7 @@ public interface Contract {
          * @param index The index of the child question for the current pointer to point to.
          */
         void moveToQuestionAt(int index);
+
+        void dumpSurveyToFile();
     }
 }

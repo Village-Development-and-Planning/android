@@ -58,7 +58,7 @@ public class GridQuestionData extends QuestionData implements Parcelable {
 
     public static GridQuestionData adapter(com.puthuvaazhvu.mapping.modals.Question question) {
         QuestionData questionData = QuestionData.adapter(question);
-        return new GridQuestionData(questionData.getSingleQuestion(), questionData.getOptionOptionData(), question.getAnswer().size());
+        return new GridQuestionData(questionData.getSingleQuestion(), questionData.getOptionOptionData(), question.getAnswers().size());
     }
 
     public static ArrayList<GridQuestionData> adapter(ArrayList<com.puthuvaazhvu.mapping.modals.Question> children) {

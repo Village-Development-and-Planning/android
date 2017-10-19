@@ -28,12 +28,9 @@ public class DataModelTest {
     @Mock
     private Context context;
 
-    private SurveyDataModelTest surveyDataModelTest;
-
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        surveyDataModelTest = new SurveyDataModelTest();
     }
 
     @Test

@@ -7,6 +7,7 @@ package com.puthuvaazhvu.mapping.other;
 public class Constants {
     public static String LOG_TAG = "mapping.logs";
     public static Language APP_LANGUAGE = Language.ENGLISH;
+    public static String DATA_DIR = "com.puthuvaazhvu.mapping.data";
 
     public static enum Language {
         ENGLISH,

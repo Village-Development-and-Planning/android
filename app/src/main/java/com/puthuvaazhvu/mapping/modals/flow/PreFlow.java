@@ -1,17 +1,19 @@
-package com.puthuvaazhvu.mapping.modals.Flow;
+package com.puthuvaazhvu.mapping.modals.flow;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.puthuvaazhvu.mapping.modals.BaseObject;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class PreFlow implements Parcelable, Serializable {
+public class PreFlow extends BaseObject implements Parcelable {
     private final ArrayList<String> fill;
     private final String questionSkipRawNumber;
     private final ArrayList<String> optionSkip;
@@ -80,4 +82,9 @@ public class PreFlow implements Parcelable, Serializable {
             return new PreFlow[size];
         }
     };
+
+    @Override
+    public JsonElement getAsJson() {
+        return null;
+    }
 }

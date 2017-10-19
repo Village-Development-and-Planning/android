@@ -1,13 +1,16 @@
 package com.puthuvaazhvu.mapping.views.activities;
 
-import android.support.annotation.VisibleForTesting;
+import android.os.Environment;
 
-import com.puthuvaazhvu.mapping.BuildConfig;
+import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.data.DataRepository;
-import com.puthuvaazhvu.mapping.modals.Flow.QuestionFlow;
+import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.other.Constants;
+import com.puthuvaazhvu.mapping.utils.DataFileCreator;
+import com.puthuvaazhvu.mapping.utils.Utils;
+import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.GridQuestionData;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
 import com.puthuvaazhvu.mapping.views.helpers.FlowHelper;
@@ -15,6 +18,7 @@ import com.puthuvaazhvu.mapping.views.helpers.FlowType;
 import com.puthuvaazhvu.mapping.views.helpers.IFlowHelper;
 import com.puthuvaazhvu.mapping.views.helpers.ResponseData;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import timber.log.Timber;
@@ -31,9 +35,12 @@ public class Presenter implements Contract.UserAction {
 
     private Survey survey;
 
+    private final SaveToFile saveToFile;
+
     public Presenter(Contract.View view, DataRepository<Survey> dataRepository) {
         this.activityView = view;
         this.dataRepository = dataRepository;
+        this.saveToFile = SaveToFile.getInstance();
     }
 
     @Override
@@ -82,6 +89,16 @@ public class Presenter implements Contract.UserAction {
     }
 
     @Override
+    public void dumpSurveyToFile() {
+        JsonObject resultSurveyJson = survey.getAsJson().getAsJsonObject();
+        Timber.i("Survey dump: \n" + resultSurveyJson.toString());
+
+        File fileToSave = DataFileCreator.getFileToDumpSurvey(survey.getId(), false);
+
+        dumpToFile(resultSurveyJson.toString(), fileToSave);
+    }
+
+    @Override
     public void updateCurrentQuestion(QuestionData questionData) {
         if (flowHelper == null) {
             Timber.e(Constants.LOG_TAG, "The method is called too early? Call initData()/loadSurvey() first.");
@@ -119,7 +136,7 @@ public class Presenter implements Contract.UserAction {
 
     private void showGridUI(Question question) {
         // get the children of the latest answer
-        ArrayList<Question> children = question.getLatestAnswer().getChildren();
+        ArrayList<Question> children = question.getCurrentAnswer().getChildren();
         ArrayList<GridQuestionData> data = GridQuestionData.adapter(children);
         activityView.shouldShowGrid(QuestionData.adapter(question), data);
     }
@@ -141,6 +158,20 @@ public class Presenter implements Contract.UserAction {
         ArrayList<Question> toBeRemoved = flowHelper.emptyToBeRemovedList();
         if (!toBeRemoved.isEmpty())
             activityView.remove(toBeRemoved);
+    }
+
+    private void dumpToFile(String toSave, File file) {
+        saveToFile.execute(toSave, file, new SaveToFile.SaveToFileCallbacks() {
+            @Override
+            public void onFileSaved() {
+                Timber.i("The data is saved to the file successfully.");
+            }
+
+            @Override
+            public void onErrorWhileSaving(String message) {
+                Timber.e("Error while saving file: " + message);
+            }
+        });
     }
 
 }

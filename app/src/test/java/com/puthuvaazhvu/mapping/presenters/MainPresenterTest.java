@@ -2,8 +2,8 @@ package com.puthuvaazhvu.mapping.presenters;
 
 import com.puthuvaazhvu.mapping.data.DataRepository;
 import com.puthuvaazhvu.mapping.modals.Answer;
-import com.puthuvaazhvu.mapping.modals.Flow.FlowPattern;
-import com.puthuvaazhvu.mapping.modals.Flow.QuestionFlow;
+import com.puthuvaazhvu.mapping.modals.flow.FlowPattern;
+import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.views.activities.Contract;
@@ -64,7 +64,7 @@ public class MainPresenterTest {
         when(questionMock.getChildren()).thenReturn(new ArrayList<Question>());
         when(questionMock.getFlowPattern()).thenReturn(mockFlowPattern);
         when(questionMock.getRawNumber()).thenReturn("1");
-        when(questionMock.getLatestAnswer()).thenReturn(new Answer(null, new ArrayList<Question>(), null));
+        when(questionMock.getCurrentAnswer()).thenReturn(new Answer(null, new ArrayList<Question>(), null));
     }
 
 //    @Test
