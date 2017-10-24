@@ -12,6 +12,5 @@ public interface IBackFlow {
 
     class BackFlowData {
         public Question question;
-        public boolean isError;
     }
 }

@@ -171,8 +171,11 @@ public class FlowImplementation implements IFlow {
     public IBackFlow.BackFlowData getPrevious() {
         IBackFlow.BackFlowData backFlowData = iBackFlow.getPreviousQuestion(current);
 
-        if (!backFlowData.isError)
-            setCurrent(backFlowData.question);
+        Question previous = backFlowData.question;
+
+        if (previous != null) {
+            setCurrent(previous);
+        }
 
         return backFlowData;
     }

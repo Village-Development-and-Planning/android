@@ -19,6 +19,8 @@ import java.util.ArrayList;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 
 /**
  * Created by muthuveerappans on 10/24/17.
@@ -40,41 +42,35 @@ public class BackFlowTest {
 
     @Test
     public void test_getPreviousQuestion_method() {
-        Question question = root.getChildren().get(1);
+        ArrayList<Question> children;
 
-        assertThat(question.getRawNumber(), is("2"));
-
-        // mock answer 2
-        ArrayList<Question> children = addMockAnswer(question);
-
-        Question question_2_1 = children.get(1);
+        Question question_2_1 = root.getChildren().get(1).getChildren().get(1);
 
         assertThat(question_2_1.getRawNumber(), is("2.1"));
 
-        // mock answer 2.1
+        // mock answer 2.1.1
         children = addMockAnswer(question_2_1);
 
         Question question_2_1_1 = children.get(0);
 
-        assertThat(question_2_1_1.getRawNumber(), is("2.1.1"));
+        // mock answer 2.1.1
+        addMockAnswer(question_2_1_1);
 
-        IBackFlow.BackFlowData backFlowData = backFlowImplementation.getPreviousQuestion(question_2_1_1);
+        assertThat(question_2_1_1.getAnswers().size(), is(1));
 
-        assertThat(backFlowData.isError, is(false));
-        assertThat(backFlowData.question.getRawNumber(), is("2.1"));
+        Question question_2_1_2 = children.get(1);
+
+        assertThat(question_2_1_2.getRawNumber(), is("2.1.2"));
+
+        IBackFlow.BackFlowData backFlowData = backFlowImplementation.getPreviousQuestion(question_2_1_2);
+
+        assertThat(backFlowData.question, notNullValue());
+        assertThat(backFlowData.question.getRawNumber(), is("2.1.1"));
         assertThat(backFlowData.question.getAnswers().size(), is(0));
 
-        backFlowData = backFlowImplementation.getPreviousQuestion(question_2_1);
+        backFlowData = backFlowImplementation.getPreviousQuestion(question_2_1_1);
 
-        assertThat(backFlowData.isError, is(false));
-        assertThat(backFlowData.question.getRawNumber(), is("2"));
-        assertThat(backFlowData.question.getAnswers().size(), is(0));
-
-        backFlowData = backFlowImplementation.getPreviousQuestion(question);
-
-        assertThat(backFlowData.isError, is(true));
-        assertThat(backFlowData.question.getRawNumber(), is("2"));
-        assertThat(backFlowData.question.getAnswers().size(), is(0));
+        assertThat(backFlowData.question, nullValue());
     }
 
     private ArrayList<Question> addMockAnswer(Question question) {
@@ -83,7 +79,7 @@ public class BackFlowTest {
 
         // add a random option
         if (question.getOptionList().isEmpty()) {
-            InputAnswerData singleAnswerData = new InputAnswerData(question.getId(), question.getTextString(), "TEST");
+            InputAnswerData singleAnswerData = new InputAnswerData(question.getRawNumber(), question.getTextString(), "TEST");
             options.add(singleAnswerData.getOption().get(0));
         } else {
             options.add(question.getOptionList().get(0));

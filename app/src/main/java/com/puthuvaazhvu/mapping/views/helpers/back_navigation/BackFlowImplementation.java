@@ -2,6 +2,8 @@ package com.puthuvaazhvu.mapping.views.helpers.back_navigation;
 
 import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Question;
+import com.puthuvaazhvu.mapping.modals.flow.ChildFlow;
+import com.puthuvaazhvu.mapping.modals.flow.ExitFlow;
 
 import timber.log.Timber;
 
@@ -16,6 +18,28 @@ public class BackFlowImplementation implements IBackFlow {
 
         BackFlowData backFlowData = new BackFlowData();
 
+        Question previous = getPreviousQuestionInternal(current);
+
+        if (previous != null) {
+            previous = eraseTheLastAnswer(previous);
+        }
+
+        backFlowData.question = previous;
+
+        return backFlowData;
+    }
+
+    private Question getPreviousQuestionInternal(Question current) {
+
+        // for grid the answers will be already logged.
+        if (current.getFlowPattern().getChildFlow().getUiToBeShown() == ChildFlow.UI.GRID) {
+            try {
+                eraseTheLastAnswer(current);
+            } catch (IllegalArgumentException e) {
+                // ignore
+            }
+        }
+
         Question parent = current.getParent();
 
         if (parent == null) {
@@ -23,17 +47,43 @@ public class BackFlowImplementation implements IBackFlow {
         }
 
         if (parent.isRoot()) {
-
-            // don't go to the ROOT question. Throw an error instead, saying user cannot go to the previous question.
-            backFlowData.isError = true;
-            backFlowData.question = current;
-
-        } else {
-            backFlowData.question = eraseTheLastAnswer(parent);
-            backFlowData.isError = false;
+            return null;
         }
 
-        return backFlowData;
+        ChildFlow childFlow = parent.getFlowPattern().getChildFlow();
+        Question previous = null;
+
+        if (childFlow.getMode() == ChildFlow.Modes.CASCADE) {
+
+            previous = getPreviousQuestionTraversingBack(parent, current);
+
+            if (previous == null) {
+                previous = parent;
+            }
+
+        }
+
+        if (previous != null &&
+                previous.getFlowPattern().getExitFlow().getMode() == ExitFlow.Modes.LOOP) {
+            return null;
+        }
+
+        return previous;
+    }
+
+    private Question getPreviousQuestionTraversingBack(Question node, Question current) {
+        Question previous = null;
+
+        Answer nodeLatestAnswer = getLatestAnswer(node);
+
+        for (Question child : nodeLatestAnswer.getChildren()) {
+            if (child.getRawNumber().equals(current.getRawNumber())) {
+                return previous;
+            }
+            previous = child;
+        }
+
+        return previous;
     }
 
     private Question eraseTheLastAnswer(Question question) {
@@ -50,5 +100,15 @@ public class BackFlowImplementation implements IBackFlow {
         }
 
         return question;
+    }
+
+    private Answer getLatestAnswer(Question question) {
+        int answersCount = question.getAnswers().size();
+
+        if (answersCount > 0) {
+            return question.getAnswers().get(answersCount - 1);
+        } else {
+            throw new IllegalArgumentException("The question " + question.getRawNumber() + " does'nt have an answer.");
+        }
     }
 }

@@ -155,7 +155,6 @@ public class MainPresenterTest {
 
         // test for error
         IBackFlow.BackFlowData backFlowData = new IBackFlow.BackFlowData();
-        backFlowData.isError = true;
         backFlowData.question = null;
         when(flowHelper.getPrevious()).thenReturn(backFlowData);
 
@@ -167,7 +166,6 @@ public class MainPresenterTest {
 
         // test for success
         backFlowData = new IBackFlow.BackFlowData();
-        backFlowData.isError = false;
         backFlowData.question = questionMock;
         when(flowHelper.getPrevious()).thenReturn(backFlowData);
 

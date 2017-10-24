@@ -3,6 +3,8 @@ package com.puthuvaazhvu.mapping.views.fragments.question.modals;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.puthuvaazhvu.mapping.modals.Question;
+
 /**
  * Created by muthuveerappans on 10/1/17.
  */
@@ -69,8 +71,8 @@ public class SingleQuestion implements Parcelable {
         }
     };
 
-    public static SingleQuestion adapter(com.puthuvaazhvu.mapping.modals.Question question) {
-        SingleQuestion q = new SingleQuestion(question.getId(),
+    public static SingleQuestion adapter(Question question) {
+        SingleQuestion q = new SingleQuestion(question.getRawNumber(),
                 question.getTextString(),
                 question.getRawNumber(),
                 question.getPosition());

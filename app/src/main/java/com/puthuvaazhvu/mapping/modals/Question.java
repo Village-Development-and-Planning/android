@@ -156,7 +156,7 @@ public class Question extends BaseObject implements Parcelable {
             return false;
     }
 
-    public String getId() {
+    private String getId() {
         return id;
     }
 

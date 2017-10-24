@@ -55,7 +55,7 @@ public class NextFlowTest {
 
         // add mock answer
         OptionData responseData = OptionData.adapter(question);
-        responseData.setAnswerData(new InputAnswerData(question.getId(), question.getTextString(), "TEST"));
+        responseData.setAnswerData(new InputAnswerData(question.getRawNumber(), question.getTextString(), "TEST"));
         data.setResponseData(responseData);
 
         Question current = flowImplementation.update(ResponseData.adapter(data)).getCurrent();
@@ -67,7 +67,7 @@ public class NextFlowTest {
 
         //                           -- answer scope single ---
 
-        responseData.setAnswerData(new InputAnswerData(question.getId(), question.getTextString(), "TEST1"));
+        responseData.setAnswerData(new InputAnswerData(question.getRawNumber(), question.getTextString(), "TEST1"));
         data.setResponseData(responseData);
 
         current = flowImplementation.update(ResponseData.adapter(data)).getCurrent();
@@ -85,7 +85,7 @@ public class NextFlowTest {
 
         // add mock answer
         responseData = OptionData.adapter(question);
-        responseData.setAnswerData(new SingleAnswerData(question.getId(), question.getTextString(), "1", "TEST", "0"));
+        responseData.setAnswerData(new SingleAnswerData(question.getRawNumber(), question.getTextString(), "1", "TEST", "0"));
         data.setResponseData(responseData);
 
         current = flowImplementation.update(ResponseData.adapter(data)).getCurrent();
@@ -93,7 +93,7 @@ public class NextFlowTest {
 
         // add mock answer
         responseData = OptionData.adapter(question);
-        responseData.setAnswerData(new SingleAnswerData(question.getId(), question.getTextString(), "2", "TEST1", "0"));
+        responseData.setAnswerData(new SingleAnswerData(question.getRawNumber(), question.getTextString(), "2", "TEST1", "0"));
         data.setResponseData(responseData);
 
         current = flowImplementation.update(ResponseData.adapter(data)).getCurrent();
@@ -110,7 +110,7 @@ public class NextFlowTest {
 
         // add mock answer
         OptionData responseData = OptionData.adapter(question);
-        responseData.setAnswerData(new InputAnswerData(question.getId(), question.getTextString(), "TEST"));
+        responseData.setAnswerData(new InputAnswerData(question.getRawNumber(), question.getTextString(), "TEST"));
         data.setResponseData(responseData);
 
         assertThat(question.getRawNumber(), is("1"));
@@ -133,7 +133,7 @@ public class NextFlowTest {
 
         // add mock answer
         OptionData responseData = OptionData.adapter(question);
-        responseData.setAnswerData(new SingleAnswerData(question.getId(), question.getTextString(), "1", "TEST1", "0"));
+        responseData.setAnswerData(new SingleAnswerData(question.getRawNumber(), question.getTextString(), "1", "TEST1", "0"));
         data.setResponseData(responseData);
 
         Question current;
@@ -154,7 +154,7 @@ public class NextFlowTest {
         data = QuestionData.adapter(flowImplementation.getCurrent());
 
         responseData = OptionData.adapter(question);
-        responseData.setAnswerData(new SingleAnswerData(question.getId(), question.getTextString(), "1", "TEST1", "0"));
+        responseData.setAnswerData(new SingleAnswerData(question.getRawNumber(), question.getTextString(), "1", "TEST1", "0"));
         data.setResponseData(responseData);
 
         flowImplementation.update(ResponseData.adapter(data));
@@ -176,7 +176,7 @@ public class NextFlowTest {
 
         // mock answer
         OptionData responseData = OptionData.adapter(question);
-        responseData.setAnswerData(new SingleAnswerData(question.getId(), question.getTextString(), "1", "TEST", "0"));
+        responseData.setAnswerData(new SingleAnswerData(question.getRawNumber(), question.getTextString(), "1", "TEST", "0"));
         data.setResponseData(responseData);
 
         Question current = flowImplementation.update(ResponseData.adapter(data)).getCurrent();
@@ -217,7 +217,7 @@ public class NextFlowTest {
 
         // add mock answer
         OptionData responseData = OptionData.adapter(question);
-        responseData.setAnswerData(new SingleAnswerData(question.getId(), question.getTextString(), "1", "DUMMY FOR ROOT", "0"));
+        responseData.setAnswerData(new SingleAnswerData(question.getRawNumber(), question.getTextString(), "1", "DUMMY FOR ROOT", "0"));
         data.setResponseData(responseData);
 
         Question current = flowImplementation.update(ResponseData.adapter(data)).getCurrent();
@@ -238,7 +238,7 @@ public class NextFlowTest {
 
         // add mock answer
         responseData = OptionData.adapter(question);
-        responseData.setAnswerData(new SingleAnswerData(question.getId(), question.getTextString(), "1", "TEST", "0"));
+        responseData.setAnswerData(new SingleAnswerData(question.getRawNumber(), question.getTextString(), "1", "TEST", "0"));
         data.setResponseData(responseData);
 
         current = flowImplementation.update(ResponseData.adapter(data)).getCurrent();
@@ -254,7 +254,7 @@ public class NextFlowTest {
             data = QuestionData.adapter(question);
 
             responseData = OptionData.adapter(question);
-            responseData.setAnswerData(new SingleAnswerData(question.getId()
+            responseData.setAnswerData(new SingleAnswerData(question.getRawNumber()
                     , question.getTextString()
                     , "" + random.nextInt(100)
                     , "TEST " + random.nextInt(100)
@@ -287,7 +287,7 @@ public class NextFlowTest {
         // add mock answer
         OptionData responseData = OptionData.adapter(question);
         // the option position is important as inside the code only that is checked for skip pattern
-        responseData.setAnswerData(new SingleAnswerData(question.getId(), question.getTextString(), "1", "NO", "0"));
+        responseData.setAnswerData(new SingleAnswerData(question.getRawNumber(), question.getTextString(), "1", "NO", "0"));
         data.setResponseData(responseData);
 
         flowImplementation.update(ResponseData.adapter(data));

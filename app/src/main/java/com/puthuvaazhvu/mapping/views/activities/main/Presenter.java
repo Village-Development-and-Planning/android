@@ -163,11 +163,12 @@ public class Presenter implements Contract.UserAction {
 
         IBackFlow.BackFlowData backFlowData = flowHelper.getPrevious();
 
-        if (backFlowData.isError) {
+        Question previous = backFlowData.question;
+
+        if (previous == null) {
             activityView.onError(R.string.cannot_go_back);
         } else {
-            Question question = backFlowData.question;
-            showSingleQuestionUI(question);
+            showSingleQuestionUI(previous);
         }
     }
 

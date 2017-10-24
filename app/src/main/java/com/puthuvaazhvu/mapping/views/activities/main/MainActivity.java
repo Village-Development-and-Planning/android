@@ -85,7 +85,7 @@ public class MainActivity extends BaseActivity
 
         OptionData responseData = OptionData.adapter(root);
 
-        AnswerData answerData = new SingleAnswerData(root.getId(), root.getTextString(), null, "DUMMY_ANSWER", "0");
+        AnswerData answerData = new SingleAnswerData(root.getRawNumber(), root.getTextString(), null, "DUMMY_ANSWER", "0");
         responseData.setAnswerData(answerData);
 
         rootData.setResponseData(responseData);

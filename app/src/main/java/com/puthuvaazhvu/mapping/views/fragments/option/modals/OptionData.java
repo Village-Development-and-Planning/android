@@ -124,7 +124,7 @@ public class OptionData implements Parcelable {
     };
 
     public static OptionData adapter(Question question) {
-        String questionID = question.getId();
+        String questionID = question.getRawNumber();
         String questionText = question.getTextString();
 
         ArrayList<com.puthuvaazhvu.mapping.modals.Option> optionsGiven = question.getOptionList();
