@@ -258,6 +258,10 @@ public class Question extends BaseObject implements Parcelable {
                 throw new IllegalArgumentException("Currently we assume only 1 answer size for options scope.");
             }
 
+            if (answer.getOptions().isEmpty()) {
+                throw new IllegalArgumentException("The options are empty.");
+            }
+
             Option loggedOption = answer.getOptions().get(0);
             Answer matchedAnswer = getAnswerMatch(loggedOption.getId());
 

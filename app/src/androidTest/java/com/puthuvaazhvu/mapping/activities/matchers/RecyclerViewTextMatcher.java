@@ -2,9 +2,6 @@ package com.puthuvaazhvu.mapping.activities.matchers;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.view.ViewGroup;
-
-import com.puthuvaazhvu.mapping.views.activities.Contract;
 
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
@@ -12,7 +9,6 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
 import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
-import static android.support.test.espresso.matcher.ViewMatchers.isChecked;
 import static android.support.test.espresso.matcher.ViewMatchers.isDescendantOfA;
 import static android.support.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;

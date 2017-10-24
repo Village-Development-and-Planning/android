@@ -1,6 +1,7 @@
-package com.puthuvaazhvu.mapping.views.helpers;
+package com.puthuvaazhvu.mapping.views.helpers.next_flow;
 
 import android.support.annotation.VisibleForTesting;
+import android.util.Log;
 
 import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.flow.AnswerFlow;
@@ -10,6 +11,10 @@ import com.puthuvaazhvu.mapping.modals.flow.PreFlow;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.utils.deep_copy.DeepCopy;
+import com.puthuvaazhvu.mapping.views.helpers.FlowType;
+import com.puthuvaazhvu.mapping.views.helpers.ResponseData;
+import com.puthuvaazhvu.mapping.views.helpers.back_navigation.BackFlowImplementation;
+import com.puthuvaazhvu.mapping.views.helpers.back_navigation.IBackFlow;
 
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 
@@ -22,7 +27,7 @@ import timber.log.Timber;
  * Created by muthuveerappans on 10/15/17.
  */
 
-public class FlowImplementation implements IFlowHelper {
+public class FlowImplementation implements IFlow {
     private static final int STACK_SIZE = 50; // max question count the stack can hold
 
     private final CircularFifoQueue<Answer> stack; // holds the answered questions (irrespective of copies)
@@ -31,9 +36,12 @@ public class FlowImplementation implements IFlowHelper {
 
     private Question current;
 
+    private IBackFlow iBackFlow;
+
     public FlowImplementation(Question root) {
         this.current = root;
         stack = new CircularFifoQueue<>(STACK_SIZE);
+        this.iBackFlow = new BackFlowImplementation();
     }
 
     @Override
@@ -42,7 +50,7 @@ public class FlowImplementation implements IFlowHelper {
     }
 
     @Override
-    public IFlowHelper finishCurrent() {
+    public IFlow finishCurrent() {
         Answer latestAnswer = current.getCurrentAnswer();
 
         if (latestAnswer != null) {
@@ -58,7 +66,7 @@ public class FlowImplementation implements IFlowHelper {
     }
 
     @Override
-    public IFlowHelper moveToIndex(int index) {
+    public IFlow moveToIndex(int index) {
         Answer latestAnswer = current.getCurrentAnswer();
 
         if (latestAnswer != null) {
@@ -76,20 +84,25 @@ public class FlowImplementation implements IFlowHelper {
     }
 
     @Override
-    public IFlowHelper update(ResponseData responseData) {
-        String questionID = responseData.getId();
-        if (!questionID.equals(current.getId())) {
-            Timber.e("ID mismatch " + "current: " + current.getId() + " received: " + questionID);
+    public IFlow update(ResponseData responseData) {
+        String rawNumber = responseData.getRawNumber();
+        if (!rawNumber.equals(current.getRawNumber())) {
+            Timber.e("Number mismatch " + "current: " + current.getRawNumber() + " received: " + rawNumber);
             return this;
         }
 
         ArrayList<Option> loggedOption = new ArrayList<>();
         loggedOption.addAll(responseData.getResponse());
 
+        long startTime = System.currentTimeMillis();
+        Timber.i("Started creation of answers");
+
         Answer answer = new Answer(
                 loggedOption,
                 (ArrayList<Question>) DeepCopy.copy(current.getChildren()),
                 current);
+
+        Timber.i("Done creation of answers " + (System.currentTimeMillis() - startTime) + "ms");
 
         current.setAnswer(answer);
 
@@ -152,6 +165,16 @@ public class FlowImplementation implements IFlowHelper {
         setCurrent(flowData.question);
 
         return flowData;
+    }
+
+    @Override
+    public IBackFlow.BackFlowData getPrevious() {
+        IBackFlow.BackFlowData backFlowData = iBackFlow.getPreviousQuestion(current);
+
+        if (!backFlowData.isError)
+            setCurrent(backFlowData.question);
+
+        return backFlowData;
     }
 
     private FlowData getNextInternal(Question current) {
@@ -219,9 +242,9 @@ public class FlowImplementation implements IFlowHelper {
 
 
     /* skip when
-    + AnswerData scope demands
-    + skip pattern matches
-*/
+        + AnswerData scope demands
+        + skip pattern matches
+    */
     private boolean shouldSkip(Question question) {
 
         return shouldSkipBasedOnAnswerScope(question) ||

@@ -6,7 +6,6 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.puthuvaazhvu.mapping.other.Constants;
@@ -34,11 +33,11 @@ public class Utils {
         return context.getResources().getString(id);
     }
 
-    public static void showErrorMessage(int msgID, Context context) {
-        showErrorMessage(context.getString(msgID), context);
+    public static void showMessageToast(int msgID, Context context) {
+        showMessageToast(context.getString(msgID), context);
     }
 
-    public static void showErrorMessage(String msg, Context context) {
+    public static void showMessageToast(String msg, Context context) {
         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
     }
 
@@ -48,7 +47,7 @@ public class Utils {
             InputStream is = context.getAssets().open(fileName);
             json = readFromInputStream(is);
         } catch (IOException ex) {
-            Log.e(Constants.LOG_TAG, "Error reading the JSON file from assets. " + ex.getMessage());
+            Timber.e("Error reading the JSON file from assets. " + ex.getMessage());
         }
         return json;
     }
@@ -62,7 +61,7 @@ public class Utils {
             is.close();
             json = new String(buffer, "UTF-8");
         } catch (IOException ex) {
-            Log.i(Constants.LOG_TAG, "Error reading the JSON file from assets. " + ex.getMessage());
+            Timber.e("Error reading the JSON file from assets. " + ex.getMessage());
         }
         return json;
     }
@@ -98,15 +97,15 @@ public class Utils {
         return result;
     }
 
-    public static boolean isPermissionGranted(Activity context, String... permissions) {
+    public static boolean isPermissionGranted(Activity context, int requestCode, String... permissions) {
         if (Build.VERSION.SDK_INT >= 23) {
             List<String> nonPermissions = hasPermissions(context, permissions);
             if (nonPermissions.size() <= 0) {
-                Log.i(Constants.LOG_TAG, "Permissions are granted " + permissions);
+                Timber.i("Permissions are granted " + permissions);
                 return true;
             } else {
                 ActivityCompat.requestPermissions(context
-                        , permissions, 1);
+                        , permissions, requestCode);
                 return false;
             }
         } else {
@@ -144,7 +143,8 @@ public class Utils {
                 (!forRead && isExternalStorageWritable())) {
 
             File root = Environment.getExternalStorageDirectory();
-            if (!root.exists()) {
+            positive = root.exists();
+            if (!positive) {
                 positive = root.mkdir();
             }
 

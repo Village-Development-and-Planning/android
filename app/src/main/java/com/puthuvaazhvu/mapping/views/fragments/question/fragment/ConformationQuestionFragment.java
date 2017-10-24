@@ -14,7 +14,6 @@ import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
  * Created by muthuveerappans on 10/12/17.
  */
 
-// TODO: think for back function
 public class ConformationQuestionFragment extends SingleQuestionFragmentBase {
     private QuestionData questionData;
 

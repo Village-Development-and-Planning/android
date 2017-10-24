@@ -20,7 +20,7 @@ public class QuestionFlow extends BaseObject implements Parcelable {
     }
 
     public enum Validation {
-        NONE, NUMBER, SURVEYOR_CODE
+        NONE, NUMBER, TEXT
     }
 
     public enum UI {
@@ -69,10 +69,10 @@ public class QuestionFlow extends BaseObject implements Parcelable {
         }
 
         switch (validation) {
-            case "NUMBER":
+            case "[0-9]+":
                 return Validation.NUMBER;
-            case "SURVEYOR_CODE":
-                return Validation.SURVEYOR_CODE;
+            case "TEXT":
+                return Validation.TEXT;
             default:
                 return Validation.NONE;
         }

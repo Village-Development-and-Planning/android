@@ -1,22 +1,25 @@
-package com.puthuvaazhvu.mapping.views.activities;
+package com.puthuvaazhvu.mapping.views.activities.main;
 
-import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.gson.JsonObject;
+import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.data.DataRepository;
 import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.DataFileCreator;
-import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.GridQuestionData;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
 import com.puthuvaazhvu.mapping.views.helpers.FlowHelper;
 import com.puthuvaazhvu.mapping.views.helpers.FlowType;
-import com.puthuvaazhvu.mapping.views.helpers.IFlowHelper;
+import com.puthuvaazhvu.mapping.views.helpers.next_flow.IFlow;
 import com.puthuvaazhvu.mapping.views.helpers.ResponseData;
+import com.puthuvaazhvu.mapping.views.helpers.back_navigation.IBackFlow;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -35,12 +38,16 @@ public class Presenter implements Contract.UserAction {
 
     private Survey survey;
 
+    private final Handler uiHandler;
+
     private final SaveToFile saveToFile;
 
-    public Presenter(Contract.View view, DataRepository<Survey> dataRepository) {
+    public Presenter(Contract.View view, DataRepository<Survey> dataRepository, SaveToFile saveToFile, Handler uiHandler) {
         this.activityView = view;
         this.dataRepository = dataRepository;
-        this.saveToFile = SaveToFile.getInstance();
+        this.saveToFile = saveToFile;
+
+        this.uiHandler = uiHandler;
     }
 
     @Override
@@ -90,21 +97,34 @@ public class Presenter implements Contract.UserAction {
 
     @Override
     public void dumpSurveyToFile() {
+
+        activityView.showLoading(R.string.survey_file_saving_msg);
+
         JsonObject resultSurveyJson = survey.getAsJson().getAsJsonObject();
         Timber.i("Survey dump: \n" + resultSurveyJson.toString());
 
         File fileToSave = DataFileCreator.getFileToDumpSurvey(survey.getId(), false);
 
-        dumpToFile(resultSurveyJson.toString(), fileToSave);
+        if (fileToSave != null)
+            dumpToFile(resultSurveyJson.toString(), fileToSave);
     }
 
     @Override
-    public void updateCurrentQuestion(QuestionData questionData) {
+    public void updateCurrentQuestion(final QuestionData questionData, final Runnable runnable) {
         if (flowHelper == null) {
             Timber.e(Constants.LOG_TAG, "The method is called too early? Call initData()/loadSurvey() first.");
             return;
         }
-        flowHelper.update(ResponseData.adapter(questionData));
+
+        // this seems to be a little heavy process, so run in background thread.
+        // references does'nt matter as the process is not too big to leak memory.
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                flowHelper.update(ResponseData.adapter(questionData));
+                uiHandler.post(runnable);
+            }
+        }).start();
     }
 
     @Override
@@ -115,7 +135,7 @@ public class Presenter implements Contract.UserAction {
         }
 
         // 1. get the next question to be shown
-        IFlowHelper.FlowData flowData = flowHelper.getNext();
+        IFlow.FlowData flowData = flowHelper.getNext();
 
         // 2. remove the answered questions from the stack.
         //    This comes 2nd because the remove question are populated in the flow helper only.
@@ -131,6 +151,23 @@ public class Presenter implements Contract.UserAction {
             showSingleQuestionUI(question);
         } else if (flowData.flowType == FlowType.END) {
             activityView.onSurveyEnd();
+        }
+    }
+
+    @Override
+    public void getPrevious() {
+        if (flowHelper == null) {
+            Timber.e(Constants.LOG_TAG, "The method is called too early? Call initData()/loadSurvey() first.");
+            return;
+        }
+
+        IBackFlow.BackFlowData backFlowData = flowHelper.getPrevious();
+
+        if (backFlowData.isError) {
+            activityView.onError(R.string.cannot_go_back);
+        } else {
+            Question question = backFlowData.question;
+            showSingleQuestionUI(question);
         }
     }
 
@@ -165,11 +202,18 @@ public class Presenter implements Contract.UserAction {
             @Override
             public void onFileSaved() {
                 Timber.i("The data is saved to the file successfully.");
+                activityView.hideLoading();
+                activityView.shouldShowSummary(survey);
             }
 
             @Override
             public void onErrorWhileSaving(String message) {
-                Timber.e("Error while saving file: " + message);
+                String errorMessage = "Error while saving file: " + message;
+                Timber.e(errorMessage);
+                activityView.hideLoading();
+
+                // send report to fabric.io
+                Crashlytics.logException(new Exception(errorMessage));
             }
         });
     }

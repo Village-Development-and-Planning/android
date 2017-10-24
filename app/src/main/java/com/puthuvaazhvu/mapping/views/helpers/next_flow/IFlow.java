@@ -1,6 +1,9 @@
-package com.puthuvaazhvu.mapping.views.helpers;
+package com.puthuvaazhvu.mapping.views.helpers.next_flow;
 
 import com.puthuvaazhvu.mapping.modals.Question;
+import com.puthuvaazhvu.mapping.views.helpers.FlowType;
+import com.puthuvaazhvu.mapping.views.helpers.ResponseData;
+import com.puthuvaazhvu.mapping.views.helpers.back_navigation.IBackFlow;
 
 import java.util.ArrayList;
 
@@ -8,7 +11,7 @@ import java.util.ArrayList;
  * Created by muthuveerappans on 10/15/17.
  */
 
-public interface IFlowHelper {
+public interface IFlow {
 
     /**
      * Gets the current question that the imaginary pointer is pointing to
@@ -20,25 +23,25 @@ public interface IFlowHelper {
     /**
      * Finishes the current question and moves to the next one
      *
-     * @return Instance of {@link IFlowHelper}
+     * @return Instance of {@link IFlow}
      */
-    IFlowHelper finishCurrent();
+    IFlow finishCurrent();
 
     /**
      * Moves to the particular child of the current question
      *
      * @param index
-     * @return Instance of {@link IFlowHelper}
+     * @return Instance of {@link IFlow}
      */
-    IFlowHelper moveToIndex(int index);
+    IFlow moveToIndex(int index);
 
     /**
      * Updates the current question with the answer
      *
      * @param responseData The data that contains the answer
-     * @return Instance of {@link IFlowHelper}
+     * @return Instance of {@link IFlow}
      */
-    IFlowHelper update(ResponseData responseData);
+    IFlow update(ResponseData responseData);
 
     ArrayList<Question> emptyToBeRemovedList();
 
@@ -49,6 +52,8 @@ public interface IFlowHelper {
      * @return The next question to be processed
      */
     FlowData getNext();
+
+    IBackFlow.BackFlowData getPrevious();
 
     class FlowData {
         public Question question;

@@ -13,11 +13,17 @@ import java.util.ArrayList;
 
 public class ResponseData {
     public final String id;
+    public final String rawNumber;
     public final ArrayList<Option> response;
 
-    public ResponseData(String id, ArrayList<Option> response) {
+    public ResponseData(String id, String rawNumber, ArrayList<Option> response) {
         this.id = id;
+        this.rawNumber = rawNumber;
         this.response = response;
+    }
+
+    public String getRawNumber() {
+        return rawNumber;
     }
 
     public String getId() {
@@ -30,6 +36,7 @@ public class ResponseData {
 
     public static ResponseData adapter(QuestionData questionData) {
         String id = questionData.getSingleQuestion().getId();
+        String rawNumber = questionData.getSingleQuestion().getRawNumber();
 
         OptionData responseData = questionData.getResponseData();
         if (responseData == null) {
@@ -46,6 +53,6 @@ public class ResponseData {
         ArrayList<Option> response = new ArrayList<>();
         response.addAll(responseAnswerData.getOption());
 
-        return new ResponseData(id, response);
+        return new ResponseData(id, rawNumber, response);
     }
 }

@@ -42,4 +42,5 @@ ext {
     espressoVersion = '2.2.2'
     apacheCommonsLangVersion = '4.1'
     timberVersion = '4.5.1'
+    googlePlayServicesVersion = '11.4.2'
 }

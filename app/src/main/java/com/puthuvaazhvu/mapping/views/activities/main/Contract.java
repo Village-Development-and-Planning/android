@@ -1,4 +1,4 @@
-package com.puthuvaazhvu.mapping.views.activities;
+package com.puthuvaazhvu.mapping.views.activities.main;
 
 import android.support.annotation.VisibleForTesting;
 
@@ -18,7 +18,7 @@ public interface Contract {
     interface View {
         void onSurveyLoaded(Survey survey);
 
-        void onError(String message);
+        void onError(int messageID);
 
         /**
          * Callback called when the children questions need to be shown in a grid
@@ -49,6 +49,8 @@ public interface Contract {
          */
         void shouldShowConformationQuestion(QuestionData question);
 
+        void shouldShowSummary(Survey survey);
+
         void onSurveyEnd();
 
         /**
@@ -64,6 +66,10 @@ public interface Contract {
          * @param questions The list of removal questions.
          */
         void remove(ArrayList<Question> questions);
+
+        void showLoading(int messageID);
+
+        void hideLoading();
     }
 
     interface UserAction {
@@ -77,6 +83,8 @@ public interface Contract {
          */
         void getNext();
 
+        void getPrevious();
+
         /**
          * Main starting point of the questions flow for the UI
          */
@@ -89,7 +97,7 @@ public interface Contract {
          *
          * @param currentQuestion
          */
-        void updateCurrentQuestion(QuestionData currentQuestion);
+        void updateCurrentQuestion(QuestionData currentQuestion, Runnable runnable);
 
         /**
          * Set the current question for the pointer to point to. This will be shown in the UI.

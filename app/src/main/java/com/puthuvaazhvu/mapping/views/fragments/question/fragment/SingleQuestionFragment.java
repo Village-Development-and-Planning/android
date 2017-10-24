@@ -43,7 +43,10 @@ public class SingleQuestionFragment extends SingleQuestionFragmentBase implement
         questionData = getArguments().getParcelable("questionData");
 
         String questionText = questionData.getSingleQuestion().getText();
-        getQuestion_text().setText(questionText);
+        String rawNumber = questionData.getSingleQuestion().getRawNumber();
+
+        String text = rawNumber + ". " + questionText;
+        getQuestion_text().setText(text);
 
         loadCorrectOptionFragment();
     }

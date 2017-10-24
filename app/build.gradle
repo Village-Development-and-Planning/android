@@ -77,6 +77,8 @@ dependencies {
     compile "com.android.support.constraint:constraint-layout:$rootProject.ext.constraintLayoutVersion"
     compile "org.apache.commons:commons-collections4:$rootProject.ext.apacheCommonsLangVersion"
 
+    compile "com.google.android.gms:play-services-location:$rootProject.ext.googlePlayServicesVersion"
+
     // for logging
     compile "com.jakewharton.timber:timber:$rootProject.ext.timberVersion"
 

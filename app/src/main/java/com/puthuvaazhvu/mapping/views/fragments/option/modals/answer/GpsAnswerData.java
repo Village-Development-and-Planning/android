@@ -15,20 +15,20 @@ import static com.google.gson.JsonNull.INSTANCE;
  */
 
 public class GpsAnswerData extends AnswerData {
-    private final long lat;
-    private final long lng;
+    private final double lat;
+    private final double lng;
 
-    public GpsAnswerData(String questionID, String questionText, long lat, long lng) {
+    public GpsAnswerData(String questionID, String questionText, double lat, double lng) {
         super(questionID, questionText);
         this.lat = lat;
         this.lng = lng;
     }
 
-    public long getLat() {
+    public double getLat() {
         return lat;
     }
 
-    public long getLng() {
+    public double getLng() {
         return lng;
     }
 
@@ -53,8 +53,8 @@ public class GpsAnswerData extends AnswerData {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
-        dest.writeLong(this.lat);
-        dest.writeLong(this.lng);
+        dest.writeDouble(this.lat);
+        dest.writeDouble(this.lng);
     }
 
     protected GpsAnswerData(Parcel in) {

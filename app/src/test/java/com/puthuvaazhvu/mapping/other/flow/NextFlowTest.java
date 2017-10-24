@@ -1,4 +1,4 @@
-package com.puthuvaazhvu.mapping.other;
+package com.puthuvaazhvu.mapping.other.flow;
 
 import com.puthuvaazhvu.mapping.modals.ModalHelpers;
 import com.puthuvaazhvu.mapping.modals.Question;
@@ -8,8 +8,8 @@ import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.InputAnswer
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.SingleAnswerData;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
 import com.puthuvaazhvu.mapping.views.helpers.FlowType;
-import com.puthuvaazhvu.mapping.views.helpers.IFlowHelper;
-import com.puthuvaazhvu.mapping.views.helpers.FlowImplementation;
+import com.puthuvaazhvu.mapping.views.helpers.next_flow.IFlow;
+import com.puthuvaazhvu.mapping.views.helpers.next_flow.FlowImplementation;
 import com.puthuvaazhvu.mapping.views.helpers.ResponseData;
 
 import org.junit.Before;
@@ -32,7 +32,7 @@ import static org.mockito.Mockito.verify;
  */
 
 @RunWith(MockitoJUnitRunner.class)
-public class FlowTest {
+public class NextFlowTest {
 
     private Survey survey;
     private FlowImplementation flowImplementation;
@@ -141,7 +141,7 @@ public class FlowTest {
         flowImplementation.update(ResponseData.adapter(data)).getCurrent();
 
         // get the next question
-        IFlowHelper.FlowData flowData = flowImplementation.getNext();
+        IFlow.FlowData flowData = flowImplementation.getNext();
 
         assertThat(flowData, notNullValue());
         assertThat(flowData.flowType, is(FlowType.GRID));
@@ -193,7 +193,7 @@ public class FlowTest {
         }
 
         flowImplementation.setCurrentForTesting(current);
-        IFlowHelper.FlowData flowData = flowImplementation.getNext();
+        IFlow.FlowData flowData = flowImplementation.getNext();
 
         assertThat(flowData.flowType, is(FlowType.SINGLE));
         assertThat(flowData.question.getRawNumber(), is("2.1"));
@@ -270,7 +270,7 @@ public class FlowTest {
         }
 
         flowImplementation.setCurrentForTesting(current); // current should be populated by now
-        IFlowHelper.FlowData flowData = flowImplementation.getNext();
+        IFlow.FlowData flowData = flowImplementation.getNext();
 
         assertThat(flowData.flowType, is(FlowType.SINGLE));
         assertThat(flowData.question.getRawNumber(), is("2"));
@@ -292,7 +292,7 @@ public class FlowTest {
 
         flowImplementation.update(ResponseData.adapter(data));
 
-        IFlowHelper.FlowData flowData = flowImplementation.getNext();
+        IFlow.FlowData flowData = flowImplementation.getNext();
 
         assertThat(flowData.flowType, is(FlowType.GRID));
         assertThat(flowData.question.getRawNumber(), is("2.1.7"));

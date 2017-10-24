@@ -5,7 +5,6 @@ import android.app.Application;
 import com.crashlytics.android.Crashlytics;
 import com.puthuvaazhvu.mapping.BuildConfig;
 import com.puthuvaazhvu.mapping.other.Constants;
-
 import io.fabric.sdk.android.Fabric;
 import timber.log.Timber;
 

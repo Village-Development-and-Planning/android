@@ -25,7 +25,7 @@ public class StackFragmentManagerReceiver implements IStackFragmentManager {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         addFragment(fragmentTransaction, fragment, tag);
         fragments.add(fragment);
-        fragmentTransaction.commit();
+        fragmentTransaction.commitAllowingStateLoss();
     }
 
     @Override
@@ -35,7 +35,7 @@ public class StackFragmentManagerReceiver implements IStackFragmentManager {
             removeFragment(fragmentTransaction, fragment);
             fragments.remove(fragment);
         }
-        fragmentTransaction.commit();
+        fragmentTransaction.commitAllowingStateLoss();
     }
 
     @Override
@@ -45,7 +45,7 @@ public class StackFragmentManagerReceiver implements IStackFragmentManager {
             removeFragment(fragmentTransaction, f);
             this.fragments.remove(f);
         }
-        fragmentTransaction.commit();
+        fragmentTransaction.commitAllowingStateLoss();
     }
 
     @Override
@@ -58,7 +58,7 @@ public class StackFragmentManagerReceiver implements IStackFragmentManager {
         return fragments.size();
     }
 
-    public ArrayList<Fragment> getAdddeFragments() {
+    public ArrayList<Fragment> getAddedFragments() {
         return fragments;
     }
 

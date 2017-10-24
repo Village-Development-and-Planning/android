@@ -2,6 +2,7 @@ package com.puthuvaazhvu.mapping.views.fragments.option.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,7 +39,19 @@ public class EditTextOptionFragment extends OptionsFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         optionData = getArguments().getParcelable("optionData");
         editText = view.findViewById(R.id.input_edit_text);
-        editText.setContentDescription(optionData.getQuestionID());
+        editText.setContentDescription(optionData.getQuestionRawNumber());
+
+        switch (optionData.getValidation()) {
+            case NUMBER:
+                editText.setRawInputType(InputType.TYPE_CLASS_NUMBER);
+                break;
+            case TEXT:
+                editText.setRawInputType(InputType.TYPE_CLASS_TEXT);
+                break;
+            default:
+                editText.setRawInputType(InputType.TYPE_CLASS_TEXT);
+                break;
+        }
     }
 
     @Override

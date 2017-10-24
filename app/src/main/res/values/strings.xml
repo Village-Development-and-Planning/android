@@ -1,21 +1,33 @@
 <resources>
     <string name="app_name">Mapping</string>
 
+    <!--others-->
+    <string name="retry">Retry</string>
+    <string name="no">NO</string>
+    <string name="summary">SUMMARY</string>
+    <string name="yes">YES</string>
+    <string name="press">PRESS</string>
+    <string name="tag_line">A Tamilnadu government initiative</string>
+    <string name="enter_cst">Enter your CST code</string>
+    <string name="survey_file_saving_msg">Saving the survey. Please wait...</string>
+
+    <!--success-->
+    <string name="gps_recorded_successfully">GPS recorded successfully</string>
+
     <!--errors-->
     <string name="no_data">Cannot get the required optionOptionData.</string>
     <string name="question_iteration_error">Cannot proceed</string>
     <string name="survey_incomplete">Please complete all the questions</string>
-    <string name="enter_cst">Enter your CST code</string>
-    <string name="tag_line">A Tamilnadu government initiative.</string>
-    <string name="press">PRESS</string>
     <string name="options_not_entered_err">Please provide valid options</string>
-    <string name="no">NO</string>
-    <string name="yes">YES</string>
+    <string name="gps_connection_err">Error connection GPS</string>
+    <string name="gps_error_title">Error recording gps</string>
+    <string name="error_saving_survey">Error saving the survey</string>
+    <string name="cannot_go_back">Cannot go back</string>
 
-    <!--tamil translation-->
+    <!--others tamil translation-->
     <string name="next_ta">அடுத்த</string>
     <string name="back_ta">முன்னாடி</string>
-    <string name="dummy_question_ta">உங்களுடைய சர்வேயர் குறியீட்டை பதிவு செய்யவும்</string>
+    <string name="dummy_question_ta">1.1\nஉங்களுடைய சர்வேயர் குறியீட்டை பதிவு செய்யவும்</string>
     <string name="dummy_option_ta">விருப்பம்</string>
     <string name="press_ta">அழுத்து</string>
     <string name="record_end_gps">RECORD END POINT GPS</string>

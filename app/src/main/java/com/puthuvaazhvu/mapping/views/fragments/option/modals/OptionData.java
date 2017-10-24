@@ -24,27 +24,31 @@ public class OptionData implements Parcelable {
     }
 
     private final String questionID;
+    private final String questionRawNumber;
     private final String questionText;
-    private AnswerData answerData;
     private final Type type;
     private final Validation validation;
-    private final ArrayList<SingleOptionData> singleOptionDatas;
+    private final ArrayList<SingleOptionData> singleOptionData;
 
-    public OptionData(String questionID, String questionText, AnswerData answerData, Type type, Validation validation, ArrayList<SingleOptionData> singleOptionDatas) {
+    private AnswerData answerData;
+
+    public OptionData(String questionID, String questionRawNumber, String questionText, AnswerData answerData, Type type, Validation validation, ArrayList<SingleOptionData> singleOptionData) {
         this.questionID = questionID;
+        this.questionRawNumber = questionRawNumber;
         this.questionText = questionText;
         this.answerData = answerData;
         this.type = type;
         this.validation = validation;
-        this.singleOptionDatas = singleOptionDatas;
+        this.singleOptionData = singleOptionData;
     }
 
-    public OptionData(String questionID, String questionText, Type type, Validation validation, ArrayList<SingleOptionData> singleOptionDatas) {
+    public OptionData(String questionID, String questionRawNumber, String questionText, Type type, Validation validation, ArrayList<SingleOptionData> singleOptionData) {
         this.questionID = questionID;
         this.questionText = questionText;
         this.type = type;
         this.validation = validation;
-        this.singleOptionDatas = singleOptionDatas;
+        this.singleOptionData = singleOptionData;
+        this.questionRawNumber = questionRawNumber;
     }
 
     public String getQuestionID() {
@@ -68,11 +72,15 @@ public class OptionData implements Parcelable {
     }
 
     public ArrayList<SingleOptionData> getOptions() {
-        return singleOptionDatas;
+        return singleOptionData;
     }
 
     public void setAnswerData(AnswerData answerData) {
         this.answerData = answerData;
+    }
+
+    public String getQuestionRawNumber() {
+        return questionRawNumber;
     }
 
     @Override
@@ -87,7 +95,8 @@ public class OptionData implements Parcelable {
         dest.writeParcelable(this.answerData, flags);
         dest.writeInt(this.type == null ? -1 : this.type.ordinal());
         dest.writeInt(this.validation == null ? -1 : this.validation.ordinal());
-        dest.writeTypedList(this.singleOptionDatas);
+        dest.writeTypedList(this.singleOptionData);
+        dest.writeString(this.questionRawNumber);
     }
 
     protected OptionData(Parcel in) {
@@ -98,7 +107,8 @@ public class OptionData implements Parcelable {
         this.type = tmpType == -1 ? null : Type.values()[tmpType];
         int tmpValidation = in.readInt();
         this.validation = tmpValidation == -1 ? null : Validation.values()[tmpValidation];
-        this.singleOptionDatas = in.createTypedArrayList(SingleOptionData.CREATOR);
+        this.singleOptionData = in.createTypedArrayList(SingleOptionData.CREATOR);
+        this.questionRawNumber = in.readString();
     }
 
     public static final Creator<OptionData> CREATOR = new Creator<OptionData>() {
@@ -137,7 +147,7 @@ public class OptionData implements Parcelable {
             validation = getValidationFromFlow(question.getFlowPattern().getQuestionFlow());
         }
 
-        return new OptionData(questionID, questionText, type, validation, optionsConverted);
+        return new OptionData(questionID, question.getRawNumber(), questionText, type, validation, optionsConverted);
     }
 
     public static Validation getValidationFromFlow(QuestionFlow flow) {
@@ -148,7 +158,7 @@ public class OptionData implements Parcelable {
         switch (flow.getValidation()) {
             case NUMBER:
                 return Validation.NUMBER;
-            case SURVEYOR_CODE:
+            case TEXT:
                 return Validation.TEXT;
             default:
                 return Validation.NONE;

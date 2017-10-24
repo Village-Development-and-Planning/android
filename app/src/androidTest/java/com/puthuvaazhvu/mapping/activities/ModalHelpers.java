@@ -13,10 +13,11 @@ import com.puthuvaazhvu.mapping.utils.Utils;
 public class ModalHelpers {
 
     public static Survey getSurvey(Context context) {
-        String surveyString = Utils.readFromAssetsFile(context, "survey_data_test_UI.json");
+        String surveyString = Utils.readFromAssetsFile(context, "survey_data.json");
 
         JsonParser jsonParser = new JsonParser();
 
-        return new Survey(jsonParser.parse(surveyString).getAsJsonObject());
+        Survey survey = new Survey(jsonParser.parse(surveyString).getAsJsonObject());
+        return survey;
     }
 }

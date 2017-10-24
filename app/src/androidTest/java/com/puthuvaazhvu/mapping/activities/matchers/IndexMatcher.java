@@ -2,8 +2,6 @@ package com.puthuvaazhvu.mapping.activities.matchers;
 
 import android.view.View;
 
-import com.puthuvaazhvu.mapping.views.activities.Contract;
-
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
 import org.hamcrest.Matcher;

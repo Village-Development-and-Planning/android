@@ -9,12 +9,9 @@ import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.activities.robot.QuestionFragmentRobot;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
-import com.puthuvaazhvu.mapping.views.activities.MainActivity;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.OptionData;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.SingleOptionData;
+import com.puthuvaazhvu.mapping.views.activities.main.MainActivity;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.GridQuestionData;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
-import com.puthuvaazhvu.mapping.views.fragments.question.modals.SingleQuestion;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -24,7 +21,11 @@ import org.junit.runner.RunWith;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static android.support.v4.util.Preconditions.checkArgument;
@@ -57,6 +58,20 @@ public class MainActivityTest {
         activity = mActivityTestRule.getActivity();
         container = activity.findViewById(R.id.container);
         survey = ModalHelpers.getSurvey(activity);
+    }
+
+    @Test
+    public void test_shouldShowSummary_method() {
+        activity.shouldShowSummary(survey);
+        getInstrumentation().waitForIdleSync();
+        onView(withText(activity.getString(R.string.summary))).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void test_showLoading_method() {
+        activity.showLoading(R.string.app_name);
+        getInstrumentation().waitForIdleSync();
+        onView(withText(activity.getString(R.string.app_name))).check(matches(isDisplayed()));
     }
 
     @Test
@@ -132,13 +147,13 @@ public class MainActivityTest {
         questionFragmentRobot.checkAndClickNextButton(container);
         questionFragmentRobot.checkForToast(activity.getString(R.string.options_not_entered_err));
 
-        questionFragmentRobot.enterInFragmentEdt("INPUT TEST", question.getId());
+        questionFragmentRobot.enterInFragmentEdt("123", question.getRawNumber());
 
         questionFragmentRobot.waitToSync();
 
         questionFragmentRobot.checkAndClickNextButton(container);
 
-        assertThat(questionData.getResponseData().getAnswerData().getOption().get(0).getText().getEnglish(), is("INPUT TEST"));
+        assertThat(questionData.getResponseData().getAnswerData().getOption().get(0).getText().getEnglish(), is("123"));
     }
 
     @Test

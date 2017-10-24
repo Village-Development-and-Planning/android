@@ -102,4 +102,23 @@ public class Answer extends BaseObject implements Parcelable {
 
         return jsonObject;
     }
+
+    @Override
+    public String toString() {
+        String string = "";
+
+        string += "Options count: " + options.size();
+        string += " Children [";
+
+        for (Question c : children) {
+            string += c.getRawNumber();
+            string += ", ";
+        }
+
+        string += "]";
+
+        string += " Reference question : " + questionReference.getRawNumber();
+
+        return string;
+    }
 }

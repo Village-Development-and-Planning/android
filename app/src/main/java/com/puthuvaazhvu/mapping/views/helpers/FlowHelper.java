@@ -1,6 +1,8 @@
 package com.puthuvaazhvu.mapping.views.helpers;
 
 import com.puthuvaazhvu.mapping.modals.Question;
+import com.puthuvaazhvu.mapping.views.helpers.back_navigation.IBackFlow;
+import com.puthuvaazhvu.mapping.views.helpers.next_flow.IFlow;
 
 import java.util.ArrayList;
 
@@ -9,33 +11,37 @@ import java.util.ArrayList;
  */
 
 public class FlowHelper {
-    private final IFlowHelper iFlowHelper;
+    private final IFlow iFlow;
 
-    public FlowHelper(IFlowHelper iFlowHelper) {
-        this.iFlowHelper = iFlowHelper;
+    public FlowHelper(IFlow iFlow) {
+        this.iFlow = iFlow;
     }
 
-    public IFlowHelper.FlowData getNext() {
-        return iFlowHelper.getNext();
+    public IFlow.FlowData getNext() {
+        return iFlow.getNext();
     }
 
-    public IFlowHelper update(ResponseData responseData) {
-        return iFlowHelper.update(responseData);
+    public IFlow update(ResponseData responseData) {
+        return iFlow.update(responseData);
     }
 
-    public IFlowHelper moveToIndex(int index) {
-        return iFlowHelper.moveToIndex(index);
+    public IFlow moveToIndex(int index) {
+        return iFlow.moveToIndex(index);
     }
 
-    public IFlowHelper finishCurrentQuestion() {
-        return iFlowHelper.finishCurrent();
+    public IFlow finishCurrentQuestion() {
+        return iFlow.finishCurrent();
     }
 
     public Question getCurrent() {
-        return iFlowHelper.getCurrent();
+        return iFlow.getCurrent();
+    }
+
+    public IBackFlow.BackFlowData getPrevious() {
+        return iFlow.getPrevious();
     }
 
     public ArrayList<Question> emptyToBeRemovedList() {
-        return iFlowHelper.emptyToBeRemovedList();
+        return iFlow.emptyToBeRemovedList();
     }
 }
