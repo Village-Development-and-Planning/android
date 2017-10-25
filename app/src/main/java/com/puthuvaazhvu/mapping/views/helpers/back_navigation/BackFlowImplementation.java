@@ -33,11 +33,7 @@ public class BackFlowImplementation implements IBackFlow {
 
         // for grid the answers will be already logged.
         if (current.getFlowPattern().getChildFlow().getUiToBeShown() == ChildFlow.UI.GRID) {
-            try {
-                eraseTheLastAnswer(current);
-            } catch (IllegalArgumentException e) {
-                // ignore
-            }
+            eraseTheLastAnswer(current);
         }
 
         Question parent = current.getParent();
@@ -96,7 +92,7 @@ public class BackFlowImplementation implements IBackFlow {
             Timber.i("New answer count: " + question.getAnswers().size());
 
         } else {
-            throw new IllegalArgumentException("The question " + question.getRawNumber() + " does'nt have an answer.");
+            Timber.i("The question " + question.getRawNumber() + " does'nt have an answer.");
         }
 
         return question;

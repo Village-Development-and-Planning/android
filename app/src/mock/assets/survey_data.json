@@ -1,7 +1,7 @@
 {
-  "_id": "59df1c13170d2c559211c74a",
-  "name": "Survey-Thu-Oct-12-13-08-55-IST-2017",
-  "description": "strata",
+  "_id": "59eadef25b146a66ce5aff0e",
+  "name": "mapping_csv",
+  "description": "mapping_csv",
   "question": {
     "type": "ROOT",
     "options": [],
@@ -180,7 +180,7 @@
             },
             "question": {
               "ui": "INPUT",
-              "validation": "TEXT"
+              "validation": null
             },
             "answer": {
               "scope": "once"
@@ -238,7 +238,8 @@
             {
               "position": "0",
               "question": {
-                "options": [],
+                "options": [
+                ],
                 "children": [],
                 "text": {
                   "english": "Record GPS location of habitation (Start of the habitation)",
@@ -278,7 +279,7 @@
                     "question": {
                       "options": [
                         {
-                          "position": "1",
+                          "position": "0",
                           "option": {
                             "_id": "59d94d5ff5d04d1d3e12ee45",
                             "type": "GENERIC",
@@ -296,7 +297,7 @@
                         {
                           "position": "1",
                           "option": {
-                            "_id": "59d94d5ff5d04d1d3e12ee45",
+                            "_id": "59d94d5ff5d04d1d3e12ee45d",
                             "type": "GENERIC",
                             "text": {
                               "english": "TEST ROAD 2",
@@ -310,9 +311,9 @@
                           "_id": "59d94d60f5d04d1d3e12f402"
                         },
                         {
-                          "position": "1",
+                          "position": "2",
                           "option": {
-                            "_id": "59d94d5ff5d04d1d3e12ee45",
+                            "_id": "59d94d5ff5d04d1d3e12ee451",
                             "type": "GENERIC",
                             "text": {
                               "english": "TEST ROAD 3",
@@ -326,9 +327,9 @@
                           "_id": "59d94d60f5d04d1d3e12f402"
                         },
                         {
-                          "position": "1",
+                          "position": "3",
                           "option": {
-                            "_id": "59d94d5ff5d04d1d3e12ee45",
+                            "_id": "59d94d5ff5d04d1d3e12ee4544",
                             "type": "GENERIC",
                             "text": {
                               "english": "TEST ROAD 4",
@@ -342,9 +343,9 @@
                           "_id": "59d94d60f5d04d1d3e12f402"
                         },
                         {
-                          "position": "1",
+                          "position": "4",
                           "option": {
-                            "_id": "59d94d5ff5d04d1d3e12ee45",
+                            "_id": "59d94d5ff5d04d1d3e12ee45g",
                             "type": "GENERIC",
                             "text": {
                               "english": "TEST ROAD 5",
@@ -358,22 +359,21 @@
                           "_id": "59d94d60f5d04d1d3e12f402"
                         }
                       ],
-                      "children": [],
+                      "children": [
+                      ],
                       "text": {
                         "english": "Select a road",
                         "tamil": ""
                       },
                       "type": "GENERIC",
-                      "tags": "FILL_ROAD_NAME",
+                      "tags": "ROAD_NAME",
                       "number": "2.1.1",
                       "flow": {
                         "_tags": {
-                          "FILL_ROAD_NAME": "FILL_"
+                          "ROAD_NAME": false
                         },
                         "pre": {
-                          "fill": [
-                            "ROAD_NAME"
-                          ]
+                          "fill": []
                         },
                         "question": {
                           "ui": "SINGLE_CHOICE",
@@ -402,9 +402,12 @@
                         "tamil": "ஜி பி எஸ் விவரத்தைப் தேர்வு செய்யவும் (சாலையின் ஆரம்பத்தில்)"
                       },
                       "type": "GPS",
-                      "tags": "",
+                      "tags": "GPS",
                       "number": "2.1.2",
                       "flow": {
+                        "_tags": {
+                          "GPS": false
+                        },
                         "pre": {
                           "fill": []
                         },
@@ -1355,23 +1358,13 @@
                                       "option": {
                                         "type": "GENERIC",
                                         "text": {
-                                          "english": "Compound wall",
-                                          "tamil": "சுற்றுசுவர் "
-                                        }
-                                      }
-                                    },
-                                    {
-                                      "position": "2",
-                                      "option": {
-                                        "type": "GENERIC",
-                                        "text": {
                                           "english": "Steps",
                                           "tamil": "படித்துறை"
                                         }
                                       }
                                     },
                                     {
-                                      "position": "3",
+                                      "position": "2",
                                       "option": {
                                         "type": "GENERIC",
                                         "text": {
@@ -1381,7 +1374,7 @@
                                       }
                                     },
                                     {
-                                      "position": "4",
+                                      "position": "3",
                                       "option": {
                                         "type": "GENERIC",
                                         "text": {
@@ -1394,78 +1387,6 @@
                                   "children": [
                                     {
                                       "position": "1",
-                                      "question": {
-                                        "options": [
-                                          {
-                                            "position": "1",
-                                            "option": {
-                                              "type": "GENERIC",
-                                              "text": {
-                                                "english": "Picture 1",
-                                                "tamil": ""
-                                              }
-                                            }
-                                          },
-                                          {
-                                            "position": "2",
-                                            "option": {
-                                              "type": "GENERIC",
-                                              "text": {
-                                                "english": "Picture 2",
-                                                "tamil": ""
-                                              }
-                                            }
-                                          },
-                                          {
-                                            "position": "3",
-                                            "option": {
-                                              "type": "GENERIC",
-                                              "text": {
-                                                "english": "Picture 3",
-                                                "tamil": ""
-                                              }
-                                            }
-                                          }
-                                        ],
-                                        "children": [],
-                                        "text": {
-                                          "english": "What is the state of the compound wall?",
-                                          "tamil": "சுற்றுசுவரின் நிலை (தரம்) என்ன?"
-                                        },
-                                        "type": "SINGLE_CHOICE",
-                                        "tags": "IMAGES",
-                                        "number": "2.1.7.4.4.1",
-                                        "flow": {
-                                          "_tags": {
-                                            "IMAGES": "IMAGES"
-                                          },
-                                          "pre": {
-                                            "fill": [],
-                                            "skipUnless": {
-                                              "question": "2.1.7.4.4",
-                                              "option": "1"
-                                            }
-                                          },
-                                          "question": {
-                                            "ui": "SINGLE_CHOICE",
-                                            "validation": null,
-                                            "showImage": true
-                                          },
-                                          "answer": {
-                                            "scope": "once"
-                                          },
-                                          "child": {
-                                            "strategy": "cascade"
-                                          },
-                                          "post": [],
-                                          "exit": {
-                                            "strategy": "parent"
-                                          }
-                                        }
-                                      }
-                                    },
-                                    {
-                                      "position": "2",
                                       "question": {
                                         "options": [
                                           {
@@ -1496,7 +1417,7 @@
                                         },
                                         "type": "SINGLE_CHOICE",
                                         "tags": "",
-                                        "number": "2.1.7.4.4.2",
+                                        "number": "2.1.7.4.4.1",
                                         "flow": {
                                           "pre": {
                                             "fill": [],
@@ -8899,10 +8820,14 @@
                                   "number": "2.1.7.21.1",
                                   "flow": {
                                     "pre": {
-                                      "fill": []
+                                      "fill": [],
+                                      "skipUnless": {
+                                        "question": "2.1.7.21",
+                                        "option": "1"
+                                      }
                                     },
                                     "question": {
-                                      "ui": "",
+                                      "ui": "GPS",
                                       "validation": null
                                     },
                                     "answer": {
@@ -8923,7 +8848,7 @@
                               "english": "Tag the end of the road",
                               "tamil": "ஜி பி எஸ் விவரத்தைப் தேர்வு செய்யவும் (சாலையின் முடிவில்)"
                             },
-                            "type": "GPS",
+                            "type": "SINGLE_CHOICE",
                             "tags": "",
                             "number": "2.1.7.21",
                             "flow": {
@@ -8931,7 +8856,7 @@
                                 "fill": []
                               },
                               "question": {
-                                "ui": "GPS",
+                                "ui": "SINGLE_CHOICE",
                                 "validation": null
                               },
                               "answer": {
@@ -9687,23 +9612,13 @@
                                       "option": {
                                         "type": "GENERIC",
                                         "text": {
-                                          "english": "Compound wall",
-                                          "tamil": "சுற்றுசுவர் "
-                                        }
-                                      }
-                                    },
-                                    {
-                                      "position": "2",
-                                      "option": {
-                                        "type": "GENERIC",
-                                        "text": {
                                           "english": "Steps",
                                           "tamil": "படித்துறை"
                                         }
                                       }
                                     },
                                     {
-                                      "position": "3",
+                                      "position": "2",
                                       "option": {
                                         "type": "GENERIC",
                                         "text": {
@@ -9713,7 +9628,7 @@
                                       }
                                     },
                                     {
-                                      "position": "4",
+                                      "position": "3",
                                       "option": {
                                         "type": "GENERIC",
                                         "text": {
@@ -9726,78 +9641,6 @@
                                   "children": [
                                     {
                                       "position": "1",
-                                      "question": {
-                                        "options": [
-                                          {
-                                            "position": "1",
-                                            "option": {
-                                              "type": "GENERIC",
-                                              "text": {
-                                                "english": "Picture 1",
-                                                "tamil": ""
-                                              }
-                                            }
-                                          },
-                                          {
-                                            "position": "2",
-                                            "option": {
-                                              "type": "GENERIC",
-                                              "text": {
-                                                "english": "Picture 2",
-                                                "tamil": ""
-                                              }
-                                            }
-                                          },
-                                          {
-                                            "position": "3",
-                                            "option": {
-                                              "type": "GENERIC",
-                                              "text": {
-                                                "english": "Picture 3",
-                                                "tamil": ""
-                                              }
-                                            }
-                                          }
-                                        ],
-                                        "children": [],
-                                        "text": {
-                                          "english": "What is the state of the compound wall?",
-                                          "tamil": "சுற்றுசுவரின் நிலை (தரம்) என்ன?"
-                                        },
-                                        "type": "SINGLE_CHOICE",
-                                        "tags": "IMAGES",
-                                        "number": "2.2.4.4.1",
-                                        "flow": {
-                                          "_tags": {
-                                            "IMAGES": "IMAGES"
-                                          },
-                                          "pre": {
-                                            "fill": [],
-                                            "skipUnless": {
-                                              "question": "2.2.4.4",
-                                              "option": "1"
-                                            }
-                                          },
-                                          "question": {
-                                            "ui": "SINGLE_CHOICE",
-                                            "validation": null,
-                                            "showImage": true
-                                          },
-                                          "answer": {
-                                            "scope": "once"
-                                          },
-                                          "child": {
-                                            "strategy": "cascade"
-                                          },
-                                          "post": [],
-                                          "exit": {
-                                            "strategy": "parent"
-                                          }
-                                        }
-                                      }
-                                    },
-                                    {
-                                      "position": "2",
                                       "question": {
                                         "options": [
                                           {
@@ -9828,7 +9671,7 @@
                                         },
                                         "type": "SINGLE_CHOICE",
                                         "tags": "",
-                                        "number": "2.2.4.4.2",
+                                        "number": "2.2.4.4.1",
                                         "flow": {
                                           "pre": {
                                             "fill": [],
@@ -10270,7 +10113,7 @@
                                           "pre": {
                                             "fill": [],
                                             "skipUnless": {
-                                              "question": "2.5.2",
+                                              "question": "2.2.5.2",
                                               "option": "3"
                                             }
                                           },
@@ -13494,7 +13337,7 @@
                                           "pre": {
                                             "fill": [],
                                             "skipUnless": {
-                                              "question": "2.12.3",
+                                              "question": "2.2.12.3",
                                               "option": "4"
                                             }
                                           },
@@ -17234,7 +17077,7 @@
                                       "fill": []
                                     },
                                     "question": {
-                                      "ui": "",
+                                      "ui": "GPS",
                                       "validation": null
                                     },
                                     "answer": {
@@ -17263,7 +17106,7 @@
                                 "fill": []
                               },
                               "question": {
-                                "ui": "",
+                                "ui": "SINGLE_CHOICE",
                                 "validation": null
                               },
                               "answer": {
@@ -17284,7 +17127,7 @@
                         "english": "Tag facilities in the square",
                         "tamil": "மையப்பகுதியில் அமைந்துள்ள வசதிகளை குறிக்கவும்"
                       },
-                      "type": "CONFIRMATION",
+                      "type": "NONE",
                       "tags": "GRID_MULTIPLE",
                       "number": "2.2.1",
                       "flow": {
@@ -17320,7 +17163,7 @@
                   "english": "Tag a village square or center",
                   "tamil": "கிராமத்தின் மையப்பகுதி அல்லது பொதுவான சதுரம்போல் உள்ள பகுதியை குறிக்கவும்"
                 },
-                "type": "CONFIRMATION",
+                "type": "GENERIC",
                 "tags": "",
                 "number": "2.2",
                 "flow": {
@@ -17387,8 +17230,8 @@
       "exit": {
         "strategy": "END"
       }
-    },
-    "__v": 0,
-    "modifiedAt": "2017-10-12T07:38:59.109Z"
-  }
+    }
+  },
+  "__v": 0,
+  "modifiedAt": "2017-10-21T05:45:22.128Z"
 }

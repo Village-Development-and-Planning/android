@@ -57,10 +57,17 @@ public class DataModelTest {
         Question squareQuestion = habitationQuestion.getChildren().get(2);
         assertThat(squareQuestion.getRawNumber(), is("2.2"));
         assertThat(squareQuestion.getParent().getRawNumber(), is("2"));
-        assertThat(squareQuestion.getChildren().size(), is(22));
+        assertThat(squareQuestion.getChildren().size(), is(2));
 
-        assertThat(squareQuestion.getChildren().get(3).getChildren().get(0).getRawNumber(), is("2.2.3.1"));
-        assertThat(squareQuestion.getChildren().get(3).getChildren().get(0).getParent().getParent().getRawNumber(), is("2.2"));
+        assertThat(squareQuestion.getChildren().get(1).getChildren().get(1).getChildren().get(0).getRawNumber(), is("2.2.3.1"));
+        assertThat(squareQuestion
+                        .getChildren().get(1)
+                        .getChildren().get(1)
+                        .getChildren().get(0)
+                        .getParent()
+                        .getParent()
+                        .getParent().getRawNumber()
+                , is("2.2"));
 
         // pre flow test
         Question facilitiesInRoadQuestion = roadQuestion.getChildren().get(6);

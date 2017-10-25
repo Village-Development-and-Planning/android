@@ -140,7 +140,7 @@ public class MainActivityTest {
 
         questionFragmentRobot.waitToSync();
 
-        questionFragmentRobot.checkQuestionTextInFragment(question.getTextString());
+        questionFragmentRobot.checkQuestionTextInFragment("2.1.7.3.2. " + question.getTextString());
 
         // should show error when edt is empty
         // check if error is displayed if no option is selected
@@ -173,7 +173,7 @@ public class MainActivityTest {
 
         questionFragmentRobot.waitToSync();
 
-        questionFragmentRobot.checkQuestionTextInFragment(question.getTextString());
+        questionFragmentRobot.checkQuestionTextInFragment("2.1.3. " + question.getTextString());
 
         // check if error is displayed if no option is selected
         questionFragmentRobot.checkAndClickNextButton(container);
@@ -203,7 +203,7 @@ public class MainActivityTest {
 
         questionFragmentRobot.waitToSync();
 
-        questionFragmentRobot.checkQuestionTextInFragment(question.getTextString());
+        questionFragmentRobot.checkQuestionTextInFragment("2.1.7.4.4. " + question.getTextString());
 
         // check if error is displayed if no option is selected
         questionFragmentRobot.checkAndClickNextButton(container);
