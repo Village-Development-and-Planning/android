@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
+import android.view.Gravity;
 import android.widget.Toast;
 
 import com.puthuvaazhvu.mapping.other.Constants;
@@ -38,7 +39,9 @@ public class Utils {
     }
 
     public static void showMessageToast(String msg, Context context) {
-        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+        Toast toast = Toast.makeText(context, msg, Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.show();
     }
 
     public static String readFromAssetsFile(Context context, String fileName) {

@@ -1,7 +1,6 @@
 package com.puthuvaazhvu.mapping.views.helpers.next_flow;
 
 import android.support.annotation.VisibleForTesting;
-import android.util.Log;
 
 import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.flow.AnswerFlow;
@@ -10,7 +9,6 @@ import com.puthuvaazhvu.mapping.modals.flow.ExitFlow;
 import com.puthuvaazhvu.mapping.modals.flow.PreFlow;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
-import com.puthuvaazhvu.mapping.utils.deep_copy.DeepCopy;
 import com.puthuvaazhvu.mapping.views.helpers.FlowType;
 import com.puthuvaazhvu.mapping.views.helpers.ResponseData;
 import com.puthuvaazhvu.mapping.views.helpers.back_navigation.BackFlowImplementation;
@@ -54,7 +52,7 @@ public class FlowImplementation implements IFlow {
         Answer latestAnswer = current.getCurrentAnswer();
 
         if (latestAnswer != null) {
-            Question reference = latestAnswer.getQuestionReference();
+            Question reference = latestAnswer.getQuestionReferenceCopy();
             reference.setFinished(true); // set the finished flag to true so we can skip this Q when necessary
             setCurrent(reference.getParent());
         } else {
@@ -141,14 +139,7 @@ public class FlowImplementation implements IFlow {
 
                 } else if (exitFlow.getMode() == ExitFlow.Modes.PARENT) {
 
-                    Question parent;
-
-                    if (current.getCurrentAnswer().getChildren().isEmpty()) {
-                        parent = current.getCurrentAnswer().getQuestionReference().getParent();
-                    } else {
-                        parent = current.getCurrentAnswer().getQuestionReference();
-                    }
-
+                    Question parent = current.getCurrentAnswer().getQuestionReferenceCopy().getParent();
                     setCurrent(parent);
 
                 } else if (exitFlow.getMode() == ExitFlow.Modes.LOOP) {
@@ -299,7 +290,7 @@ public class FlowImplementation implements IFlow {
     private Answer getQuestionForSkip(String rawQuestionNumber) {
         for (int i = stack.size() - 1; i >= 0; i--) {
             Answer answer = stack.get(i);
-            Question question = answer.getQuestionReference();
+            Question question = answer.getQuestionReferenceCopy();
             if (question.getRawNumber().equals(rawQuestionNumber)) {
                 return answer;
             }

@@ -279,14 +279,32 @@ public class FlowImplementationTest {
 
     @Test
     public void test_getNext_skipFlow() {
-        Question question = root.getChildren().get(1).getChildren().get(1).getChildren().get(6).getChildren().get(0);
+        Question question;
+
+        question = root.getChildren().get(1).getChildren().get(1).getChildren().get(6);
+
+        assertThat(question.getRawNumber(), is("2.1.7"));
+
         flowImplementation.setCurrentForTesting(question);
+
         QuestionData data = QuestionData.adapter(question);
+
+        // add mock answer
+        OptionData responseData = OptionData.adapter(question);
+        // the option position is important as inside the code only that is checked for skip pattern
+        responseData.setAnswerData(new SingleAnswerData(question.getRawNumber(), question.getTextString(), "1", "TEST", "0"));
+        data.setResponseData(responseData);
+
+        flowImplementation.update(ResponseData.adapter(data));
+
+        question = flowImplementation.moveToIndex(0).getCurrent();
+
+        data = QuestionData.adapter(question);
 
         assertThat(question.getRawNumber(), is("2.1.7.3"));
 
         // add mock answer
-        OptionData responseData = OptionData.adapter(question);
+        responseData = OptionData.adapter(question);
         // the option position is important as inside the code only that is checked for skip pattern
         responseData.setAnswerData(new SingleAnswerData(question.getRawNumber(), question.getTextString(), "1", "NO", "0"));
         data.setResponseData(responseData);

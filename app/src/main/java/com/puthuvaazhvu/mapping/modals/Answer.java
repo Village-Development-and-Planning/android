@@ -6,9 +6,7 @@ import android.os.Parcelable;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.puthuvaazhvu.mapping.utils.deep_copy.DeepCopy;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -18,27 +16,19 @@ import java.util.ArrayList;
 public class Answer extends BaseObject implements Parcelable {
     private final ArrayList<Option> options;
     private final ArrayList<Question> children;
-    private final Question questionReference;
+    private final Question questionReferenceCopy;
 
     public Answer(ArrayList<Option> options, Question questionReference) {
         this.options = options;
-        this.questionReference = questionReference;
 
         this.children = new ArrayList<>();
 
-        if (questionReference != null)
-            this.children.addAll(questionReference.copy().getChildren());
-
-//        if (questionReference != null) {
-//            ArrayList<Question> originalChildren = questionReference.getChildren();
-//            for (Question c : originalChildren) {
-//                this.children.add(c.copy());
-//            }
-//
-////            for (Question ac : children) {
-////                ac.replaceParent(questionReference); // set the children parent as the current parent for back reference.
-////            }
-//        }
+        if (questionReference != null) {
+            this.questionReferenceCopy = questionReference.copy();
+            this.children.addAll(this.questionReferenceCopy.getChildren());
+        } else {
+            this.questionReferenceCopy = null;
+        }
     }
 
     @Override
@@ -62,21 +52,21 @@ public class Answer extends BaseObject implements Parcelable {
         return children;
     }
 
-    public Question getQuestionReference() {
-        return questionReference;
+    public Question getQuestionReferenceCopy() {
+        return questionReferenceCopy;
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeTypedList(this.options);
         dest.writeTypedList(this.children);
-        dest.writeParcelable(this.questionReference, flags);
+        dest.writeParcelable(this.questionReferenceCopy, flags);
     }
 
     protected Answer(Parcel in) {
         this.options = in.createTypedArrayList(Option.CREATOR);
         this.children = in.createTypedArrayList(Question.CREATOR);
-        this.questionReference = in.readParcelable(Question.class.getClassLoader());
+        this.questionReferenceCopy = in.readParcelable(Question.class.getClassLoader());
     }
 
     public static final Creator<Answer> CREATOR = new Creator<Answer>() {
@@ -127,7 +117,7 @@ public class Answer extends BaseObject implements Parcelable {
 
         string += "]";
 
-        string += " Reference question : " + questionReference.getRawNumber();
+        string += " Reference question : " + questionReferenceCopy.getRawNumber();
 
         return string;
     }
@@ -136,7 +126,7 @@ public class Answer extends BaseObject implements Parcelable {
     public Answer copy() {
         return new Answer(
                 options,
-                questionReference
+                questionReferenceCopy
         );
     }
 }

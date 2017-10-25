@@ -53,20 +53,13 @@ public class Question extends BaseObject implements Parcelable {
         this.parent = parent;
     }
 
-    // shallow copy
     public Question(Question other) {
         id = other.getId();
         position = other.getPosition();
         text = other.getText();
         type = other.getType();
         optionList = other.getOptionList();
-
-        ArrayList<Answer> answersCopy = new ArrayList<>();
-        for (Answer a : other.getAnswers()) {
-            answersCopy.add(a.copy());
-        }
-
-        answers = answersCopy;
+        answers = other.getAnswers();
         tag = other.getTag();
         modifiedAt = other.getModifiedAt();
         rawNumber = other.getRawNumber();
@@ -456,8 +449,32 @@ public class Question extends BaseObject implements Parcelable {
 
         ArrayList<Question> childrenCopy = new ArrayList<>();
 
+        // copy only the first siblings.
         for (Question c : children) {
-            childrenCopy.add(new Question(c));
+
+            // copy answers as well to avoid duplicate entries.
+            ArrayList<Answer> answersCopy = new ArrayList<>();
+            for (Answer a : c.getAnswers()) {
+                answersCopy.add(a.copy());
+            }
+
+            childrenCopy.add(
+                    new Question(
+                            c.id,
+                            c.position,
+                            c.text,
+                            c.type,
+                            c.optionList,
+                            answersCopy,
+                            c.tag,
+                            c.modifiedAt,
+                            c.rawNumber,
+                            c.children,
+                            c.info,
+                            c.flowPattern,
+                            c.parent
+                    )
+            );
         }
 
         return new Question(
