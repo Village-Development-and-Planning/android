@@ -68,18 +68,6 @@ public class MainActivityTest {
     }
 
     @Test
-    public void test_showLoading_method() {
-        activity.showLoading(R.string.app_name);
-        getInstrumentation().waitForIdleSync();
-        onView(withText(activity.getString(R.string.app_name))).check(matches(isDisplayed()));
-    }
-
-    @Test
-    public void test_info_question_UI() {
-
-    }
-
-    @Test
     public void test_grid_questions_UI() {
         //mock UI data
         // 2.1.7

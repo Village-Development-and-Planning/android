@@ -141,7 +141,14 @@ public class FlowImplementation implements IFlow {
 
                 } else if (exitFlow.getMode() == ExitFlow.Modes.PARENT) {
 
-                    Question parent = current.getCurrentAnswer().getQuestionReference().getParent();
+                    Question parent;
+
+                    if (current.getCurrentAnswer().getChildren().isEmpty()) {
+                        parent = current.getCurrentAnswer().getQuestionReference().getParent();
+                    } else {
+                        parent = current.getCurrentAnswer().getQuestionReference();
+                    }
+
                     setCurrent(parent);
 
                 } else if (exitFlow.getMode() == ExitFlow.Modes.LOOP) {

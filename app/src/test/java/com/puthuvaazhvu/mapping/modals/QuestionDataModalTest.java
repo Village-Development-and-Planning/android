@@ -8,8 +8,11 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 
+import static junit.framework.Assert.assertNotSame;
+import static junit.framework.Assert.assertSame;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 /**
  * Created by muthuveerappans on 10/19/17.
@@ -146,7 +149,11 @@ public class QuestionDataModalTest {
 
         Question child = mockAnswer.getChildren().get(1);
 
+        assertNotSame(child.getAnswers(), question.getChildren().get(1).getAnswers());
+
         assertThat(child.getRawNumber(), is("2.1"));
+
+        assertNotSame(child, question.getChildren().get(1));
 
         mockOptions = new ArrayList<>();
         mockOptions.add(new Option("1", null, null, null, "0"));
@@ -155,14 +162,16 @@ public class QuestionDataModalTest {
 
         mockAnswer = new Answer(
                 mockOptions,
-                question
+                child
         );
 
         child.setAnswer(mockAnswer);
 
+
         JsonObject jsonObject = question.getAsJson().getAsJsonObject();
 
         assertThat(jsonObject.get("answers").getAsJsonArray().size(), is(1));
+        assertThat(jsonObject.get("children").getAsJsonArray().get(1).getAsJsonObject().get("answers").getAsJsonArray().size(), is(0));
         assertThat(jsonObject.get("answers").getAsJsonArray().get(0)
                         .getAsJsonObject().get("children").getAsJsonArray().get(1)
                         .getAsJsonObject().get("answers").getAsJsonArray().size()

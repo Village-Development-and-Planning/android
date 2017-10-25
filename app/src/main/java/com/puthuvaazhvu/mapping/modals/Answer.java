@@ -22,19 +22,23 @@ public class Answer extends BaseObject implements Parcelable {
 
     public Answer(ArrayList<Option> options, Question questionReference) {
         this.options = options;
-        this.children = new ArrayList<>();
         this.questionReference = questionReference;
 
-        if (questionReference != null) {
-            ArrayList<Question> originalChildren = questionReference.getChildren();
-            for (Question c : originalChildren) {
-                this.children.add((Question) DeepCopy.copy(c));
-            }
+        this.children = new ArrayList<>();
 
-            for (Question ac : children) {
-                ac.replaceParent(questionReference); // set the children parent as the current parent for back reference.
-            }
-        }
+        if (questionReference != null)
+            this.children.addAll(questionReference.copy().getChildren());
+
+//        if (questionReference != null) {
+//            ArrayList<Question> originalChildren = questionReference.getChildren();
+//            for (Question c : originalChildren) {
+//                this.children.add(c.copy());
+//            }
+//
+////            for (Question ac : children) {
+////                ac.replaceParent(questionReference); // set the children parent as the current parent for back reference.
+////            }
+//        }
     }
 
     @Override
@@ -126,5 +130,13 @@ public class Answer extends BaseObject implements Parcelable {
         string += " Reference question : " + questionReference.getRawNumber();
 
         return string;
+    }
+
+    @Override
+    public Answer copy() {
+        return new Answer(
+                options,
+                questionReference
+        );
     }
 }

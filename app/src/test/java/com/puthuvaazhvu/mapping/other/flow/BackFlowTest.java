@@ -74,7 +74,6 @@ public class BackFlowTest {
     }
 
     private ArrayList<Question> addMockAnswer(Question question) {
-        ArrayList<Question> children = (ArrayList<Question>) DeepCopy.copy(question.getChildren());
         ArrayList<Option> options = new ArrayList<>();
 
         // add a random option
@@ -87,6 +86,6 @@ public class BackFlowTest {
 
         Answer answer = new Answer(options, question);
         question.setAnswer(answer);
-        return children;
+        return answer.getChildren();
     }
 }

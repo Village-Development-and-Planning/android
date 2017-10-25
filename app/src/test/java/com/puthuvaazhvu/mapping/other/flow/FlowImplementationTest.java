@@ -20,6 +20,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.ArrayList;
 import java.util.Random;
 
+import static junit.framework.Assert.assertSame;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -296,5 +297,46 @@ public class FlowImplementationTest {
 
         assertThat(flowData.flowType, is(FlowType.GRID));
         assertThat(flowData.question.getRawNumber(), is("2.1.7"));
+    }
+
+    @Test
+    public void test_getNext_cascadeFlow() {
+        Question question = root.getChildren().get(0);
+
+        assertThat(question.getRawNumber(), is("1"));
+
+        flowImplementation.setCurrentForTesting(question);
+
+        QuestionData data = QuestionData.adapter(question);
+
+        // add mock answer
+        OptionData responseData = OptionData.adapter(question);
+        // the option position is important as inside the code only that is checked for skip pattern
+        responseData.setAnswerData(new InputAnswerData(question.getRawNumber(), question.getTextString(), "TEST"));
+        data.setResponseData(responseData);
+
+        flowImplementation.update(ResponseData.adapter(data));
+
+        IFlow.FlowData flowData = flowImplementation.getNext();
+
+        assertThat(flowData.question.getRawNumber(), is("1.2"));
+
+        assertThat(flowData.question.getParent().getAnswers().size(), is(1));
+
+        question = flowData.question;
+
+        data = QuestionData.adapter(question);
+
+        // add mock answer
+        responseData = OptionData.adapter(question);
+        // the option position is important as inside the code only that is checked for skip pattern
+        responseData.setAnswerData(new InputAnswerData(question.getRawNumber(), question.getTextString(), "TEST"));
+        data.setResponseData(responseData);
+
+        flowImplementation.update(ResponseData.adapter(data));
+
+        flowData = flowImplementation.getNext();
+
+        assertThat(flowData.question.getRawNumber(), is("1.3"));
     }
 }

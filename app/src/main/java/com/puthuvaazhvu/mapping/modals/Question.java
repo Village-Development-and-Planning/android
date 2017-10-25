@@ -60,7 +60,13 @@ public class Question extends BaseObject implements Parcelable {
         text = other.getText();
         type = other.getType();
         optionList = other.getOptionList();
-        answers = other.getAnswers();
+
+        ArrayList<Answer> answersCopy = new ArrayList<>();
+        for (Answer a : other.getAnswers()) {
+            answersCopy.add(a.copy());
+        }
+
+        answers = answersCopy;
         tag = other.getTag();
         modifiedAt = other.getModifiedAt();
         rawNumber = other.getRawNumber();
