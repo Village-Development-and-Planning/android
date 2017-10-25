@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.puthuvaazhvu.mapping.utils.deep_copy.DeepCopy;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -19,12 +20,17 @@ public class Answer extends BaseObject implements Parcelable {
     private final ArrayList<Question> children;
     private final Question questionReference;
 
-    public Answer(ArrayList<Option> options, ArrayList<Question> children, Question questionReference) {
+    public Answer(ArrayList<Option> options, Question questionReference) {
         this.options = options;
-        this.children = children;
+        this.children = new ArrayList<>();
         this.questionReference = questionReference;
 
-        if (children != null) {
+        if (questionReference != null) {
+            ArrayList<Question> originalChildren = questionReference.getChildren();
+            for (Question c : originalChildren) {
+                this.children.add((Question) DeepCopy.copy(c));
+            }
+
             for (Question ac : children) {
                 ac.replaceParent(questionReference); // set the children parent as the current parent for back reference.
             }

@@ -444,4 +444,30 @@ public class Question extends BaseObject implements Parcelable {
 
         return jsonObject;
     }
+
+    @Override
+    public Question copy() {
+
+        ArrayList<Question> childrenCopy = new ArrayList<>();
+
+        for (Question c : children) {
+            childrenCopy.add(new Question(c));
+        }
+
+        return new Question(
+                id,
+                position,
+                text,
+                type,
+                optionList,
+                answers,
+                tag,
+                modifiedAt,
+                rawNumber,
+                childrenCopy,
+                info,
+                flowPattern,
+                parent
+        );
+    }
 }

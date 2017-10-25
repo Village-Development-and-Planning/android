@@ -26,7 +26,7 @@
             android:layout_marginStart="16dp"
             android:drawableLeft="@mipmap/ic_back_arrow_filled"
             android:padding="16dp"
-            android:text="@string/back_ta" />
+            android:text="@string/back" />
 
         <Button
             android:id="@+id/next_button"
@@ -38,6 +38,6 @@
             android:layout_marginRight="16dp"
             android:drawableRight="@mipmap/ic_forward_arrow_filled"
             android:padding="16dp"
-            android:text="@string/next_ta" />
+            android:text="@string/next" />
     </RelativeLayout>
 </LinearLayout>

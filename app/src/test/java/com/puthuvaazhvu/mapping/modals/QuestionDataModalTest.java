@@ -35,7 +35,6 @@ public class QuestionDataModalTest {
 
         Answer mockAnswer = new Answer(
                 mockOptions,
-                (ArrayList<Question>) DeepCopy.copy(question.getChildren()),
                 question
         );
 
@@ -48,7 +47,6 @@ public class QuestionDataModalTest {
 
         Answer mockAnswer_2 = new Answer(
                 mockOptions,
-                (ArrayList<Question>) DeepCopy.copy(question.getChildren()),
                 question
         );
 
@@ -62,7 +60,6 @@ public class QuestionDataModalTest {
 
         Answer mockAnswer_3 = new Answer(
                 mockOptions,
-                (ArrayList<Question>) DeepCopy.copy(question.getChildren()),
                 question
         );
 
@@ -83,7 +80,6 @@ public class QuestionDataModalTest {
 
         Answer mockAnswer = new Answer(
                 mockOptions,
-                (ArrayList<Question>) DeepCopy.copy(question.getChildren()),
                 question
         );
 
@@ -94,7 +90,6 @@ public class QuestionDataModalTest {
 
         mockAnswer = new Answer(
                 mockOptions,
-                (ArrayList<Question>) DeepCopy.copy(question.getChildren()),
                 question
         );
 
@@ -115,7 +110,6 @@ public class QuestionDataModalTest {
 
         Answer mockAnswer = new Answer(
                 mockOptions,
-                (ArrayList<Question>) DeepCopy.copy(question.getChildren()),
                 question
         );
 
@@ -126,7 +120,6 @@ public class QuestionDataModalTest {
 
         mockAnswer = new Answer(
                 mockOptions,
-                (ArrayList<Question>) DeepCopy.copy(question.getChildren()),
                 question
         );
         question.setAnswer(mockAnswer);
@@ -146,7 +139,6 @@ public class QuestionDataModalTest {
 
         Answer mockAnswer = new Answer(
                 mockOptions,
-                (ArrayList<Question>) DeepCopy.copy(question.getChildren()),
                 question
         );
 
@@ -163,7 +155,6 @@ public class QuestionDataModalTest {
 
         mockAnswer = new Answer(
                 mockOptions,
-                (ArrayList<Question>) DeepCopy.copy(question.getChildren()),
                 question
         );
 

@@ -74,7 +74,7 @@ public class MainPresenterTest {
         when(questionMock.getChildren()).thenReturn(new ArrayList<Question>());
         when(questionMock.getFlowPattern()).thenReturn(mockFlowPattern);
         when(questionMock.getRawNumber()).thenReturn("1");
-        when(questionMock.getCurrentAnswer()).thenReturn(new Answer(null, new ArrayList<Question>(), null));
+        when(questionMock.getCurrentAnswer()).thenReturn(new Answer(null, null));
     }
 
     @Test

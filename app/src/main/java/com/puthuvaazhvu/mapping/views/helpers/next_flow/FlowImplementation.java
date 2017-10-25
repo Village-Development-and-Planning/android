@@ -72,8 +72,9 @@ public class FlowImplementation implements IFlow {
         if (latestAnswer != null) {
             try {
                 setCurrent(latestAnswer.getChildren().get(index));
-            } catch (ArrayIndexOutOfBoundsException e) {
-                throw new IllegalArgumentException("The index " + index + " is not present inside the answers.");
+            } catch (IndexOutOfBoundsException e) {
+                throw new IllegalArgumentException("The index " + index + " is not present inside the answers. "
+                        + latestAnswer.toString());
             }
         } else {
             Timber.e("The answers list is empty. Check if the current question "
@@ -99,7 +100,6 @@ public class FlowImplementation implements IFlow {
 
         Answer answer = new Answer(
                 loggedOption,
-                (ArrayList<Question>) DeepCopy.copy(current.getChildren()),
                 current);
 
         Timber.i("Done creation of answers " + (System.currentTimeMillis() - startTime) + "ms");

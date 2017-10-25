@@ -85,7 +85,7 @@ public class BackFlowTest {
             options.add(question.getOptionList().get(0));
         }
 
-        Answer answer = new Answer(options, children, question);
+        Answer answer = new Answer(options, question);
         question.setAnswer(answer);
         return children;
     }

@@ -91,4 +91,14 @@ public class Text extends BaseObject implements Parcelable {
 
         return jsonObject;
     }
+
+    @Override
+    public Text copy() {
+        return new Text(
+                id,
+                english,
+                tamil,
+                modifiedAt
+        );
+    }
 }

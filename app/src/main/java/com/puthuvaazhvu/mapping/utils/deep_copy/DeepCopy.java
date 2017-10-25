@@ -3,13 +3,18 @@ package com.puthuvaazhvu.mapping.utils.deep_copy;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 
 public class DeepCopy {
 
     /**
      * Returns a copy of the object, or null if the object cannot
      * be serialized.
+     * Takes care of all of the details:
+     * superclass fields, following object graphs,
+     * and handling repeated references to the same object within the graph.
      */
+
     public static Object copy(Object orig) {
         Object obj = null;
         try {

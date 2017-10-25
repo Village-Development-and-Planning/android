@@ -58,6 +58,9 @@ public class MainActivity extends BaseActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        progressDialog = new ProgressDialog();
+        progressDialog.setCancelable(false);
+
         stackFragmentManagerInvoker = new StackFragmentManagerInvoker();
         stackFragmentManagerReceiver = new StackFragmentManagerReceiver(getSupportFragmentManager(), R.id.container);
 
@@ -67,8 +70,6 @@ public class MainActivity extends BaseActivity
                 SaveToFile.getInstance(),
                 new Handler(Looper.getMainLooper()));
         presenter.loadSurvey();
-
-        progressDialog = new ProgressDialog();
     }
 
     @Override

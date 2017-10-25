@@ -32,7 +32,7 @@ import static org.mockito.Mockito.verify;
  */
 
 @RunWith(MockitoJUnitRunner.class)
-public class NextFlowTest {
+public class FlowImplementationTest {
 
     private Survey survey;
     private FlowImplementation flowImplementation;

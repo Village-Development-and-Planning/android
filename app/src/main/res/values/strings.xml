@@ -10,6 +10,9 @@
     <string name="tag_line">A Tamilnadu government initiative</string>
     <string name="enter_cst">Enter your CST code</string>
     <string name="survey_file_saving_msg">Saving the survey. Please wait...</string>
+    <string name="loading">LOADING</string>
+    <string name="next">NEXT</string>
+    <string name="back">BACK</string>
 
     <!--success-->
     <string name="gps_recorded_successfully">GPS recorded successfully</string>

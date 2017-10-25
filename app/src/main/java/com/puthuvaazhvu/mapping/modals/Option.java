@@ -132,4 +132,9 @@ public class Option extends BaseObject implements Parcelable {
 
         return jsonObject;
     }
+
+    @Override
+    public Option copy() {
+        return new Option(id, type, text.copy(), modifiedAt, position);
+    }
 }
