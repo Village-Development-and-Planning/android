@@ -1533,7 +1533,7 @@
                                             }
                                           },
                                           "question": {
-                                            "ui": "",
+                                            "ui": "INPUT",
                                             "validation": null
                                           },
                                           "answer": {
