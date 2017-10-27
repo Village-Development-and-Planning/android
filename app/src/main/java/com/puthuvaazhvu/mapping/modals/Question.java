@@ -261,13 +261,15 @@ public class Question extends BaseObject implements Parcelable {
                 throw new IllegalArgumentException("The options are empty.");
             }
 
-            Option loggedOption = answer.getOptions().get(0);
-            Answer matchedAnswer = getAnswerMatch(loggedOption.getId());
+             Option loggedOption = answer.getOptions().get(0);
+             Answer matchedAnswer = getAnswerMatch(loggedOption.getId());
 
             if (matchedAnswer == null) {
                 this.addAnswer(answer);
             } else {
-                currentAnswer = matchedAnswer;
+                // update the old answer with the new one
+                this.setAnswer(0, answer);
+                // currentAnswer = matchedAnswer;
             }
 
         } else if (answerFlow.getMode() == AnswerFlow.Modes.ONCE) {
