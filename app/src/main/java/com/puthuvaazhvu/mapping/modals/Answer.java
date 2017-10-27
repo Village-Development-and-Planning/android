@@ -16,18 +16,17 @@ import java.util.ArrayList;
 public class Answer extends BaseObject implements Parcelable {
     private final ArrayList<Option> options;
     private final ArrayList<Question> children;
-    private final Question questionReferenceCopy;
+    private final Question questionReference;
 
     public Answer(ArrayList<Option> options, Question questionReference) {
         this.options = options;
+        this.questionReference = questionReference;
 
         this.children = new ArrayList<>();
 
         if (questionReference != null) {
-            this.questionReferenceCopy = questionReference.copy();
-            this.children.addAll(this.questionReferenceCopy.getChildren());
-        } else {
-            this.questionReferenceCopy = null;
+            Question questionReferenceCopy = questionReference.copy();
+            this.children.addAll(questionReferenceCopy.getChildren());
         }
     }
 
@@ -52,21 +51,21 @@ public class Answer extends BaseObject implements Parcelable {
         return children;
     }
 
-    public Question getQuestionReferenceCopy() {
-        return questionReferenceCopy;
+    public Question getQuestionReference() {
+        return questionReference;
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeTypedList(this.options);
         dest.writeTypedList(this.children);
-        dest.writeParcelable(this.questionReferenceCopy, flags);
+        dest.writeParcelable(this.questionReference, flags);
     }
 
     protected Answer(Parcel in) {
         this.options = in.createTypedArrayList(Option.CREATOR);
         this.children = in.createTypedArrayList(Question.CREATOR);
-        this.questionReferenceCopy = in.readParcelable(Question.class.getClassLoader());
+        this.questionReference = in.readParcelable(Question.class.getClassLoader());
     }
 
     public static final Creator<Answer> CREATOR = new Creator<Answer>() {
@@ -107,8 +106,10 @@ public class Answer extends BaseObject implements Parcelable {
     public String toString() {
         String string = "";
 
-        string += "Options count: " + options.size();
-        string += " Children [";
+        string += "hashcode : " + Integer.toHexString(System.identityHashCode(this));
+
+        string += "\nOptions count: " + options.size();
+        string += "\nChildren [";
 
         for (Question c : children) {
             string += c.getRawNumber();
@@ -117,7 +118,7 @@ public class Answer extends BaseObject implements Parcelable {
 
         string += "]";
 
-        string += " Reference question : " + questionReferenceCopy.getRawNumber();
+        string += "\nReference question :" + questionReference.getRawNumber();
 
         return string;
     }
@@ -126,7 +127,7 @@ public class Answer extends BaseObject implements Parcelable {
     public Answer copy() {
         return new Answer(
                 options,
-                questionReferenceCopy
+                questionReference
         );
     }
 }

@@ -472,7 +472,7 @@ public class Question extends BaseObject implements Parcelable {
                             c.children,
                             c.info,
                             c.flowPattern,
-                            c.parent
+                            this
                     )
             );
         }

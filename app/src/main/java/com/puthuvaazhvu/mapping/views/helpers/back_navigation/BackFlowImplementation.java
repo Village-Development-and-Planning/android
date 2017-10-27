@@ -90,7 +90,6 @@ public class BackFlowImplementation implements IBackFlow {
             Answer lastAnswer = question.getAnswers().remove(answersCount - 1);
             Timber.i("Removed answer: " + lastAnswer.toString());
             Timber.i("New answer count: " + question.getAnswers().size());
-
         } else {
             Timber.i("The question " + question.getRawNumber() + " does'nt have an answer.");
         }

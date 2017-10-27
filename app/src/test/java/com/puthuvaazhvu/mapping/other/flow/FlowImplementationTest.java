@@ -335,26 +335,14 @@ public class FlowImplementationTest {
 
         flowImplementation.update(ResponseData.adapter(data));
 
+        Question parent = flowImplementation.getCurrent();
+
+        assertThat(flowImplementation.getCurrent().getAnswers().size(), is(1));
+
         IFlow.FlowData flowData = flowImplementation.getNext();
 
         assertThat(flowData.question.getRawNumber(), is("1.2"));
 
-        assertThat(flowData.question.getParent().getAnswers().size(), is(1));
-
-        question = flowData.question;
-
-        data = QuestionData.adapter(question);
-
-        // add mock answer
-        responseData = OptionData.adapter(question);
-        // the option position is important as inside the code only that is checked for skip pattern
-        responseData.setAnswerData(new InputAnswerData(question.getRawNumber(), question.getTextString(), "TEST"));
-        data.setResponseData(responseData);
-
-        flowImplementation.update(ResponseData.adapter(data));
-
-        flowData = flowImplementation.getNext();
-
-        assertThat(flowData.question.getRawNumber(), is("1.3"));
+        assertSame(flowData.question.getParent(), parent);
     }
 }

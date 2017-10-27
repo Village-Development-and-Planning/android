@@ -52,7 +52,7 @@ public class FlowImplementation implements IFlow {
         Answer latestAnswer = current.getCurrentAnswer();
 
         if (latestAnswer != null) {
-            Question reference = latestAnswer.getQuestionReferenceCopy();
+            Question reference = latestAnswer.getQuestionReference();
             reference.setFinished(true); // set the finished flag to true so we can skip this Q when necessary
             setCurrent(reference.getParent());
         } else {
@@ -100,12 +100,14 @@ public class FlowImplementation implements IFlow {
                 loggedOption,
                 current);
 
-        Timber.i("Done creation of answers " + (System.currentTimeMillis() - startTime) + "ms");
+        Timber.i("Done creation of answers. Time taken: " + (System.currentTimeMillis() - startTime) + "ms");
 
         current.setAnswer(answer);
 
         // add answered question to the stack
         stack.add(answer);
+
+        Timber.i("Answer created info :\n" + answer.toString());
 
         return this;
     }
@@ -139,7 +141,7 @@ public class FlowImplementation implements IFlow {
 
                 } else if (exitFlow.getMode() == ExitFlow.Modes.PARENT) {
 
-                    Question parent = current.getCurrentAnswer().getQuestionReferenceCopy().getParent();
+                    Question parent = current.getCurrentAnswer().getQuestionReference().getParent();
                     setCurrent(parent);
 
                 } else if (exitFlow.getMode() == ExitFlow.Modes.LOOP) {
@@ -290,7 +292,7 @@ public class FlowImplementation implements IFlow {
     private Answer getQuestionForSkip(String rawQuestionNumber) {
         for (int i = stack.size() - 1; i >= 0; i--) {
             Answer answer = stack.get(i);
-            Question question = answer.getQuestionReferenceCopy();
+            Question question = answer.getQuestionReference();
             if (question.getRawNumber().equals(rawQuestionNumber)) {
                 return answer;
             }
