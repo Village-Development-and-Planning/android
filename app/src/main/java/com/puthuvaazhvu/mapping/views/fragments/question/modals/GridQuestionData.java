@@ -3,6 +3,8 @@ package com.puthuvaazhvu.mapping.views.fragments.question.modals;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.puthuvaazhvu.mapping.modals.Answer;
+import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.OptionData;
 
 import java.util.ArrayList;
@@ -56,14 +58,26 @@ public class GridQuestionData extends QuestionData implements Parcelable {
         }
     };
 
-    public static GridQuestionData adapter(com.puthuvaazhvu.mapping.modals.Question question) {
+    public static GridQuestionData adapter(Question question) {
         QuestionData questionData = QuestionData.adapter(question);
-        return new GridQuestionData(questionData.getSingleQuestion(), questionData.getOptionOptionData(), question.getAnswers().size());
+
+        ArrayList<Answer> answers = new ArrayList<>();
+        // remove no answers
+        for (Answer answer : question.getAnswers()) {
+            if (answer.getOptions().size() == 1) {
+                if (answer.getOptions().get(0).getText().getEnglish().toUpperCase().equals("NO")) {
+                    continue;
+                }
+                answers.add(answer);
+            }
+        }
+
+        return new GridQuestionData(questionData.getSingleQuestion(), questionData.getOptionOptionData(), answers.size());
     }
 
     public static ArrayList<GridQuestionData> adapter(ArrayList<com.puthuvaazhvu.mapping.modals.Question> children) {
         ArrayList<GridQuestionData> result = new ArrayList<>(children.size());
-        for (com.puthuvaazhvu.mapping.modals.Question c : children) {
+        for (Question c : children) {
             result.add(GridQuestionData.adapter(c));
         }
         return result;
