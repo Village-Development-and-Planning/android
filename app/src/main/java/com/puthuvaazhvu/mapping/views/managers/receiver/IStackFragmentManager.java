@@ -9,6 +9,8 @@ import java.util.ArrayList;
  */
 
 public interface IStackFragmentManager {
+    void replaceFragment(String tag, Fragment fragment);
+
     void pushFragment(String tag, Fragment fragment);
 
     void popFragment(Fragment fragment);

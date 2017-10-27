@@ -21,6 +21,13 @@ public class StackFragmentManagerReceiver implements IStackFragmentManager {
     }
 
     @Override
+    public void replaceFragment(String tag, Fragment fragment) {
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        replaceFragment(fragmentTransaction, fragment, tag);
+        fragmentTransaction.commitAllowingStateLoss();
+    }
+
+    @Override
     public void pushFragment(String tag, Fragment fragment) {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         addFragment(fragmentTransaction, fragment, tag);
@@ -64,6 +71,10 @@ public class StackFragmentManagerReceiver implements IStackFragmentManager {
 
     private void addFragment(FragmentTransaction transaction, Fragment fragment, String tag) {
         transaction.add(containerViewID, fragment, tag);
+    }
+
+    private void replaceFragment(FragmentTransaction transaction, Fragment fragment, String tag) {
+        transaction.replace(containerViewID, fragment, tag);
     }
 
     private void removeFragment(FragmentTransaction transaction, Fragment fragment) {

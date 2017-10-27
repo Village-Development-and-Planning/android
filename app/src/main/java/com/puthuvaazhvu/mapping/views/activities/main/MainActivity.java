@@ -33,6 +33,7 @@ import com.puthuvaazhvu.mapping.views.helpers.back_navigation.IBackFlow;
 import com.puthuvaazhvu.mapping.views.managers.StackFragmentManagerInvoker;
 import com.puthuvaazhvu.mapping.views.managers.commands.FragmentPopCommand;
 import com.puthuvaazhvu.mapping.views.managers.commands.FragmentPushCommand;
+import com.puthuvaazhvu.mapping.views.managers.commands.FragmentReplaceCommand;
 import com.puthuvaazhvu.mapping.views.managers.receiver.StackFragmentManagerReceiver;
 
 import java.util.ArrayList;
@@ -114,35 +115,35 @@ public class MainActivity extends BaseActivity
     @Override
     public void shouldShowGrid(QuestionData parent, ArrayList<GridQuestionData> question) {
         QuestionFragment fragment = GridQuestionsFragment.getInstance(parent, question);
-        addPushFragmentCommand(fragment, parent.getSingleQuestion().getRawNumber());
+        replaceFragmentCommand(fragment, parent.getSingleQuestion().getRawNumber());
         executePendingCommands();
     }
 
     @Override
     public void shouldShowSingleQuestion(QuestionData question) {
         QuestionFragment fragment = SingleQuestionFragment.getInstance(question);
-        addPushFragmentCommand(fragment, question.getSingleQuestion().getRawNumber());
+        replaceFragmentCommand(fragment, question.getSingleQuestion().getRawNumber());
         executePendingCommands();
     }
 
     @Override
     public void shouldShowQuestionAsInfo(QuestionData question) {
         InfoFragment fragment = InfoFragment.getInstance(question);
-        addPushFragmentCommand(fragment, question.getSingleQuestion().getRawNumber());
+        replaceFragmentCommand(fragment, question.getSingleQuestion().getRawNumber());
         executePendingCommands();
     }
 
     @Override
     public void shouldShowConformationQuestion(QuestionData question) {
         ConformationQuestionFragment fragment = ConformationQuestionFragment.getInstance(question);
-        addPushFragmentCommand(fragment, question.getSingleQuestion().getRawNumber());
+        replaceFragmentCommand(fragment, question.getSingleQuestion().getRawNumber());
         executePendingCommands();
     }
 
     @Override
     public void shouldShowSummary(Survey survey) {
         SummaryFragment summaryFragment = SummaryFragment.getInstance(survey);
-        addPushFragmentCommand(summaryFragment, "summary_fragment");
+        replaceFragmentCommand(summaryFragment, "summary_fragment");
         executePendingCommands();
     }
 
@@ -168,7 +169,7 @@ public class MainActivity extends BaseActivity
 
     @Override
     public void showLoading(int messageID) {
-        if (progressDialog.isVisible()) {
+        if (progressDialog.isVisible() || progressDialog.isAdded()) {
             progressDialog.dismiss();
         }
         progressDialog.setTextView(getString(messageID));
@@ -244,6 +245,10 @@ public class MainActivity extends BaseActivity
 
     public void getNextQuestion() {
         presenter.getNext();
+    }
+
+    public void replaceFragmentCommand(Fragment fragment, String tag) {
+        stackFragmentManagerInvoker.addCommand(new FragmentReplaceCommand(stackFragmentManagerReceiver, tag, fragment));
     }
 
     public void addPushFragmentCommand(Fragment fragment, String tag) {
