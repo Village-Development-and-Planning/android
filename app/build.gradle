@@ -79,6 +79,10 @@ dependencies {
 
     compile "com.google.android.gms:play-services-location:$rootProject.ext.googlePlayServicesVersion"
 
+    // http library
+    compile "com.squareup.retrofit2:retrofit:$rootProject.ext.retrofetVersion"
+    compile "com.squareup.retrofit2:converter-gson:$rootProject.ext.retrofetVersion"
+
     // for logging
     compile "com.jakewharton.timber:timber:$rootProject.ext.timberVersion"
 

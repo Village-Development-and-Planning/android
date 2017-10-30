@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/info_txt"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Select a survey"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="15dp"
+        android:layout_marginLeft="16dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginRight="16dp"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <Button
+        android:id="@+id/proceed_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="16dp"
+        android:text="PROCEED"
+        app:layout_constraintBaseline_toBaselineOf="@+id/dump_from_server"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <Button
+        android:id="@+id/dump_from_server"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_marginRight="8dp"
+        android:text="DUMP FROM SERVER"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/proceed_btn" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/dump_from_server"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintTop_toBottomOf="@+id/info_txt" />
+</android.support.constraint.ConstraintLayout>

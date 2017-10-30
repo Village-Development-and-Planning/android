@@ -10,6 +10,8 @@ import java.util.ArrayList;
 public interface DataRepository<T> {
     interface DataLoadedCallback<S> {
         void onDataLoaded(S data);
+
+        void onError(String msg);
     }
 
     void getAllData(DataLoadedCallback<ArrayList<T>> callback);

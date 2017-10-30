@@ -30,6 +30,9 @@ public class BackFlowImplementation implements IBackFlow {
     }
 
     private Question getPreviousQuestionInternal(Question current) {
+        if (current.getFlowPattern() == null) {
+            return current;
+        }
 
         // for grid the answers will be already logged.
         if (current.getFlowPattern().getChildFlow().getUiToBeShown() == ChildFlow.UI.GRID) {

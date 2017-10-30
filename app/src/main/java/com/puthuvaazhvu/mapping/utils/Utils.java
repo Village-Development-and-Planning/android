@@ -3,6 +3,8 @@ package com.puthuvaazhvu.mapping.utils;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
@@ -64,28 +66,9 @@ public class Utils {
             is.close();
             json = new String(buffer, "UTF-8");
         } catch (IOException ex) {
-            Timber.e("Error reading the JSON file from assets. " + ex.getMessage());
+            Timber.e("Error reading the file. " + ex.getMessage());
         }
         return json;
-    }
-
-    /* Checks if external storage is available for read and write */
-    public static boolean isExternalStorageWritable() {
-        String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            return true;
-        }
-        return false;
-    }
-
-    /* Checks if external storage is available to at least read */
-    public static boolean isExternalStorageReadable() {
-        String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state) ||
-                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-            return true;
-        }
-        return false;
     }
 
     public static List<String> hasPermissions(Context context, String... permissions) {
@@ -138,33 +121,10 @@ public class Utils {
         return one.equals(two);
     }
 
-    public static File getDataDirectory(boolean forRead) {
-        boolean positive = false;
-        File dataDir = null;
-
-        if ((forRead && isExternalStorageReadable()) ||
-                (!forRead && isExternalStorageWritable())) {
-
-            File root = Environment.getExternalStorageDirectory();
-            positive = root.exists();
-            if (!positive) {
-                positive = root.mkdir();
-            }
-
-            dataDir = new File(root, Constants.DATA_DIR);
-            if (positive && !dataDir.exists()) {
-                positive = dataDir.mkdir();
-
-                if (positive) {
-                    Timber.i("Created data directory at : " + dataDir.getAbsolutePath());
-                }
-            }
-
-            if (!positive)
-                Timber.e("Error creating data directory at : " + dataDir.getAbsolutePath());
-
-        }
-
-        return positive ? dataDir : null;
+    public static boolean isNetworkAvailable(Context context) {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 }

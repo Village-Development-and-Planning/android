@@ -41,8 +41,4 @@ public class MockSurveyDataSource implements DataSource<Survey> {
     public void saveData(Survey data) {
         throw new IllegalArgumentException("Not implemented");
     }
-
-    private static InputStream getDataFormFile(Object obj, String fileName) {
-        return obj.getClass().getClassLoader().getResourceAsStream(fileName);
-    }
 }

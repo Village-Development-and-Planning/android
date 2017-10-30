@@ -239,7 +239,12 @@ public class Question extends BaseObject implements Parcelable {
     }
 
     private void setAnswerInternal(Answer answer) {
+        if (this.getFlowPattern() == null) {
+            return;
+        }
+
         ArrayList<Answer> answersLogged = this.getAnswers();
+
         AnswerFlow answerFlow = this.getFlowPattern().getAnswerFlow();
 
         if (answerFlow == null) {
@@ -261,8 +266,8 @@ public class Question extends BaseObject implements Parcelable {
                 throw new IllegalArgumentException("The options are empty.");
             }
 
-             Option loggedOption = answer.getOptions().get(0);
-             Answer matchedAnswer = getAnswerMatch(loggedOption.getId());
+            Option loggedOption = answer.getOptions().get(0);
+            Answer matchedAnswer = getAnswerMatch(loggedOption.getId());
 
             if (matchedAnswer == null) {
                 this.addAnswer(answer);

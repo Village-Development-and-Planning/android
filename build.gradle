@@ -43,4 +43,5 @@ ext {
     apacheCommonsLangVersion = '4.1'
     timberVersion = '4.5.1'
     googlePlayServicesVersion = '11.4.2'
+    retrofetVersion = '2.3.0'
 }

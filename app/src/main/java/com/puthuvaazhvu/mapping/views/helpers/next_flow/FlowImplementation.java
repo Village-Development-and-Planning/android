@@ -126,6 +126,11 @@ public class FlowImplementation implements IFlow {
 
         do {
             flowData = getNextInternal(current);
+
+            if (flowData.flowType == FlowType.NONE) {
+                return flowData;
+            }
+
             nextQuestion = flowData.question;
 
             if (nextQuestion == null) {
@@ -182,6 +187,12 @@ public class FlowImplementation implements IFlow {
 
     private FlowData getNextInternal(Question current) {
         FlowData flowData = new FlowData();
+
+        if (current.getFlowPattern() == null) {
+            flowData.question = current;
+            flowData.flowType = FlowType.NONE;
+            return flowData;
+        }
 
         // check the child flow
         ChildFlow childFlow = current.getFlowPattern().getChildFlow();

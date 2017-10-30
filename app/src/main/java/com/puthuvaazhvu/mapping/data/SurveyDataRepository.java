@@ -34,6 +34,11 @@ public class SurveyDataRepository implements DataRepository<Survey> {
                 survey = data;
                 callback.onDataLoaded(data);
             }
+
+            @Override
+            public void onError(String msg) {
+                callback.onError(msg);
+            }
         });
     }
 

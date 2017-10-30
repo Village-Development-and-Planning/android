@@ -78,20 +78,6 @@ public class MainPresenterTest {
     }
 
     @Test
-    public void test_getSurvey_method() {
-        // get survey callback mock flow
-        presenter.loadSurvey();
-        // Capture the argument of the callback function
-        ArgumentCaptor<DataRepository.DataLoadedCallback> captor
-                = ArgumentCaptor.forClass(DataRepository.DataLoadedCallback.class);
-        verify(dataRepository).getData(anyString(), captor.capture());
-        captor.getValue().onDataLoaded(null);
-
-        // Check if the survey is passed to the view callback
-        verify(viewCallback).onSurveyLoaded(null);
-    }
-
-    @Test
     public void test_moveToQuestionAt_method() {
         QuestionFlow mockQuestionFlow = new QuestionFlow(QuestionFlow.Validation.NONE, QuestionFlow.UI.SINGLE_CHOICE);
         FlowPattern mockFlowPattern = new FlowPattern(null, mockQuestionFlow, null, null, null, null);

@@ -9,6 +9,8 @@ import java.util.ArrayList;
 public interface DataSource<T> {
     interface DataSourceCallback<S> {
         void onLoaded(S data);
+
+        void onError(String msg);
     }
 
     void getAllData(DataSourceCallback<ArrayList<T>> callback);

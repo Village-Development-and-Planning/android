@@ -17,12 +17,28 @@ import timber.log.Timber;
  */
 
 public class BaseActivity extends AppCompatActivity {
+    protected boolean paused;
+    protected boolean resumed;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         checkForInitialPermissions();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        resumed = true;
+        paused = false;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        paused = true;
+        resumed = false;
     }
 
     private void checkForInitialPermissions() {

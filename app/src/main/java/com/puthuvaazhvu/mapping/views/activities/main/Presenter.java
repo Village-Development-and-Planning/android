@@ -1,7 +1,6 @@
 package com.puthuvaazhvu.mapping.views.activities.main;
 
 import android.os.Handler;
-import android.os.Looper;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.gson.JsonObject;
@@ -11,7 +10,7 @@ import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.other.Constants;
-import com.puthuvaazhvu.mapping.utils.DataFileCreator;
+import com.puthuvaazhvu.mapping.utils.DataFileHelpers;
 import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.GridQuestionData;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
@@ -22,6 +21,7 @@ import com.puthuvaazhvu.mapping.views.helpers.ResponseData;
 import com.puthuvaazhvu.mapping.views.helpers.back_navigation.IBackFlow;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import timber.log.Timber;
@@ -51,14 +51,27 @@ public class Presenter implements Contract.UserAction {
     }
 
     @Override
-    public void loadSurvey() {
-        dataRepository.getData(null // Todo: add some identifier for the survey
-                , new DataRepository.DataLoadedCallback<Survey>() {
-                    @Override
-                    public void onDataLoaded(Survey data) {
-                        activityView.onSurveyLoaded(data);
-                    }
-                });
+    public void loadSurvey(final String surveyID) {
+
+        File file = DataFileHelpers.getSurveyDataFile(surveyID, true);
+
+        if (file != null && file.exists()) {
+            dataRepository.getData(file.getAbsolutePath()
+                    , new DataRepository.DataLoadedCallback<Survey>() {
+                        @Override
+                        public void onDataLoaded(Survey data) {
+                            activityView.onSurveyLoaded(data);
+                        }
+
+                        @Override
+                        public void onError(String msg) {
+                            Timber.e("Error loading survey file " + surveyID + " msg: " + msg);
+                            activityView.onError(R.string.cannot_get_data);
+                        }
+                    });
+        } else {
+            activityView.onError(R.string.file_not_exist);
+        }
     }
 
     @Override
@@ -103,8 +116,7 @@ public class Presenter implements Contract.UserAction {
         JsonObject resultSurveyJson = survey.getAsJson().getAsJsonObject();
         Timber.i("Survey dump: \n" + resultSurveyJson.toString());
 
-        File fileToSave = DataFileCreator.getFileToDumpSurvey(survey.getId(), false);
-
+        File fileToSave = DataFileHelpers.getFileToDumpSurvey(survey.getId(), false);
         if (fileToSave != null)
             dumpToFile(resultSurveyJson.toString(), fileToSave);
     }
@@ -159,6 +171,15 @@ public class Presenter implements Contract.UserAction {
             showSingleQuestionUI(question);
         } else if (flowData.flowType == FlowType.END) {
             activityView.onSurveyEnd();
+        } else {
+            Timber.e("Invalid UI data provided. number:  " + question.getRawNumber());
+            activityView.onError(R.string.invalid_data);
+            uiHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    activityView.hideLoading();
+                }
+            });
         }
     }
 
@@ -189,6 +210,13 @@ public class Presenter implements Contract.UserAction {
 
     private void showSingleQuestionUI(Question question) {
 
+        if (question.getFlowPattern() == null) {
+            if (question.isRoot()) {
+                activityView.toggleDefaultBackPressed(true);
+            }
+            return;
+        }
+
         QuestionData questionData = QuestionData.adapter(question);
 
         // check and show UI accordingly
@@ -212,7 +240,8 @@ public class Presenter implements Contract.UserAction {
             public void onFileSaved() {
                 Timber.i("The data is saved to the file successfully.");
                 activityView.hideLoading();
-                activityView.shouldShowSummary(survey);
+                //activityView.shouldShowSummary(survey);
+                activityView.onSurveySaved(survey);
             }
 
             @Override

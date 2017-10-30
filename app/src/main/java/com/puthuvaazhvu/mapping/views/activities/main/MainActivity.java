@@ -1,5 +1,7 @@
 package com.puthuvaazhvu.mapping.views.activities.main;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.Fragment;
@@ -9,9 +11,12 @@ import com.puthuvaazhvu.mapping.DataInjection;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
+import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.Utils;
+import com.puthuvaazhvu.mapping.utils.storage.PrefsStorage;
 import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
 import com.puthuvaazhvu.mapping.views.activities.BaseActivity;
+import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListActivity;
 import com.puthuvaazhvu.mapping.views.dialogs.ProgressDialog;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.OptionData;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.AnswerData;
@@ -54,6 +59,10 @@ public class MainActivity extends BaseActivity
 
     private ProgressDialog progressDialog;
 
+    private PrefsStorage prefsStorage;
+
+    private boolean defaultBackPressed = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,21 +74,43 @@ public class MainActivity extends BaseActivity
         stackFragmentManagerInvoker = new StackFragmentManagerInvoker();
         stackFragmentManagerReceiver = new StackFragmentManagerReceiver(getSupportFragmentManager(), R.id.container);
 
+        SharedPreferences sharedPreferences = getSharedPreferences(Constants.PREFS, MODE_PRIVATE);
+        prefsStorage = PrefsStorage.getInstance(sharedPreferences);
+
+        Handler handler = new Handler(Looper.getMainLooper());
+
         presenter = new Presenter(
                 this,
-                DataInjection.provideSurveyDataRepository(this),
+                DataInjection.provideSurveyDataRepository(handler),
                 SaveToFile.getInstance(),
-                new Handler(Looper.getMainLooper()));
-        presenter.loadSurvey();
+                handler);
+
+        String latestSurveyID = prefsStorage.getLatestSurveyID();
+
+        if (latestSurveyID == null) {
+            startListOfSurveysActivity();
+        } else {
+            presenter.loadSurvey(latestSurveyID);
+        }
     }
 
     @Override
     public void onBackPressed() {
-        presenter.getPrevious();
+        if (defaultBackPressed)
+            super.onBackPressed();
+        else
+            presenter.getPrevious();
     }
 
     @Override
     public void onSurveyLoaded(Survey survey) {
+
+        if (survey.getQuestionList().isEmpty()) {
+            onError(R.string.invalid_data);
+            defaultBackPressed = true;
+            return;
+        }
+
         Question root = survey.getQuestionList().get(0);
 
         // set a mock answer for the root question
@@ -148,8 +179,15 @@ public class MainActivity extends BaseActivity
     }
 
     @Override
+    public void onSurveySaved(Survey survey) {
+        defaultBackPressed = true;
+        startListOfSurveysActivity();
+    }
+
+    @Override
     public void onSurveyEnd() {
         Timber.i("The survey is completed");
+        defaultBackPressed = true;
         presenter.dumpSurveyToFile();
     }
 
@@ -178,7 +216,13 @@ public class MainActivity extends BaseActivity
 
     @Override
     public void hideLoading() {
-        progressDialog.dismiss();
+        if (progressDialog.isVisible())
+            progressDialog.dismiss();
+    }
+
+    @Override
+    public void toggleDefaultBackPressed(boolean toggle) {
+        defaultBackPressed = toggle;
     }
 
     @Override
@@ -266,6 +310,12 @@ public class MainActivity extends BaseActivity
 
     public void executePendingCommands() {
         stackFragmentManagerInvoker.executeCommand();
+    }
+
+    private void startListOfSurveysActivity() {
+        Intent intent = new Intent(this, SurveyListActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
     }
 
     public void forceCrash() {

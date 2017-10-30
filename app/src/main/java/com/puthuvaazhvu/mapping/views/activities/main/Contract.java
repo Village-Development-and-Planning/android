@@ -51,6 +51,8 @@ public interface Contract {
 
         void shouldShowSummary(Survey survey);
 
+        void onSurveySaved(Survey survey);
+
         void onSurveyEnd();
 
         /**
@@ -70,13 +72,15 @@ public interface Contract {
         void showLoading(int messageID);
 
         void hideLoading();
+
+        void toggleDefaultBackPressed(boolean toggle);
     }
 
     interface UserAction {
         /**
          * Get's the survey from the {@link com.puthuvaazhvu.mapping.data.DataRepository}
          */
-        void loadSurvey(); // Todo: Add something to uniquely identify and get the survey.
+        void loadSurvey(String surveyID);
 
         /**
          * Get's the next question to be shown in the UI
