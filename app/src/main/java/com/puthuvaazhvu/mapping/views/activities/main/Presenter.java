@@ -53,6 +53,8 @@ public class Presenter implements Contract.UserAction {
     @Override
     public void loadSurvey(final String surveyID) {
 
+        activityView.showLoading(R.string.loading);
+
         File file = DataFileHelpers.getSurveyDataFile(surveyID, true);
 
         if (file != null && file.exists()) {
@@ -60,12 +62,14 @@ public class Presenter implements Contract.UserAction {
                     , new DataRepository.DataLoadedCallback<Survey>() {
                         @Override
                         public void onDataLoaded(Survey data) {
+                            activityView.hideLoading();
                             activityView.onSurveyLoaded(data);
                         }
 
                         @Override
                         public void onError(String msg) {
                             Timber.e("Error loading survey file " + surveyID + " msg: " + msg);
+                            activityView.hideLoading();
                             activityView.onError(R.string.cannot_get_data);
                         }
                     });
@@ -128,8 +132,6 @@ public class Presenter implements Contract.UserAction {
             return;
         }
 
-        activityView.showLoading(R.string.loading);
-
         // this seems to be a little heavy process, so run in background thread.
         // references does'nt matter as the process is not too big to leak memory.
         new Thread(new Runnable() {
@@ -137,12 +139,6 @@ public class Presenter implements Contract.UserAction {
             public void run() {
                 flowHelper.update(ResponseData.adapter(questionData));
                 uiHandler.post(runnable);
-                uiHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        activityView.hideLoading();
-                    }
-                });
             }
         }).start();
     }

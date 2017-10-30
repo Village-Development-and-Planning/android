@@ -128,6 +128,7 @@ public class FlowImplementation implements IFlow {
             flowData = getNextInternal(current);
 
             if (flowData.flowType == FlowType.NONE) {
+                flowData.question = current;
                 return flowData;
             }
 
@@ -137,16 +138,17 @@ public class FlowImplementation implements IFlow {
                 // check the exit flow
                 ExitFlow exitFlow = current.getFlowPattern().getExitFlow();
 
-                if (exitFlow.getMode() == ExitFlow.Modes.END) {
-
-                    // all question are completed
-                    flowData.flowType = FlowType.END;
-                    flowData.question = null;
-                    break;
-
-                } else if (exitFlow.getMode() == ExitFlow.Modes.PARENT) {
+                if (exitFlow.getMode() == ExitFlow.Modes.PARENT) {
 
                     Question parent = current.getCurrentAnswer().getQuestionReference().getParent();
+
+                    if (parent == null) {
+                        // all question are complete
+                        flowData.flowType = FlowType.END;
+                        flowData.question = null;
+                        break;
+                    }
+
                     setCurrent(parent);
 
                 } else if (exitFlow.getMode() == ExitFlow.Modes.LOOP) {
@@ -189,7 +191,6 @@ public class FlowImplementation implements IFlow {
         FlowData flowData = new FlowData();
 
         if (current.getFlowPattern() == null) {
-            flowData.question = current;
             flowData.flowType = FlowType.NONE;
             return flowData;
         }
