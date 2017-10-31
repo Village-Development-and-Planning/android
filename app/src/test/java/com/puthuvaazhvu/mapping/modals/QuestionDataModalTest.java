@@ -1,6 +1,7 @@
 package com.puthuvaazhvu.mapping.modals;
 
 import com.google.gson.JsonObject;
+import com.puthuvaazhvu.mapping.modals.flow.PreFlow;
 import com.puthuvaazhvu.mapping.utils.deep_copy.DeepCopy;
 
 import org.junit.Before;
@@ -25,6 +26,76 @@ public class QuestionDataModalTest {
     @Before
     public void setup() {
         survey = ModalHelpers.getSurvey(this);
+    }
+
+    @Test
+    public void test_add_dynamicOptions() {
+        Question root = survey.getQuestionList().get(0);
+
+        assertThat(root.getType(), is("ROOT"));
+
+        Question result = root.findInTree(new Question.QuestionTreeSearchPredicate() {
+            @Override
+            public boolean evaluate(Question question) {
+                return question.containsPreFlow(PreFlow.Tag.HABITATION_NAME);
+            }
+        });
+
+        assertThat(result.getRawNumber(), is("2"));
+
+        ArrayList<Option> options = new ArrayList<>();
+        options.add(new Option("1", null, null, null, null));
+        result.setOptionList(options);
+
+        assertThat(result.getOptionList().get(0).getId(), is("1"));
+    }
+
+    @Test
+    public void test_findInTree_method() {
+        Question root = survey.getQuestionList().get(0);
+
+        assertThat(root.getType(), is("ROOT"));
+
+        Question result = root.findInTree(new Question.QuestionTreeSearchPredicate() {
+            @Override
+            public boolean evaluate(Question question) {
+                return question.containsPreFlow(PreFlow.Tag.HABITATION_NAME);
+            }
+        });
+
+        assertThat(result.getRawNumber(), is("2"));
+
+        result = root.findInTree(new Question.QuestionTreeSearchPredicate() {
+            @Override
+            public boolean evaluate(Question question) {
+                return question.containsPreFlow(PreFlow.Tag.VILLAGE_NAME);
+            }
+        });
+
+        assertThat(result.getRawNumber(), is("1.5"));
+    }
+
+    @Test
+    public void test_containsPreFlow_method() {
+        Question question = survey.getQuestionList().get(0).getChildren().get(1);
+
+        assertThat(question.getRawNumber(), is("2"));
+
+        boolean result = question.containsPreFlow(PreFlow.Tag.HABITATION_NAME);
+
+        assertThat(result, is(true));
+
+        result = question.containsPreFlow(PreFlow.Tag.BLOCK_NAME);
+
+        assertThat(result, is(false));
+
+        question = survey.getQuestionList().get(0).getChildren().get(0).getChildren().get(3);
+
+        assertThat(question.getRawNumber(), is("1.5"));
+
+        result = question.containsPreFlow(PreFlow.Tag.VILLAGE_NAME);
+
+        assertThat(result, is(true));
     }
 
     @Test

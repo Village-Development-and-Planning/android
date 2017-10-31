@@ -7,11 +7,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.modals.flow.AnswerFlow;
+import com.puthuvaazhvu.mapping.modals.flow.PreFlow;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.modals.flow.FlowPattern;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -19,11 +19,16 @@ import java.util.ArrayList;
  */
 
 public class Question extends BaseObject implements Parcelable {
+
+    public interface QuestionTreeSearchPredicate {
+        boolean evaluate(Question question);
+    }
+
     private final String id;
     private final String position;
     private final Text text;
     private final String type;
-    private final ArrayList<Option> optionList;
+    private ArrayList<Option> optionList;
     private final ArrayList<Answer> answers;
     private final ArrayList<Tag> tag;
     private final String modifiedAt;
@@ -120,6 +125,10 @@ public class Question extends BaseObject implements Parcelable {
             default:
                 return text.getEnglish();
         }
+    }
+
+    public void setOptionList(ArrayList<Option> optionList) {
+        this.optionList = optionList;
     }
 
     public boolean isFinished() {
@@ -227,12 +236,45 @@ public class Question extends BaseObject implements Parcelable {
         this.answers.set(index, answer);
     }
 
-//    public Answer getLatestAnswer() {
-//        if (answers == null || answers.isEmpty()) {
-//            return null;
-//        }
-//        return answers.get(answers.size() - 1); // The required answers is always at the last index.
-//    }
+    public Question findInTree(QuestionTreeSearchPredicate predicate) {
+        return findInTreeInternal(predicate, this);
+    }
+
+    private Question findInTreeInternal(QuestionTreeSearchPredicate predicate, Question question) {
+
+        if (predicate.evaluate(question)) {
+            return question;
+        }
+
+        Question result = null;
+
+        for (Question child : question.getChildren()) {
+
+            result = findInTreeInternal(predicate, child);
+
+            if (result != null) {
+                break;
+            }
+
+        }
+
+        return result;
+    }
+
+    public boolean containsPreFlow(String tag) {
+        PreFlow preFlow = flowPattern.getPreFlow();
+        if (preFlow != null) {
+            ArrayList<String> fillTags = preFlow.getFill();
+            if (fillTags != null) {
+                for (String s : fillTags) {
+                    if (tag.toLowerCase().equals(s.toLowerCase())) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
 
     public static Question populateQuestion(JsonObject nodeJson) {
         return populateQuestionInternal(null, nodeJson);
@@ -380,7 +422,7 @@ public class Question extends BaseObject implements Parcelable {
         this.type = in.readString();
         this.optionList = in.createTypedArrayList(Option.CREATOR);
         this.answers = in.createTypedArrayList(Answer.CREATOR);
-        this.tag = in.createTypedArrayList(Tag.CREATOR);
+        this.tag = in.createTypedArrayList(com.puthuvaazhvu.mapping.modals.Tag.CREATOR);
         this.modifiedAt = in.readString();
         this.rawNumber = in.readString();
         this.children = in.createTypedArrayList(Question.CREATOR);

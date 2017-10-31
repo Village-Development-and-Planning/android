@@ -16,65 +16,58 @@ import timber.log.Timber;
 public class DataFileHelpers {
 
     public static File getSurveyDataFile(String surveyID, boolean forRead) {
-        File dir = getSurveyDataDirectory(forRead);
-
-        try {
-            if (dir != null) {
-                File file = new File(dir, surveyID + ".json");
-
-                file.createNewFile();
-
-                Timber.i("Name of the file to be saved is : " + file.getAbsolutePath());
-
-                return file;
-            }
-        } catch (IOException e) {
-            Timber.e("Error creating file" + e.getMessage());
-        }
-
-        return null;
+        File dataDir = getSurveyDataDirectory(forRead);
+        String fileName = surveyID + ".json";
+        return createFileInDir(dataDir, fileName);
     }
 
-    public static File getFileToDumpSurvey(String surveyID, boolean forRead) {
-        File dataDirectory = getDataDirectory(forRead);
-
-        try {
-            if (dataDirectory != null) {
-                String fileName = "survey_" + surveyID + ".json";
-                File file = new File(dataDirectory, fileName);
-                file.createNewFile();
-                Timber.i("Name of the file to be saved is : " + fileName);
-                return file;
-            }
-        } catch (IOException e) {
-            Timber.e("Error creating file" + e.getMessage());
-        }
-        return null;
+    public static File getFileToDumpAnswers(String surveyID, boolean forRead) {
+        File dataDir = getAnswersDataDirectory(forRead);
+        long currentTime = System.currentTimeMillis();
+        String fileName = surveyID + "_" + currentTime + ".json";
+        return createFileInDir(dataDir, fileName);
     }
 
     public static File getSurveyInfoFile(boolean forRead) {
         File dataDir = getSurveyDataDirectory(forRead);
-        String fileName = "";
+        String fileName = Constants.INFO_FILE_NAME;
+        return createFileInDir(dataDir, fileName);
+    }
 
+    public static File getAnswersInfoFile(boolean forRead) {
+        File dataDir = getAnswersDataDirectory(forRead);
+        String fileName = Constants.INFO_FILE_NAME;
+        return createFileInDir(dataDir, fileName);
+    }
+
+    public static File getAnswersDataDirectory(boolean forRead) {
+        return createDirInRoot(forRead, Constants.ANSWERS_DATA_DIR);
+    }
+
+    public static File getSurveyDataDirectory(boolean forRead) {
+        return createDirInRoot(forRead, Constants.SURVEY_DATA_DIR);
+    }
+
+    private static File createFileInDir(File dir, String fileName) {
         try {
-            if (dataDir != null) {
-                fileName = Constants.SURVEY_INFO_FILE_NAME;
-                File file = new File(dataDir, fileName);
+            if (dir != null) {
+                File file = new File(dir, fileName);
                 file.createNewFile();
                 return file;
+            } else {
+                Timber.e("The dir provided is null.");
             }
         } catch (IOException e) {
             Timber.e("Error creating " + fileName + " " + e.getMessage());
         }
-
         return null;
     }
 
-    public static File getSurveyDataDirectory(boolean forRead) {
+    private static File createDirInRoot(boolean forRead, String dirName) {
         File dataDirectory = getDataDirectory(forRead);
 
         if (dataDirectory != null) {
-            String path = dataDirectory.getAbsolutePath() + File.separator + Constants.SURVEY_DATA_DIR;
+            String path = dataDirectory.getAbsolutePath() + File.separator + dirName;
             File surveyDataDir = new File(path);
             if (!surveyDataDir.exists()) {
                 boolean result = surveyDataDir.mkdirs();
@@ -90,7 +83,7 @@ public class DataFileHelpers {
         return null;
     }
 
-    public static File getDataDirectory(boolean forRead) {
+    private static File getDataDirectory(boolean forRead) {
         boolean positive = false;
         File dataDir = null;
 
@@ -121,7 +114,7 @@ public class DataFileHelpers {
     }
 
     /* Checks if external storage is available for read and write */
-    public static boolean isExternalStorageWritable() {
+    private static boolean isExternalStorageWritable() {
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state)) {
             return true;
@@ -130,7 +123,7 @@ public class DataFileHelpers {
     }
 
     /* Checks if external storage is available to at least read */
-    public static boolean isExternalStorageReadable() {
+    private static boolean isExternalStorageReadable() {
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state) ||
                 Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {

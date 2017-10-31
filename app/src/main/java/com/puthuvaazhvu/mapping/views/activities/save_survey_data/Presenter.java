@@ -11,7 +11,7 @@ import com.puthuvaazhvu.mapping.network.APIs;
 import com.puthuvaazhvu.mapping.network.implementations.ListSurveysAPI;
 import com.puthuvaazhvu.mapping.network.implementations.SingleSurveyAPI;
 import com.puthuvaazhvu.mapping.utils.DataFileHelpers;
-import com.puthuvaazhvu.mapping.utils.info_file.UpdateInfoFile;
+import com.puthuvaazhvu.mapping.utils.info_file.SurveyInfoFile;
 import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
 import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
 
@@ -40,7 +40,7 @@ public class Presenter implements Contract.UserAction {
     private final Handler uiHandler;
 
     private final GetFromFile getFromFile;
-    private final UpdateInfoFile updateInfoFile;
+    private final SurveyInfoFile surveyInfoFile;
 
     public Presenter(SharedPreferences sharedPreferences, Contract.View view) {
         saveToFile = SaveToFile.getInstance();
@@ -53,7 +53,7 @@ public class Presenter implements Contract.UserAction {
         uiHandler = new Handler(Looper.getMainLooper());
 
         this.getFromFile = GetFromFile.getInstance();
-        this.updateInfoFile = new UpdateInfoFile(getFromFile, saveToFile);
+        this.surveyInfoFile = new SurveyInfoFile(getFromFile, saveToFile);
     }
 
     @Override
@@ -124,7 +124,7 @@ public class Presenter implements Contract.UserAction {
                 }
 
                 // add this in the last after the survey folder is populated
-                saveToFileCallable.add(updateInfoFile.updateAnsweredSurveys(savedSurveyIds));
+                saveToFileCallable.add(surveyInfoFile.updateListOfSurveys(savedSurveyIds));
 
                 pool.invokeAll(saveToFileCallable);
 

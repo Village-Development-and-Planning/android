@@ -17,7 +17,7 @@ import android.widget.TextView;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.Utils;
-import com.puthuvaazhvu.mapping.utils.info_file.UpdateInfoFile;
+import com.puthuvaazhvu.mapping.utils.info_file.SurveyInfoFile;
 import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
 import com.puthuvaazhvu.mapping.utils.storage.PrefsStorage;
 import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
@@ -76,8 +76,8 @@ public class SurveyListActivity extends BaseActivity
         adapter = new ListAdapter();
         recyclerView.setAdapter(adapter);
 
-        UpdateInfoFile updateInfoFile = new UpdateInfoFile(GetFromFile.getInstance(), SaveToFile.getInstance());
-        presenter = new Presenter(updateInfoFile, this);
+        SurveyInfoFile updateSurveyInfoFile = new SurveyInfoFile(GetFromFile.getInstance(), SaveToFile.getInstance());
+        presenter = new Presenter(updateSurveyInfoFile, this);
 
         fetchListOfSurveys();
     }

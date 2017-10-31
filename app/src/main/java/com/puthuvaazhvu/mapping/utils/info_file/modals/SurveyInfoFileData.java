@@ -7,14 +7,14 @@ import com.puthuvaazhvu.mapping.utils.JsonHelper;
  * Created by muthuveerappans on 10/30/17.
  */
 
-public class SavedSurveyInfoFile {
+public class SurveyInfoFileData {
     private final String _id;
 
-    public SavedSurveyInfoFile(String _id) {
+    public SurveyInfoFileData(String _id) {
         this._id = _id;
     }
 
-    public SavedSurveyInfoFile(JsonObject jsonObject) {
+    public SurveyInfoFileData(JsonObject jsonObject) {
         _id = JsonHelper.getString(jsonObject, "_id");
     }
 

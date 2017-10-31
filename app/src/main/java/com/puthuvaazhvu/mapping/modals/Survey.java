@@ -98,6 +98,26 @@ public class Survey extends BaseObject implements Parcelable {
         return description;
     }
 
+    public boolean dynamicOptionsFillForQuestion(final String fillTag, ArrayList<Option> options) {
+
+        Question root = questionList.get(0);
+
+        Question result = root.findInTree(new Question.QuestionTreeSearchPredicate() {
+            @Override
+            public boolean evaluate(Question question) {
+                return question.containsPreFlow(fillTag);
+            }
+        });
+
+        if (result == null) {
+            return false;
+        }
+
+        result.setOptionList(options);
+
+        return true;
+    }
+
     @Override
     public JsonElement getAsJson() {
         JsonObject jsonObject = new JsonObject();

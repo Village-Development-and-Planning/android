@@ -11,6 +11,8 @@ import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.DataFileHelpers;
+import com.puthuvaazhvu.mapping.utils.info_file.AnswersInfoFile;
+import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
 import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.GridQuestionData;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
@@ -23,6 +25,9 @@ import com.puthuvaazhvu.mapping.views.helpers.back_navigation.IBackFlow;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import timber.log.Timber;
 
@@ -41,13 +46,18 @@ public class Presenter implements Contract.UserAction {
     private final Handler uiHandler;
 
     private final SaveToFile saveToFile;
+    private final GetFromFile getFromFile;
 
-    public Presenter(Contract.View view, DataRepository<Survey> dataRepository, SaveToFile saveToFile, Handler uiHandler) {
-        this.activityView = view;
+    private final AnswersInfoFile answersInfoFile;
+
+    public Presenter(Contract.View activityView, DataRepository<Survey> dataRepository, Handler uiHandler, SaveToFile saveToFile, GetFromFile getFromFile) {
+        this.activityView = activityView;
         this.dataRepository = dataRepository;
-        this.saveToFile = saveToFile;
-
         this.uiHandler = uiHandler;
+        this.saveToFile = saveToFile;
+        this.getFromFile = getFromFile;
+
+        this.answersInfoFile = new AnswersInfoFile(getFromFile, saveToFile);
     }
 
     @Override
@@ -120,7 +130,7 @@ public class Presenter implements Contract.UserAction {
         JsonObject resultSurveyJson = survey.getAsJson().getAsJsonObject();
         Timber.i("Survey dump: \n" + resultSurveyJson.toString());
 
-        File fileToSave = DataFileHelpers.getFileToDumpSurvey(survey.getId(), false);
+        File fileToSave = DataFileHelpers.getFileToDumpAnswers(survey.getId(), false);
         if (fileToSave != null)
             dumpToFile(resultSurveyJson.toString(), fileToSave);
     }
@@ -250,6 +260,38 @@ public class Presenter implements Contract.UserAction {
                 Crashlytics.logException(new Exception(errorMessage));
             }
         });
+    }
+
+    @Override
+    public void updateAnswersInfoFile(final Survey survey) {
+
+        activityView.showLoading(R.string.loading);
+
+        new Thread(new Runnable() {
+            ExecutorService thread = Executors.newSingleThreadExecutor();
+
+            @Override
+            public void run() {
+
+                ArrayList<String> surveyIDs = new ArrayList<>();
+                surveyIDs.add(survey.getId());
+
+                try {
+                    thread.submit(answersInfoFile.updateListOfSurveys(surveyIDs)).get();
+                } catch (Exception e) {
+                    String err = "Error updating answers " + Constants.INFO_FILE_NAME + " error msg: " + e.getMessage();
+                    Timber.e(err);
+                    Crashlytics.log(err);
+                }
+
+                uiHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        activityView.hideLoading();
+                    }
+                });
+            }
+        }).start();
     }
 
 }

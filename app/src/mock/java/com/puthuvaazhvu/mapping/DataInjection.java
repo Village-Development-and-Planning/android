@@ -12,7 +12,7 @@ import com.puthuvaazhvu.mapping.modals.Survey;
  */
 
 public class DataInjection {
-    public static DataRepository<Survey> provideSurveyDataRepository(Handler handler) {
-        return new SurveyDataRepository(new FileStorageSurveyDataSource(handler));
+    public static DataRepository<Survey> provideSurveyDataRepository(Handler handler, Context context) {
+        return new SurveyDataRepository(new FileStorageSurveyMockFillOptionsDataSource(handler, context));
     }
 }

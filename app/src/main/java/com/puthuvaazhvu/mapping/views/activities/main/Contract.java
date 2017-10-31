@@ -111,5 +111,7 @@ public interface Contract {
         void moveToQuestionAt(int index);
 
         void dumpSurveyToFile();
+
+        void updateAnswersInfoFile(Survey survey);
     }
 }

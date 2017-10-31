@@ -13,6 +13,7 @@ import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.Utils;
+import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
 import com.puthuvaazhvu.mapping.utils.storage.PrefsStorage;
 import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
 import com.puthuvaazhvu.mapping.views.activities.BaseActivity;
@@ -81,9 +82,11 @@ public class MainActivity extends BaseActivity
 
         presenter = new Presenter(
                 this,
-                DataInjection.provideSurveyDataRepository(handler),
+                DataInjection.provideSurveyDataRepository(handler, this),
+                handler,
                 SaveToFile.getInstance(),
-                handler);
+                GetFromFile.getInstance()
+        );
 
         String latestSurveyID = prefsStorage.getLatestSurveyID();
 
@@ -181,6 +184,7 @@ public class MainActivity extends BaseActivity
     @Override
     public void onSurveySaved(Survey survey) {
         defaultBackPressed = true;
+        presenter.updateAnswersInfoFile(survey);
         startListOfSurveysActivity();
     }
 
