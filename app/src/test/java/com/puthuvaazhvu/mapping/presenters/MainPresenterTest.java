@@ -8,6 +8,7 @@ import com.puthuvaazhvu.mapping.modals.flow.FlowPattern;
 import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
+import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
 import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
 import com.puthuvaazhvu.mapping.views.activities.main.Contract;
 import com.puthuvaazhvu.mapping.views.activities.main.Presenter;
@@ -59,11 +60,14 @@ public class MainPresenterTest {
     SaveToFile saveToFile;
 
     @Mock
+    GetFromFile getFromFile;
+
+    @Mock
     Handler handler;
 
     @Before
     public void setup() {
-        presenter = new Presenter(viewCallback, dataRepository, saveToFile, handler);
+        presenter = new Presenter(viewCallback, dataRepository, handler, saveToFile, getFromFile);
         initQuestionMock();
     }
 
