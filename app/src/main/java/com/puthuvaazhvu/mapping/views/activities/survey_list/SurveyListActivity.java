@@ -158,9 +158,11 @@ public class SurveyListActivity extends BaseActivity
         if (resumed) {
 
             if (data.isEmpty()) {
-                infoTxt.setText("No survey(s) found. Dump survey from server first.");
+                infoTxt.setText("No survey(s) found. Dump survey from the server first.");
                 return;
             }
+
+            infoTxt.setText("Survey(s) count " + data.size());
 
             surveyListData.clear();
             surveyListData.addAll(data);

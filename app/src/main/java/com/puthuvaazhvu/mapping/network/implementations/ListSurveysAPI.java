@@ -6,6 +6,7 @@ import com.puthuvaazhvu.mapping.network.ErrorUtils;
 import com.puthuvaazhvu.mapping.network.adapters.NetworkAdapter;
 import com.puthuvaazhvu.mapping.network.client_interfaces.ListSurveysClient;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -46,7 +47,19 @@ public class ListSurveysAPI extends BaseAPI {
             @Override
             public void onResponse(Call<List<SurveyInfo>> call, Response<List<SurveyInfo>> response) {
                 if (response.isSuccessful()) {
-                    callbacks.onSurveysLoaded(response.body());
+
+                    List<SurveyInfo> surveyInfoList = response.body();
+
+                    List<SurveyInfo> result = new ArrayList<>();
+
+                    // filter for disabled surveys
+                    for (SurveyInfo surveyInfo : surveyInfoList) {
+                        if (surveyInfo.isEnabled()) {
+                            result.add(surveyInfo);
+                        }
+                    }
+
+                    callbacks.onSurveysLoaded(result);
                 } else {
                     callbacks.onErrorOccurred(ErrorUtils.parseError(response));
                 }

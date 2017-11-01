@@ -59,17 +59,17 @@ public class Presenter implements Contract.UserAction {
 
                 List<SurveyInfoFileData> surveyInfoFileDataList = savedSurveyInfoFileData.getSurveyInfoFileDataList();
 
-                if (surveyInfoFileDataList != null) {
+                ArrayList<String> surveyIds = new ArrayList<>();
 
-                    ArrayList<String> surveyIds = new ArrayList<>();
+                if (surveyInfoFileDataList != null) {
 
                     for (SurveyInfoFileData surveyInfoFileData : surveyInfoFileDataList) {
                         String surveyID = surveyInfoFileData.get_id();
                         surveyIds.add(surveyID);
                     }
-
-                    return surveyIds;
                 }
+
+                return surveyIds;
 
             } catch (ExecutionException e) {
                 Timber.e(e.getMessage());

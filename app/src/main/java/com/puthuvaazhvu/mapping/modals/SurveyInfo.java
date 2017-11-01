@@ -9,12 +9,14 @@ public class SurveyInfo {
     private final String name;
     private final String description;
     private final String modifiedAt;
+    private final boolean enabled;
 
-    public SurveyInfo(String _id, String name, String description, String modifiedAt) {
+    public SurveyInfo(String _id, String name, String description, String modifiedAt, boolean enabled) {
         this._id = _id;
         this.name = name;
         this.description = description;
         this.modifiedAt = modifiedAt;
+        this.enabled = enabled;
     }
 
     public String get_id() {
@@ -31,5 +33,9 @@ public class SurveyInfo {
 
     public String getModifiedAt() {
         return modifiedAt;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
     }
 }
