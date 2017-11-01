@@ -20,7 +20,7 @@
                   "english": "District name",
                   "tamil": "மாவட்டத்தின் பெயர்"
                 },
-                "type": "INFO",
+                "type": "MESSAGE",
                 "tags": "FILL_DISTRICT_NAME",
                 "number": "1.2",
                 "flow": {
@@ -33,7 +33,7 @@
                     ]
                   },
                   "question": {
-                    "ui": "INFO",
+                    "ui": "MESSAGE",
                     "validation": null
                   },
                   "answer": {

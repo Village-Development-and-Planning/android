@@ -6,6 +6,9 @@ import com.crashlytics.android.Crashlytics;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.data.DataRepository;
+import com.puthuvaazhvu.mapping.modals.Answer;
+import com.puthuvaazhvu.mapping.modals.Option;
+import com.puthuvaazhvu.mapping.modals.Text;
 import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
@@ -170,6 +173,34 @@ public class Presenter implements Contract.UserAction {
         // 3. show the new question
         Question question = flowData.question;
 
+        // check question UI flow
+        if (question != null) {
+
+            QuestionFlow questionFlow = question.getFlowPattern().getQuestionFlow();
+
+            while (questionFlow.getUiMode() == QuestionFlow.UI.NONE) {
+
+                // create dummy answer
+                ArrayList<Option> dummyOptions = new ArrayList<>();
+                dummyOptions.add(
+                        new Option(
+                                "-1",
+                                "DUMMY",
+                                new Text("-1", "DUMMY", "DUMMY", null),
+                                "",
+                                "-1"
+                        )
+                );
+
+                ResponseData responseData = new ResponseData("-1", question.getRawNumber(), dummyOptions);
+                flowHelper.update(responseData);
+
+                flowData = flowHelper.getNext();
+                question = flowData.question;
+                questionFlow = question.getFlowPattern().getQuestionFlow();
+            }
+        }
+
         // only if grid for children, show grid. else show normal question view
         if (flowData.flowType == FlowType.GRID) {
             showGridUI(question);
@@ -230,6 +261,8 @@ public class Presenter implements Contract.UserAction {
             activityView.shouldShowQuestionAsInfo(questionData);
         else if (question.getFlowPattern().getQuestionFlow().getUiMode() == QuestionFlow.UI.CONFIRMATION)
             activityView.shouldShowConformationQuestion(questionData);
+        else if (question.getFlowPattern().getQuestionFlow().getUiMode() == QuestionFlow.UI.MESSAGE)
+            activityView.shouldShowMessageQuestion(questionData);
         else
             activityView.shouldShowSingleQuestion(questionData);
     }

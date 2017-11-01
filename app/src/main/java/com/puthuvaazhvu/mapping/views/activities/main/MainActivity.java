@@ -26,6 +26,7 @@ import com.puthuvaazhvu.mapping.views.fragments.question.fragment.ConformationQu
 import com.puthuvaazhvu.mapping.views.fragments.question.fragment.FragmentCommunicationInterface;
 import com.puthuvaazhvu.mapping.views.fragments.question.fragment.GridQuestionsFragment;
 import com.puthuvaazhvu.mapping.views.fragments.question.fragment.InfoFragment;
+import com.puthuvaazhvu.mapping.views.fragments.question.fragment.MessageQuestionFragment;
 import com.puthuvaazhvu.mapping.views.fragments.question.fragment.QuestionFragment;
 import com.puthuvaazhvu.mapping.views.fragments.question.fragment.SingleQuestionFragment;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
@@ -117,14 +118,14 @@ public class MainActivity extends BaseActivity
         Question root = survey.getQuestionList().get(0);
 
         // set a mock answer for the root question
-        QuestionData rootData = QuestionData.adapter(root);
-
-        OptionData responseData = OptionData.adapter(root);
-
-        AnswerData answerData = new SingleAnswerData(root.getRawNumber(), root.getTextString(), null, "DUMMY_ANSWER", "0");
-        responseData.setAnswerData(answerData);
-
-        rootData.setResponseData(responseData);
+//        QuestionData rootData = QuestionData.adapter(root);
+//
+//        OptionData responseData = OptionData.adapter(root);
+//
+//        AnswerData answerData = new SingleAnswerData(root.getRawNumber(), root.getTextString(), null, "DUMMY_ANSWER", "0");
+//        responseData.setAnswerData(answerData);
+//
+//        rootData.setResponseData(responseData);
 
         iFlow = new FlowImplementation(root);
 
@@ -132,13 +133,15 @@ public class MainActivity extends BaseActivity
 
         presenter.initData(survey, flowHelper);
 
-        updateCurrentQuestion(rootData, new Runnable() {
-            @Override
-            public void run() {
-                // set the first question
-                presenter.getNext();
-            }
-        });
+//        updateCurrentQuestion(rootData, new Runnable() {
+//            @Override
+//            public void run() {
+//                // set the first question
+//                presenter.getNext();
+//            }
+//        });
+
+        presenter.getNext();
     }
 
     @Override
@@ -170,6 +173,13 @@ public class MainActivity extends BaseActivity
     @Override
     public void shouldShowConformationQuestion(QuestionData question) {
         ConformationQuestionFragment fragment = ConformationQuestionFragment.getInstance(question);
+        replaceFragmentCommand(fragment, question.getSingleQuestion().getRawNumber());
+        executePendingCommands();
+    }
+
+    @Override
+    public void shouldShowMessageQuestion(QuestionData question) {
+        MessageQuestionFragment fragment = MessageQuestionFragment.getInstance(question);
         replaceFragmentCommand(fragment, question.getSingleQuestion().getRawNumber());
         executePendingCommands();
     }

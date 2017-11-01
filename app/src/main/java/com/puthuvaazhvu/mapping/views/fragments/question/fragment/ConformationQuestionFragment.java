@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import android.view.View;
 
 import com.puthuvaazhvu.mapping.R;
+import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.InputAnswerData;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.MultipleAnswerData;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.SingleAnswerData;
@@ -41,15 +42,15 @@ public class ConformationQuestionFragment extends SingleQuestionFragmentBase {
     @Override
     public void onBackButtonPressed(View view) {
         // put a dummy data here too.
-        finishCurrentQuestion(getUpdatedQuestion("NO"), true);
+        finishCurrentQuestion(getUpdatedQuestion("NO", questionData), true);
     }
 
     @Override
     public void onNextButtonPressed(View view) {
-        sendQuestionToCaller(getUpdatedQuestion("YES"), false);
+        sendQuestionToCaller(getUpdatedQuestion("YES", questionData), false);
     }
 
-    public QuestionData getUpdatedQuestion(String optionText) {
+    public static QuestionData getUpdatedQuestion(String optionText, QuestionData questionData) {
         InputAnswerData inputAnswerData = new InputAnswerData(questionData.getSingleQuestion().getId()
                 , questionData.getSingleQuestion().getText(), optionText);
 

@@ -13,6 +13,7 @@
     <string name="loading">LOADING</string>
     <string name="next">NEXT</string>
     <string name="back">BACK</string>
+    <string name="settings">SETTINGS</string>
 
     <!--success-->
     <string name="gps_recorded_successfully">GPS recorded successfully</string>

@@ -18,7 +18,7 @@ public class Constants {
         public static final int STORAGE_PERMISSION_REQUEST_CODE = 2;
     }
 
-    public static enum Language {
+    public enum Language {
         ENGLISH,
         TAMIL
     }

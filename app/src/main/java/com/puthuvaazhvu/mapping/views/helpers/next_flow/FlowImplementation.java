@@ -3,12 +3,15 @@ package com.puthuvaazhvu.mapping.views.helpers.next_flow;
 import android.support.annotation.VisibleForTesting;
 
 import com.puthuvaazhvu.mapping.modals.Answer;
+import com.puthuvaazhvu.mapping.modals.Text;
 import com.puthuvaazhvu.mapping.modals.flow.AnswerFlow;
 import com.puthuvaazhvu.mapping.modals.flow.ChildFlow;
 import com.puthuvaazhvu.mapping.modals.flow.ExitFlow;
+import com.puthuvaazhvu.mapping.modals.flow.FlowPattern;
 import com.puthuvaazhvu.mapping.modals.flow.PreFlow;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
+import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
 import com.puthuvaazhvu.mapping.views.helpers.FlowType;
 import com.puthuvaazhvu.mapping.views.helpers.ResponseData;
 import com.puthuvaazhvu.mapping.views.helpers.back_navigation.BackFlowImplementation;
@@ -127,11 +130,6 @@ public class FlowImplementation implements IFlow {
         do {
             flowData = getNextInternal(current);
 
-            if (flowData.flowType == FlowType.NONE) {
-                flowData.question = current;
-                return flowData;
-            }
-
             nextQuestion = flowData.question;
 
             if (nextQuestion == null) {
@@ -191,7 +189,7 @@ public class FlowImplementation implements IFlow {
         FlowData flowData = new FlowData();
 
         if (current.getFlowPattern() == null) {
-            flowData.flowType = FlowType.NONE;
+            flowData.question = null;
             return flowData;
         }
 

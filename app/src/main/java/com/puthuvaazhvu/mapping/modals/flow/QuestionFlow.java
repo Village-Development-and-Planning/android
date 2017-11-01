@@ -24,7 +24,7 @@ public class QuestionFlow extends BaseObject implements Parcelable {
     }
 
     public enum UI {
-        NONE, SINGLE_CHOICE, MULTIPLE_CHOICE, GPS, INPUT, INFO, CONFIRMATION
+        NONE, SINGLE_CHOICE, MULTIPLE_CHOICE, GPS, INPUT, INFO, CONFIRMATION, MESSAGE
     }
 
     public QuestionFlow(Validation validation, UI uiMode) {
@@ -58,6 +58,8 @@ public class QuestionFlow extends BaseObject implements Parcelable {
                 return UI.INFO;
             case "CONFIRMATION":
                 return UI.CONFIRMATION;
+            case "MESSAGE":
+                return UI.MESSAGE;
             default:
                 return UI.NONE;
         }

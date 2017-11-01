@@ -49,6 +49,8 @@ public interface Contract {
          */
         void shouldShowConformationQuestion(QuestionData question);
 
+        void shouldShowMessageQuestion(QuestionData question);
+
         void shouldShowSummary(Survey survey);
 
         void onSurveySaved(Survey survey);

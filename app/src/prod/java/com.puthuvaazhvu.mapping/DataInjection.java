@@ -9,5 +9,7 @@ import com.puthuvaazhvu.mapping.modals.Survey;
  */
 
 public class DataInjection {
-
+    public static DataRepository<Survey> provideSurveyDataRepository(Handler handler, Context context) {
+        throw new IllegalArgumentException("Not implelemted");
+    }
 }
