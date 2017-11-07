@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.puthuvaazhvu.mapping.R;
+import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.MultipleAnswerData;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
 
@@ -54,6 +55,14 @@ public class InfoFragment extends QuestionFragment implements View.OnClickListen
 
         back_button.setOnClickListener(this);
         next_button.setOnClickListener(this);
+
+        if (Constants.APP_LANGUAGE == Constants.Language.ENGLISH) {
+            back_button.setText(getString(R.string.back));
+            next_button.setText(getString(R.string.next_ta));
+        } else {
+            back_button.setText(getString(R.string.back_ta));
+            next_button.setText(getString(R.string.next_ta));
+        }
     }
 
     @Override

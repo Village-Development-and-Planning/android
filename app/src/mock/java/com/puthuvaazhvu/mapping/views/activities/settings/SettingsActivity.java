@@ -43,6 +43,8 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                     Constants.APP_LANGUAGE = Constants.Language.ENGLISH;
                 }
 
+                Utils.showMessageToast("Restarting", SettingsActivity.this);
+
                 showListOfSurveyActivity();
             }
         });

@@ -53,6 +53,14 @@ public class SingleQuestionFragment extends SingleQuestionFragmentBase implement
         getQuestion_text().setText(text);
 
         loadCorrectOptionFragment(questionData);
+
+        if (Constants.APP_LANGUAGE == Constants.Language.ENGLISH) {
+            getBack_button().setText(getString(R.string.back));
+            getNext_button().setText(getString(R.string.next));
+        } else {
+            getBack_button().setText(getString(R.string.back_ta));
+            getNext_button().setText(getString(R.string.next_ta));
+        }
     }
 
     @Override
