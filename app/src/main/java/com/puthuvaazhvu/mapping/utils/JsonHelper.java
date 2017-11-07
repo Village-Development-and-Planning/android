@@ -20,7 +20,7 @@ public class JsonHelper {
         if (isJsonValid(jsonObject, key)) {
             return jsonObject.get(key).getAsString();
         }
-        return "";
+        return null;
     }
 
     public static JsonObject getJsonObject(JsonObject jsonObject, String key) {

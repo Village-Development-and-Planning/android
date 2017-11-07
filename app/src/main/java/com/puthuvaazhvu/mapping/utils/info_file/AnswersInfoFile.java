@@ -1,34 +1,18 @@
 package com.puthuvaazhvu.mapping.utils.info_file;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.utils.DataFileHelpers;
-import com.puthuvaazhvu.mapping.utils.JsonHelper;
 import com.puthuvaazhvu.mapping.utils.info_file.modals.AnswersInfoFileData;
-import com.puthuvaazhvu.mapping.utils.info_file.modals.SavedSurveyInfoFileData;
 import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
 import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 /**
  * Created by muthuveerappans on 10/31/17.
- */
-/*
-    Info JSON structure :
-
-    {
-        "answered_surveys": [
-            {
-                "_id": 1234,
-            }
-        ]
-    }
-
  */
 
 public class AnswersInfoFile extends InfoFileBase {
@@ -52,25 +36,15 @@ public class AnswersInfoFile extends InfoFileBase {
         };
     }
 
-    public Callable<Void> updateListOfSurveys(final ArrayList<String> answeredSurveyIds)
+    public Callable<Void> updateListOfSurveys(final AnswersInfoFileData data)
             throws IOException, ExecutionException, InterruptedException {
 
         JsonObject rootJson = pool.submit(getContentsOfFile()).get();
-        JsonArray savedSurveyJsonArray = JsonHelper.getJsonArray(rootJson, "answered_surveys");
+        AnswersInfoFileData old = new AnswersInfoFileData(rootJson);
 
-        if (savedSurveyJsonArray == null) {
-            savedSurveyJsonArray = new JsonArray();
-            rootJson.add("answered_surveys", savedSurveyJsonArray);
-        }
-
-        // add the survey id's
-        for (String id : answeredSurveyIds) {
-            JsonObject surveyJson = new JsonObject();
-            surveyJson.addProperty("_id", id);
-            savedSurveyJsonArray.add(surveyJson);
-        }
+        old.updateWithNew(data);
 
         // save
-        return saveFile(rootJson);
+        return saveFile(old.getAsJson());
     }
 }

@@ -19,7 +19,7 @@
     <string name="gps_recorded_successfully">GPS recorded successfully</string>
 
     <!--errors-->
-    <string name="no_data">Cannot get the required data</string>
+    <string name="no_data">Cannot get the required surveys</string>
     <string name="question_iteration_error">Cannot proceed</string>
     <string name="survey_incomplete">Please complete all the questions</string>
     <string name="options_not_entered_err">Please provide valid options</string>
@@ -27,10 +27,10 @@
     <string name="gps_error_title">Error recording gps</string>
     <string name="error_saving_survey">Error saving the survey</string>
     <string name="cannot_go_back">Cannot go back</string>
-    <string name="cannot_get_data">Error fetching the data</string>
+    <string name="cannot_get_data">Error fetching the surveys</string>
     <string name="no_network">No network available</string>
     <string name="file_not_exist">File not found</string>
-    <string name="invalid_data">Invalid data</string>
+    <string name="invalid_data">Invalid surveys</string>
 
     <!--others tamil translation-->
     <string name="next_ta">அடுத்த</string>

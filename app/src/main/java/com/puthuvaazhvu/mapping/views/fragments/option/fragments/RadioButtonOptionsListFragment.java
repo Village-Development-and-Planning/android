@@ -36,6 +36,11 @@ public class RadioButtonOptionsListFragment extends OptionsListFragment {
     }
 
     @Override
+    public OptionData.Type getType() {
+        return OptionData.Type.RADIO_BUTTON_LIST;
+    }
+
+    @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
     }
@@ -45,7 +50,6 @@ public class RadioButtonOptionsListFragment extends OptionsListFragment {
         return adapter;
     }
 
-    @Override
     public OptionData getUpdatedData() {
         return populateAnswers();
     }

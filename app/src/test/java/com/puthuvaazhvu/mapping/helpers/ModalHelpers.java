@@ -1,7 +1,9 @@
-package com.puthuvaazhvu.mapping.modals;
+package com.puthuvaazhvu.mapping.helpers;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.puthuvaazhvu.mapping.modals.Question;
+import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.utils.Utils;
 
 import java.io.InputStream;
@@ -30,6 +32,20 @@ public class ModalHelpers {
         assertThat(surveyJson, notNullValue());
 
         return new Survey(surveyJson);
+    }
+
+    public static Question getMessageQuestion(Object obj) {
+        String fileName = "message_question.json";
+        String questionString = Utils.readFromInputStream(getDataFormFile(obj, fileName));
+
+        assertThat(questionString, notNullValue());
+
+        JsonParser jsonParser = new JsonParser();
+        JsonObject questionJson = jsonParser.parse(questionString).getAsJsonObject();
+
+        assertThat(questionJson, notNullValue());
+
+        return Question.populateQuestion(questionJson);
     }
 
     private static InputStream getDataFormFile(Object obj, String fileName) {

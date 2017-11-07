@@ -110,8 +110,28 @@ public class SingleQuestionFragment extends SingleQuestionFragmentBase implement
             Timber.e("The options fragment is null. Possibly default case is executed in loadCorrectOptionFragment() method.");
             return questionData;
         }
-        OptionData response = optionFragment.getUpdatedData();
-        questionData.setResponseData(response);
+
+        OptionData optionData = null;
+
+        switch (optionFragment.getType()) {
+            case CHECKBOX_LIST:
+                optionData = ((CheckBoxOptionsListFragment) optionFragment).getUpdatedData();
+                questionData.setResponseData(optionData);
+                break;
+            case RADIO_BUTTON_LIST:
+                optionData = ((RadioButtonOptionsListFragment) optionFragment).getUpdatedData();
+                questionData.setResponseData(optionData);
+                break;
+            case BUTTON:
+                optionData = ((GpsOptionFragment) optionFragment).getUpdatedData();
+                questionData.setResponseData(optionData);
+                break;
+            case EDIT_TEXT:
+                optionData = ((EditTextOptionFragment) optionFragment).getUpdatedData();
+                break;
+        }
+
+        questionData.setResponseData(optionData);
 
         return questionData;
     }

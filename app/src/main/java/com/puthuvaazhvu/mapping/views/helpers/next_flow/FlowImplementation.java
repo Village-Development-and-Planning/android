@@ -88,7 +88,7 @@ public class FlowImplementation implements IFlow {
     @Override
     public IFlow update(ResponseData responseData) {
         String rawNumber = responseData.getRawNumber();
-        if (!rawNumber.equals(current.getRawNumber())) {
+        if (rawNumber != null && !rawNumber.equals(current.getRawNumber())) {
             Timber.e("Number mismatch " + "current: " + current.getRawNumber() + " received: " + rawNumber);
             return this;
         }
@@ -303,7 +303,7 @@ public class FlowImplementation implements IFlow {
         for (int i = stack.size() - 1; i >= 0; i--) {
             Answer answer = stack.get(i);
             Question question = answer.getQuestionReference();
-            if (question.getRawNumber().equals(rawQuestionNumber)) {
+            if (question.getRawNumber() != null && question.getRawNumber().equals(rawQuestionNumber)) {
                 return answer;
             }
         }

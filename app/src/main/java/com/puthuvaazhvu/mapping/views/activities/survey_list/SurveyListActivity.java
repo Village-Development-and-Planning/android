@@ -202,7 +202,7 @@ public class SurveyListActivity extends BaseActivity
             });
 
             onBind = true;
-            holder.populateViews(data.getId(), data.isChecked());
+            holder.populateViews(data.getId(), data.getName(), data.isChecked());
             onBind = false;
         }
 
@@ -224,12 +224,14 @@ public class SurveyListActivity extends BaseActivity
     private class ViewHolder extends RecyclerView.ViewHolder {
         private final RadioButton radio_button;
         private final TextView textView;
+        private final TextView name_txt;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
             radio_button = itemView.findViewById(R.id.radio_button);
             textView = itemView.findViewById(R.id.id_txt);
+            name_txt = itemView.findViewById(R.id.name_txt);
         }
 
         public void setCheckBoxClickListener(CompoundButton.OnCheckedChangeListener checkBoxClickListener) {
@@ -240,8 +242,9 @@ public class SurveyListActivity extends BaseActivity
             radio_button.setChecked(isChecked);
         }
 
-        public void populateViews(String id, boolean isChecked) {
+        public void populateViews(String id, String name, boolean isChecked) {
             textView.setText(id);
+            name_txt.setText(name);
             radio_button.setChecked(isChecked);
         }
     }

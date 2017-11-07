@@ -5,6 +5,8 @@ import android.os.Parcelable;
 
 import com.puthuvaazhvu.mapping.modals.Option;
 
+import java.util.ArrayList;
+
 /**
  * Created by muthuveerappans on 9/30/17.
  */

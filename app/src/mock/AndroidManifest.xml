@@ -31,7 +31,7 @@
 
         <activity android:name=".views.activities.settings.SettingsActivity" />
 
-        <meta-data
+        <meta-surveys
             android:name="io.fabric.ApiKey"
             android:value="6fd50a18cce0b74ec2ea15fc7a97a0d21f04c10f" />
 

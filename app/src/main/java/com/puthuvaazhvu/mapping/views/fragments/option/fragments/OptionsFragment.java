@@ -23,7 +23,5 @@ public abstract class OptionsFragment extends Fragment {
     @Override
     public abstract View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState);
 
-    public OptionData getUpdatedData() {
-        return null;
-    }
+    public abstract OptionData.Type getType();
 }

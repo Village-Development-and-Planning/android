@@ -19,14 +19,11 @@ import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
 import com.puthuvaazhvu.mapping.views.activities.BaseActivity;
 import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListActivity;
 import com.puthuvaazhvu.mapping.views.dialogs.ProgressDialog;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.OptionData;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.AnswerData;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.SingleAnswerData;
 import com.puthuvaazhvu.mapping.views.fragments.question.fragment.ConformationQuestionFragment;
 import com.puthuvaazhvu.mapping.views.fragments.question.fragment.FragmentCommunicationInterface;
 import com.puthuvaazhvu.mapping.views.fragments.question.fragment.GridQuestionsFragment;
 import com.puthuvaazhvu.mapping.views.fragments.question.fragment.InfoFragment;
-import com.puthuvaazhvu.mapping.views.fragments.question.fragment.MessageQuestionFragment;
+import com.puthuvaazhvu.mapping.views.fragments.question.fragment.message.MessageQuestionFragment;
 import com.puthuvaazhvu.mapping.views.fragments.question.fragment.QuestionFragment;
 import com.puthuvaazhvu.mapping.views.fragments.question.fragment.SingleQuestionFragment;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
@@ -35,8 +32,6 @@ import com.puthuvaazhvu.mapping.views.fragments.summary.SummaryFragment;
 import com.puthuvaazhvu.mapping.views.helpers.FlowHelper;
 import com.puthuvaazhvu.mapping.views.helpers.next_flow.IFlow;
 import com.puthuvaazhvu.mapping.views.helpers.next_flow.FlowImplementation;
-import com.puthuvaazhvu.mapping.views.helpers.back_navigation.BackFlowImplementation;
-import com.puthuvaazhvu.mapping.views.helpers.back_navigation.IBackFlow;
 import com.puthuvaazhvu.mapping.views.managers.StackFragmentManagerInvoker;
 import com.puthuvaazhvu.mapping.views.managers.commands.FragmentPopCommand;
 import com.puthuvaazhvu.mapping.views.managers.commands.FragmentPushCommand;
@@ -179,9 +174,10 @@ public class MainActivity extends BaseActivity
 
     @Override
     public void shouldShowMessageQuestion(QuestionData question) {
-        MessageQuestionFragment fragment = MessageQuestionFragment.getInstance(question);
-        replaceFragmentCommand(fragment, question.getSingleQuestion().getRawNumber());
-        executePendingCommands();
+        //Todo:
+//        MessageQuestionFragment fragment = MessageQuestionFragment.getInstance(question);
+//        replaceFragmentCommand(fragment, question.getSingleQuestion().getRawNumber());
+//        executePendingCommands();
     }
 
     @Override

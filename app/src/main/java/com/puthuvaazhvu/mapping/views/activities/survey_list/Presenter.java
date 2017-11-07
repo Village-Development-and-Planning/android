@@ -4,8 +4,8 @@ import android.os.AsyncTask;
 
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.utils.info_file.SurveyInfoFile;
+import com.puthuvaazhvu.mapping.utils.info_file.modals.Data;
 import com.puthuvaazhvu.mapping.utils.info_file.modals.SavedSurveyInfoFileData;
-import com.puthuvaazhvu.mapping.utils.info_file.modals.SurveyInfoFileData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +40,7 @@ public class Presenter implements Contract.UserAction {
         task.execute();
     }
 
-    private static class Task extends AsyncTask<Void, Void, List<String>> {
+    private static class Task extends AsyncTask<Void, Void, List<SurveyListData>> {
         private final SurveyInfoFile surveyInfoFile;
         private final Contract.View callback;
 
@@ -52,24 +52,24 @@ public class Presenter implements Contract.UserAction {
         }
 
         @Override
-        protected List<String> doInBackground(Void... params) {
+        protected List<SurveyListData> doInBackground(Void... params) {
             try {
 
                 SavedSurveyInfoFileData savedSurveyInfoFileData = pool.submit(surveyInfoFile.getInfoJsonParsed()).get();
 
-                List<SurveyInfoFileData> surveyInfoFileDataList = savedSurveyInfoFileData.getSurveyInfoFileDataList();
+                List<Data> surveyInfoFileDataList = savedSurveyInfoFileData.getSurveyData();
 
-                ArrayList<String> surveyIds = new ArrayList<>();
+                ArrayList<SurveyListData> surveyListDataArrayList = new ArrayList<>();
 
                 if (surveyInfoFileDataList != null) {
 
-                    for (SurveyInfoFileData surveyInfoFileData : surveyInfoFileDataList) {
-                        String surveyID = surveyInfoFileData.get_id();
-                        surveyIds.add(surveyID);
+                    for (Data surveyData : surveyInfoFileDataList) {
+                        surveyListDataArrayList.add(SurveyListData.adapter(surveyData.get_id()
+                                , surveyData.getSurveyName()));
                     }
                 }
 
-                return surveyIds;
+                return surveyListDataArrayList;
 
             } catch (ExecutionException e) {
                 Timber.e(e.getMessage());
@@ -81,13 +81,13 @@ public class Presenter implements Contract.UserAction {
         }
 
         @Override
-        protected void onPostExecute(List<String> surveyIDs) {
+        protected void onPostExecute(List<SurveyListData> surveyListDataList) {
             callback.hideLoading();
 
-            if (surveyIDs == null) {
+            if (surveyListDataList == null) {
                 callback.onError(R.string.cannot_get_data);
             } else {
-                callback.onSurveysFetched(SurveyListData.adapter(surveyIDs));
+                callback.onSurveysFetched(surveyListDataList);
             }
         }
     }

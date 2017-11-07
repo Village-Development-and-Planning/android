@@ -9,14 +9,20 @@ import java.util.List;
 
 public class SurveyListData {
     private final String id;
+    private final String name;
     private boolean isChecked;
 
-    public SurveyListData(String id) {
+    public SurveyListData(String id, String name) {
         this.id = id;
+        this.name = name;
     }
 
     public String getId() {
         return id;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public boolean isChecked() {
@@ -27,15 +33,7 @@ public class SurveyListData {
         isChecked = checked;
     }
 
-    public static SurveyListData adapter(String id) {
-        return new SurveyListData(id);
-    }
-
-    public static List<SurveyListData> adapter(List<String> ids) {
-        ArrayList<SurveyListData> surveyListData = new ArrayList<>();
-        for (String id : ids) {
-            surveyListData.add(SurveyListData.adapter(id));
-        }
-        return surveyListData;
+    public static SurveyListData adapter(String id, String name) {
+        return new SurveyListData(id, name);
     }
 }

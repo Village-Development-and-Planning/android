@@ -15,6 +15,7 @@ import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.DataFileHelpers;
 import com.puthuvaazhvu.mapping.utils.info_file.AnswersInfoFile;
+import com.puthuvaazhvu.mapping.utils.info_file.modals.AnswersInfoFileData;
 import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
 import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.GridQuestionData;
@@ -306,11 +307,10 @@ public class Presenter implements Contract.UserAction {
             @Override
             public void run() {
 
-                ArrayList<String> surveyIDs = new ArrayList<>();
-                surveyIDs.add(survey.getId());
-
                 try {
-                    thread.submit(answersInfoFile.updateListOfSurveys(surveyIDs)).get();
+                    thread.submit(answersInfoFile.updateListOfSurveys(
+                            AnswersInfoFileData.adapter(survey.getId(), survey.getName())))
+                            .get();
                 } catch (Exception e) {
                     String err = "Error updating answers " + Constants.INFO_FILE_NAME + " error msg: " + e.getMessage();
                     Timber.e(err);

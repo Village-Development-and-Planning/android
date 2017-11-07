@@ -12,6 +12,7 @@ import com.puthuvaazhvu.mapping.network.implementations.ListSurveysAPI;
 import com.puthuvaazhvu.mapping.network.implementations.SingleSurveyAPI;
 import com.puthuvaazhvu.mapping.utils.DataFileHelpers;
 import com.puthuvaazhvu.mapping.utils.info_file.SurveyInfoFile;
+import com.puthuvaazhvu.mapping.utils.info_file.modals.SavedSurveyInfoFileData;
 import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
 import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
 
@@ -88,8 +89,8 @@ public class Presenter implements Contract.UserAction {
     private class SaveTask implements Runnable {
         private final List<SurveyInfoData> surveyInfoData;
 
-        private final ArrayList<String> savedSurveyIds = new ArrayList<>();
-        private final ArrayList<String> errorSurveyIds = new ArrayList<>();
+        private final ArrayList<SurveyInfoData> savedSurveyData = new ArrayList<>();
+        private final ArrayList<SurveyInfoData> errorSurveyData = new ArrayList<>();
 
         private final ExecutorService pool = Executors.newCachedThreadPool();
 
@@ -112,19 +113,19 @@ public class Presenter implements Contract.UserAction {
 
                         if (file != null && file.exists()) {
                             saveToFileCallable.add(saveToFile.execute(survey, file));
-                            savedSurveyIds.add(surveyID);
+                            savedSurveyData.add(d);
                         } else {
                             Timber.e("Error creating the survey data file");
-                            errorSurveyIds.add(surveyID);
+                            errorSurveyData.add(d);
                         }
 
                     } else {
-                        errorSurveyIds.add(surveyID);
+                        errorSurveyData.add(d);
                     }
                 }
 
                 // add this in the last after the survey folder is populated
-                saveToFileCallable.add(surveyInfoFile.updateListOfSurveys(savedSurveyIds));
+                saveToFileCallable.add(surveyInfoFile.updateListOfSurveys(SavedSurveyInfoFileData.adapter(savedSurveyData)));
 
                 pool.invokeAll(saveToFileCallable);
 
@@ -134,13 +135,13 @@ public class Presenter implements Contract.UserAction {
 
                         viewCallbacks.hideLoading();
 
-                        if (errorSurveyIds.isEmpty())
+                        if (errorSurveyData.isEmpty())
                             viewCallbacks.finishActivity();
                         else {
                             StringBuilder stringBuilder = new StringBuilder();
                             stringBuilder.append("Error saving ");
-                            for (String e : errorSurveyIds) {
-                                stringBuilder.append(e);
+                            for (SurveyInfoData surveyInfoData : errorSurveyData) {
+                                stringBuilder.append(surveyInfoData.id);
                                 stringBuilder.append(" ");
                             }
                             Timber.e(stringBuilder.toString());

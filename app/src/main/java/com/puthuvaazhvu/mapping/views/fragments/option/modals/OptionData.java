@@ -3,6 +3,7 @@ package com.puthuvaazhvu.mapping.views.fragments.option.modals;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.flow.FlowPattern;
 import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
 import com.puthuvaazhvu.mapping.modals.Question;
@@ -16,7 +17,11 @@ import java.util.ArrayList;
 
 public class OptionData implements Parcelable {
     public enum Type {
-        NONE, CHECKBOX_LIST, RADIO_BUTTON_LIST, BUTTON, EDIT_TEXT
+        NONE, CHECKBOX_LIST, RADIO_BUTTON_LIST, BUTTON, EDIT_TEXT, MESSAGE;
+
+        public static Type getType(int ordinal) {
+            return values()[ordinal];
+        }
     }
 
     public enum Validation {
@@ -127,7 +132,7 @@ public class OptionData implements Parcelable {
         String questionID = question.getRawNumber();
         String questionText = question.getTextString();
 
-        ArrayList<com.puthuvaazhvu.mapping.modals.Option> optionsGiven = question.getOptionList();
+        ArrayList<Option> optionsGiven = question.getOptionList();
         ArrayList<SingleOptionData> optionsConverted = null;
 
         if (optionsGiven != null) {
@@ -179,6 +184,8 @@ public class OptionData implements Parcelable {
                 return Type.BUTTON;
             case INPUT:
                 return Type.EDIT_TEXT;
+            case MESSAGE:
+                return Type.MESSAGE;
             default:
                 return Type.NONE;
         }

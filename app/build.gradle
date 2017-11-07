@@ -82,7 +82,7 @@ dependencies {
     compile "org.apache.commons:commons-collections4:$rootProject.ext.apacheCommonsLangVersion"
 
     compile "com.google.android.gms:play-services-location:$rootProject.ext.googlePlayServicesVersion"
-
+    
     // http library
     compile "com.squareup.retrofit2:retrofit:$rootProject.ext.retrofetVersion"
     compile "com.squareup.retrofit2:converter-gson:$rootProject.ext.retrofetVersion"

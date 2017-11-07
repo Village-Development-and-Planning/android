@@ -2,6 +2,8 @@ package com.puthuvaazhvu.mapping.modals;
 
 import android.content.Context;
 
+import com.puthuvaazhvu.mapping.helpers.ModalHelpers;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

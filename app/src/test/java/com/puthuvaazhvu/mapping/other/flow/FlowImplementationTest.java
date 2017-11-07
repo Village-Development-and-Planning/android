@@ -1,6 +1,6 @@
 package com.puthuvaazhvu.mapping.other.flow;
 
-import com.puthuvaazhvu.mapping.modals.ModalHelpers;
+import com.puthuvaazhvu.mapping.helpers.ModalHelpers;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.OptionData;

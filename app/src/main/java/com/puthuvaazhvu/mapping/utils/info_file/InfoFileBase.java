@@ -31,10 +31,6 @@ public abstract class InfoFileBase {
 
     public abstract File getInfoFile();
 
-    public JsonObject getContentsOfFileSynchronous() throws IOException {
-        return getContentsOfFileInternal();
-    }
-
     public Callable<JsonObject> getContentsOfFile() {
         return new Callable<JsonObject>() {
             @Override
@@ -49,6 +45,12 @@ public abstract class InfoFileBase {
         return saveToFile.execute(updatedRootJson.toString(), infoFile);
     }
 
+    /**
+     * Should be run in the background thread
+     *
+     * @return - contents of the file in JSON format
+     * @throws IOException
+     */
     private JsonObject getContentsOfFileInternal() throws IOException {
         File infoFile = getInfoFile();
         String contents = getFromFile.executeSynchronous(infoFile);

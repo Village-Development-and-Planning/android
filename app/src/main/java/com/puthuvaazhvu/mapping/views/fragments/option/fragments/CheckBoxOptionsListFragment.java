@@ -36,6 +36,11 @@ public class CheckBoxOptionsListFragment extends OptionsListFragment {
     }
 
     @Override
+    public OptionData.Type getType() {
+        return OptionData.Type.CHECKBOX_LIST;
+    }
+
+    @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
     }
@@ -45,7 +50,6 @@ public class CheckBoxOptionsListFragment extends OptionsListFragment {
         return adapter;
     }
 
-    @Override
     public OptionData getUpdatedData() {
         return populateAnswers();
     }

@@ -67,6 +67,11 @@ public class GpsOptionFragment extends ButtonOptionsFragment
     }
 
     @Override
+    public OptionData.Type getType() {
+        return OptionData.Type.BUTTON;
+    }
+
+    @Override
     public void onStart() {
         connectGooglePlayServices();
         super.onStart();
@@ -117,7 +122,6 @@ public class GpsOptionFragment extends ButtonOptionsFragment
         button.setVisibility(View.GONE);
     }
 
-    @Override
     public OptionData getUpdatedData() {
         GpsAnswerData gpsAnswer = new GpsAnswerData(optionData.getQuestionID(), optionData.getQuestionText(), lat, lng);
         optionData.setAnswerData(gpsAnswer);

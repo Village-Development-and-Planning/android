@@ -36,6 +36,11 @@ public class EditTextOptionFragment extends OptionsFragment {
     }
 
     @Override
+    public OptionData.Type getType() {
+        return OptionData.Type.EDIT_TEXT;
+    }
+
+    @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         optionData = getArguments().getParcelable("optionData");
         editText = view.findViewById(R.id.input_edit_text);
@@ -54,7 +59,6 @@ public class EditTextOptionFragment extends OptionsFragment {
         }
     }
 
-    @Override
     public OptionData getUpdatedData() {
         String input = editText.getText().toString();
         if (!input.isEmpty()) {
