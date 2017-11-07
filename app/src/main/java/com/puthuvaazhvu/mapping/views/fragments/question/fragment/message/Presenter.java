@@ -3,7 +3,9 @@ package com.puthuvaazhvu.mapping.views.fragments.question.fragment.message;
 import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
+import com.puthuvaazhvu.mapping.views.fragments.option.modals.SingleOptionData;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.InputAnswerData;
+import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.MultipleAnswerData;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
 
 import java.util.ArrayList;
@@ -44,17 +46,25 @@ public class Presenter implements Contract.UserAction {
         for (QuestionData questionData : adapterData) {
 
             String rawNumber = questionData.getSingleQuestion().getRawNumber();
-            ArrayList<Option> loggedOption = questionData.getResponseData().getAnswerData().getOption();
+            ArrayList<SingleOptionData> loggedOption = questionData.getOptionOptionData().getSelectedOptions();
+
+            MultipleAnswerData multipleAnswerData = new MultipleAnswerData(
+                    questionData.getSingleQuestion().getId(),
+                    questionData.getSingleQuestion().getText(),
+                    loggedOption
+            );
 
             for (Question question : unmodifiedAdapterData) {
 
                 if (question.getRawNumber().equals(rawNumber)) {
                     // update the answer
-                    Answer answer = new Answer(loggedOption, question);
+                    Answer answer = new Answer(multipleAnswerData.getOption(), question);
                     question.setAnswer(answer);
                 }
             }
         }
+
+        view.onAnswersUpdated(root);
     }
 
     public static ArrayList<Question> populateAdapterData(ArrayList<Question> adapterData, Question root) {

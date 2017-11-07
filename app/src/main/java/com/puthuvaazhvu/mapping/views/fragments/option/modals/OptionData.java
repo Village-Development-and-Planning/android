@@ -80,6 +80,16 @@ public class OptionData implements Parcelable {
         return singleOptionData;
     }
 
+    public ArrayList<SingleOptionData> getSelectedOptions() {
+        ArrayList<SingleOptionData> result = new ArrayList<>();
+        for (SingleOptionData o : singleOptionData) {
+            if (o.isSelected()) {
+                result.add(o);
+            }
+        }
+        return result;
+    }
+
     public void setAnswerData(AnswerData answerData) {
         this.answerData = answerData;
     }

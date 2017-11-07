@@ -49,7 +49,7 @@ public interface Contract {
          */
         void shouldShowConformationQuestion(QuestionData question);
 
-        void shouldShowMessageQuestion(QuestionData question);
+        void shouldShowMessageQuestion(Question currentQuestionReference, QuestionData question);
 
         void shouldShowSummary(Survey survey);
 

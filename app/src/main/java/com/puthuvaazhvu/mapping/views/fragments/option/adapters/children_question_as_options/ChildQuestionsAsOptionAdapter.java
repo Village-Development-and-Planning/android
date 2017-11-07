@@ -56,7 +56,7 @@ public class ChildQuestionsAsOptionAdapter extends RecyclerView.Adapter<Recycler
 
         switch (type) {
             case EDIT_TEXT:
-                ((OptionsInputViewHolder) holder).populateViews(singleQuestion.getText());
+                ((OptionsInputViewHolder) holder).populateViews(singleQuestion.getText(), optionData.getValidation());
                 break;
             case CHECKBOX_LIST:
             case RADIO_BUTTON_LIST:

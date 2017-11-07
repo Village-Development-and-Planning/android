@@ -10,6 +10,7 @@ import android.widget.Button;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListActivity;
+import com.puthuvaazhvu.mapping.views.activities.testing.MessageQuestionTestFragmentActivity;
 
 /**
  * Created by muthuveerappans on 11/1/17.
@@ -26,6 +27,8 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
         show_list_of_surveys_btn = findViewById(R.id.show_list_of_surveys_btn);
         show_list_of_surveys_btn.setOnClickListener(this);
+
+        findViewById(R.id.message_fragment_test).setOnClickListener(this);
     }
 
     @Override
@@ -35,12 +38,20 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                 Utils.showMessageToast("Restarting", this);
                 showListOfSurveyActivity();
                 break;
+            case R.id.message_fragment_test:
+                showMessageQuestionTestActivity();
+                break;
         }
     }
 
     private void showListOfSurveyActivity() {
         Intent intent = new Intent(this, SurveyListActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+    }
+
+    private void showMessageQuestionTestActivity() {
+        Intent intent = new Intent(this, MessageQuestionTestFragmentActivity.class);
         startActivity(intent);
     }
 }

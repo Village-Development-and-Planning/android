@@ -173,11 +173,10 @@ public class MainActivity extends BaseActivity
     }
 
     @Override
-    public void shouldShowMessageQuestion(QuestionData question) {
-        //Todo:
-//        MessageQuestionFragment fragment = MessageQuestionFragment.getInstance(question);
-//        replaceFragmentCommand(fragment, question.getSingleQuestion().getRawNumber());
-//        executePendingCommands();
+    public void shouldShowMessageQuestion(Question currentReference, QuestionData question) {
+        MessageQuestionFragment fragment = MessageQuestionFragment.getInstance(currentReference, question);
+        replaceFragmentCommand(fragment, question.getSingleQuestion().getRawNumber());
+        executePendingCommands();
     }
 
     @Override

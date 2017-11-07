@@ -263,7 +263,7 @@ public class Presenter implements Contract.UserAction {
         else if (question.getFlowPattern().getQuestionFlow().getUiMode() == QuestionFlow.UI.CONFIRMATION)
             activityView.shouldShowConformationQuestion(questionData);
         else if (question.getFlowPattern().getQuestionFlow().getUiMode() == QuestionFlow.UI.MESSAGE)
-            activityView.shouldShowMessageQuestion(questionData);
+            activityView.shouldShowMessageQuestion(question, questionData);
         else
             activityView.shouldShowSingleQuestion(questionData);
     }

@@ -1,0 +1,723 @@
+{
+  "position": "7.1",
+  "question": {
+    "options": [],
+    "children": [
+      {
+        "position": "1",
+        "question": {
+          "options": [
+            {
+              "position": "1",
+              "option": {
+                "type": "GENERIC",
+                "text": {
+                  "english": "Yes",
+                  "tamil": "ஆம்  "
+                }
+              }
+            },
+            {
+              "position": "0",
+              "option": {
+                "type": "GENERIC",
+                "text": {
+                  "english": "No",
+                  "tamil": "இல்லை"
+                }
+              }
+            }
+          ],
+          "children": [],
+          "text": {
+            "english": "Land",
+            "tamil": "நிலம்"
+          },
+          "type": "SINGLE_CHOICE",
+          "tags": "",
+          "number": "7.1.1",
+          "flow": {
+            "pre": {
+              "fill": []
+            },
+            "question": {
+              "ui": "SINGLE_CHOICE",
+              "validation": null
+            },
+            "answer": {
+              "scope": "once"
+            },
+            "child": {
+              "strategy": "cascade"
+            },
+            "post": [],
+            "exit": {
+              "strategy": "parent"
+            }
+          }
+        }
+      },
+      {
+        "position": "2",
+        "question": {
+          "options": [
+            {
+              "position": "1",
+              "option": {
+                "type": "GENERIC",
+                "text": {
+                  "english": "Yes",
+                  "tamil": "ஆம்  "
+                }
+              }
+            },
+            {
+              "position": "0",
+              "option": {
+                "type": "GENERIC",
+                "text": {
+                  "english": "No",
+                  "tamil": "இல்லை"
+                }
+              }
+            }
+          ],
+          "children": [],
+          "text": {
+            "english": "House",
+            "tamil": "வீடு"
+          },
+          "type": "SINGLE_CHOICE",
+          "tags": "",
+          "number": "7.1.2",
+          "flow": {
+            "pre": {
+              "fill": []
+            },
+            "question": {
+              "ui": "SINGLE_CHOICE",
+              "validation": null
+            },
+            "answer": {
+              "scope": "once"
+            },
+            "child": {
+              "strategy": "cascade"
+            },
+            "post": [],
+            "exit": {
+              "strategy": "parent"
+            }
+          }
+        }
+      },
+      {
+        "position": "3",
+        "question": {
+          "options": [
+            {
+              "position": "1",
+              "option": {
+                "type": "GENERIC",
+                "text": {
+                  "english": "Yes",
+                  "tamil": "ஆம்  "
+                }
+              }
+            },
+            {
+              "position": "0",
+              "option": {
+                "type": "GENERIC",
+                "text": {
+                  "english": "No",
+                  "tamil": "இல்லை"
+                }
+              }
+            }
+          ],
+          "children": [],
+          "text": {
+            "english": "Livestock (Cows/Goats)",
+            "tamil": "கால்நடைகள் (பசுக்கள் ஆடுகள்)"
+          },
+          "type": "SINGLE_CHOICE",
+          "tags": "",
+          "number": "7.1.3",
+          "flow": {
+            "pre": {
+              "fill": []
+            },
+            "question": {
+              "ui": "SINGLE_CHOICE",
+              "validation": null
+            },
+            "answer": {
+              "scope": "once"
+            },
+            "child": {
+              "strategy": "cascade"
+            },
+            "post": [],
+            "exit": {
+              "strategy": "parent"
+            }
+          }
+        }
+      },
+      {
+        "position": "4",
+        "question": {
+          "options": [
+            {
+              "position": "1",
+              "option": {
+                "type": "GENERIC",
+                "text": {
+                  "english": "Yes",
+                  "tamil": "ஆம்  "
+                }
+              }
+            },
+            {
+              "position": "0",
+              "option": {
+                "type": "GENERIC",
+                "text": {
+                  "english": "No",
+                  "tamil": "இல்லை"
+                }
+              }
+            }
+          ],
+          "children": [],
+          "text": {
+            "english": "Poultry",
+            "tamil": "கோழிகள்"
+          },
+          "type": "SINGLE_CHOICE",
+          "tags": "",
+          "number": "7.1.4",
+          "flow": {
+            "pre": {
+              "fill": []
+            },
+            "question": {
+              "ui": "SINGLE_CHOICE",
+              "validation": null
+            },
+            "answer": {
+              "scope": "once"
+            },
+            "child": {
+              "strategy": "cascade"
+            },
+            "post": [],
+            "exit": {
+              "strategy": "parent"
+            }
+          }
+        }
+      },
+      {
+        "position": "5",
+        "question": {
+          "options": [
+            {
+              "position": "1",
+              "option": {
+                "type": "GENERIC",
+                "text": {
+                  "english": "Yes",
+                  "tamil": "ஆம்  "
+                }
+              }
+            },
+            {
+              "position": "0",
+              "option": {
+                "type": "GENERIC",
+                "text": {
+                  "english": "No",
+                  "tamil": "இல்லை"
+                }
+              }
+            }
+          ],
+          "children": [],
+          "text": {
+            "english": "TV",
+            "tamil": "தொலைகாட்சிப்பெட்டி"
+          },
+          "type": "SINGLE_CHOICE",
+          "tags": "",
+          "number": "7.1.5",
+          "flow": {
+            "pre": {
+              "fill": []
+            },
+            "question": {
+              "ui": "SINGLE_CHOICE",
+              "validation": null
+            },
+            "answer": {
+              "scope": "once"
+            },
+            "child": {
+              "strategy": "cascade"
+            },
+            "post": [],
+            "exit": {
+              "strategy": "parent"
+            }
+          }
+        }
+      },
+      {
+        "position": "6",
+        "question": {
+          "options": [
+            {
+              "position": "1",
+              "option": {
+                "type": "GENERIC",
+                "text": {
+                  "english": "Yes",
+                  "tamil": "ஆம்  "
+                }
+              }
+            },
+            {
+              "position": "0",
+              "option": {
+                "type": "GENERIC",
+                "text": {
+                  "english": "No",
+                  "tamil": "இல்லை"
+                }
+              }
+            }
+          ],
+          "children": [],
+          "text": {
+            "english": "Vehicles (Cycle, Bike, Car)",
+            "tamil": "வாகனங்கள் (சைக்கிள் பைக் கார்)"
+          },
+          "type": "SINGLE_CHOICE",
+          "tags": "",
+          "number": "7.1.6",
+          "flow": {
+            "pre": {
+              "fill": []
+            },
+            "question": {
+              "ui": "SINGLE_CHOICE",
+              "validation": null
+            },
+            "answer": {
+              "scope": "once"
+            },
+            "child": {
+              "strategy": "cascade"
+            },
+            "post": [],
+            "exit": {
+              "strategy": "parent"
+            }
+          }
+        }
+      },
+      {
+        "position": "7",
+        "question": {
+          "options": [
+            {
+              "position": "1",
+              "option": {
+                "type": "GENERIC",
+                "text": {
+                  "english": "Yes",
+                  "tamil": "ஆம்  "
+                }
+              }
+            },
+            {
+              "position": "0",
+              "option": {
+                "type": "GENERIC",
+                "text": {
+                  "english": "No",
+                  "tamil": "இல்லை"
+                }
+              }
+            }
+          ],
+          "children": [],
+          "text": {
+            "english": "Electrical appliances (Fridge, laptop etc.)",
+            "tamil": "மின்சார பொருட்கள் (குளிர்சாதனப் பெட்;டி மடிக்கணிணி மற்றும் பல)"
+          },
+          "type": "SINGLE_CHOICE",
+          "tags": "",
+          "number": "7.1.7",
+          "flow": {
+            "pre": {
+              "fill": []
+            },
+            "question": {
+              "ui": "SINGLE_CHOICE",
+              "validation": null
+            },
+            "answer": {
+              "scope": "once"
+            },
+            "child": {
+              "strategy": "cascade"
+            },
+            "post": [],
+            "exit": {
+              "strategy": "parent"
+            }
+          }
+        }
+      },
+      {
+        "position": "8",
+        "question": {
+          "options": [
+            {
+              "position": "1",
+              "option": {
+                "type": "GENERIC",
+                "text": {
+                  "english": "Yes",
+                  "tamil": "ஆம்  "
+                }
+              }
+            },
+            {
+              "position": "0",
+              "option": {
+                "type": "GENERIC",
+                "text": {
+                  "english": "No",
+                  "tamil": "இல்லை"
+                }
+              }
+            }
+          ],
+          "children": [
+            {
+              "position": "1",
+              "question": {
+                "options": [],
+                "children": [],
+                "text": {
+                  "english": "How many mobile phones?",
+                  "tamil": "எத்தனை கைபேசிகள் உள்ளன?"
+                },
+                "type": "INPUT",
+                "tags": "NUMBER",
+                "number": "7.1.8.1",
+                "flow": {
+                  "_tags": {
+                    "NUMBER": "NUMBER"
+                  },
+                  "pre": {
+                    "fill": [],
+                    "skipUnless": {
+                      "question": "7.1.8",
+                      "option": "1"
+                    }
+                  },
+                  "question": {
+                    "ui": "INPUT",
+                    "validation": "[0-9]+"
+                  },
+                  "answer": {
+                    "scope": "once"
+                  },
+                  "child": {
+                    "strategy": "cascade"
+                  },
+                  "post": [],
+                  "exit": {
+                    "strategy": "parent"
+                  }
+                }
+              }
+            }
+          ],
+          "text": {
+            "english": "Mobile Phone",
+            "tamil": "கைபேசி"
+          },
+          "type": "SINGLE_CHOICE",
+          "tags": "",
+          "number": "7.1.8",
+          "flow": {
+            "pre": {
+              "fill": []
+            },
+            "question": {
+              "ui": "SINGLE_CHOICE",
+              "validation": null
+            },
+            "answer": {
+              "scope": "once"
+            },
+            "child": {
+              "strategy": "cascade"
+            },
+            "post": [],
+            "exit": {
+              "strategy": "parent"
+            }
+          }
+        }
+      },
+      {
+        "position": "9",
+        "question": {
+          "options": [
+            {
+              "position": "1",
+              "option": {
+                "type": "GENERIC",
+                "text": {
+                  "english": "Yes",
+                  "tamil": "ஆம்  "
+                }
+              }
+            },
+            {
+              "position": "0",
+              "option": {
+                "type": "GENERIC",
+                "text": {
+                  "english": "No",
+                  "tamil": "இல்லை"
+                }
+              }
+            }
+          ],
+          "children": [],
+          "text": {
+            "english": "ATM Card",
+            "tamil": "ஏ. டி. எம் கார்டு"
+          },
+          "type": "SINGLE_CHOICE",
+          "tags": "",
+          "number": "7.1.9",
+          "flow": {
+            "pre": {
+              "fill": []
+            },
+            "question": {
+              "ui": "SINGLE_CHOICE",
+              "validation": null
+            },
+            "answer": {
+              "scope": "once"
+            },
+            "child": {
+              "strategy": "cascade"
+            },
+            "post": [],
+            "exit": {
+              "strategy": "parent"
+            }
+          }
+        }
+      },
+      {
+        "position": "10",
+        "question": {
+          "options": [
+            {
+              "position": "1",
+              "option": {
+                "type": "GENERIC",
+                "text": {
+                  "english": "Yes",
+                  "tamil": "ஆம்  "
+                }
+              }
+            },
+            {
+              "position": "0",
+              "option": {
+                "type": "GENERIC",
+                "text": {
+                  "english": "No",
+                  "tamil": "இல்லை"
+                }
+              }
+            }
+          ],
+          "children": [],
+          "text": {
+            "english": "Extended or repaired the house this year",
+            "tamil": "இந்த ஆண்டில் வீட்டில் விரிவாக்கம் அல்லது மராமத்து வேலை நடைபெற்றதா?"
+          },
+          "type": "SINGLE_CHOICE",
+          "tags": "",
+          "number": "7.1.10",
+          "flow": {
+            "pre": {
+              "fill": []
+            },
+            "question": {
+              "ui": "SINGLE_CHOICE",
+              "validation": null
+            },
+            "answer": {
+              "scope": "once"
+            },
+            "child": {
+              "strategy": "cascade"
+            },
+            "post": [],
+            "exit": {
+              "strategy": "parent"
+            }
+          }
+        }
+      },
+      {
+        "position": "11",
+        "question": {
+          "options": [
+            {
+              "position": "1",
+              "option": {
+                "type": "GENERIC",
+                "text": {
+                  "english": "Yes",
+                  "tamil": "ஆம்  "
+                }
+              }
+            },
+            {
+              "position": "0",
+              "option": {
+                "type": "GENERIC",
+                "text": {
+                  "english": "No",
+                  "tamil": "இல்லை"
+                }
+              }
+            }
+          ],
+          "children": [],
+          "text": {
+            "english": "Bullock cart or agriculture equipment",
+            "tamil": "தங்களிடம் வண்டி அல்லது விவசாய உபகரணங்கள் உள்ளனவா?"
+          },
+          "type": "SINGLE_CHOICE",
+          "tags": "",
+          "number": "7.1.11",
+          "flow": {
+            "pre": {
+              "fill": []
+            },
+            "question": {
+              "ui": "SINGLE_CHOICE",
+              "validation": null
+            },
+            "answer": {
+              "scope": "once"
+            },
+            "child": {
+              "strategy": "cascade"
+            },
+            "post": [],
+            "exit": {
+              "strategy": "parent"
+            }
+          }
+        }
+      },
+      {
+        "position": "12",
+        "question": {
+          "options": [
+            {
+              "position": "1",
+              "option": {
+                "type": "GENERIC",
+                "text": {
+                  "english": "Yes",
+                  "tamil": "ஆம்  "
+                }
+              }
+            },
+            {
+              "position": "0",
+              "option": {
+                "type": "GENERIC",
+                "text": {
+                  "english": "No",
+                  "tamil": "இல்லை"
+                }
+              }
+            }
+          ],
+          "children": [],
+          "text": {
+            "english": "Tractor",
+            "tamil": "டிராக்டர்"
+          },
+          "type": "SINGLE_CHOICE",
+          "tags": "",
+          "number": "7.1.12",
+          "flow": {
+            "pre": {
+              "fill": []
+            },
+            "question": {
+              "ui": "SINGLE_CHOICE",
+              "validation": null
+            },
+            "answer": {
+              "scope": "once"
+            },
+            "child": {
+              "strategy": "cascade"
+            },
+            "post": [],
+            "exit": {
+              "strategy": "parent"
+            }
+          }
+        }
+      }
+    ],
+    "text": {
+      "english": "Do you have any of these assets now? ",
+      "tamil": "கீழ்கண்ட சொத்துக்கள் தங்களிடம் உள்ளதா?"
+    },
+    "type": "MESSAGE",
+    "tags": "",
+    "number": "7.1",
+    "flow": {
+      "pre": {
+        "fill": []
+      },
+      "question": {
+        "ui": "MESSAGE",
+        "validation": null
+      },
+      "answer": {
+        "scope": "once"
+      },
+      "child": {
+        "strategy": "cascade"
+      },
+      "post": [],
+      "exit": {
+        "strategy": "parent"
+      }
+    }
+  }
+}

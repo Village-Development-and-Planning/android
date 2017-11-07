@@ -6,7 +6,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.puthuvaazhvu.mapping.R;
-import com.puthuvaazhvu.mapping.views.custom_components.LinearRecyclerView;
+import com.puthuvaazhvu.mapping.views.custom_components.ChildLinearLayoutManager;
 import com.puthuvaazhvu.mapping.views.fragments.option.adapters.CheckBoxOptionsListAdapter;
 import com.puthuvaazhvu.mapping.views.fragments.option.adapters.RadioButtonOptionsListAdapter;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.OptionData;
@@ -16,7 +16,7 @@ import java.util.ArrayList;
 
 public class OptionsListViewHolder extends RecyclerView.ViewHolder {
     private final TextView q_text;
-    private final LinearRecyclerView linearRecyclerView;
+    private final RecyclerView linearRecyclerView;
     private final Context context;
 
     private final ArrayList<SingleOptionData> checkBoxAdapterData = new ArrayList<>();
@@ -30,11 +30,14 @@ public class OptionsListViewHolder extends RecyclerView.ViewHolder {
     public OptionsListViewHolder(View itemView, int type) {
         super(itemView);
 
+        context = itemView.getContext();
+
         questionType = OptionData.Type.getType(type);
 
         q_text = itemView.findViewById(R.id.q_text);
+
         linearRecyclerView = itemView.findViewById(R.id.horizontal_list);
-        context = itemView.getContext();
+        linearRecyclerView.setLayoutManager(new ChildLinearLayoutManager(context));
 
         checkBoxOptionsListAdapter = new CheckBoxOptionsListAdapter(checkBoxAdapterData);
         radioButtonOptionsListAdapter = new RadioButtonOptionsListAdapter(radioButtonAdapterData);

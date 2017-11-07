@@ -20,6 +20,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:ems="10"
-        android:inputType="textPersonName"
-        android:text="Name" />
+        android:hint="@string/dummy_option_ta"
+        android:inputType="textPersonName" />
 </LinearLayout>

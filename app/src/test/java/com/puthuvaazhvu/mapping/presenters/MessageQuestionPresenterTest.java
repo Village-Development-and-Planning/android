@@ -4,6 +4,7 @@ import com.puthuvaazhvu.mapping.helpers.ModalHelpers;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.OptionData;
+import com.puthuvaazhvu.mapping.views.fragments.option.modals.SingleOptionData;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.AnswerData;
 import com.puthuvaazhvu.mapping.views.fragments.question.fragment.message.Contract;
 import com.puthuvaazhvu.mapping.views.fragments.question.fragment.message.Presenter;
@@ -101,9 +102,11 @@ public class MessageQuestionPresenterTest {
         OptionData mockOptionData = mock(OptionData.class);
         AnswerData answerDataMock = mock(AnswerData.class);
 
-        when(questionDataMock.getResponseData()).thenReturn(mockOptionData);
-        when(questionDataMock.getResponseData().getAnswerData()).thenReturn(answerDataMock);
-        when(questionDataMock.getResponseData().getAnswerData().getOption()).thenReturn(optionMock);
+        ArrayList<SingleOptionData> singleOptionDataArrayList = new ArrayList<>();
+        singleOptionDataArrayList.add(new SingleOptionData("1", null, null, true));
+
+        when(questionDataMock.getOptionOptionData()).thenReturn(mockOptionData);
+        when(questionDataMock.getOptionOptionData().getSelectedOptions()).thenReturn(singleOptionDataArrayList);
 
         ArrayList<QuestionData> questionDataList = new ArrayList<>();
         questionDataList.add(questionDataMock);
@@ -111,8 +114,11 @@ public class MessageQuestionPresenterTest {
         presenter.getAdapterData();
         presenter.updateAnswers(questionDataList);
 
-        assertThat(root.getAnswers().get(0).getChildren().get(7).getChildren().get(0).getRawNumber(), is("7.1.8.1"));
-        assertThat(root.getAnswers().get(0).getChildren().get(7).getAnswers().get(0).getChildren().get(0).getCurrentAnswer()
+        ArgumentCaptor<Question> captor = ArgumentCaptor.forClass(Question.class);
+        verify(view).onAnswersUpdated(captor.capture());
+
+        assertThat(captor.getValue().getAnswers().get(0).getChildren().get(7).getChildren().get(0).getRawNumber(), is("7.1.8.1"));
+        assertThat(captor.getValue().getAnswers().get(0).getChildren().get(7).getAnswers().get(0).getChildren().get(0).getCurrentAnswer()
                         .getOptions().get(0).getId()
                 , is("1"));
     }

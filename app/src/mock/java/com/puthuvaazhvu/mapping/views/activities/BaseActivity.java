@@ -23,7 +23,7 @@ import timber.log.Timber;
  * Created by muthuveerappans on 10/20/17.
  */
 
-public class BaseActivity extends AppCompatActivity {
+public class BaseActivity extends MenuActivity {
     protected boolean paused;
     protected boolean resumed;
 
@@ -76,29 +76,5 @@ public class BaseActivity extends AppCompatActivity {
 
                 break;
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.settings:
-                Timber.i("Settings menu clicked");
-                openSettingsActivity();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    private void openSettingsActivity() {
-        Intent intent = new Intent(this, SettingsActivity.class);
-        startActivity(intent);
     }
 }
