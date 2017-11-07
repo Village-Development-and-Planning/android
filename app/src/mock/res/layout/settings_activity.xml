@@ -55,5 +55,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="111dp" />
+        app:layout_constraintGuide_begin="141dp" />
+
+    <Switch
+        android:id="@+id/language_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="16dp"
+        android:text="Switch to Tamil as primary language? "
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
+        app:layout_constraintLeft_toLeftOf="@+id/textView6"
+        app:layout_constraintTop_toBottomOf="@+id/textView6" />
 </android.support.constraint.ConstraintLayout>

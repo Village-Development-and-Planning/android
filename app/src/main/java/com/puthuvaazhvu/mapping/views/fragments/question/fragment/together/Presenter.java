@@ -1,7 +1,6 @@
-package com.puthuvaazhvu.mapping.views.fragments.question.fragment.message;
+package com.puthuvaazhvu.mapping.views.fragments.question.fragment.together;
 
 import com.puthuvaazhvu.mapping.modals.Answer;
-import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.SingleOptionData;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.InputAnswerData;

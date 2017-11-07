@@ -1,4 +1,4 @@
-package com.puthuvaazhvu.mapping.views.fragments.question.fragment.message;
+package com.puthuvaazhvu.mapping.views.fragments.question.fragment.together;
 
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;

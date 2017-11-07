@@ -6,8 +6,8 @@ import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.OptionData;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.SingleOptionData;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.AnswerData;
-import com.puthuvaazhvu.mapping.views.fragments.question.fragment.message.Contract;
-import com.puthuvaazhvu.mapping.views.fragments.question.fragment.message.Presenter;
+import com.puthuvaazhvu.mapping.views.fragments.question.fragment.together.Contract;
+import com.puthuvaazhvu.mapping.views.fragments.question.fragment.together.Presenter;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.SingleQuestion;
 
@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import static junit.framework.Assert.assertSame;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,7 +33,7 @@ import static org.mockito.Mockito.when;
  */
 
 @RunWith(MockitoJUnitRunner.class)
-public class MessageQuestionPresenterTest {
+public class TogetherQuestionPresenterTest {
 
     @Mock
     Contract.View view;

@@ -17,7 +17,7 @@ import java.util.ArrayList;
 
 public class OptionData implements Parcelable {
     public enum Type {
-        NONE, CHECKBOX_LIST, RADIO_BUTTON_LIST, BUTTON, EDIT_TEXT, MESSAGE;
+        NONE, CHECKBOX_LIST, RADIO_BUTTON_LIST, BUTTON, EDIT_TEXT, MESSAGE, TOGETHER;
 
         public static Type getType(int ordinal) {
             return values()[ordinal];

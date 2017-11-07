@@ -6,9 +6,9 @@ import com.crashlytics.android.Crashlytics;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.data.DataRepository;
-import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Text;
+import com.puthuvaazhvu.mapping.modals.flow.ChildFlow;
 import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
@@ -27,9 +27,7 @@ import com.puthuvaazhvu.mapping.views.helpers.ResponseData;
 import com.puthuvaazhvu.mapping.views.helpers.back_navigation.IBackFlow;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -202,6 +200,18 @@ public class Presenter implements Contract.UserAction {
             }
         }
 
+        if (question != null) {
+
+            ChildFlow childFlow = question.getFlowPattern().getChildFlow();
+
+            if (childFlow != null) {
+                if (childFlow.getMode() == ChildFlow.Modes.TOGETHER) {
+                    activityView.shouldShowTogetherQuestion(question, QuestionData.adapter(question));
+                    return;
+                }
+            }
+        }
+
         // only if grid for children, show grid. else show normal question view
         if (flowData.flowType == FlowType.GRID) {
             showGridUI(question);
@@ -258,14 +268,19 @@ public class Presenter implements Contract.UserAction {
         QuestionData questionData = QuestionData.adapter(question);
 
         // check and show UI accordingly
-        if (question.getFlowPattern().getQuestionFlow().getUiMode() == QuestionFlow.UI.INFO)
-            activityView.shouldShowQuestionAsInfo(questionData);
-        else if (question.getFlowPattern().getQuestionFlow().getUiMode() == QuestionFlow.UI.CONFIRMATION)
-            activityView.shouldShowConformationQuestion(questionData);
-        else if (question.getFlowPattern().getQuestionFlow().getUiMode() == QuestionFlow.UI.MESSAGE)
-            activityView.shouldShowMessageQuestion(question, questionData);
-        else
-            activityView.shouldShowSingleQuestion(questionData);
+        switch (question.getFlowPattern().getQuestionFlow().getUiMode()) {
+            case INFO:
+                activityView.shouldShowQuestionAsInfo(questionData);
+                break;
+            case CONFIRMATION:
+                activityView.shouldShowConformationQuestion(questionData);
+                break;
+            case MESSAGE:
+                activityView.shouldShowMessageQuestion(questionData);
+                break;
+            default:
+                activityView.shouldShowSingleQuestion(questionData);
+        }
     }
 
     private void removeQuestionsFromStack() {

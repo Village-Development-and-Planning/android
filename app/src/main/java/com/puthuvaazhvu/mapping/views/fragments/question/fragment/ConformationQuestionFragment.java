@@ -6,6 +6,7 @@ import android.view.View;
 
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.Question;
+import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.InputAnswerData;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.MultipleAnswerData;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.SingleAnswerData;
@@ -35,8 +36,13 @@ public class ConformationQuestionFragment extends SingleQuestionFragmentBase {
         String questionText = questionData.getSingleQuestion().getText();
         getQuestion_text().setText(questionText);
 
-        getBack_button().setText(getString(R.string.no));
-        getNext_button().setText(getString(R.string.yes));
+        if (Constants.APP_LANGUAGE == Constants.Language.ENGLISH) {
+            getBack_button().setText(getString(R.string.no));
+            getNext_button().setText(getString(R.string.yes));
+        } else {
+            getBack_button().setText(getString(R.string.no_ta));
+            getNext_button().setText(getString(R.string.yes_ta));
+        }
     }
 
     @Override

@@ -31,7 +31,7 @@
 
         <activity android:name=".views.activities.settings.SettingsActivity" />
 
-        <activity android:name=".views.activities.testing.MessageQuestionTestFragmentActivity" />
+        <activity android:name=".views.activities.testing.TogetherQuestionTestFragmentActivity" />
 
         <meta-surveys
             android:name="io.fabric.ApiKey"

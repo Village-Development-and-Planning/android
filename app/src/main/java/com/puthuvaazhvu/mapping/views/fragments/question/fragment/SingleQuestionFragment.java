@@ -28,6 +28,8 @@ public class SingleQuestionFragment extends SingleQuestionFragmentBase implement
 
     private OptionsFragment optionFragment;
 
+    private View optionsContainer;
+
     public static SingleQuestionFragment getInstance(QuestionData questionData) {
         SingleQuestionFragment fragment = new SingleQuestionFragment();
 
@@ -42,13 +44,15 @@ public class SingleQuestionFragment extends SingleQuestionFragmentBase implement
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         questionData = getArguments().getParcelable("questionData");
 
+        optionsContainer = view.findViewById(R.id.options_container);
+
         String questionText = questionData.getSingleQuestion().getText();
         String rawNumber = questionData.getSingleQuestion().getRawNumber();
 
         String text = rawNumber + ". " + questionText;
         getQuestion_text().setText(text);
 
-        loadCorrectOptionFragment();
+        loadCorrectOptionFragment(questionData);
     }
 
     @Override
@@ -69,31 +73,32 @@ public class SingleQuestionFragment extends SingleQuestionFragmentBase implement
     /**
      * Helper to load the options based on the correct option type provided.
      */
-    private void loadCorrectOptionFragment() {
+    protected void loadCorrectOptionFragment(QuestionData questionData) {
         OptionData optionOptionData = questionData.getOptionOptionData();
         OptionData.Type type = optionOptionData.getType();
 
-        OptionsFragment optionsFragmentFragment = null;
+        OptionsFragment optionsFragment = null;
 
         switch (type) {
             case CHECKBOX_LIST:
-                optionsFragmentFragment = CheckBoxOptionsListFragment.getInstance(optionOptionData);
+                optionsFragment = CheckBoxOptionsListFragment.getInstance(optionOptionData);
                 break;
             case RADIO_BUTTON_LIST:
-                optionsFragmentFragment = RadioButtonOptionsListFragment.getInstance(optionOptionData);
+                optionsFragment = RadioButtonOptionsListFragment.getInstance(optionOptionData);
                 break;
             case BUTTON:
-                optionsFragmentFragment = GpsOptionFragment.getInstance(optionOptionData);
+                optionsFragment = GpsOptionFragment.getInstance(optionOptionData);
                 break;
             case EDIT_TEXT:
-                optionsFragmentFragment = EditTextOptionFragment.getInstance(optionOptionData);
+                optionsFragment = EditTextOptionFragment.getInstance(optionOptionData);
                 break;
             default:
                 Timber.e("OptionsFragment type is NONE. So no options UI loaded.");
                 return;
         }
 
-        loadOptionFragment(optionsFragmentFragment, "option:" + optionOptionData.getQuestionID());
+        if (optionsFragment != null)
+            loadOptionFragment(optionsFragment, "option:" + optionOptionData.getQuestionID());
     }
 
     private void loadOptionFragment(OptionsFragment optionFragment, String tag) {

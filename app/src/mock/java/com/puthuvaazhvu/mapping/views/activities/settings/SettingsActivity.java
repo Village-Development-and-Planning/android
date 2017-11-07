@@ -6,11 +6,14 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 
 import com.puthuvaazhvu.mapping.R;
+import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListActivity;
-import com.puthuvaazhvu.mapping.views.activities.testing.MessageQuestionTestFragmentActivity;
+import com.puthuvaazhvu.mapping.views.activities.testing.TogetherQuestionTestFragmentActivity;
 
 /**
  * Created by muthuveerappans on 11/1/17.
@@ -29,6 +32,20 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         show_list_of_surveys_btn.setOnClickListener(this);
 
         findViewById(R.id.message_fragment_test).setOnClickListener(this);
+
+        Switch isTamilSwitch = findViewById(R.id.language_switch);
+        isTamilSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    Constants.APP_LANGUAGE = Constants.Language.TAMIL;
+                } else {
+                    Constants.APP_LANGUAGE = Constants.Language.ENGLISH;
+                }
+
+                showListOfSurveyActivity();
+            }
+        });
     }
 
     @Override
@@ -51,7 +68,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void showMessageQuestionTestActivity() {
-        Intent intent = new Intent(this, MessageQuestionTestFragmentActivity.class);
+        Intent intent = new Intent(this, TogetherQuestionTestFragmentActivity.class);
         startActivity(intent);
     }
 }

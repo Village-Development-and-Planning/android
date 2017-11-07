@@ -23,7 +23,8 @@ import com.puthuvaazhvu.mapping.views.fragments.question.fragment.ConformationQu
 import com.puthuvaazhvu.mapping.views.fragments.question.fragment.FragmentCommunicationInterface;
 import com.puthuvaazhvu.mapping.views.fragments.question.fragment.GridQuestionsFragment;
 import com.puthuvaazhvu.mapping.views.fragments.question.fragment.InfoFragment;
-import com.puthuvaazhvu.mapping.views.fragments.question.fragment.message.MessageQuestionFragment;
+import com.puthuvaazhvu.mapping.views.fragments.question.fragment.MessageQuestionFragment;
+import com.puthuvaazhvu.mapping.views.fragments.question.fragment.together.TogetherQuestionFragment;
 import com.puthuvaazhvu.mapping.views.fragments.question.fragment.QuestionFragment;
 import com.puthuvaazhvu.mapping.views.fragments.question.fragment.SingleQuestionFragment;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
@@ -173,8 +174,15 @@ public class MainActivity extends BaseActivity
     }
 
     @Override
-    public void shouldShowMessageQuestion(Question currentReference, QuestionData question) {
-        MessageQuestionFragment fragment = MessageQuestionFragment.getInstance(currentReference, question);
+    public void shouldShowMessageQuestion(QuestionData question) {
+        MessageQuestionFragment fragment = MessageQuestionFragment.getInstance(question);
+        replaceFragmentCommand(fragment, question.getSingleQuestion().getRawNumber());
+        executePendingCommands();
+    }
+
+    @Override
+    public void shouldShowTogetherQuestion(Question currentReference, QuestionData question) {
+        TogetherQuestionFragment fragment = TogetherQuestionFragment.getInstance(currentReference, question);
         replaceFragmentCommand(fragment, question.getSingleQuestion().getRawNumber());
         executePendingCommands();
     }

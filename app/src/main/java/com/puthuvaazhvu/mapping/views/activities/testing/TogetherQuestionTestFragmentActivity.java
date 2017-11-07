@@ -3,15 +3,12 @@ package com.puthuvaazhvu.mapping.views.activities.testing;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 
 import com.google.gson.JsonParser;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.fragments.question.fragment.FragmentCommunicationInterface;
-import com.puthuvaazhvu.mapping.views.fragments.question.fragment.message.Contract;
-import com.puthuvaazhvu.mapping.views.fragments.question.fragment.message.MessageQuestionFragment;
-import com.puthuvaazhvu.mapping.views.fragments.question.fragment.message.Presenter;
+import com.puthuvaazhvu.mapping.views.fragments.question.fragment.together.TogetherQuestionFragment;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
 
 import timber.log.Timber;
@@ -20,7 +17,7 @@ import timber.log.Timber;
  * Created by muthuveerappans on 11/7/17.
  */
 
-public class MessageQuestionTestFragmentActivity
+public class TogetherQuestionTestFragmentActivity
         extends IndividualFragmentTestingActivity
         implements FragmentCommunicationInterface {
     private Question root;
@@ -36,7 +33,7 @@ public class MessageQuestionTestFragmentActivity
 
     @Override
     public Fragment getFragment() {
-        return MessageQuestionFragment.getInstance(root, questionData);
+        return TogetherQuestionFragment.getInstance(root, questionData);
     }
 
     private Question getData() {

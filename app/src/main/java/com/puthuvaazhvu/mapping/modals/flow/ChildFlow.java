@@ -21,7 +21,7 @@ public class ChildFlow extends BaseObject implements Parcelable {
     }
 
     public enum Modes {
-        NONE, CASCADE, SELECT
+        NONE, CASCADE, SELECT, TOGETHER
     }
 
     public enum RepeatMode {
@@ -75,6 +75,8 @@ public class ChildFlow extends BaseObject implements Parcelable {
         switch (mode) {
             case "cascade":
                 return Modes.CASCADE;
+            case "together":
+                return Modes.TOGETHER;
             case "select":
                 return Modes.SELECT;
             default:

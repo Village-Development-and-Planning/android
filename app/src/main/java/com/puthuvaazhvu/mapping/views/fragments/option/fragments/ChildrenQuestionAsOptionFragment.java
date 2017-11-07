@@ -34,7 +34,7 @@ public class ChildrenQuestionAsOptionFragment extends OptionsListFragment {
 
     @Override
     public OptionData.Type getType() {
-        return OptionData.Type.MESSAGE;
+        return OptionData.Type.TOGETHER;
     }
 
     @Override

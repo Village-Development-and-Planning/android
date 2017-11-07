@@ -712,7 +712,7 @@
         "scope": "once"
       },
       "child": {
-        "strategy": "cascade"
+        "strategy": "together"
       },
       "post": [],
       "exit": {
