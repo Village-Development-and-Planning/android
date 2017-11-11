@@ -13,6 +13,13 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.annotations.NonNull;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -65,37 +72,22 @@ public class SingleSurveyAPI extends BaseAPI {
         });
     }
 
-    public String getSurveySynchronous(String surveyID) throws IOException {
-        Call<JsonElement> call = client.getSurvey(surveyID);
+    public Single<String> getSurvey(final String surveyID) {
 
-        Response<JsonElement> response = call.execute();
-
-        if (response.isSuccessful()) {
-            return getSurveyFromResponse(response);
-        } else {
-            APIError apiError = ErrorUtils.parseError(response);
-            Timber.e("Error while geting survey " + surveyID + " error: " + apiError.message());
-            return null;
-        }
-    }
-
-    public Callable<String> getSurvey(final String surveyID) throws IOException {
-        return new Callable<String>() {
+        return Single.create(new SingleOnSubscribe<String>() {
             @Override
-            public String call() throws Exception {
-
+            public void subscribe(@NonNull SingleEmitter<String> emitter) throws Exception {
                 Call<JsonElement> call = client.getSurvey(surveyID);
-
                 Response<JsonElement> response = call.execute();
 
                 if (response.isSuccessful()) {
-                    return getSurveyFromResponse(response);
+                    emitter.onSuccess(getSurveyFromResponse(response));
                 } else {
                     APIError apiError = ErrorUtils.parseError(response);
-                    return apiError.message();
+                    emitter.onError(new Throwable(apiError.message()));
                 }
             }
-        };
+        });
     }
 
     private String getSurveyFromResponse(Response<JsonElement> response) {

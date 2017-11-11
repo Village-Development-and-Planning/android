@@ -9,6 +9,8 @@ import android.os.Bundle;
 
 import com.puthuvaazhvu.mapping.DataInjection;
 import com.puthuvaazhvu.mapping.R;
+import com.puthuvaazhvu.mapping.application.MappingApplication;
+import com.puthuvaazhvu.mapping.application.modal.ApplicationData;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.other.Constants;
@@ -17,6 +19,7 @@ import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
 import com.puthuvaazhvu.mapping.utils.storage.PrefsStorage;
 import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
 import com.puthuvaazhvu.mapping.views.activities.BaseActivity;
+import com.puthuvaazhvu.mapping.views.activities.BaseDataActivity;
 import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListActivity;
 import com.puthuvaazhvu.mapping.views.dialogs.ProgressDialog;
 import com.puthuvaazhvu.mapping.views.fragments.question.fragment.ConformationQuestionFragment;
@@ -43,7 +46,7 @@ import java.util.ArrayList;
 
 import timber.log.Timber;
 
-public class MainActivity extends BaseActivity
+public class MainActivity extends BaseDataActivity
         implements Contract.View, FragmentCommunicationInterface {
 
     private StackFragmentManagerInvoker stackFragmentManagerInvoker;
@@ -110,6 +113,9 @@ public class MainActivity extends BaseActivity
             defaultBackPressed = true;
             return;
         }
+
+        // set the global application data
+        applicationData.setSurvey(survey);
 
         Question root = survey.getQuestionList().get(0);
 
@@ -197,7 +203,6 @@ public class MainActivity extends BaseActivity
     @Override
     public void onSurveySaved(Survey survey) {
         defaultBackPressed = true;
-        presenter.updateAnswersInfoFile(survey);
         startListOfSurveysActivity();
     }
 

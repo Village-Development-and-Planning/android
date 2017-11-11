@@ -16,6 +16,13 @@ public class JsonHelper {
         return !jsonObject.isJsonNull() && jsonObject.has(key) && !jsonObject.get(key).isJsonNull();
     }
 
+    public static boolean getBoolean(JsonObject jsonObject, String key) {
+        if (isJsonValid(jsonObject, key)) {
+            return jsonObject.get(key).getAsBoolean();
+        }
+        return false;
+    }
+
     public static String getString(JsonObject jsonObject, String key) {
         if (isJsonValid(jsonObject, key)) {
             return jsonObject.get(key).getAsString();

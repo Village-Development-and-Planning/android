@@ -19,7 +19,7 @@
     <string name="gps_recorded_successfully">GPS recorded successfully</string>
 
     <!--errors-->
-    <string name="no_data">Cannot get the required surveys</string>
+    <string name="err_no_data">Cannot get the required surveys</string>
     <string name="question_iteration_error">Cannot proceed</string>
     <string name="survey_incomplete">Please complete all the questions</string>
     <string name="options_not_entered_err">Please provide valid options</string>

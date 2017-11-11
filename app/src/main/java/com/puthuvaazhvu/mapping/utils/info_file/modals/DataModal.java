@@ -4,18 +4,18 @@ import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
 import com.puthuvaazhvu.mapping.views.activities.save_survey_data.SurveyInfoData;
 
-public class Data {
+public class DataModal {
     private final String _id;
     private final String survey_name;
     private final String timestamp;
 
-    public Data(String _id, String survey_name, String timestamp) {
+    public DataModal(String _id, String survey_name, String timestamp) {
         this._id = _id;
         this.survey_name = survey_name;
         this.timestamp = timestamp;
     }
 
-    public Data(JsonObject jsonObject) {
+    public DataModal(JsonObject jsonObject) {
         _id = JsonHelper.getString(jsonObject, "_id");
         survey_name = JsonHelper.getString(jsonObject, "survey_name");
         timestamp = JsonHelper.getString(jsonObject, "timestamp");
@@ -41,7 +41,7 @@ public class Data {
         return jsonObject;
     }
 
-    public static Data adapter(SurveyInfoData data) {
-        return new Data(data.id, data.name, "" + System.currentTimeMillis());
+    public static DataModal adapter(SurveyInfoData data) {
+        return new DataModal(data.id, data.name, "" + System.currentTimeMillis());
     }
 }

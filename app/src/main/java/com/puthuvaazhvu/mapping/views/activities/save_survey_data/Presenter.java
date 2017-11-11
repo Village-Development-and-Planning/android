@@ -11,10 +11,13 @@ import com.puthuvaazhvu.mapping.network.APIs;
 import com.puthuvaazhvu.mapping.network.implementations.ListSurveysAPI;
 import com.puthuvaazhvu.mapping.network.implementations.SingleSurveyAPI;
 import com.puthuvaazhvu.mapping.utils.DataFileHelpers;
+import com.puthuvaazhvu.mapping.utils.Optional;
 import com.puthuvaazhvu.mapping.utils.info_file.SurveyInfoFile;
-import com.puthuvaazhvu.mapping.utils.info_file.modals.SavedSurveyInfoFileData;
+import com.puthuvaazhvu.mapping.utils.info_file.modals.SavedSurveyInfoFileDataModal;
 import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
 import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
+
+import org.reactivestreams.Publisher;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,6 +28,17 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.Observer;
+import io.reactivex.Single;
+import io.reactivex.SingleSource;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
 /**
@@ -41,7 +55,7 @@ public class Presenter implements Contract.UserAction {
     private final Handler uiHandler;
 
     private final GetFromFile getFromFile;
-    private final SurveyInfoFile surveyInfoFile;
+    private final SurveyInfoFile savedSurveyInfoFile;
 
     public Presenter(SharedPreferences sharedPreferences, Contract.View view) {
         saveToFile = SaveToFile.getInstance();
@@ -54,7 +68,7 @@ public class Presenter implements Contract.UserAction {
         uiHandler = new Handler(Looper.getMainLooper());
 
         this.getFromFile = GetFromFile.getInstance();
-        this.surveyInfoFile = new SurveyInfoFile(getFromFile, saveToFile);
+        this.savedSurveyInfoFile = new SurveyInfoFile(getFromFile, saveToFile);
     }
 
     @Override
@@ -81,91 +95,59 @@ public class Presenter implements Contract.UserAction {
     @Override
     public void saveSurveyInfoToFile(List<SurveyInfoData> surveyInfoData) {
         viewCallbacks.showLoading(R.string.loading);
-
-        SaveTask saveTask = new SaveTask(surveyInfoData);
-        new Thread(saveTask).start();
+        _saveSurveyInfoToFile(surveyInfoData);
     }
 
-    private class SaveTask implements Runnable {
-        private final List<SurveyInfoData> surveyInfoData;
+    public void _saveSurveyInfoToFile(final List<SurveyInfoData> surveyInfoData) {
+        ArrayList<Single<Optional>> observables = new ArrayList<>();
 
-        private final ArrayList<SurveyInfoData> savedSurveyData = new ArrayList<>();
-        private final ArrayList<SurveyInfoData> errorSurveyData = new ArrayList<>();
+        for (SurveyInfoData d : surveyInfoData) {
 
-        private final ExecutorService pool = Executors.newCachedThreadPool();
+            final SurveyInfoData infoFileData = d;
+            final String id = d.id;
 
-        public SaveTask(List<SurveyInfoData> surveyInfoData) {
-            this.surveyInfoData = surveyInfoData;
+            Single<Optional> singleObservable = singleSurveyAPI.getSurvey(id)
+                    .flatMap(new Function<String, SingleSource<? extends Optional>>() {
+                        @Override
+                        public SingleSource<? extends Optional> apply(@NonNull String data) throws Exception {
+                            File file = DataFileHelpers.getSurveyDataFile(id, false);
+
+                            if (file != null && file.exists()) {
+                                return saveToFile.execute(data, file)
+                                        .flatMap(new Function<Optional, SingleSource<Optional>>() {
+                                            @Override
+                                            public SingleSource<Optional> apply(@NonNull Optional optional) throws Exception {
+                                                return savedSurveyInfoFile.updateListOfSurveys(
+                                                        SavedSurveyInfoFileDataModal.adapter(infoFileData)
+                                                );
+                                            }
+                                        });
+                            } else {
+                                Timber.e("Error creating the survey data file");
+                                throw new Exception("Error creating the survey data file");
+                            }
+                        }
+                    });
+
+            observables.add(singleObservable);
         }
 
-        @Override
-        public void run() {
-            try {
-
-                ArrayList<Callable<Void>> saveToFileCallable = new ArrayList<>();
-
-                for (SurveyInfoData d : surveyInfoData) {
-                    String surveyID = d.id;
-                    String survey = singleSurveyAPI.getSurveySynchronous(surveyID);
-
-                    if (survey != null) {
-                        File file = DataFileHelpers.getSurveyDataFile(surveyID, false);
-
-                        if (file != null && file.exists()) {
-                            saveToFileCallable.add(saveToFile.execute(survey, file));
-                            savedSurveyData.add(d);
-                        } else {
-                            Timber.e("Error creating the survey data file");
-                            errorSurveyData.add(d);
-                        }
-
-                    } else {
-                        errorSurveyData.add(d);
-                    }
-                }
-
-                // add this in the last after the survey folder is populated
-                saveToFileCallable.add(surveyInfoFile.updateListOfSurveys(SavedSurveyInfoFileData.adapter(savedSurveyData)));
-
-                pool.invokeAll(saveToFileCallable);
-
-                uiHandler.post(new Runnable() {
+        Single.merge(observables)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Consumer<Optional>() {
                     @Override
-                    public void run() {
-
+                    public void accept(@NonNull Optional optional) throws Exception {
                         viewCallbacks.hideLoading();
-
-                        if (errorSurveyData.isEmpty())
-                            viewCallbacks.finishActivity();
-                        else {
-                            StringBuilder stringBuilder = new StringBuilder();
-                            stringBuilder.append("Error saving ");
-                            for (SurveyInfoData surveyInfoData : errorSurveyData) {
-                                stringBuilder.append(surveyInfoData.id);
-                                stringBuilder.append(" ");
-                            }
-                            Timber.e(stringBuilder.toString());
-                            viewCallbacks.onError(R.string.error_saving_survey);
-                        }
+                        viewCallbacks.finishActivity();
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(@NonNull Throwable throwable) throws Exception {
+                        Timber.e(throwable.getMessage());
+                        viewCallbacks.onError(R.string.error_saving_survey);
+                        viewCallbacks.hideLoading();
                     }
                 });
-
-                return;
-
-            } catch (IOException e) {
-                Timber.e("Error getting a survey. " + e.getMessage());
-            } catch (InterruptedException e) {
-                Timber.e("Error getting a survey. " + e.getMessage());
-            } catch (ExecutionException e) {
-                Timber.e("Error getting a survey. " + e.getMessage());
-            }
-
-            uiHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    viewCallbacks.hideLoading();
-                }
-            });
-        }
     }
 }

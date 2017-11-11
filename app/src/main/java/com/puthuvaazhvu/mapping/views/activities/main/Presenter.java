@@ -14,8 +14,9 @@ import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.DataFileHelpers;
+import com.puthuvaazhvu.mapping.utils.Optional;
 import com.puthuvaazhvu.mapping.utils.info_file.AnswersInfoFile;
-import com.puthuvaazhvu.mapping.utils.info_file.modals.AnswersInfoFileData;
+import com.puthuvaazhvu.mapping.utils.info_file.modals.AnswersInfoFileDataModal;
 import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
 import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.GridQuestionData;
@@ -28,9 +29,19 @@ import com.puthuvaazhvu.mapping.views.helpers.back_navigation.IBackFlow;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import io.reactivex.Observer;
+import io.reactivex.Scheduler;
+import io.reactivex.SingleSource;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
 /**
@@ -86,6 +97,7 @@ public class Presenter implements Contract.UserAction {
                         }
                     });
         } else {
+            activityView.hideLoading();
             activityView.onError(R.string.file_not_exist);
         }
     }
@@ -129,12 +141,28 @@ public class Presenter implements Contract.UserAction {
 
         activityView.showLoading(R.string.survey_file_saving_msg);
 
-        JsonObject resultSurveyJson = survey.getAsJson().getAsJsonObject();
-        Timber.i("Survey dump: \n" + resultSurveyJson.toString());
+        DataFileHelpers.dumpSurvey(survey, false)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Consumer<Optional>() {
+                    @Override
+                    public void accept(@NonNull Optional optional) throws Exception {
+                        Timber.i("The data is saved to the file successfully.");
+                        //activityView.shouldShowSummary(survey);
+                        activityView.onSurveySaved(survey);
+                        activityView.hideLoading();
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(@NonNull Throwable throwable) throws Exception {
+                        String errorMessage = "Error while saving file: " + throwable.getMessage();
+                        Timber.e(errorMessage);
+                        activityView.hideLoading();
 
-        File fileToSave = DataFileHelpers.getFileToDumpAnswers(survey.getId(), false);
-        if (fileToSave != null)
-            dumpToFile(resultSurveyJson.toString(), fileToSave);
+                        // send report to fabric.io
+                        Crashlytics.logException(new Exception(errorMessage));
+                    }
+                });
     }
 
     @Override
@@ -289,57 +317,53 @@ public class Presenter implements Contract.UserAction {
             activityView.remove(toBeRemoved);
     }
 
-    private void dumpToFile(String toSave, File file) {
-        saveToFile.execute(toSave, file, new SaveToFile.SaveToFileCallbacks() {
-            @Override
-            public void onFileSaved() {
-                Timber.i("The data is saved to the file successfully.");
-                activityView.hideLoading();
-                //activityView.shouldShowSummary(survey);
-                activityView.onSurveySaved(survey);
-            }
-
-            @Override
-            public void onErrorWhileSaving(String message) {
-                String errorMessage = "Error while saving file: " + message;
-                Timber.e(errorMessage);
-                activityView.hideLoading();
-
-                // send report to fabric.io
-                Crashlytics.logException(new Exception(errorMessage));
-            }
-        });
-    }
-
-    @Override
-    public void updateAnswersInfoFile(final Survey survey) {
-
-        activityView.showLoading(R.string.loading);
-
-        new Thread(new Runnable() {
-            ExecutorService thread = Executors.newSingleThreadExecutor();
-
-            @Override
-            public void run() {
-
-                try {
-                    thread.submit(answersInfoFile.updateListOfSurveys(
-                            AnswersInfoFileData.adapter(survey.getId(), survey.getName())))
-                            .get();
-                } catch (Exception e) {
-                    String err = "Error updating answers " + Constants.INFO_FILE_NAME + " error msg: " + e.getMessage();
-                    Timber.e(err);
-                    Crashlytics.log(err);
-                }
-
-                uiHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        activityView.hideLoading();
-                    }
-                });
-            }
-        }).start();
-    }
+    /**
+     * @param toSave
+     * @param file   - The file name is in the format "${surveyid}_${uuid}.json"
+     */
+//    private void dumpToFile(String toSave, File file) {
+//        String fileName = DataFileHelpers.removeExt(file.getName());
+//        String fileNameComponents[] = fileName.split("_");
+//        final String surveyID = fileNameComponents[0];
+//        final String uuid = fileNameComponents[1];
+//
+//        activityView.showLoading(R.string.loading);
+//
+//        saveToFile.execute(toSave, file).flatMap(new Function<Void, SingleSource<Void>>() {
+//            @Override
+//            public SingleSource<Void> apply(@NonNull Void aVoid) throws Exception {
+//                return answersInfoFile.updateListOfSurveys(
+//                        AnswersInfoFileDataModal.adapter(
+//                                surveyID,
+//                                survey.getName(),
+//                                uuid,
+//                                false,
+//                                "" + System.currentTimeMillis()
+//                        )
+//                );
+//            }
+//        }).observeOn(AndroidSchedulers.mainThread())
+//                .subscribeOn(Schedulers.io())
+//                .subscribe(new Consumer<Void>() {
+//                               @Override
+//                               public void accept(@NonNull Void aVoid) throws Exception {
+//                                   Timber.i("The data is saved to the file successfully.");
+//                                   //activityView.shouldShowSummary(survey);
+//                                   activityView.onSurveySaved(survey);
+//                                   activityView.hideLoading();
+//                               }
+//                           }, new Consumer<Throwable>() {
+//                               @Override
+//                               public void accept(@NonNull Throwable throwable) throws Exception {
+//                                   String errorMessage = "Error while saving file: " + throwable.getMessage();
+//                                   Timber.e(errorMessage);
+//                                   activityView.hideLoading();
+//
+//                                   // send report to fabric.io
+//                                   Crashlytics.logException(new Exception(errorMessage));
+//                               }
+//                           }
+//                );
+//    }
 
 }

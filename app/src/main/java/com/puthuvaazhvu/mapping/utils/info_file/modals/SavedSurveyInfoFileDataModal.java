@@ -5,7 +5,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
 import com.puthuvaazhvu.mapping.views.activities.save_survey_data.SurveyInfoData;
-import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,20 +29,20 @@ import java.util.List;
 
  */
 
-public class SavedSurveyInfoFileData {
-    private List<Data> data;
+public class SavedSurveyInfoFileDataModal {
+    private List<DataModal> data;
 
-    private SavedSurveyInfoFileData(List<Data> data) {
+    private SavedSurveyInfoFileDataModal(List<DataModal> data) {
         this.data = data;
     }
 
-    public SavedSurveyInfoFileData(JsonObject jsonObject) {
+    public SavedSurveyInfoFileDataModal(JsonObject jsonObject) {
         data = getSurveyDataInternal(jsonObject);
     }
 
-    public void updateWithNew(SavedSurveyInfoFileData other) {
+    public void updateWithNew(SavedSurveyInfoFileDataModal other) {
         if (other.data == null) {
-            throw new IllegalArgumentException("Data cannot be null");
+            throw new IllegalArgumentException("DataModal cannot be null");
         }
 
         if (isDataEmpty()) {
@@ -53,11 +52,11 @@ public class SavedSurveyInfoFileData {
         this.data.addAll(other.data);
     }
 
-    public void setData(List<Data> data) {
+    public void setData(List<DataModal> data) {
         this.data = data;
     }
 
-    public List<Data> getSurveyData() {
+    public List<DataModal> getSurveyData() {
         return data;
     }
 
@@ -69,7 +68,7 @@ public class SavedSurveyInfoFileData {
         JsonObject jsonObject = new JsonObject();
 
         JsonArray surveysArray = new JsonArray();
-        for (Data data : this.data) {
+        for (DataModal data : this.data) {
             surveysArray.add(data.getAsJson());
         }
 
@@ -78,13 +77,13 @@ public class SavedSurveyInfoFileData {
         return jsonObject;
     }
 
-    private static List<Data> getSurveyDataInternal(JsonObject jsonObject) {
+    private static List<DataModal> getSurveyDataInternal(JsonObject jsonObject) {
         JsonArray array = JsonHelper.getJsonArray(jsonObject, "surveys");
 
         if (array != null) {
-            ArrayList<Data> surveyInfoFileDataList = new ArrayList<>();
+            ArrayList<DataModal> surveyInfoFileDataList = new ArrayList<>();
             for (JsonElement e : array) {
-                surveyInfoFileDataList.add(new Data(e.getAsJsonObject()));
+                surveyInfoFileDataList.add(new DataModal(e.getAsJsonObject()));
             }
             return surveyInfoFileDataList;
         } else {
@@ -92,13 +91,19 @@ public class SavedSurveyInfoFileData {
         }
     }
 
-    public static SavedSurveyInfoFileData adapter(List<SurveyInfoData> data) {
-        ArrayList<Data> dataList = new ArrayList<>();
+    public static SavedSurveyInfoFileDataModal adapter(SurveyInfoData data) {
+        ArrayList<SurveyInfoData> dataArrayList = new ArrayList<>();
+        dataArrayList.add(data);
+        return SavedSurveyInfoFileDataModal.adapter(dataArrayList);
+    }
+
+    public static SavedSurveyInfoFileDataModal adapter(List<SurveyInfoData> data) {
+        ArrayList<DataModal> dataList = new ArrayList<>();
 
         for (SurveyInfoData d : data) {
-            dataList.add(Data.adapter(d));
+            dataList.add(DataModal.adapter(d));
         }
 
-        return new SavedSurveyInfoFileData(dataList);
+        return new SavedSurveyInfoFileDataModal(dataList);
     }
 }

@@ -2,6 +2,8 @@ package com.puthuvaazhvu.mapping.utils.storage;
 
 import android.os.AsyncTask;
 
+import com.puthuvaazhvu.mapping.utils.Optional;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -9,6 +11,19 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.concurrent.Callable;
 
+import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
+import io.reactivex.Maybe;
+import io.reactivex.MaybeEmitter;
+import io.reactivex.MaybeOnSubscribe;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.annotations.NonNull;
 import timber.log.Timber;
 
 /**
@@ -45,17 +60,17 @@ public class SaveToFile {
         saveToFileAsync.execute(toSave);
     }
 
-    public Callable<Void> execute(final String toSave, final File file) {
-        return new Callable<Void>() {
+    public Single<Optional> execute(final String toSave, final File file) {
+        return Single.create(new SingleOnSubscribe<Optional>() {
             @Override
-            public Void call() throws Exception {
+            public void subscribe(@NonNull SingleEmitter<Optional> e) throws Exception {
                 saveToFileInternal(file, toSave);
-                return null;
+                e.onSuccess(new Optional<>(null));
             }
-        };
+        });
     }
 
-    private static void saveToFileInternal(File fileToSave, String data) throws IOException {
+    private static synchronized void saveToFileInternal(File fileToSave, String data) throws IOException {
 
         if (!fileToSave.exists()) {
             throw new IllegalArgumentException("The file " + fileToSave.getAbsolutePath() + " doesn't exits");

@@ -4,8 +4,8 @@ import android.os.AsyncTask;
 
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.utils.info_file.SurveyInfoFile;
-import com.puthuvaazhvu.mapping.utils.info_file.modals.Data;
-import com.puthuvaazhvu.mapping.utils.info_file.modals.SavedSurveyInfoFileData;
+import com.puthuvaazhvu.mapping.utils.info_file.modals.DataModal;
+import com.puthuvaazhvu.mapping.utils.info_file.modals.SavedSurveyInfoFileDataModal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +13,14 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import io.reactivex.Observer;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
 /**
@@ -23,8 +31,6 @@ public class Presenter implements Contract.UserAction {
     private final com.puthuvaazhvu.mapping.utils.info_file.SurveyInfoFile surveyInfoFile;
     private final Contract.View callback;
 
-    private Task task;
-
     public Presenter(SurveyInfoFile surveyInfoFile, Contract.View callback) {
         this.surveyInfoFile = surveyInfoFile;
         this.callback = callback;
@@ -32,63 +38,39 @@ public class Presenter implements Contract.UserAction {
 
     @Override
     public void fetchListOfSurveys() {
-        if (task != null) {
-            task.cancel(true);
-        }
+        surveyInfoFile.getInfoJsonParsed()
+                .map(new Function<SavedSurveyInfoFileDataModal, ArrayList<SurveyListData>>() {
+                    @Override
+                    public ArrayList<SurveyListData> apply(@NonNull SavedSurveyInfoFileDataModal savedSurveyInfoFileDataModal) throws Exception {
 
-        task = new Task(surveyInfoFile, callback);
-        task.execute();
-    }
+                        List<DataModal> surveyInfoFileDataList = savedSurveyInfoFileDataModal.getSurveyData();
 
-    private static class Task extends AsyncTask<Void, Void, List<SurveyListData>> {
-        private final SurveyInfoFile surveyInfoFile;
-        private final Contract.View callback;
+                        ArrayList<SurveyListData> surveyListDataArrayList = new ArrayList<>();
 
-        private final ExecutorService pool = Executors.newSingleThreadExecutor();
+                        if (surveyInfoFileDataList != null) {
 
-        public Task(SurveyInfoFile surveyInfoFile, Contract.View callback) {
-            this.surveyInfoFile = surveyInfoFile;
-            this.callback = callback;
-        }
+                            for (DataModal surveyData : surveyInfoFileDataList) {
+                                surveyListDataArrayList.add(SurveyListData.adapter(surveyData.get_id()
+                                        , surveyData.getSurveyName()));
+                            }
+                        }
 
-        @Override
-        protected List<SurveyListData> doInBackground(Void... params) {
-            try {
+                        return surveyListDataArrayList;
 
-                SavedSurveyInfoFileData savedSurveyInfoFileData = pool.submit(surveyInfoFile.getInfoJsonParsed()).get();
-
-                List<Data> surveyInfoFileDataList = savedSurveyInfoFileData.getSurveyData();
-
-                ArrayList<SurveyListData> surveyListDataArrayList = new ArrayList<>();
-
-                if (surveyInfoFileDataList != null) {
-
-                    for (Data surveyData : surveyInfoFileDataList) {
-                        surveyListDataArrayList.add(SurveyListData.adapter(surveyData.get_id()
-                                , surveyData.getSurveyName()));
                     }
-                }
-
-                return surveyListDataArrayList;
-
-            } catch (ExecutionException e) {
-                Timber.e(e.getMessage());
-            } catch (InterruptedException e) {
-                Timber.e(e.getMessage());
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(List<SurveyListData> surveyListDataList) {
-            callback.hideLoading();
-
-            if (surveyListDataList == null) {
-                callback.onError(R.string.cannot_get_data);
-            } else {
-                callback.onSurveysFetched(surveyListDataList);
-            }
-        }
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Consumer<ArrayList<SurveyListData>>() {
+                    @Override
+                    public void accept(@NonNull ArrayList<SurveyListData> surveyListDataList) throws Exception {
+                        callback.onSurveysFetched(surveyListDataList);
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(@NonNull Throwable throwable) throws Exception {
+                        callback.onError(R.string.err_no_data);
+                    }
+                });
     }
 }

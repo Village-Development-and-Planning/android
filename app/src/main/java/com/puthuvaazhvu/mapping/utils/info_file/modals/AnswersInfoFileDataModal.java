@@ -4,7 +4,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
-import com.puthuvaazhvu.mapping.views.activities.save_survey_data.SurveyInfoData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,30 +18,32 @@ import java.util.List;
     {
         "surveys": [
             {
-                "_id": 1234,
-                "survey_name": abcd,
-                "timestamp": xxx
+                "_id": <string>,
+                "survey_name": <string>,
+                "survey_uuid": <string>,
+                "is_incomplete": true/false
+                "timestamp": <string>
             }
         ]
     }
 
  */
 
-public class AnswersInfoFileData {
-    private List<Data> surveys;
+public class AnswersInfoFileDataModal {
+    private List<AnswerDataModal> surveys;
 
-    private AnswersInfoFileData(Data data) {
+    private AnswersInfoFileDataModal(AnswerDataModal data) {
         this.surveys = new ArrayList<>();
         this.surveys.add(data);
     }
 
-    public AnswersInfoFileData(JsonObject jsonObject) {
+    public AnswersInfoFileDataModal(JsonObject jsonObject) {
         surveys = getSurveyDataInternal(jsonObject);
     }
 
-    public void updateWithNew(AnswersInfoFileData other) {
+    public void updateWithNew(AnswersInfoFileDataModal other) {
         if (other.surveys == null) {
-            throw new IllegalArgumentException("Data cannot be null");
+            throw new IllegalArgumentException("DataModal cannot be null");
         }
 
         if (isDataEmpty()) {
@@ -52,7 +53,7 @@ public class AnswersInfoFileData {
         this.surveys.addAll(other.surveys);
     }
 
-    public List<Data> getSurveys() {
+    public List<AnswerDataModal> getSurveys() {
         return surveys;
     }
 
@@ -64,7 +65,7 @@ public class AnswersInfoFileData {
         JsonObject jsonObject = new JsonObject();
 
         JsonArray surveysArray = new JsonArray();
-        for (Data data : this.surveys) {
+        for (DataModal data : this.surveys) {
             surveysArray.add(data.getAsJson());
         }
 
@@ -73,13 +74,13 @@ public class AnswersInfoFileData {
         return jsonObject;
     }
 
-    private static List<Data> getSurveyDataInternal(JsonObject jsonObject) {
+    private static List<AnswerDataModal> getSurveyDataInternal(JsonObject jsonObject) {
         JsonArray array = JsonHelper.getJsonArray(jsonObject, "surveys");
 
         if (array != null) {
-            ArrayList<Data> surveyInfoFileDataList = new ArrayList<>();
+            ArrayList<AnswerDataModal> surveyInfoFileDataList = new ArrayList<>();
             for (JsonElement e : array) {
-                surveyInfoFileDataList.add(new Data(e.getAsJsonObject()));
+                surveyInfoFileDataList.add(new AnswerDataModal(e.getAsJsonObject()));
             }
             return surveyInfoFileDataList;
         } else {
@@ -87,7 +88,7 @@ public class AnswersInfoFileData {
         }
     }
 
-    public static AnswersInfoFileData adapter(String id, String name) {
-        return new AnswersInfoFileData(new Data(id, name, "" + System.currentTimeMillis()));
+    public static AnswersInfoFileDataModal adapter(String id, String name, String uuid, boolean isIncomplete, String timeStamp) {
+        return new AnswersInfoFileDataModal(new AnswerDataModal(id, name, timeStamp, uuid, isIncomplete));
     }
 }

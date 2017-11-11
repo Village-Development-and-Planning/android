@@ -11,6 +11,13 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.annotations.NonNull;
 import timber.log.Timber;
 
 /**
@@ -48,20 +55,24 @@ public class GetFromFile {
         async.execute(file);
     }
 
-    public Callable<String> execute(final File file) {
-        return new Callable<String>() {
+    public Single<String> execute(final File file) {
+        return Single.create(new SingleOnSubscribe<String>() {
             @Override
-            public String call() throws Exception {
-                return getFileContents(file);
+            public void subscribe(@NonNull SingleEmitter<String> emitter) throws Exception {
+                try {
+                    emitter.onSuccess(getFileContents(file));
+                } catch (IOException e) {
+                    emitter.onError(e);
+                }
             }
-        };
+        });
     }
 
-    public String executeSynchronous(File file) throws IOException {
-        return getFileContents(file);
-    }
+//    public String executeSynchronous(File file) throws IOException {
+//        return getFileContents(file);
+//    }
 
-    public static String getFileContents(final File file) throws IOException {
+    private static String getFileContents(final File file) throws IOException {
         FileInputStream fin = new FileInputStream(file);
         String contents = Utils.readFromInputStream(fin);
         //Make sure to close all streams.

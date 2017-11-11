@@ -2,11 +2,27 @@ package com.puthuvaazhvu.mapping.utils;
 
 import android.os.Environment;
 
+import com.crashlytics.android.Crashlytics;
+import com.google.gson.JsonObject;
+import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.other.Constants;
+import com.puthuvaazhvu.mapping.utils.info_file.AnswersInfoFile;
+import com.puthuvaazhvu.mapping.utils.info_file.modals.AnswersInfoFileDataModal;
+import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
+import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
 
 import java.io.File;
 import java.io.IOException;
 
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.Single;
+import io.reactivex.SingleSource;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
 /**
@@ -15,16 +31,59 @@ import timber.log.Timber;
 
 public class DataFileHelpers {
 
+    public static Single<Optional> dumpSurvey(
+            Survey survey,
+            final boolean isSurveyIncomplete
+    ) {
+        JsonObject resultSurveyJson = survey.getAsJson().getAsJsonObject();
+        String toSave = resultSurveyJson.toString();
+
+        Timber.i("Survey dump: \n" + resultSurveyJson.toString());
+
+        long random_uuid = System.currentTimeMillis();
+        String fileName = survey.getId() + "_" + random_uuid;
+
+        File fileToSave = getFileToDumpAnswers(fileName, false);
+
+        final String surveyName = survey.getName();
+        String fileNameComponents[] = fileName.split("_");
+        final String surveyID = fileNameComponents[0];
+        final String uuid = fileNameComponents[1];
+
+        final SaveToFile saveToFile = SaveToFile.getInstance();
+        final GetFromFile getFromFile = GetFromFile.getInstance();
+        final AnswersInfoFile answersInfoFile = new AnswersInfoFile(getFromFile, saveToFile);
+
+        return saveToFile.execute(toSave, fileToSave)
+                .flatMap(new Function<Optional, SingleSource<? extends Optional>>() {
+                    @Override
+                    public SingleSource<? extends Optional> apply(@NonNull Optional optional) throws Exception {
+                        return answersInfoFile.updateListOfSurveys(
+                                AnswersInfoFileDataModal.adapter(
+                                        surveyID,
+                                        surveyName,
+                                        uuid,
+                                        isSurveyIncomplete,
+                                        "" + System.currentTimeMillis()
+                                )
+                        );
+                    }
+                });
+    }
+
+    public static String removeExt(String fileName) {
+        return fileName.substring(0, fileName.lastIndexOf("."));
+    }
+
     public static File getSurveyDataFile(String surveyID, boolean forRead) {
         File dataDir = getSurveyDataDirectory(forRead);
         String fileName = surveyID + ".json";
         return createFileInDir(dataDir, fileName);
     }
 
-    public static File getFileToDumpAnswers(String surveyID, boolean forRead) {
+    public static File getFileToDumpAnswers(String fileName, boolean forRead) {
         File dataDir = getAnswersDataDirectory(forRead);
-        long currentTime = System.currentTimeMillis();
-        String fileName = surveyID + "_" + currentTime + ".json";
+        fileName = fileName + ".json";
         return createFileInDir(dataDir, fileName);
     }
 

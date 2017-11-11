@@ -3,6 +3,7 @@ package com.puthuvaazhvu.mapping.utils.info_file;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.puthuvaazhvu.mapping.utils.DataFileHelpers;
+import com.puthuvaazhvu.mapping.utils.Optional;
 import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
 import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
 
@@ -14,6 +15,15 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import io.reactivex.Completable;
+import io.reactivex.Observable;
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+
 /**
  * Created by muthuveerappans on 10/31/17.
  */
@@ -22,7 +32,7 @@ public abstract class InfoFileBase {
     protected final GetFromFile getFromFile;
     protected final SaveToFile saveToFile;
 
-    protected final ExecutorService pool = Executors.newSingleThreadExecutor();
+//    protected final ExecutorService pool = Executors.newSingleThreadExecutor();
 
     public InfoFileBase(GetFromFile getFromFile, SaveToFile saveToFile) {
         this.getFromFile = getFromFile;
@@ -31,42 +41,29 @@ public abstract class InfoFileBase {
 
     public abstract File getInfoFile();
 
-    public Callable<JsonObject> getContentsOfFile() {
-        return new Callable<JsonObject>() {
+    public Single<JsonObject> getContentsOfFile() {
+        return getFromFile.execute(getInfoFile()).map(new Function<String, JsonObject>() {
             @Override
-            public JsonObject call() throws Exception {
-                return getContentsOfFileInternal();
+            public JsonObject apply(@NonNull String contents) throws Exception {
+                JsonObject root;
+
+                if (contents.isEmpty()) {
+
+                    // if empty create a new json object
+                    root = new JsonObject();
+
+                } else {
+                    JsonParser jsonParser = new JsonParser();
+                    root = jsonParser.parse(contents).getAsJsonObject();
+                }
+
+                return root;
             }
-        };
+        });
     }
 
-    public Callable<Void> saveFile(JsonObject updatedRootJson) {
+    public Single<Optional> saveFile(JsonObject updatedRootJson) {
         File infoFile = getInfoFile();
         return saveToFile.execute(updatedRootJson.toString(), infoFile);
-    }
-
-    /**
-     * Should be run in the background thread
-     *
-     * @return - contents of the file in JSON format
-     * @throws IOException
-     */
-    private JsonObject getContentsOfFileInternal() throws IOException {
-        File infoFile = getInfoFile();
-        String contents = getFromFile.executeSynchronous(infoFile);
-
-        JsonObject root;
-
-        if (contents.isEmpty()) {
-
-            // if empty create a new json object
-            root = new JsonObject();
-
-        } else {
-            JsonParser jsonParser = new JsonParser();
-            root = jsonParser.parse(contents).getAsJsonObject();
-        }
-
-        return root;
     }
 }

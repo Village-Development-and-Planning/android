@@ -21,6 +21,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
 /**
@@ -46,52 +52,36 @@ public class FileStorageSurveyMockFillOptionsDataSource implements DataSource<Su
 
     @Override
     public void getData(final String selection, final DataSourceCallback<Survey> callback) {
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                File file = new File(selection);
-
-                try {
-                    if (file.exists()) {
-                        String surveyJsonString = pool.submit(getFromFile.execute(file)).get();
-
-                        if (surveyJsonString != null) {
+        File file = new File(selection);
+        if (file.exists()) {
+            getFromFile.execute(file)
+                    .map(new Function<String, Survey>() {
+                        @Override
+                        public Survey apply(@NonNull String data) throws Exception {
                             JsonParser parser = new JsonParser();
-                            JsonObject surveyJsonObject = parser.parse(surveyJsonString).getAsJsonObject();
+                            JsonObject surveyJsonObject = parser.parse(data).getAsJsonObject();
 
                             Survey survey = new Survey(surveyJsonObject);
 
                             // fill with dynamic options
-                            final Survey surveyUpdated = fillWithDynamicOptions(survey, context);
-
-                            handler.post(new Runnable() {
+                            return fillWithDynamicOptions(survey, context);
+                        }
+                    })
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Consumer<Survey>() {
+                                   @Override
+                                   public void accept(@NonNull Survey survey) throws Exception {
+                                       callback.onLoaded(survey);
+                                   }
+                               },
+                            new Consumer<Throwable>() {
                                 @Override
-                                public void run() {
-                                    callback.onLoaded(surveyUpdated);
+                                public void accept(@NonNull Throwable throwable) throws Exception {
+                                    callback.onError(throwable.getLocalizedMessage());
                                 }
                             });
-
-                            return;
-                        }
-                    }
-
-                } catch (InterruptedException e) {
-                    Timber.e("Error occurred while loading survey from file " + e.getMessage());
-                } catch (ExecutionException e) {
-                    Timber.e("Error occurred while loading survey from file " + e.getMessage());
-                }
-
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        callback.onError("Error occurred while loading survey from file");
-                    }
-                });
-
-            }
-
-        }).start();
+        }
     }
 
     private static Survey fillWithDynamicOptions(Survey survey, Context context) {
