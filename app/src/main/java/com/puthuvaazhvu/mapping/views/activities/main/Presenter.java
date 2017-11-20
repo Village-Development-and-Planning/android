@@ -1,11 +1,14 @@
 package com.puthuvaazhvu.mapping.views.activities.main;
 
 import android.os.Handler;
+import android.support.annotation.VisibleForTesting;
+import android.text.TextUtils;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.data.DataRepository;
+import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Text;
 import com.puthuvaazhvu.mapping.modals.flow.ChildFlow;
@@ -141,7 +144,10 @@ public class Presenter implements Contract.UserAction {
 
         activityView.showLoading(R.string.survey_file_saving_msg);
 
-        DataFileHelpers.dumpSurvey(survey, false)
+        ArrayList<Integer> path = new ArrayList<>();
+        getPathOfCurrentQuestion(flowHelper.getCurrent(), path);
+
+        DataFileHelpers.dumpSurvey(survey, TextUtils.join(",", path), false)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Consumer<Optional>() {
@@ -277,6 +283,63 @@ public class Presenter implements Contract.UserAction {
         }
     }
 
+
+    /**
+     * Starting index of the path is always ROOT .
+     * Ending index of the path is always Answer.
+     *
+     * @param node    The current node question to start with
+     * @param indexes The list of indexes that contains the path
+     */
+    @VisibleForTesting
+    public void getPathOfCurrentQuestion(Question node, ArrayList<Integer> indexes) {
+        Question current = node.getParent();
+
+        if (current == null) {
+            return; // Reached the head of the tree
+        }
+
+        int answerCount = current.getAnswers().size();
+        Answer lastAnswer = current.getCurrentAnswer();
+
+        int answersIndex = -1;
+
+        // traverse through the answers list and find the appropriate index
+        for (int i = 0; i < answerCount; i++) {
+            if (current.getAnswers().get(i) == lastAnswer) {
+                answersIndex = i;
+                break;
+            }
+        }
+
+        // add the answer's index  first
+        indexes.add(answersIndex);
+
+        // then add the question's position
+        int questionIndex = -1;
+
+        // find the index of this question in it's parent
+        Question parent = current.getParent();
+        if (parent == null) {
+            // ROOT question
+            questionIndex = 0;
+        } else {
+
+            // find the child's index
+            for (int i = 0; i < parent.getChildren().size(); i++) {
+                if (parent.getChildren().get(i).getRawNumber().equals(current.getRawNumber())) {
+                    questionIndex = i;
+                    break;
+                }
+            }
+
+        }
+
+        indexes.add(questionIndex);
+
+        getPathOfCurrentQuestion(current, indexes);
+    }
+
     private void showGridUI(Question question) {
         // get the children of the latest answer
         ArrayList<Question> children = question.getCurrentAnswer().getChildren();
@@ -316,54 +379,5 @@ public class Presenter implements Contract.UserAction {
         if (!toBeRemoved.isEmpty())
             activityView.remove(toBeRemoved);
     }
-
-    /**
-     * @param toSave
-     * @param file   - The file name is in the format "${surveyid}_${uuid}.json"
-     */
-//    private void dumpToFile(String toSave, File file) {
-//        String fileName = DataFileHelpers.removeExt(file.getName());
-//        String fileNameComponents[] = fileName.split("_");
-//        final String surveyID = fileNameComponents[0];
-//        final String uuid = fileNameComponents[1];
-//
-//        activityView.showLoading(R.string.loading);
-//
-//        saveToFile.execute(toSave, file).flatMap(new Function<Void, SingleSource<Void>>() {
-//            @Override
-//            public SingleSource<Void> apply(@NonNull Void aVoid) throws Exception {
-//                return answersInfoFile.updateListOfSurveys(
-//                        AnswersInfoFileDataModal.adapter(
-//                                surveyID,
-//                                survey.getName(),
-//                                uuid,
-//                                false,
-//                                "" + System.currentTimeMillis()
-//                        )
-//                );
-//            }
-//        }).observeOn(AndroidSchedulers.mainThread())
-//                .subscribeOn(Schedulers.io())
-//                .subscribe(new Consumer<Void>() {
-//                               @Override
-//                               public void accept(@NonNull Void aVoid) throws Exception {
-//                                   Timber.i("The data is saved to the file successfully.");
-//                                   //activityView.shouldShowSummary(survey);
-//                                   activityView.onSurveySaved(survey);
-//                                   activityView.hideLoading();
-//                               }
-//                           }, new Consumer<Throwable>() {
-//                               @Override
-//                               public void accept(@NonNull Throwable throwable) throws Exception {
-//                                   String errorMessage = "Error while saving file: " + throwable.getMessage();
-//                                   Timber.e(errorMessage);
-//                                   activityView.hideLoading();
-//
-//                                   // send report to fabric.io
-//                                   Crashlytics.logException(new Exception(errorMessage));
-//                               }
-//                           }
-//                );
-//    }
 
 }

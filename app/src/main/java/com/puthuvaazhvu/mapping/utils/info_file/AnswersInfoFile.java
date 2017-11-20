@@ -1,14 +1,18 @@
 package com.puthuvaazhvu.mapping.utils.info_file;
 
 import com.google.gson.JsonObject;
+import com.puthuvaazhvu.mapping.modals.Option;
+import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.DataFileHelpers;
 import com.puthuvaazhvu.mapping.utils.Optional;
+import com.puthuvaazhvu.mapping.utils.info_file.modals.AnswerDataModal;
 import com.puthuvaazhvu.mapping.utils.info_file.modals.AnswersInfoFileDataModal;
 import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
 import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
@@ -28,6 +32,7 @@ import io.reactivex.functions.Function;
  */
 
 public class AnswersInfoFile extends InfoFileBase {
+    private final int version = Constants.Versions.ANSWERS_INFO_VERSION;
 
     public AnswersInfoFile(GetFromFile getFromFile, SaveToFile saveToFile) {
         super(getFromFile, saveToFile);
@@ -47,14 +52,30 @@ public class AnswersInfoFile extends InfoFileBase {
         });
     }
 
-    public Single<Optional> updateListOfSurveys(final AnswersInfoFileDataModal data) {
-        return getContentsOfFile().flatMap(new Function<JsonObject, SingleSource<? extends Optional>>() {
-            @Override
-            public SingleSource<? extends Optional> apply(@NonNull JsonObject jsonObject) throws Exception {
-                AnswersInfoFileDataModal existing = new AnswersInfoFileDataModal(jsonObject);
-                existing.updateWithNew(data);
-                return saveFile(existing.getAsJson());
-            }
-        });
+    public Single<Optional> updateSurvey(final AnswerDataModal answerDataModal) {
+        ArrayList<AnswerDataModal> answerDataModals = new ArrayList<>();
+        answerDataModals.add(answerDataModal);
+
+        return updateListOfSurveys(answerDataModals);
+    }
+
+    public Single<Optional> updateListOfSurveys(final ArrayList<AnswerDataModal> answerDataModals) {
+        return getContentsOfFile()
+                .flatMap(new Function<JsonObject, SingleSource<? extends Optional>>() {
+                             @Override
+                             public SingleSource<? extends Optional> apply(@NonNull JsonObject jsonObject) throws Exception {
+
+                                 AnswersInfoFileDataModal existing = new AnswersInfoFileDataModal(jsonObject);
+
+                                 if (existing.getVersion() != version) {
+                                     // remove the info.json file
+                                     return saveFile(jsonObject);
+                                 } else {
+                                     existing.updateWithNew(answerDataModals);
+                                     return saveFile(existing.getAsJson());
+                                 }
+                             }
+                         }
+                );
     }
 }

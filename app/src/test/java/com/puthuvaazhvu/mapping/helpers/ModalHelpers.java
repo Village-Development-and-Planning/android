@@ -5,6 +5,7 @@ import com.google.gson.JsonParser;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.utils.Utils;
+import com.puthuvaazhvu.mapping.utils.info_file.modals.AnswersInfoFileDataModal;
 
 import java.io.InputStream;
 import java.util.Random;
@@ -46,6 +47,20 @@ public class ModalHelpers {
         assertThat(questionJson, notNullValue());
 
         return Question.populateQuestion(questionJson);
+    }
+
+    public static AnswersInfoFileDataModal getAnswersInfoFileModal(Object obj) {
+        String fileName = "answers_info.json";
+        String infoFileString = Utils.readFromInputStream(getDataFormFile(obj, fileName));
+
+        assertThat(infoFileString, notNullValue());
+
+        JsonParser jsonParser = new JsonParser();
+        JsonObject infoJson = jsonParser.parse(infoFileString).getAsJsonObject();
+
+        assertThat(infoJson, notNullValue());
+
+        return new AnswersInfoFileDataModal(infoJson);
     }
 
     private static InputStream getDataFormFile(Object obj, String fileName) {

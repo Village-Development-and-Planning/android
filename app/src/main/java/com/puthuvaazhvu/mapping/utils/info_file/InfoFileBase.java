@@ -32,8 +32,6 @@ public abstract class InfoFileBase {
     protected final GetFromFile getFromFile;
     protected final SaveToFile saveToFile;
 
-//    protected final ExecutorService pool = Executors.newSingleThreadExecutor();
-
     public InfoFileBase(GetFromFile getFromFile, SaveToFile saveToFile) {
         this.getFromFile = getFromFile;
         this.saveToFile = saveToFile;

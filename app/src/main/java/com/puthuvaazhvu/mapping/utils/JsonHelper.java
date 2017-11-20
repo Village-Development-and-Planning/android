@@ -45,6 +45,13 @@ public class JsonHelper {
         return result;
     }
 
+    public static int getInt(JsonObject jsonObject, String key) {
+        if (isJsonValid(jsonObject, key)) {
+            return jsonObject.get(key).getAsInt();
+        }
+        return -1;
+    }
+
     public static JsonArray getJsonArray(JsonObject jsonObject, String key) {
         if (isJsonValid(jsonObject, key)) {
             return jsonObject.get(key).getAsJsonArray();

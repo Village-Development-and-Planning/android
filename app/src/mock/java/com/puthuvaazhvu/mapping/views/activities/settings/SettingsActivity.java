@@ -49,7 +49,9 @@ public class SettingsActivity extends BaseDataActivity implements View.OnClickLi
         show_list_of_surveys_btn = findViewById(R.id.show_list_of_surveys_btn);
         show_list_of_surveys_btn.setOnClickListener(this);
 
-        findViewById(R.id.dump_survey).setOnClickListener(this);
+        Button dumpSurveyButton = findViewById(R.id.dump_survey);
+        dumpSurveyButton.setOnClickListener(this);
+        dumpSurveyButton.setVisibility(View.GONE);
 
         findViewById(R.id.message_fragment_test).setOnClickListener(this);
 
@@ -81,7 +83,7 @@ public class SettingsActivity extends BaseDataActivity implements View.OnClickLi
                 showMessageQuestionTestActivity();
                 break;
             case R.id.dump_survey:
-                dumpSurvey();
+                // dumpSurvey();
                 break;
         }
     }
@@ -99,26 +101,26 @@ public class SettingsActivity extends BaseDataActivity implements View.OnClickLi
             progressDialog.dismiss();
     }
 
-    private void dumpSurvey() {
-
-        Survey survey = applicationData.getSurvey();
-
-        if (survey != null) {
-            showLoading();
-            DataFileHelpers.dumpSurvey(survey, true)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeOn(Schedulers.io())
-                    .subscribe(new Consumer<Optional>() {
-                        @Override
-                        public void accept(@NonNull Optional optional) throws Exception {
-                            dismissProgressDialog();
-                            Utils.showMessageToast("Survey dumped successfully", SettingsActivity.this);
-                        }
-                    });
-        } else {
-            Utils.showMessageToast("No survey present", this);
-        }
-    }
+//    private void dumpSurvey() {
+//
+//        Survey survey = applicationData.getSurvey();
+//
+//        if (survey != null) {
+//            showLoading();
+//            DataFileHelpers.dumpSurvey(survey, true)
+//                    .observeOn(AndroidSchedulers.mainThread())
+//                    .subscribeOn(Schedulers.io())
+//                    .subscribe(new Consumer<Optional>() {
+//                        @Override
+//                        public void accept(@NonNull Optional optional) throws Exception {
+//                            dismissProgressDialog();
+//                            Utils.showMessageToast("Survey dumped successfully", SettingsActivity.this);
+//                        }
+//                    });
+//        } else {
+//            Utils.showMessageToast("No survey present", this);
+//        }
+//    }
 
     private void showListOfSurveyActivity() {
         Intent intent = new Intent(this, SurveyListActivity.class);

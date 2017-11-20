@@ -7,12 +7,14 @@ import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.info_file.AnswersInfoFile;
+import com.puthuvaazhvu.mapping.utils.info_file.modals.AnswerDataModal;
 import com.puthuvaazhvu.mapping.utils.info_file.modals.AnswersInfoFileDataModal;
 import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
 import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
@@ -33,6 +35,7 @@ public class DataFileHelpers {
 
     public static Single<Optional> dumpSurvey(
             Survey survey,
+            final String pathToLastAnsweredQuestion,
             final boolean isSurveyIncomplete
     ) {
         JsonObject resultSurveyJson = survey.getAsJson().getAsJsonObject();
@@ -58,15 +61,22 @@ public class DataFileHelpers {
                 .flatMap(new Function<Optional, SingleSource<? extends Optional>>() {
                     @Override
                     public SingleSource<? extends Optional> apply(@NonNull Optional optional) throws Exception {
-                        return answersInfoFile.updateListOfSurveys(
-                                AnswersInfoFileDataModal.adapter(
-                                        surveyID,
-                                        surveyName,
+
+                        ArrayList<AnswerDataModal.Snapshot> snapshots = new ArrayList<>();
+                        snapshots.add(
+                                new AnswerDataModal.Snapshot(
                                         uuid,
+                                        surveyName,
+                                        pathToLastAnsweredQuestion,
                                         isSurveyIncomplete,
                                         "" + System.currentTimeMillis()
                                 )
                         );
+
+                        AnswerDataModal answerDataModal = new AnswerDataModal(surveyID, snapshots);
+
+                        return answersInfoFile.updateSurvey(answerDataModal);
+
                     }
                 });
     }
