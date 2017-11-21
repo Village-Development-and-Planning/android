@@ -7,9 +7,20 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
+import com.puthuvaazhvu.mapping.utils.Optional;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
+
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleObserver;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.SingleSource;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Function;
 
 /**
  * Created by muthuveerappans on 8/24/17.
@@ -96,6 +107,41 @@ public class Survey extends BaseObject implements Parcelable {
 
     public String getDescription() {
         return description;
+    }
+
+    public static Single<Survey> updateWithAnswers(final Survey survey, JsonObject surveyJson) {
+        return Single.just(surveyJson)
+                .map(new Function<JsonObject, JsonArray>() {
+                    @Override
+                    public JsonArray apply(@NonNull JsonObject rootJson) throws Exception {
+                        return JsonHelper.getJsonArray(rootJson, "questions");
+                    }
+                })
+                .map(new Function<JsonArray, JsonObject[]>() {
+                    @Override
+                    public JsonObject[] apply(@NonNull JsonArray questionsArray) throws Exception {
+
+                        if (questionsArray == null) {
+                            throw new Exception("Questions array is null");
+                        }
+
+                        JsonObject[] jsonObjects = new JsonObject[questionsArray.size()];
+                        for (int i = 0; i < questionsArray.size(); i++) {
+                            jsonObjects[i] = questionsArray.get(i).getAsJsonObject();
+                        }
+                        return jsonObjects;
+                    }
+                })
+                .map(new Function<JsonObject[], Survey>() {
+                    @Override
+                    public Survey apply(@NonNull JsonObject[] jsonObjects) throws Exception {
+                        for (int i = 0; i < jsonObjects.length; i++) {
+                            Question question = survey.getQuestionList().get(i);
+                            Question.populateAnswersInternal(question, jsonObjects[i]);
+                        }
+                        return survey;
+                    }
+                });
     }
 
     public boolean dynamicOptionsFillForQuestion(final String fillTag, ArrayList<Option> options) {

@@ -29,6 +29,33 @@ public class QuestionDataModalTest {
     }
 
     @Test
+    public void test_populateAnswersInternal_method() {
+        Survey survey = ModalHelpers.getSurvey(this, "survey_data_1.json");
+
+        JsonObject answers = ModalHelpers.getAnswersJson(this);
+        JsonObject questionWithAnswersJson = answers.get("questions").getAsJsonArray().get(0).getAsJsonObject();
+
+        Question rootNode = survey.getQuestionList().get(0);
+
+        assertThat(rootNode.getType(), is("ROOT"));
+        assertThat(questionWithAnswersJson.get("type").getAsString(), is("ROOT"));
+
+        Question resultRoot = Question.populateAnswersInternal(rootNode, questionWithAnswersJson);
+
+        assertThat(resultRoot.getAnswers().size(), is(1));
+        assertThat(resultRoot.getAnswers().get(0).getOptions().size(), is(1));
+        assertThat(resultRoot.getAnswers().get(0).getOptions().get(0).getType(), is("DUMMY"));
+        assertThat(resultRoot.getAnswers().get(0).getChildren().size(), is(2));
+        assertSame(resultRoot.getAnswers().get(0).getChildren().get(0).getParent(), resultRoot);
+        assertThat(resultRoot.getAnswers().get(0).getChildren().get(0).getAnswers().size(), is(1));
+        assertThat(resultRoot.getAnswers().get(0).getChildren().get(0).getAnswers().get(0).getOptions().get(0).getType()
+                , is("input"));
+        assertSame(resultRoot.getAnswers().get(0).getChildren().get(0).getAnswers().get(0).getChildren().get(0).getParent()
+                , resultRoot.getAnswers().get(0).getChildren().get(0));
+        assertThat(resultRoot.getAnswers().get(0).getChildren().get(1).getAnswers().get(0).getOptions().get(0).getText().getEnglish(), is("TEST HABITATION 1"));
+    }
+
+    @Test
     public void test_add_dynamicOptions() {
         Question root = survey.getQuestionList().get(0);
 

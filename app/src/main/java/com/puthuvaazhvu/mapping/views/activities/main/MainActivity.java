@@ -6,6 +6,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.view.MenuItem;
+import android.view.View;
 
 import com.puthuvaazhvu.mapping.DataInjection;
 import com.puthuvaazhvu.mapping.R;
@@ -47,7 +49,8 @@ import java.util.ArrayList;
 import timber.log.Timber;
 
 public class MainActivity extends BaseDataActivity
-        implements Contract.View, FragmentCommunicationInterface {
+        implements Contract.View,
+        FragmentCommunicationInterface {
 
     private StackFragmentManagerInvoker stackFragmentManagerInvoker;
     private StackFragmentManagerReceiver stackFragmentManagerReceiver;
@@ -98,6 +101,18 @@ public class MainActivity extends BaseDataActivity
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.save:
+                Timber.i("save menu clicked");
+                presenter.dumpSurveyToFile(true);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
     public void onBackPressed() {
         if (defaultBackPressed)
             super.onBackPressed();
@@ -119,29 +134,11 @@ public class MainActivity extends BaseDataActivity
 
         Question root = survey.getQuestionList().get(0);
 
-        // set a mock answer for the root question
-//        QuestionData rootData = QuestionData.adapter(root);
-//
-//        OptionData responseData = OptionData.adapter(root);
-//
-//        AnswerData answerData = new SingleAnswerData(root.getRawNumber(), root.getTextString(), null, "DUMMY_ANSWER", "0");
-//        responseData.setAnswerData(answerData);
-//
-//        rootData.setResponseData(responseData);
-
         iFlow = new FlowImplementation(root);
 
         flowHelper = new FlowHelper(iFlow);
 
         presenter.initData(survey, flowHelper);
-
-//        updateCurrentQuestion(rootData, new Runnable() {
-//            @Override
-//            public void run() {
-//                // set the first question
-//                presenter.getNext();
-//            }
-//        });
 
         presenter.getNext();
     }
@@ -202,15 +199,20 @@ public class MainActivity extends BaseDataActivity
 
     @Override
     public void onSurveySaved(Survey survey) {
-        defaultBackPressed = true;
-        startListOfSurveysActivity();
+        Timber.i("Survey saved successfully.");
     }
 
     @Override
     public void onSurveyEnd() {
         Timber.i("The survey is completed");
         defaultBackPressed = true;
-        presenter.dumpSurveyToFile();
+        presenter.dumpSurveyToFile(false);
+    }
+
+    @Override
+    public void openListOfSurveysActivity() {
+        defaultBackPressed = true;
+        startListOfSurveysActivity();
     }
 
     @Override
@@ -234,6 +236,11 @@ public class MainActivity extends BaseDataActivity
         }
         progressDialog.setTextView(getString(messageID));
         progressDialog.show(getSupportFragmentManager(), "progress_dialog");
+    }
+
+    @Override
+    public void showMessage(int messageID) {
+        Utils.showMessageToast(messageID, this);
     }
 
     @Override
@@ -343,5 +350,4 @@ public class MainActivity extends BaseDataActivity
     public void forceCrash() {
         throw new RuntimeException("This is a test crash");
     }
-
 }

@@ -18,6 +18,7 @@ import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.activities.BaseActivity;
+import com.puthuvaazhvu.mapping.views.activities.MenuActivity;
 import com.puthuvaazhvu.mapping.views.dialogs.ProgressDialog;
 
 import java.io.IOException;
@@ -30,7 +31,7 @@ import timber.log.Timber;
  * Created by muthuveerappans on 10/30/17.
  */
 
-public class SurveyDataDumpActivity extends BaseActivity
+public class SurveyDataDumpActivity extends MenuActivity
         implements View.OnClickListener, Contract.View {
 
     private ListSurveyAdapter listSurveyAdapter;

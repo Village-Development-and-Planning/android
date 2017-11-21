@@ -21,6 +21,10 @@ import static org.hamcrest.Matchers.notNullValue;
 public class ModalHelpers {
     public static Survey getSurvey(Object obj) {
         String fileName = "survey_data_test_unit.json";
+        return getSurvey(obj, fileName);
+    }
+
+    public static Survey getSurvey(Object obj, String fileName) {
         String surveyDataString = Utils.readFromInputStream(getDataFormFile(obj, fileName));
 
         assertThat(surveyDataString, notNullValue());
@@ -61,6 +65,19 @@ public class ModalHelpers {
         assertThat(infoJson, notNullValue());
 
         return new AnswersInfoFileDataModal(infoJson);
+    }
+
+    public static JsonObject getAnswersJson(Object obj) {
+        return getJson(obj, "answers_data_1.json");
+    }
+
+    private static JsonObject getJson(Object obj, String fileName) {
+        String jsonString = Utils.readFromInputStream(getDataFormFile(obj, fileName));
+
+        assertThat(jsonString, notNullValue());
+
+        JsonParser jsonParser = new JsonParser();
+        return jsonParser.parse(jsonString).getAsJsonObject();
     }
 
     private static InputStream getDataFormFile(Object obj, String fileName) {

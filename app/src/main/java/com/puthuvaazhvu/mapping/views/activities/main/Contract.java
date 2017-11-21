@@ -57,6 +57,8 @@ public interface Contract {
 
         void onSurveySaved(Survey survey);
 
+        void openListOfSurveysActivity();
+
         void onSurveyEnd();
 
         /**
@@ -74,6 +76,8 @@ public interface Contract {
         void remove(ArrayList<Question> questions);
 
         void showLoading(int messageID);
+
+        void showMessage(int messageID);
 
         void hideLoading();
 
@@ -114,6 +118,6 @@ public interface Contract {
          */
         void moveToQuestionAt(int index);
 
-        void dumpSurveyToFile();
+        void dumpSurveyToFile(boolean is_incomplete);
     }
 }

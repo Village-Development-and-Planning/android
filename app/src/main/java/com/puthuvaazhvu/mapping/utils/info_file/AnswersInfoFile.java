@@ -69,7 +69,9 @@ public class AnswersInfoFile extends InfoFileBase {
 
                                  if (existing.getVersion() != version) {
                                      // remove the info.json file
-                                     return saveFile(jsonObject);
+                                     AnswersInfoFileDataModal fileDataModal = new AnswersInfoFileDataModal(answerDataModals,
+                                             Constants.Versions.ANSWERS_INFO_VERSION);
+                                     return saveFile(fileDataModal.getAsJson());
                                  } else {
                                      existing.updateWithNew(answerDataModals);
                                      return saveFile(existing.getAsJson());

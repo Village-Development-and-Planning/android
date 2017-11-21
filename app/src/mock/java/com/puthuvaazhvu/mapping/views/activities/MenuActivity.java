@@ -15,7 +15,7 @@ import timber.log.Timber;
  * Created by muthuveerappans on 11/7/17.
  */
 
-public class MenuActivity extends AppCompatActivity {
+public class MenuActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -27,7 +27,7 @@ public class MenuActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.settings:
+            case R.id.other_settings:
                 Timber.i("Settings menu clicked");
                 openSettingsActivity();
                 return true;

@@ -39,6 +39,9 @@ public class Option extends BaseObject implements Parcelable {
         position = JsonHelper.getString(json, "position");
 
         JsonObject optionJson = JsonHelper.getJsonObject(json, "option");
+        if (optionJson == null) {
+            optionJson = json;
+        }
         id = JsonHelper.getString(optionJson, "_id");
         type = JsonHelper.getString(optionJson, "type");
         modifiedAt = JsonHelper.getString(optionJson, "modifiedAt");

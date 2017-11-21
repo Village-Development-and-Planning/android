@@ -13,7 +13,7 @@ import com.puthuvaazhvu.mapping.modals.Survey;
  * Created by muthuveerappans on 11/11/17.
  */
 
-public class BaseDataActivity extends BaseActivity {
+public class BaseDataActivity extends MenuActivity {
 
     private DataFragment dataFragment;
     protected ApplicationData applicationData;

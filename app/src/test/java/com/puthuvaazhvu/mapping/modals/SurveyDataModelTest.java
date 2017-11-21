@@ -11,6 +11,10 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import io.reactivex.Single;
+import io.reactivex.observers.TestObserver;
+import io.reactivex.subscribers.TestSubscriber;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -24,8 +28,6 @@ public class SurveyDataModelTest {
     @Mock
     private Context context;
 
-    public Survey survey;
-
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
@@ -33,8 +35,17 @@ public class SurveyDataModelTest {
 
     @Test
     public void testSurveyModel() {
-        survey = ModalHelpers.getSurvey(this);
+        Survey survey = ModalHelpers.getSurvey(this);
 
         assertThat(survey, is(notNullValue()));
+    }
+
+    @Test
+    public void test_updateWithAnswers() {
+        Survey survey = ModalHelpers.getSurvey(this, "survey_data_1.json");
+        Single<Survey> surveySingle = Survey.updateWithAnswers(survey, ModalHelpers.getAnswersJson(this));
+        survey = surveySingle.blockingGet();
+
+        assertThat(survey.getQuestionList().get(0).getAnswers().size(), is(1));
     }
 }

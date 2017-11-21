@@ -2,6 +2,7 @@ package com.puthuvaazhvu.mapping.modals;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.VisibleForTesting;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -13,6 +14,11 @@ import com.puthuvaazhvu.mapping.modals.flow.FlowPattern;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
 import java.util.ArrayList;
+
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
+import io.reactivex.annotations.NonNull;
 
 /**
  * Created by muthuveerappans on 8/24/17.
@@ -276,10 +282,6 @@ public class Question extends BaseObject implements Parcelable {
         return false;
     }
 
-    public static Question populateQuestion(JsonObject nodeJson) {
-        return populateQuestionInternal(null, nodeJson);
-    }
-
     private void setAnswerInternal(Answer answer) {
         if (this.getFlowPattern() == null) {
             return;
@@ -367,6 +369,10 @@ public class Question extends BaseObject implements Parcelable {
         return null;
     }
 
+    public static Question populateQuestion(JsonObject nodeJson) {
+        return populateQuestionInternal(null, nodeJson);
+    }
+
     /**
      * Recursively populates the node.
      *
@@ -391,6 +397,71 @@ public class Question extends BaseObject implements Parcelable {
             }
         }
         return question;
+    }
+
+    /**
+     * Helper to recursively populate the answers from the given answerJson
+     *
+     * @param nodeJson
+     * @return - Observable with the populated question
+     */
+    public Single<Question> populateAnswers(final JsonObject nodeJson) {
+        return Single.create(new SingleOnSubscribe<Question>() {
+            @Override
+            public void subscribe(@NonNull SingleEmitter<Question> emitter) throws Exception {
+                Question question = populateAnswersInternal(Question.this, nodeJson);
+                emitter.onSuccess(question);
+            }
+        });
+    }
+
+    public static Question populateAnswersInternal(final Question node, final JsonObject nodeJson) {
+
+        JsonArray answersJsonArray = JsonHelper.getJsonArray(nodeJson, "answers");
+
+        if (answersJsonArray != null) {
+
+            for (int i = 0; i < answersJsonArray.size(); i++) {
+
+                JsonObject answersJson = answersJsonArray.get(i).getAsJsonObject();
+                JsonArray loggedOptionsJsonArray = JsonHelper.getJsonArray(answersJson, "logged_options");
+
+                ArrayList<Option> options = new ArrayList<>();
+
+                if (loggedOptionsJsonArray != null) {
+
+                    for (int j = 0; j < loggedOptionsJsonArray.size(); j++) {
+                        options.add(new Option(loggedOptionsJsonArray.get(j).getAsJsonObject()));
+                    }
+
+                }
+
+                // create the answer object
+                Answer answer = new Answer(options, node);
+                node.addAnswer(answer);
+
+                // answers children length and this array length should be the same
+                JsonArray childrenJsonArray = JsonHelper.getJsonArray(answersJson, "children");
+
+                if (childrenJsonArray != null) {
+
+                    if (childrenJsonArray.size() != answer.getChildren().size()) {
+                        throw new IllegalArgumentException("The length should be the same.");
+                    }
+
+                    for (int k = 0; k < childrenJsonArray.size(); k++) {
+
+                        Question child = answer.getChildren().get(k);
+                        JsonObject childJson = childrenJsonArray.get(k).getAsJsonObject();
+
+                        populateAnswersInternal(child, childJson);
+
+                    }
+                }
+            }
+        }
+
+        return node;
     }
 
     @Override
@@ -539,7 +610,7 @@ public class Question extends BaseObject implements Parcelable {
                 childrenCopy,
                 info,
                 flowPattern,
-                parent
+                getParent()
         );
     }
 }

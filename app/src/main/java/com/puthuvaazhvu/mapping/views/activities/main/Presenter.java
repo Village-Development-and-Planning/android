@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import com.crashlytics.android.Crashlytics;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
+import com.puthuvaazhvu.mapping.application.MappingApplication;
 import com.puthuvaazhvu.mapping.data.DataRepository;
 import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Option;
@@ -32,6 +33,8 @@ import com.puthuvaazhvu.mapping.views.helpers.back_navigation.IBackFlow;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -66,7 +69,13 @@ public class Presenter implements Contract.UserAction {
 
     private final AnswersInfoFile answersInfoFile;
 
-    public Presenter(Contract.View activityView, DataRepository<Survey> dataRepository, Handler uiHandler, SaveToFile saveToFile, GetFromFile getFromFile) {
+    public Presenter(
+            Contract.View activityView,
+            DataRepository<Survey> dataRepository,
+            Handler uiHandler,
+            SaveToFile saveToFile,
+            GetFromFile getFromFile
+    ) {
         this.activityView = activityView;
         this.dataRepository = dataRepository;
         this.uiHandler = uiHandler;
@@ -140,14 +149,11 @@ public class Presenter implements Contract.UserAction {
     }
 
     @Override
-    public void dumpSurveyToFile() {
+    public void dumpSurveyToFile(final boolean isIncomplete) {
 
         activityView.showLoading(R.string.survey_file_saving_msg);
 
-        ArrayList<Integer> path = new ArrayList<>();
-        getPathOfCurrentQuestion(flowHelper.getCurrent(), path);
-
-        DataFileHelpers.dumpSurvey(survey, TextUtils.join(",", path), false)
+        DataFileHelpers.dumpSurvey(survey, getPathOfCurrentQuestion(), isIncomplete)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Consumer<Optional>() {
@@ -157,6 +163,12 @@ public class Presenter implements Contract.UserAction {
                         //activityView.shouldShowSummary(survey);
                         activityView.onSurveySaved(survey);
                         activityView.hideLoading();
+                        activityView.showMessage(R.string.save_successful);
+
+                        if (!isIncomplete) {
+                            activityView.openListOfSurveysActivity();
+                        }
+
                     }
                 }, new Consumer<Throwable>() {
                     @Override
@@ -164,6 +176,7 @@ public class Presenter implements Contract.UserAction {
                         String errorMessage = "Error while saving file: " + throwable.getMessage();
                         Timber.e(errorMessage);
                         activityView.hideLoading();
+                        activityView.onError(R.string.error_saving_survey);
 
                         // send report to fabric.io
                         Crashlytics.logException(new Exception(errorMessage));
@@ -283,16 +296,31 @@ public class Presenter implements Contract.UserAction {
         }
     }
 
+    private String getPathOfCurrentQuestion() {
+        Question question = flowHelper.getCurrent();
+        if (question == null) {
+            return null;
+        }
+        ArrayList<Integer> indexes = getPathOfCurrentQuestion(question);
+        return TextUtils.join(",", indexes);
+    }
+
+    public static ArrayList<Integer> getPathOfCurrentQuestion(Question node) {
+        ArrayList<Integer> indexes = new ArrayList<>();
+        getPathOfCurrentQuestion(node, indexes);
+        Collections.reverse(indexes);
+        return indexes;
+    }
 
     /**
-     * Starting index of the path is always ROOT .
-     * Ending index of the path is always Answer.
+     * Starting index of the path is always Answer .
+     * Ending index of the path is always Root.
      *
      * @param node    The current node question to start with
      * @param indexes The list of indexes that contains the path
      */
     @VisibleForTesting
-    public void getPathOfCurrentQuestion(Question node, ArrayList<Integer> indexes) {
+    public static void getPathOfCurrentQuestion(Question node, ArrayList<Integer> indexes) {
         Question current = node.getParent();
 
         if (current == null) {
@@ -312,7 +340,7 @@ public class Presenter implements Contract.UserAction {
             }
         }
 
-        // add the answer's index  first
+        // add the answer's index
         indexes.add(answersIndex);
 
         // then add the question's position

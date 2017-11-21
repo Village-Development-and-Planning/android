@@ -23,7 +23,8 @@ import timber.log.Timber;
  * Created by muthuveerappans on 10/20/17.
  */
 
-public class BaseActivity extends MenuActivity {
+// Todo: menu in list list dialog
+public class BaseActivity extends AppCompatActivity {
     protected boolean paused;
     protected boolean resumed;
 

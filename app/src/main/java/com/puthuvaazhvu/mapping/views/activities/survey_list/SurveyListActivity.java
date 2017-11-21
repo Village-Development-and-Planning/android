@@ -22,6 +22,7 @@ import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
 import com.puthuvaazhvu.mapping.utils.storage.PrefsStorage;
 import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
 import com.puthuvaazhvu.mapping.views.activities.BaseActivity;
+import com.puthuvaazhvu.mapping.views.activities.MenuActivity;
 import com.puthuvaazhvu.mapping.views.activities.main.MainActivity;
 import com.puthuvaazhvu.mapping.views.activities.save_survey_data.*;
 import com.puthuvaazhvu.mapping.views.dialogs.ProgressDialog;
@@ -35,7 +36,7 @@ import timber.log.Timber;
  * Created by muthuveerappans on 10/30/17.
  */
 
-public class SurveyListActivity extends BaseActivity
+public class SurveyListActivity extends MenuActivity
         implements View.OnClickListener, Contract.View {
 
     private ProgressDialog progressDialog;

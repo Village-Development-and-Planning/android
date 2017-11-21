@@ -14,9 +14,12 @@
     <string name="next">NEXT</string>
     <string name="back">BACK</string>
     <string name="settings">SETTINGS</string>
+    <string name="other_settings">OTHER SETTINGS</string>
+    <string name="save">SAVE</string>
 
     <!--success-->
     <string name="gps_recorded_successfully">GPS recorded successfully</string>
+    <string name="save_successful">Save successful</string>
 
     <!--errors-->
     <string name="err_no_data">Cannot get the required surveys</string>

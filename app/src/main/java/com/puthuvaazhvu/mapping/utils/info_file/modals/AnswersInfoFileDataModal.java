@@ -39,6 +39,11 @@ public class AnswersInfoFileDataModal {
     private List<AnswerDataModal> surveys;
     private final int version;
 
+    public AnswersInfoFileDataModal(List<AnswerDataModal> surveys, int version) {
+        this.surveys = surveys;
+        this.version = version;
+    }
+
     private AnswersInfoFileDataModal(AnswerDataModal data, int version) {
         this.surveys = new ArrayList<>();
         this.surveys.add(data);
@@ -87,6 +92,10 @@ public class AnswersInfoFileDataModal {
                 thisSurvey.getSnapshots().addAll(otherSurvey.getSnapshots());
             }
         }
+    }
+
+    public void setSurveys(List<AnswerDataModal> surveys) {
+        this.surveys = surveys;
     }
 
     public List<AnswerDataModal> getSurveys() {
