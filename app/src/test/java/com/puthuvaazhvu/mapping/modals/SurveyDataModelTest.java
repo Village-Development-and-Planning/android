@@ -12,8 +12,6 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import io.reactivex.Single;
-import io.reactivex.observers.TestObserver;
-import io.reactivex.subscribers.TestSubscriber;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -42,10 +40,9 @@ public class SurveyDataModelTest {
 
     @Test
     public void test_updateWithAnswers() {
-        Survey survey = ModalHelpers.getSurvey(this, "survey_data_1.json");
-        Single<Survey> surveySingle = Survey.updateWithAnswers(survey, ModalHelpers.getAnswersJson(this));
-        survey = surveySingle.blockingGet();
+        Single<Survey> surveySingle = Survey.getSurveyInstanceWithUpdatedAnswers(ModalHelpers.getAnswersJson(this));
+        Survey survey = surveySingle.blockingGet();
 
-        assertThat(survey.getQuestionList().get(0).getAnswers().size(), is(1));
+        assertThat(survey.getRootQuestion().getAnswers().size(), is(1));
     }
 }

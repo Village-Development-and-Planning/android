@@ -13,29 +13,19 @@ import com.puthuvaazhvu.mapping.network.implementations.SingleSurveyAPI;
 import com.puthuvaazhvu.mapping.utils.DataFileHelpers;
 import com.puthuvaazhvu.mapping.utils.Optional;
 import com.puthuvaazhvu.mapping.utils.info_file.SurveyInfoFile;
-import com.puthuvaazhvu.mapping.utils.info_file.modals.SavedSurveyInfoFileDataModal;
+import com.puthuvaazhvu.mapping.utils.info_file.modals.DataModal;
+import com.puthuvaazhvu.mapping.utils.info_file.modals.SurveyInfoFileDataModal;
 import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
 import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
 
-import org.reactivestreams.Publisher;
-
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
-import io.reactivex.Observer;
 import io.reactivex.Single;
 import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
@@ -109,7 +99,7 @@ public class Presenter implements Contract.UserAction {
             Single<Optional> singleObservable = singleSurveyAPI.getSurvey(id)
                     .flatMap(new Function<String, SingleSource<? extends Optional>>() {
                         @Override
-                        public SingleSource<? extends Optional> apply(@NonNull String data) throws Exception {
+                        public SingleSource<? extends Optional> apply(@NonNull final String data) throws Exception {
                             File file = DataFileHelpers.getSurveyDataFile(id, false);
 
                             if (file != null && file.exists()) {
@@ -117,9 +107,9 @@ public class Presenter implements Contract.UserAction {
                                         .flatMap(new Function<Optional, SingleSource<Optional>>() {
                                             @Override
                                             public SingleSource<Optional> apply(@NonNull Optional optional) throws Exception {
-                                                return savedSurveyInfoFile.updateListOfSurveys(
-                                                        SavedSurveyInfoFileDataModal.adapter(infoFileData)
-                                                );
+                                                ArrayList<DataModal> dataModals = new ArrayList<>();
+                                                dataModals.add(DataModal.adapter(infoFileData));
+                                                return savedSurveyInfoFile.updateListOfSurveys(dataModals);
                                             }
                                         });
                             } else {

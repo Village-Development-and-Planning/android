@@ -28,12 +28,20 @@ public class AnswersInfoFileDataModalTest {
         answersInfoFileDataModal = ModalHelpers.getAnswersInfoFileModal(this);
 
         assertThat(answersInfoFileDataModal.getVersion(), is(1));
-        assertThat(answersInfoFileDataModal.getSurveys().size(), is(2));
+        assertThat(answersInfoFileDataModal.getAnswerDataModals().size(), is(2));
+    }
+
+    @Test
+    public void test_find() {
+        AnswerDataModal answerDataModal = answersInfoFileDataModal.find("1");
+
+        assertThat(answerDataModal.getId(), is("1"));
+        assertThat(answerDataModal.getSnapshots().size(), is(2));
     }
 
     @Test
     public void test_updateWithNew() {
-        AnswerDataModal answerDataModal = answersInfoFileDataModal.getSurveys().get(0);
+        AnswerDataModal answerDataModal = answersInfoFileDataModal.getAnswerDataModals().get(0);
         assertThat(answerDataModal.getSnapshots().size(), is(2));
         assertThat(answerDataModal.getId(), is("1"));
 
@@ -44,12 +52,12 @@ public class AnswersInfoFileDataModalTest {
                 new AnswerDataModal.Snapshot("c", "test_1", "", false, "")
         );
         answerDataModals.add(
-                new AnswerDataModal("1", snapShots)
+                new AnswerDataModal("1", false, snapShots)
         );
         answersInfoFileDataModal.updateWithNew(answerDataModals);
 
         assertThat(answerDataModal.getSnapshots().size(), is(1));
-        assertThat(answersInfoFileDataModal.getSurveys().size(), is(2));
+        assertThat(answersInfoFileDataModal.getAnswerDataModals().size(), is(2));
 
         // test add new
         answerDataModals.clear();
@@ -58,10 +66,10 @@ public class AnswersInfoFileDataModalTest {
                 new AnswerDataModal.Snapshot("b", "test_2", "", false, "")
         );
         answerDataModals.add(
-                new AnswerDataModal("3", snapShots)
+                new AnswerDataModal("3", false, snapShots)
         );
         answersInfoFileDataModal.updateWithNew(answerDataModals);
 
-        assertThat(answersInfoFileDataModal.getSurveys().size(), is(3));
+        assertThat(answersInfoFileDataModal.getAnswerDataModals().size(), is(3));
     }
 }

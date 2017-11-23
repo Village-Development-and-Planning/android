@@ -3,33 +3,18 @@ package com.puthuvaazhvu.mapping.views.activities.settings;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 
 import com.puthuvaazhvu.mapping.R;
-import com.puthuvaazhvu.mapping.application.MappingApplication;
-import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.other.Constants;
-import com.puthuvaazhvu.mapping.utils.DataFileHelpers;
-import com.puthuvaazhvu.mapping.utils.Optional;
 import com.puthuvaazhvu.mapping.utils.Utils;
-import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
 import com.puthuvaazhvu.mapping.views.activities.BaseDataActivity;
-import com.puthuvaazhvu.mapping.views.activities.main.Presenter;
 import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListActivity;
 import com.puthuvaazhvu.mapping.views.activities.testing.TogetherQuestionTestFragmentActivity;
 import com.puthuvaazhvu.mapping.views.dialogs.ProgressDialog;
-
-import io.reactivex.Observer;
-import io.reactivex.Scheduler;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.annotations.NonNull;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by muthuveerappans on 11/1/17.

@@ -11,11 +11,13 @@ import java.util.ArrayList;
  */
 
 public class AnswerDataModal {
-    private final String id;
-    private final ArrayList<Snapshot> snapshots;
+    private String id;
+    private boolean isDone;
+    private ArrayList<Snapshot> snapshots;
 
     public AnswerDataModal(JsonObject jsonObject) {
         id = JsonHelper.getString(jsonObject, "_id");
+        isDone = JsonHelper.getBoolean(jsonObject, "is_done");
         JsonArray array = JsonHelper.getJsonArray(jsonObject, "snap_shots");
 
         snapshots = new ArrayList<>();
@@ -27,9 +29,21 @@ public class AnswerDataModal {
         }
     }
 
-    public AnswerDataModal(String id, ArrayList<Snapshot> snapshots) {
+    public AnswerDataModal(String id, boolean isDone, ArrayList<Snapshot> snapshots) {
         this.id = id;
         this.snapshots = snapshots;
+        this.isDone = isDone;
+    }
+
+    public void updateOther(AnswerDataModal other) {
+        this.id = other.id;
+        this.isDone = other.isDone;
+        this.snapshots.clear();
+        this.snapshots.addAll(other.snapshots);
+    }
+
+    public boolean isDone() {
+        return isDone;
     }
 
     public String getId() {
@@ -40,10 +54,29 @@ public class AnswerDataModal {
         return snapshots;
     }
 
+    public Snapshot getLatestSnapShot() {
+        if (snapshots.size() <= 0) {
+            return null;
+        }
+
+        Snapshot result = snapshots.get(0);
+
+        for (int i = 1; i < snapshots.size(); i++) {
+            Snapshot snapshot = snapshots.get(i);
+
+            if (snapshot.getTimestamp() > result.getTimestamp()) {
+                result = snapshot;
+            }
+        }
+
+        return result;
+    }
+
     public JsonObject getAsJson() {
         JsonObject jsonObject = new JsonObject();
 
         jsonObject.addProperty("_id", id);
+        jsonObject.addProperty("is_done", isDone);
 
         JsonArray snapshotsJsonArray = new JsonArray();
         for (Snapshot snapshot : this.snapshots) {
@@ -84,7 +117,7 @@ public class AnswerDataModal {
             this.timestamp = timestamp;
         }
 
-        public String getSnapshot_id() {
+        public String getSnapshotId() {
             return snapshot_id;
         }
 
@@ -92,16 +125,16 @@ public class AnswerDataModal {
             return survey_name;
         }
 
-        public String getPath_to_last_question() {
+        public String getPathToLastQuestion() {
             return path_to_last_question;
         }
 
-        public boolean is_incomplete() {
+        public boolean isIncomplete() {
             return is_incomplete;
         }
 
-        public String getTimestamp() {
-            return timestamp;
+        public Long getTimestamp() {
+            return Long.parseLong(timestamp);
         }
 
         public JsonObject getAsJson() {

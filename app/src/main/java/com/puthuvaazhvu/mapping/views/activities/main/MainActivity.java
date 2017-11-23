@@ -7,20 +7,19 @@ import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.View;
 
-import com.puthuvaazhvu.mapping.DataInjection;
+import com.google.android.gms.common.api.Api;
 import com.puthuvaazhvu.mapping.R;
-import com.puthuvaazhvu.mapping.application.MappingApplication;
-import com.puthuvaazhvu.mapping.application.modal.ApplicationData;
+import com.puthuvaazhvu.mapping.data.SurveyDataRepository;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
+import com.puthuvaazhvu.mapping.network.APIs;
+import com.puthuvaazhvu.mapping.network.implementations.SingleSurveyAPI;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
 import com.puthuvaazhvu.mapping.utils.storage.PrefsStorage;
 import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
-import com.puthuvaazhvu.mapping.views.activities.BaseActivity;
 import com.puthuvaazhvu.mapping.views.activities.BaseDataActivity;
 import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListActivity;
 import com.puthuvaazhvu.mapping.views.dialogs.ProgressDialog;
@@ -73,7 +72,7 @@ public class MainActivity extends BaseDataActivity
         setContentView(R.layout.activity_main);
 
         progressDialog = new ProgressDialog();
-        progressDialog.setCancelable(false);
+        // progressDialog.setCancelable(false);
 
         stackFragmentManagerInvoker = new StackFragmentManagerInvoker();
         stackFragmentManagerReceiver = new StackFragmentManagerReceiver(getSupportFragmentManager(), R.id.container);
@@ -83,21 +82,27 @@ public class MainActivity extends BaseDataActivity
 
         Handler handler = new Handler(Looper.getMainLooper());
 
-        presenter = new Presenter(
+        GetFromFile getFromFile = GetFromFile.getInstance();
+        SingleSurveyAPI singleSurveyAPI = SingleSurveyAPI.getInstance(APIs.getAuth(sharedPreferences));
+        String optionsJson = Utils.readFromAssetsFile(this, "options_fill.json");
+
+        presenter = new MainPresenter(
                 this,
-                DataInjection.provideSurveyDataRepository(handler, this),
+                SurveyDataRepository.getInstance(getFromFile, sharedPreferences, singleSurveyAPI, optionsJson),
                 handler,
                 SaveToFile.getInstance(),
                 GetFromFile.getInstance()
         );
 
-        String latestSurveyID = prefsStorage.getLatestSurveyID();
+//        String latestSurveyID = prefsStorage.getLatestSurveyID();
+//
+//        if (latestSurveyID == null) {
+//            startListOfSurveysActivity();
+//        } else {
+//            presenter.loadSurvey(latestSurveyID);
+//        }
 
-        if (latestSurveyID == null) {
-            startListOfSurveysActivity();
-        } else {
-            presenter.loadSurvey(latestSurveyID);
-        }
+        onSurveyLoaded(applicationData.getSurvey());
     }
 
     @Override
@@ -105,7 +110,7 @@ public class MainActivity extends BaseDataActivity
         switch (item.getItemId()) {
             case R.id.save:
                 Timber.i("save menu clicked");
-                presenter.dumpSurveyToFile(true);
+                presenter.dumpSurveyToFile(false);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -123,7 +128,7 @@ public class MainActivity extends BaseDataActivity
     @Override
     public void onSurveyLoaded(Survey survey) {
 
-        if (survey.getQuestionList().isEmpty()) {
+        if (survey == null || survey.getRootQuestion() == null) {
             onError(R.string.invalid_data);
             defaultBackPressed = true;
             return;
@@ -132,7 +137,7 @@ public class MainActivity extends BaseDataActivity
         // set the global application data
         applicationData.setSurvey(survey);
 
-        Question root = survey.getQuestionList().get(0);
+        Question root = survey.getRootQuestion();
 
         iFlow = new FlowImplementation(root);
 
@@ -206,7 +211,7 @@ public class MainActivity extends BaseDataActivity
     public void onSurveyEnd() {
         Timber.i("The survey is completed");
         defaultBackPressed = true;
-        presenter.dumpSurveyToFile(false);
+        presenter.dumpSurveyToFile(true);
     }
 
     @Override

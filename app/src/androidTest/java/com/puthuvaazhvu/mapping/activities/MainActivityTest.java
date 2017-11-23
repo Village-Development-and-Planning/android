@@ -71,7 +71,7 @@ public class MainActivityTest {
     public void test_grid_questions_UI() {
         //mock UI data
         // 2.1.7
-        Question question = survey.getQuestionList().get(0)
+        Question question = survey.getRootQuestion()
                 .getChildren().get(1).getChildren().get(1).getChildren().get(6);
 
         QuestionData parentQuestionData = QuestionData.adapter(question);
@@ -92,7 +92,7 @@ public class MainActivityTest {
     @Test
     public void test_conformationQuestion_UI() {
         // mock ui data
-        Question question = survey.getQuestionList().get(0).getChildren().get(0).getChildren().get(0);
+        Question question = survey.getRootQuestion().getChildren().get(0).getChildren().get(0);
 
         assertThat(question.getRawNumber(), is("1.2"));
 
@@ -115,7 +115,7 @@ public class MainActivityTest {
     public void test_singleQuestion_input_options_UI() {
         // mock ui data
         // 2.1.7.3.2
-        Question question = survey.getQuestionList().get(0)
+        Question question = survey.getRootQuestion()
                 .getChildren().get(1).getChildren().get(1).getChildren().get(6).getChildren().get(0).getChildren().get(1);
 
         assertThat(question.getRawNumber(), is("2.1.7.3.2"));
@@ -148,7 +148,7 @@ public class MainActivityTest {
     public void test_singleQuestion_radioButton_options_UI() {
         // mock ui data
         // 2.1.3
-        Question question = survey.getQuestionList().get(0)
+        Question question = survey.getRootQuestion()
                 .getChildren().get(1).getChildren().get(1).getChildren().get(2);
 
         assertThat(question.getRawNumber(), is("2.1.3"));
@@ -178,7 +178,7 @@ public class MainActivityTest {
     public void test_singleQuestion_checkbox_options_UI() {
         // mock ui data
         // 2.1.7.4.4
-        Question question = survey.getQuestionList().get(0)
+        Question question = survey.getRootQuestion()
                 .getChildren().get(1).getChildren().get(1).getChildren().get(6).getChildren().get(1).getChildren().get(3);
 
         assertThat(question.getRawNumber(), is("2.1.7.4.4"));

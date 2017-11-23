@@ -33,9 +33,9 @@ public class QuestionDataModalTest {
         Survey survey = ModalHelpers.getSurvey(this, "survey_data_1.json");
 
         JsonObject answers = ModalHelpers.getAnswersJson(this);
-        JsonObject questionWithAnswersJson = answers.get("questions").getAsJsonArray().get(0).getAsJsonObject();
+        JsonObject questionWithAnswersJson = answers.get("question").getAsJsonObject();
 
-        Question rootNode = survey.getQuestionList().get(0);
+        Question rootNode = survey.getRootQuestion();
 
         assertThat(rootNode.getType(), is("ROOT"));
         assertThat(questionWithAnswersJson.get("type").getAsString(), is("ROOT"));
@@ -45,19 +45,12 @@ public class QuestionDataModalTest {
         assertThat(resultRoot.getAnswers().size(), is(1));
         assertThat(resultRoot.getAnswers().get(0).getOptions().size(), is(1));
         assertThat(resultRoot.getAnswers().get(0).getOptions().get(0).getType(), is("DUMMY"));
-        assertThat(resultRoot.getAnswers().get(0).getChildren().size(), is(2));
-        assertSame(resultRoot.getAnswers().get(0).getChildren().get(0).getParent(), resultRoot);
-        assertThat(resultRoot.getAnswers().get(0).getChildren().get(0).getAnswers().size(), is(1));
-        assertThat(resultRoot.getAnswers().get(0).getChildren().get(0).getAnswers().get(0).getOptions().get(0).getType()
-                , is("input"));
-        assertSame(resultRoot.getAnswers().get(0).getChildren().get(0).getAnswers().get(0).getChildren().get(0).getParent()
-                , resultRoot.getAnswers().get(0).getChildren().get(0));
-        assertThat(resultRoot.getAnswers().get(0).getChildren().get(1).getAnswers().get(0).getOptions().get(0).getText().getEnglish(), is("TEST HABITATION 1"));
+        assertThat(resultRoot.getAnswers().get(0).getChildren().size(), is(1));
     }
 
     @Test
     public void test_add_dynamicOptions() {
-        Question root = survey.getQuestionList().get(0);
+        Question root = survey.getRootQuestion();
 
         assertThat(root.getType(), is("ROOT"));
 
@@ -79,7 +72,7 @@ public class QuestionDataModalTest {
 
     @Test
     public void test_findInTree_method() {
-        Question root = survey.getQuestionList().get(0);
+        Question root = survey.getRootQuestion();
 
         assertThat(root.getType(), is("ROOT"));
 
@@ -104,7 +97,7 @@ public class QuestionDataModalTest {
 
     @Test
     public void test_containsPreFlow_method() {
-        Question question = survey.getQuestionList().get(0).getChildren().get(1);
+        Question question = survey.getRootQuestion().getChildren().get(1);
 
         assertThat(question.getRawNumber(), is("2"));
 
@@ -116,7 +109,7 @@ public class QuestionDataModalTest {
 
         assertThat(result, is(false));
 
-        question = survey.getQuestionList().get(0).getChildren().get(0).getChildren().get(3);
+        question = survey.getRootQuestion().getChildren().get(0).getChildren().get(3);
 
         assertThat(question.getRawNumber(), is("1.5"));
 
@@ -127,7 +120,7 @@ public class QuestionDataModalTest {
 
     @Test
     public void test_setAnswer_method_option_scope() {
-        Question question = survey.getQuestionList().get(0).getChildren().get(1);
+        Question question = survey.getRootQuestion().getChildren().get(1);
 
         assertThat(question.getRawNumber(), is("2"));
 
@@ -172,7 +165,7 @@ public class QuestionDataModalTest {
 
     @Test
     public void test_setAnswer_once_scope() {
-        Question question = survey.getQuestionList().get(0).getChildren().get(1).getChildren().get(0);
+        Question question = survey.getRootQuestion().getChildren().get(1).getChildren().get(0);
 
         assertThat(question.getRawNumber(), is("2.0"));
 
@@ -202,7 +195,7 @@ public class QuestionDataModalTest {
 
     @Test
     public void test_setAnswer_multiple_scope() {
-        Question question = survey.getQuestionList().get(0).getChildren().get(1).getChildren().get(1);
+        Question question = survey.getRootQuestion().getChildren().get(1).getChildren().get(1);
 
         assertThat(question.getRawNumber(), is("2.1"));
 
@@ -231,7 +224,7 @@ public class QuestionDataModalTest {
 
     @Test
     public void test_toJson_method() {
-        Question question = survey.getQuestionList().get(0).getChildren().get(1);
+        Question question = survey.getRootQuestion().getChildren().get(1);
 
         assertThat(question.getRawNumber(), is("2"));
 
@@ -266,13 +259,13 @@ public class QuestionDataModalTest {
         child.setAnswer(mockAnswer);
 
 
-        JsonObject jsonObject = question.getAsJson().getAsJsonObject();
+        JsonObject jsonObject = question.getAsJson().getAsJsonObject().get("question").getAsJsonObject();
 
         assertThat(jsonObject.get("answers").getAsJsonArray().size(), is(1));
-        assertThat(jsonObject.get("children").getAsJsonArray().get(1).getAsJsonObject().get("answers").getAsJsonArray().size(), is(0));
+        assertThat(jsonObject.get("children").getAsJsonArray().get(1).getAsJsonObject().get("question").getAsJsonObject().get("answers").getAsJsonArray().size(), is(0));
         assertThat(jsonObject.get("answers").getAsJsonArray().get(0)
                         .getAsJsonObject().get("children").getAsJsonArray().get(1)
-                        .getAsJsonObject().get("answers").getAsJsonArray().size()
+                        .getAsJsonObject().get("question").getAsJsonObject().get("answers").getAsJsonArray().size()
                 , is(1));
     }
 

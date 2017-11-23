@@ -2,8 +2,7 @@ package com.puthuvaazhvu.mapping.presenters;
 
 import android.os.Handler;
 
-import com.puthuvaazhvu.mapping.data.DataRepository;
-import com.puthuvaazhvu.mapping.helpers.ModalHelpers;
+import com.puthuvaazhvu.mapping.data.SurveyDataRepository;
 import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.flow.FlowPattern;
 import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
@@ -12,7 +11,7 @@ import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
 import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
 import com.puthuvaazhvu.mapping.views.activities.main.Contract;
-import com.puthuvaazhvu.mapping.views.activities.main.Presenter;
+import com.puthuvaazhvu.mapping.views.activities.main.MainPresenter;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
 import com.puthuvaazhvu.mapping.views.helpers.FlowHelper;
 import com.puthuvaazhvu.mapping.views.helpers.FlowType;
@@ -33,7 +32,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -45,7 +43,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class MainPresenterTest {
     @Mock
-    DataRepository<Survey> dataRepository;
+    SurveyDataRepository dataRepository;
 
     @Mock
     Question questionMock;
@@ -53,7 +51,7 @@ public class MainPresenterTest {
     @Mock
     FlowHelper flowHelper;
 
-    private Presenter presenter;
+    private MainPresenter mainPresenter;
 
     @Mock
     private Contract.View viewCallback;
@@ -69,7 +67,7 @@ public class MainPresenterTest {
 
     @Before
     public void setup() {
-        presenter = new Presenter(viewCallback, dataRepository, handler, saveToFile, getFromFile);
+        mainPresenter = new MainPresenter(viewCallback, dataRepository, handler, saveToFile, getFromFile);
         initQuestionMock();
     }
 
@@ -191,12 +189,12 @@ public class MainPresenterTest {
         assertThat(c1.getAnswers().get(0).getQuestionReference().getParent().getRawNumber(), is("0"));
         assertSame(c1_1.getAnswers().get(0).getQuestionReference().getParent(), c1);
 
-        ArrayList<Integer> indexes = Presenter.getPathOfCurrentQuestion(c1_2);
+        ArrayList<Integer> indexes = MainPresenter.getPathOfCurrentQuestion(c1_2);
 
         assertThat(indexes.size(), is(4));
         assertThat(indexes.get(3), is(0));
 
-        indexes = Presenter.getPathOfCurrentQuestion(c2_1);
+        indexes = MainPresenter.getPathOfCurrentQuestion(c2_1);
 
         assertThat(indexes.size(), is(4));
         assertThat(indexes.get(3), is(0));
@@ -221,8 +219,8 @@ public class MainPresenterTest {
         f.flowType = FlowType.SINGLE;
         when(flowHelper.getNext()).thenReturn(f);
 
-        presenter.setSurveyQuestionFlow(flowHelper);
-        presenter.moveToQuestionAt(1);
+        mainPresenter.setSurveyQuestionFlow(flowHelper);
+        mainPresenter.moveToQuestionAt(1);
 
         ArgumentCaptor<QuestionData> captor = ArgumentCaptor.forClass(QuestionData.class);
         verify(viewCallback).shouldShowSingleQuestion(captor.capture());
@@ -236,7 +234,7 @@ public class MainPresenterTest {
 
         when(questionMock.getChildren()).thenReturn(new ArrayList<Question>());
 
-        presenter.setSurveyQuestionFlow(flowHelper);
+        mainPresenter.setSurveyQuestionFlow(flowHelper);
 
         //              -- SINGLE --
 
@@ -245,7 +243,7 @@ public class MainPresenterTest {
         f.question = questionMock;
         when(flowHelper.getNext()).thenReturn(f);
 
-        presenter.getNext();
+        mainPresenter.getNext();
 
         verify(viewCallback).shouldShowSingleQuestion(captor.capture());
         assertThat(captor.getValue(), notNullValue());
@@ -257,7 +255,7 @@ public class MainPresenterTest {
         f.question = questionMock;
         when(flowHelper.getNext()).thenReturn(f);
 
-        presenter.getNext();
+        mainPresenter.getNext();
 
         verify(viewCallback).shouldShowSingleQuestion(captor.capture());
         assertThat(captor.getValue(), notNullValue());
@@ -265,14 +263,14 @@ public class MainPresenterTest {
 
     @Test
     public void test_getPrevious_method() {
-        presenter.setSurveyQuestionFlow(flowHelper);
+        mainPresenter.setSurveyQuestionFlow(flowHelper);
 
         // test for error
         IBackFlow.BackFlowData backFlowData = new IBackFlow.BackFlowData();
         backFlowData.question = null;
         when(flowHelper.getPrevious()).thenReturn(backFlowData);
 
-        presenter.getPrevious();
+        mainPresenter.getPrevious();
 
         verify(viewCallback).onError(anyInt());
 
@@ -283,7 +281,7 @@ public class MainPresenterTest {
         backFlowData.question = questionMock;
         when(flowHelper.getPrevious()).thenReturn(backFlowData);
 
-        presenter.getPrevious();
+        mainPresenter.getPrevious();
 
         verify(viewCallback).shouldShowSingleQuestion(captor.capture());
         assertThat(captor.getValue(), notNullValue());

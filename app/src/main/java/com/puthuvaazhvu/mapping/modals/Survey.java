@@ -30,13 +30,13 @@ public class Survey extends BaseObject implements Parcelable {
     private final String id;
     private final String name;
     private final String description;
-    private final ArrayList<Question> questionList;
+    private final Question rootQuestion;
     private final String modifiedAt;
 
-    public Survey(String id, String name, String description, ArrayList<Question> questionList, String modifiedAt) {
+    public Survey(String id, String name, String description, Question rootQuestion, String modifiedAt) {
         this.id = id;
         this.name = name;
-        this.questionList = questionList;
+        this.rootQuestion = rootQuestion;
         this.modifiedAt = modifiedAt;
         this.description = description;
     }
@@ -48,46 +48,27 @@ public class Survey extends BaseObject implements Parcelable {
         description = JsonHelper.getString(json, "description");
 
         JsonObject questionsJson = JsonHelper.getJsonObject(json, "question");
-        questionList = new ArrayList<>();
 
         if (questionsJson != null) {
-            questionList.add(Question.populateQuestion(json));
+            rootQuestion = Question.populateQuestion(json);
+        } else {
+            rootQuestion = null;
         }
     }
 
-    protected Survey(Parcel in) {
-        id = in.readString();
-        name = in.readString();
-        questionList = in.createTypedArrayList(Question.CREATOR);
-        modifiedAt = in.readString();
-        description = in.readString();
+    public static Single<Survey> getSurveyInstanceWithUpdatedAnswers(final JsonObject surveyJson) {
+        return Single.just(new Survey(surveyJson))
+                .map(new Function<Survey, Survey>() {
+                    @Override
+                    public Survey apply(@NonNull Survey survey) throws Exception {
+                        JsonObject questionJson = JsonHelper.getJsonObject(surveyJson, "question");
+                        if (questionJson != null) {
+                            Question.populateAnswersInternal(survey.getRootQuestion(), questionJson);
+                        }
+                        return survey;
+                    }
+                });
     }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(id);
-        dest.writeString(name);
-        dest.writeTypedList(questionList);
-        dest.writeString(modifiedAt);
-        dest.writeString(description);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    public static final Creator<Survey> CREATOR = new Creator<Survey>() {
-        @Override
-        public Survey createFromParcel(Parcel in) {
-            return new Survey(in);
-        }
-
-        @Override
-        public Survey[] newArray(int size) {
-            return new Survey[size];
-        }
-    };
 
     public String getId() {
         return id;
@@ -97,8 +78,8 @@ public class Survey extends BaseObject implements Parcelable {
         return name;
     }
 
-    public ArrayList<Question> getQuestionList() {
-        return questionList;
+    public Question getRootQuestion() {
+        return rootQuestion;
     }
 
     public String getModifiedAt() {
@@ -109,44 +90,9 @@ public class Survey extends BaseObject implements Parcelable {
         return description;
     }
 
-    public static Single<Survey> updateWithAnswers(final Survey survey, JsonObject surveyJson) {
-        return Single.just(surveyJson)
-                .map(new Function<JsonObject, JsonArray>() {
-                    @Override
-                    public JsonArray apply(@NonNull JsonObject rootJson) throws Exception {
-                        return JsonHelper.getJsonArray(rootJson, "questions");
-                    }
-                })
-                .map(new Function<JsonArray, JsonObject[]>() {
-                    @Override
-                    public JsonObject[] apply(@NonNull JsonArray questionsArray) throws Exception {
-
-                        if (questionsArray == null) {
-                            throw new Exception("Questions array is null");
-                        }
-
-                        JsonObject[] jsonObjects = new JsonObject[questionsArray.size()];
-                        for (int i = 0; i < questionsArray.size(); i++) {
-                            jsonObjects[i] = questionsArray.get(i).getAsJsonObject();
-                        }
-                        return jsonObjects;
-                    }
-                })
-                .map(new Function<JsonObject[], Survey>() {
-                    @Override
-                    public Survey apply(@NonNull JsonObject[] jsonObjects) throws Exception {
-                        for (int i = 0; i < jsonObjects.length; i++) {
-                            Question question = survey.getQuestionList().get(i);
-                            Question.populateAnswersInternal(question, jsonObjects[i]);
-                        }
-                        return survey;
-                    }
-                });
-    }
-
     public boolean dynamicOptionsFillForQuestion(final String fillTag, ArrayList<Option> options) {
 
-        Question root = questionList.get(0);
+        Question root = rootQuestion;
 
         Question result = root.findInTree(new Question.QuestionTreeSearchPredicate() {
             @Override
@@ -171,15 +117,43 @@ public class Survey extends BaseObject implements Parcelable {
         jsonObject.addProperty("id", id);
         jsonObject.addProperty("name", name);
         jsonObject.addProperty("description", description);
-
-        JsonArray questionsArray = new JsonArray();
-
-        for (Question q : questionList) {
-            questionsArray.add(q.getAsJson());
-        }
-
-        jsonObject.add("questions", questionsArray);
+        jsonObject.add("question", rootQuestion.getAsJson());
 
         return jsonObject;
     }
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.id);
+        dest.writeString(this.name);
+        dest.writeString(this.description);
+        dest.writeParcelable(this.rootQuestion, flags);
+        dest.writeString(this.modifiedAt);
+    }
+
+    protected Survey(Parcel in) {
+        this.id = in.readString();
+        this.name = in.readString();
+        this.description = in.readString();
+        this.rootQuestion = in.readParcelable(Question.class.getClassLoader());
+        this.modifiedAt = in.readString();
+    }
+
+    public static final Creator<Survey> CREATOR = new Creator<Survey>() {
+        @Override
+        public Survey createFromParcel(Parcel source) {
+            return new Survey(source);
+        }
+
+        @Override
+        public Survey[] newArray(int size) {
+            return new Survey[size];
+        }
+    };
 }

@@ -18,6 +18,7 @@ import java.util.List;
     Info JSON structure :
 
     {
+        "version": <int>
         "surveys": [
             {
                 "_id": 1234,
@@ -29,19 +30,22 @@ import java.util.List;
 
  */
 
-public class SavedSurveyInfoFileDataModal {
+public class SurveyInfoFileDataModal {
+    private final int version;
     private List<DataModal> data;
 
-    private SavedSurveyInfoFileDataModal(List<DataModal> data) {
+    public SurveyInfoFileDataModal(int version, List<DataModal> data) {
         this.data = data;
+        this.version = version;
     }
 
-    public SavedSurveyInfoFileDataModal(JsonObject jsonObject) {
+    public SurveyInfoFileDataModal(JsonObject jsonObject) {
+        version = JsonHelper.getInt(jsonObject, "version");
         data = getSurveyDataInternal(jsonObject);
     }
 
-    public void updateWithNew(SavedSurveyInfoFileDataModal other) {
-        if (other.data == null) {
+    public void updateWithNew(List<DataModal> data) {
+        if (data == null) {
             throw new IllegalArgumentException("DataModal cannot be null");
         }
 
@@ -49,7 +53,11 @@ public class SavedSurveyInfoFileDataModal {
             this.data = new ArrayList<>();
         }
 
-        this.data.addAll(other.data);
+        this.data.addAll(data);
+    }
+
+    public int getVersion() {
+        return version;
     }
 
     public void setData(List<DataModal> data) {
@@ -89,21 +97,5 @@ public class SavedSurveyInfoFileDataModal {
         } else {
             return null;
         }
-    }
-
-    public static SavedSurveyInfoFileDataModal adapter(SurveyInfoData data) {
-        ArrayList<SurveyInfoData> dataArrayList = new ArrayList<>();
-        dataArrayList.add(data);
-        return SavedSurveyInfoFileDataModal.adapter(dataArrayList);
-    }
-
-    public static SavedSurveyInfoFileDataModal adapter(List<SurveyInfoData> data) {
-        ArrayList<DataModal> dataList = new ArrayList<>();
-
-        for (SurveyInfoData d : data) {
-            dataList.add(DataModal.adapter(d));
-        }
-
-        return new SavedSurveyInfoFileDataModal(dataList);
     }
 }

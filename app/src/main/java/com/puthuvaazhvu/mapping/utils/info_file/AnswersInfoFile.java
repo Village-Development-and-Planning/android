@@ -43,7 +43,7 @@ public class AnswersInfoFile extends InfoFileBase {
         return DataFileHelpers.getAnswersInfoFile(false);
     }
 
-    public Single<AnswersInfoFileDataModal> getInfoJsonParsed() throws ExecutionException, InterruptedException {
+    public Single<AnswersInfoFileDataModal> getInfoJsonParsed() {
         return getContentsOfFile().map(new Function<JsonObject, AnswersInfoFileDataModal>() {
             @Override
             public AnswersInfoFileDataModal apply(@NonNull JsonObject jsonObject) throws Exception {

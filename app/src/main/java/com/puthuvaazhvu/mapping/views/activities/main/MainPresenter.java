@@ -5,10 +5,8 @@ import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 
 import com.crashlytics.android.Crashlytics;
-import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
-import com.puthuvaazhvu.mapping.application.MappingApplication;
-import com.puthuvaazhvu.mapping.data.DataRepository;
+import com.puthuvaazhvu.mapping.data.SurveyDataRepository;
 import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Text;
@@ -20,7 +18,6 @@ import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.DataFileHelpers;
 import com.puthuvaazhvu.mapping.utils.Optional;
 import com.puthuvaazhvu.mapping.utils.info_file.AnswersInfoFile;
-import com.puthuvaazhvu.mapping.utils.info_file.modals.AnswersInfoFileDataModal;
 import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
 import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.GridQuestionData;
@@ -33,20 +30,11 @@ import com.puthuvaazhvu.mapping.views.helpers.back_navigation.IBackFlow;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-import io.reactivex.Observer;
-import io.reactivex.Scheduler;
-import io.reactivex.SingleSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
@@ -54,9 +42,9 @@ import timber.log.Timber;
  * Created by muthuveerappans on 9/30/17.
  */
 
-public class Presenter implements Contract.UserAction {
+public class MainPresenter implements Contract.UserAction {
     private final Contract.View activityView;
-    private final DataRepository<Survey> dataRepository;
+    private final SurveyDataRepository dataRepository;
 
     private FlowHelper flowHelper;
 
@@ -69,9 +57,9 @@ public class Presenter implements Contract.UserAction {
 
     private final AnswersInfoFile answersInfoFile;
 
-    public Presenter(
+    public MainPresenter(
             Contract.View activityView,
-            DataRepository<Survey> dataRepository,
+            SurveyDataRepository dataRepository,
             Handler uiHandler,
             SaveToFile saveToFile,
             GetFromFile getFromFile
@@ -93,19 +81,14 @@ public class Presenter implements Contract.UserAction {
         File file = DataFileHelpers.getSurveyDataFile(surveyID, true);
 
         if (file != null && file.exists()) {
-            dataRepository.getData(file.getAbsolutePath()
-                    , new DataRepository.DataLoadedCallback<Survey>() {
+            dataRepository.getSurveyFromFile(file)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Consumer<Survey>() {
                         @Override
-                        public void onDataLoaded(Survey data) {
+                        public void accept(@NonNull Survey survey) throws Exception {
                             activityView.hideLoading();
-                            activityView.onSurveyLoaded(data);
-                        }
-
-                        @Override
-                        public void onError(String msg) {
-                            Timber.e("Error loading survey file " + surveyID + " msg: " + msg);
-                            activityView.hideLoading();
-                            activityView.onError(R.string.cannot_get_data);
+                            activityView.onSurveyLoaded(survey);
                         }
                     });
         } else {
@@ -149,11 +132,11 @@ public class Presenter implements Contract.UserAction {
     }
 
     @Override
-    public void dumpSurveyToFile(final boolean isIncomplete) {
+    public void dumpSurveyToFile(final boolean isSurveyDone) {
 
         activityView.showLoading(R.string.survey_file_saving_msg);
 
-        DataFileHelpers.dumpSurvey(survey, getPathOfCurrentQuestion(), isIncomplete)
+        DataFileHelpers.dumpSurvey(survey, getPathOfCurrentQuestion(), false, isSurveyDone)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Consumer<Optional>() {
@@ -165,7 +148,7 @@ public class Presenter implements Contract.UserAction {
                         activityView.hideLoading();
                         activityView.showMessage(R.string.save_successful);
 
-                        if (!isIncomplete) {
+                        if (isSurveyDone) {
                             activityView.openListOfSurveysActivity();
                         }
 

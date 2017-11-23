@@ -42,7 +42,7 @@ public class FlowImplementationTest {
     @Before
     public void setup() {
         survey = ModalHelpers.getSurvey(this);
-        root = survey.getQuestionList().get(0);
+        root = survey.getRootQuestion();
         flowImplementation = new FlowImplementation(root);
     }
 

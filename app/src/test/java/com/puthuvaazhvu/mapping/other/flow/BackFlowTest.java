@@ -35,7 +35,7 @@ public class BackFlowTest {
     @Before
     public void setup() {
         survey = ModalHelpers.getSurvey(this);
-        root = survey.getQuestionList().get(0);
+        root = survey.getRootQuestion();
         backFlowImplementation = new BackFlowImplementation();
     }
 

@@ -1,10 +1,13 @@
 package com.puthuvaazhvu.mapping.views.activities.survey_list;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -15,18 +18,25 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.puthuvaazhvu.mapping.R;
+import com.puthuvaazhvu.mapping.data.SurveyDataRepository;
+import com.puthuvaazhvu.mapping.modals.Survey;
+import com.puthuvaazhvu.mapping.network.APIs;
+import com.puthuvaazhvu.mapping.network.implementations.SingleSurveyAPI;
 import com.puthuvaazhvu.mapping.other.Constants;
+import com.puthuvaazhvu.mapping.utils.DataFileHelpers;
 import com.puthuvaazhvu.mapping.utils.Utils;
+import com.puthuvaazhvu.mapping.utils.info_file.AnswersInfoFile;
 import com.puthuvaazhvu.mapping.utils.info_file.SurveyInfoFile;
+import com.puthuvaazhvu.mapping.utils.info_file.modals.AnswerDataModal;
 import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
 import com.puthuvaazhvu.mapping.utils.storage.PrefsStorage;
 import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
-import com.puthuvaazhvu.mapping.views.activities.BaseActivity;
-import com.puthuvaazhvu.mapping.views.activities.MenuActivity;
+import com.puthuvaazhvu.mapping.views.activities.BaseDataActivity;
 import com.puthuvaazhvu.mapping.views.activities.main.MainActivity;
 import com.puthuvaazhvu.mapping.views.activities.save_survey_data.*;
 import com.puthuvaazhvu.mapping.views.dialogs.ProgressDialog;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +46,7 @@ import timber.log.Timber;
  * Created by muthuveerappans on 10/30/17.
  */
 
-public class SurveyListActivity extends MenuActivity
+public class SurveyListActivity extends BaseDataActivity
         implements View.OnClickListener, Contract.View {
 
     private ProgressDialog progressDialog;
@@ -77,8 +87,17 @@ public class SurveyListActivity extends MenuActivity
         adapter = new ListAdapter();
         recyclerView.setAdapter(adapter);
 
-        SurveyInfoFile updateSurveyInfoFile = new SurveyInfoFile(GetFromFile.getInstance(), SaveToFile.getInstance());
-        presenter = new Presenter(updateSurveyInfoFile, this);
+        Handler handler = new Handler();
+
+        SurveyInfoFile surveyInfoFile = new SurveyInfoFile(GetFromFile.getInstance(), SaveToFile.getInstance());
+        AnswersInfoFile answersInfoFile = new AnswersInfoFile(GetFromFile.getInstance(), SaveToFile.getInstance());
+        GetFromFile getFromFile = GetFromFile.getInstance();
+        SingleSurveyAPI singleSurveyAPI = SingleSurveyAPI.getInstance(APIs.getAuth(sharedPreferences));
+        String optionsJson = Utils.readFromAssetsFile(this, "options_fill.json");
+        SurveyDataRepository surveyDataRepository = SurveyDataRepository.getInstance(getFromFile
+                , sharedPreferences, singleSurveyAPI, optionsJson);
+
+        presenter = new SurveyListPresenter(surveyInfoFile, answersInfoFile, surveyDataRepository, this);
 
         fetchListOfSurveys();
     }
@@ -98,17 +117,77 @@ public class SurveyListActivity extends MenuActivity
                     Utils.showMessageToast("Select a valid survey", this);
                 } else {
 
-                    // set the survey as the current survey
-                    String surveyID = surveyListData.getId();
-                    Timber.i("Selected survey : " + surveyID);
+                    if (surveyListData.getStatus() == SurveyListData.STATUS.ONGOING) {
+                        showSurveyOngoingDialog(surveyListData.getSnapshot());
+                    } else if (surveyListData.getStatus() == SurveyListData.STATUS.COMPLETED) {
+                        showSurveyDoneDialog(surveyListData.getSnapshot(), surveyListData.getId());
+                    }
 
-                    prefsStorage.saveLatestSurveyID(surveyID);
-
-                    openMainSurveyActivity();
+//                    // set the survey as the current survey
+//                    String surveyID = surveyListData.getId();
+//                    Timber.i("Selected survey : " + surveyID);
+//
+//                    prefsStorage.saveLatestSurveyID(surveyID);
+//
+//                    openMainSurveyActivity();
 
                 }
                 break;
         }
+    }
+
+    public void showSurveyDoneDialog(final AnswerDataModal.Snapshot snapshot, final String surveyID) {
+        AlertDialog alertDialog = createAlertDialog(
+                getString(R.string.survey_override_dialog_message),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        File file = DataFileHelpers.getSurveyFromSurveyDir(surveyID);
+                        presenter.getSurveyFromFile(file);
+                    }
+                },
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                }
+        );
+
+        alertDialog.show();
+    }
+
+    public void showSurveyOngoingDialog(final AnswerDataModal.Snapshot snapshot) {
+        createAlertDialog(
+                String.format(getString(R.string.survey_ongoing_dialog_message), snapshot.getSurvey_name()),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        File file = DataFileHelpers.getSurveyFromAnswersDir(snapshot.getSnapshotId());
+                        presenter.getSurveyFromFile(file);
+                    }
+                },
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                }
+        ).show();
+    }
+
+    private AlertDialog createAlertDialog(
+            String message,
+            DialogInterface.OnClickListener positiveButtonClickListener,
+            DialogInterface.OnClickListener negativeButtonClickListener
+    ) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(message);
+
+        builder.setPositiveButton("OKAY", positiveButtonClickListener);
+        builder.setNegativeButton("CANCEL", negativeButtonClickListener);
+
+        return builder.create();
     }
 
     private void openMainSurveyActivity() {
@@ -132,6 +211,13 @@ public class SurveyListActivity extends MenuActivity
     private void startDumpSurveyActivity() {
         Intent i = new Intent(this, SurveyDataDumpActivity.class);
         startActivityForResult(i, 1);
+    }
+
+    @Override
+    public void onSurveyLoaded(Survey survey) {
+        Timber.i("Survey loaded : " + survey.getId());
+        applicationData.setSurvey(survey);
+        openMainSurveyActivity();
     }
 
     @Override
@@ -203,7 +289,17 @@ public class SurveyListActivity extends MenuActivity
             });
 
             onBind = true;
+            // do all the view updating here
             holder.populateViews(data.getId(), data.getName(), data.isChecked());
+
+            if (data.getStatus() == SurveyListData.STATUS.ONGOING) {
+                holder.setRowbackgroundColor(R.color.orange);
+            } else if (data.getStatus() == SurveyListData.STATUS.COMPLETED) {
+                holder.setRowbackgroundColor(R.color.green);
+            } else {
+                holder.setRowbackgroundColor(R.color.white);
+            }
+
             onBind = false;
         }
 
@@ -226,6 +322,7 @@ public class SurveyListActivity extends MenuActivity
         private final RadioButton radio_button;
         private final TextView textView;
         private final TextView name_txt;
+        private final View content_holder;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -233,6 +330,11 @@ public class SurveyListActivity extends MenuActivity
             radio_button = itemView.findViewById(R.id.radio_button);
             textView = itemView.findViewById(R.id.id_txt);
             name_txt = itemView.findViewById(R.id.name_txt);
+            content_holder = itemView.findViewById(R.id.content_holder);
+        }
+
+        public void setRowbackgroundColor(int color) {
+            content_holder.setBackgroundColor(color);
         }
 
         public void setCheckBoxClickListener(CompoundButton.OnCheckedChangeListener checkBoxClickListener) {

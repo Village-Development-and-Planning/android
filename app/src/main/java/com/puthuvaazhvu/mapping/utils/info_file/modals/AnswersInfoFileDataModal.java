@@ -17,9 +17,10 @@ import java.util.List;
 
     {
         "version": <int>,
-        "surveys": [
+        "answerDataModals": [
             {
-                _id: <string>
+                _id: <string>,
+                is_over: true/false,
                 snap_shots: [
                     {
                         "snapshot_id": <string>,
@@ -36,17 +37,17 @@ import java.util.List;
  */
 
 public class AnswersInfoFileDataModal {
-    private List<AnswerDataModal> surveys;
+    private List<AnswerDataModal> answerDataModals;
     private final int version;
 
-    public AnswersInfoFileDataModal(List<AnswerDataModal> surveys, int version) {
-        this.surveys = surveys;
+    public AnswersInfoFileDataModal(List<AnswerDataModal> answerDataModals, int version) {
+        this.answerDataModals = answerDataModals;
         this.version = version;
     }
 
     private AnswersInfoFileDataModal(AnswerDataModal data, int version) {
-        this.surveys = new ArrayList<>();
-        this.surveys.add(data);
+        this.answerDataModals = new ArrayList<>();
+        this.answerDataModals.add(data);
 
         this.version = version;
     }
@@ -56,13 +57,22 @@ public class AnswersInfoFileDataModal {
 
         JsonArray array = JsonHelper.getJsonArray(jsonObject, "surveys");
 
-        surveys = new ArrayList<>();
+        answerDataModals = new ArrayList<>();
 
         if (array != null) {
             for (JsonElement e : array) {
-                surveys.add(new AnswerDataModal(e.getAsJsonObject()));
+                answerDataModals.add(new AnswerDataModal(e.getAsJsonObject()));
             }
         }
+    }
+
+    public AnswerDataModal find(String surveyID) {
+        for (AnswerDataModal answerDataModal : answerDataModals) {
+            if (answerDataModal.getId().equals(surveyID)) {
+                return answerDataModal;
+            }
+        }
+        return null;
     }
 
     public void updateWithNew(ArrayList<AnswerDataModal> otherSurveys) {
@@ -77,29 +87,26 @@ public class AnswersInfoFileDataModal {
         // if a survey with the ID exists, save the snapshot under that survey
         // else create a new survey and a snapshot.
 
-        List<AnswerDataModal> thisSurveys = this.surveys;
+        List<AnswerDataModal> thisAnswerDataModals = this.answerDataModals;
 
-        for (AnswerDataModal otherSurvey : otherSurveys) {
+        for (AnswerDataModal otherAnswerDataModal : otherSurveys) {
 
-            AnswerDataModal thisSurvey = findSurvey(thisSurveys, otherSurvey);
+            AnswerDataModal thisAnswerDataModal = findAnswerDataModal(thisAnswerDataModals, otherAnswerDataModal);
 
-            if (thisSurvey == null) {
-                thisSurveys.add(otherSurvey);
+            if (thisAnswerDataModal == null) {
+                thisAnswerDataModals.add(otherAnswerDataModal);
             } else {
-                // empty all the existing snapshots
-                thisSurvey.getSnapshots().clear();
-                // add the new list
-                thisSurvey.getSnapshots().addAll(otherSurvey.getSnapshots());
+                thisAnswerDataModal.updateOther(otherAnswerDataModal);
             }
         }
     }
 
-    public void setSurveys(List<AnswerDataModal> surveys) {
-        this.surveys = surveys;
+    public void setAnswerDataModals(List<AnswerDataModal> answerDataModals) {
+        this.answerDataModals = answerDataModals;
     }
 
-    public List<AnswerDataModal> getSurveys() {
-        return surveys;
+    public List<AnswerDataModal> getAnswerDataModals() {
+        return answerDataModals;
     }
 
     public int getVersion() {
@@ -107,7 +114,7 @@ public class AnswersInfoFileDataModal {
     }
 
     public boolean isDataEmpty() {
-        return this.surveys == null || this.surveys.size() <= 0;
+        return this.answerDataModals == null || this.answerDataModals.size() <= 0;
     }
 
     public JsonObject getAsJson() {
@@ -116,16 +123,16 @@ public class AnswersInfoFileDataModal {
         jsonObject.addProperty("version", version);
 
         JsonArray surveysArray = new JsonArray();
-        for (AnswerDataModal data : this.surveys) {
+        for (AnswerDataModal data : this.answerDataModals) {
             surveysArray.add(data.getAsJson());
         }
 
-        jsonObject.add("surveys", surveysArray);
+        jsonObject.add("answerDataModals", surveysArray);
 
         return jsonObject;
     }
 
-    private static AnswerDataModal findSurvey(List<AnswerDataModal> surveys, AnswerDataModal toFind) {
+    private static AnswerDataModal findAnswerDataModal(List<AnswerDataModal> surveys, AnswerDataModal toFind) {
         for (AnswerDataModal survey : surveys) {
             if (survey.getId().equals(toFind.getId())) {
                 return survey;
@@ -135,7 +142,7 @@ public class AnswersInfoFileDataModal {
     }
 
     private static List<AnswerDataModal> getSurveyDataInternal(JsonObject jsonObject) {
-        JsonArray array = JsonHelper.getJsonArray(jsonObject, "surveys");
+        JsonArray array = JsonHelper.getJsonArray(jsonObject, "answerDataModals");
 
         if (array != null) {
             ArrayList<AnswerDataModal> surveyInfoFileDataList = new ArrayList<>();

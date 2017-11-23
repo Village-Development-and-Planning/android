@@ -1,24 +1,27 @@
 package com.puthuvaazhvu.mapping.data;
 
-import java.util.ArrayList;
+import android.content.SharedPreferences;
+
+import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
+
+import java.io.File;
+
+import io.reactivex.Single;
 
 /**
- * Created by muthuveerappans on 9/28/17.
+ * Created by muthuveerappans on 11/23/17.
  */
 
-// Implementation for classes that manipulate data from a data source.
-public interface DataRepository<T> {
-    interface DataLoadedCallback<S> {
-        void onDataLoaded(S data);
+public class DataRepository {
+    protected final GetFromFile getFromFile;
+    protected final SharedPreferences sharedPreferences;
 
-        void onError(String msg);
+    protected DataRepository(GetFromFile getFromFile, SharedPreferences sharedPreferences) {
+        this.getFromFile = getFromFile;
+        this.sharedPreferences = sharedPreferences;
     }
 
-    void getAllData(DataLoadedCallback<ArrayList<T>> callback);
-
-    void getData(String selection, DataLoadedCallback<T> callback);
-
-    void saveData(T data);
-
-    void refreshData();
+    public Single<String> getDataFromFile(File file) {
+        return getFromFile.execute(file);
+    }
 }

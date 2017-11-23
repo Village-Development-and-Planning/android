@@ -1,7 +1,5 @@
 package com.puthuvaazhvu.mapping.views.activities.main;
 
-import android.support.annotation.VisibleForTesting;
-
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.GridQuestionData;
@@ -86,7 +84,7 @@ public interface Contract {
 
     interface UserAction {
         /**
-         * Get's the survey from the {@link com.puthuvaazhvu.mapping.data.DataRepository}
+         * Get's the survey from the {@link com.puthuvaazhvu.mapping.data.SurveyDataRepository}
          */
         void loadSurvey(String surveyID);
 

@@ -39,7 +39,7 @@ public class DataModelTest {
     public void testSurveyModel() {
         Survey survey = ModalHelpers.getSurvey(this);
 
-        Question root = survey.getQuestionList().get(0);
+        Question root = survey.getRootQuestion();
 
         assertThat(root.getParent(), is(nullValue()));
 

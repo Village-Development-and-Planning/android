@@ -36,7 +36,8 @@ public class DataFileHelpers {
     public static Single<Optional> dumpSurvey(
             Survey survey,
             final String pathToLastAnsweredQuestion,
-            final boolean isSurveyIncomplete
+            final boolean isSurveyIncomplete,
+            final boolean isSurveyDone
     ) {
         JsonObject resultSurveyJson = survey.getAsJson().getAsJsonObject();
         String toSave = resultSurveyJson.toString();
@@ -73,12 +74,28 @@ public class DataFileHelpers {
                                 )
                         );
 
-                        AnswerDataModal answerDataModal = new AnswerDataModal(surveyID, snapshots);
+                        AnswerDataModal answerDataModal = new AnswerDataModal(surveyID, isSurveyDone, snapshots);
 
                         return answersInfoFile.updateSurvey(answerDataModal);
 
                     }
                 });
+    }
+
+    public static File getSurveyFromSurveyDir(String fileName) {
+        if (!fileName.contains("json")) {
+            fileName += ".json";
+        }
+        File dataDir = getSurveyDataDirectory(true);
+        return new File(dataDir, fileName);
+    }
+
+    public static File getSurveyFromAnswersDir(String fileName) {
+        if (!fileName.contains("json")) {
+            fileName += ".json";
+        }
+        File dataDir = getAnswersDataDirectory(true);
+        return new File(dataDir, fileName);
     }
 
     public static String removeExt(String fileName) {

@@ -84,6 +84,7 @@ public class Question extends BaseObject implements Parcelable {
         this.position = JsonHelper.getString(json, "position");
 
         JsonObject questionJson = JsonHelper.getJsonObject(json, "question");
+
         this.id = JsonHelper.getString(questionJson, "_id");
         this.type = JsonHelper.getString(questionJson, "type");
         this.modifiedAt = JsonHelper.getString(questionJson, "modifiedAt");
@@ -521,15 +522,19 @@ public class Question extends BaseObject implements Parcelable {
 
     private static JsonObject getAsJsonInternal(Question node) {
         JsonObject jsonObject = new JsonObject();
-
-        jsonObject.addProperty("id", node.getId());
         jsonObject.addProperty("position", node.getPosition());
 
-        if (node.getText() != null)
-            jsonObject.add("text", node.getText().getAsJson());
+        JsonObject questionJson = new JsonObject();
+        jsonObject.add("question", questionJson);
 
-        jsonObject.addProperty("type", node.getType());
-        jsonObject.addProperty("number", node.getRawNumber());
+        questionJson.addProperty("id", node.getId());
+        //jsonObject.addProperty("position", node.getPosition());
+
+        if (node.getText() != null)
+            questionJson.add("text", node.getText().getAsJson());
+
+        questionJson.addProperty("type", node.getType());
+        questionJson.addProperty("number", node.getRawNumber());
 
         // options
         JsonArray optionsArray = new JsonArray();
@@ -539,7 +544,7 @@ public class Question extends BaseObject implements Parcelable {
                 optionsArray.add(o.getAsJson());
             }
 
-        jsonObject.add("options", optionsArray);
+        questionJson.add("options", optionsArray);
 
         // answers
         JsonArray answersArray = new JsonArray();
@@ -549,7 +554,7 @@ public class Question extends BaseObject implements Parcelable {
                 answersArray.add(a.getAsJson());
             }
 
-        jsonObject.add("answers", answersArray);
+        questionJson.add("answers", answersArray);
 
         // children
         JsonArray childrenArray = new JsonArray();
@@ -559,7 +564,7 @@ public class Question extends BaseObject implements Parcelable {
                 childrenArray.add(getAsJsonInternal(c));
             }
 
-        jsonObject.add("children", childrenArray);
+        questionJson.add("children", childrenArray);
 
         return jsonObject;
     }

@@ -21,7 +21,7 @@ public class DataModal {
         timestamp = JsonHelper.getString(jsonObject, "timestamp");
     }
 
-    public String get_id() {
+    public String getId() {
         return _id;
     }
 

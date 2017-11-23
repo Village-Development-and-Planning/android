@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
-        android:text="Go to surveys list screen"
+        android:text="Go to answerDataModals list screen"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
         android:textColor="@color/black"
         app:layout_constraintBaseline_toBaselineOf="@+id/show_list_of_surveys_btn"

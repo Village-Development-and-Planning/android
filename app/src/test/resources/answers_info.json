@@ -9,14 +9,14 @@
           "survey_name": "test_1",
           "path_to_last_question": "",
           "is_incomplete": true,
-          "timestamp": ""
+          "timestamp": "1511351800000"
         },
         {
           "snapshot_id": "b",
           "survey_name": "test_1",
           "path_to_last_question": "",
           "is_incomplete": false,
-          "timestamp": ""
+          "timestamp": "1511438200000"
         }
       ]
     },

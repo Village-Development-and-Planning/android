@@ -15,6 +15,7 @@ public class Constants {
 
     public static class Versions {
         public static int ANSWERS_INFO_VERSION = 1;
+        public static int SURVEY_INFO_VERSION = 1;
     }
 
     public static class PermissionRequestCodes {
