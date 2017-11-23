@@ -54,10 +54,10 @@ public class SurveyInfoFile extends InfoFileBase {
                             SurveyInfoFileDataModal surveyInfoFileDataModal
                                     = new SurveyInfoFileDataModal(version, data);
                             return saveFile(surveyInfoFileDataModal.getAsJson());
+                        } else {
+                            existing.updateWithNew(data);
+                            return saveFile(existing.getAsJson());
                         }
-
-                        existing.updateWithNew(data);
-                        return saveFile(existing.getAsJson());
                     }
                 });
     }

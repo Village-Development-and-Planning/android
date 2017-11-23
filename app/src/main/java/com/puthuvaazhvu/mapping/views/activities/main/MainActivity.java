@@ -47,6 +47,7 @@ import java.util.ArrayList;
 
 import timber.log.Timber;
 
+// Todo: path from snapshot is never used
 public class MainActivity extends BaseDataActivity
         implements Contract.View,
         FragmentCommunicationInterface {

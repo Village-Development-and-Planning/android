@@ -61,9 +61,13 @@ public class SurveyListActivity extends BaseDataActivity
 
     private PrefsStorage prefsStorage;
 
+    Handler handler;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        handler = new Handler();
 
         SharedPreferences sharedPreferences = getSharedPreferences(Constants.PREFS, MODE_PRIVATE);
         prefsStorage = PrefsStorage.getInstance(sharedPreferences);
@@ -87,8 +91,6 @@ public class SurveyListActivity extends BaseDataActivity
         adapter = new ListAdapter();
         recyclerView.setAdapter(adapter);
 
-        Handler handler = new Handler();
-
         SurveyInfoFile surveyInfoFile = new SurveyInfoFile(GetFromFile.getInstance(), SaveToFile.getInstance());
         AnswersInfoFile answersInfoFile = new AnswersInfoFile(GetFromFile.getInstance(), SaveToFile.getInstance());
         GetFromFile getFromFile = GetFromFile.getInstance();
@@ -98,6 +100,13 @@ public class SurveyListActivity extends BaseDataActivity
                 , sharedPreferences, singleSurveyAPI, optionsJson);
 
         presenter = new SurveyListPresenter(surveyInfoFile, answersInfoFile, surveyDataRepository, this);
+
+        //fetchListOfSurveys();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
 
         fetchListOfSurveys();
     }
@@ -121,6 +130,9 @@ public class SurveyListActivity extends BaseDataActivity
                         showSurveyOngoingDialog(surveyListData.getSnapshot());
                     } else if (surveyListData.getStatus() == SurveyListData.STATUS.COMPLETED) {
                         showSurveyDoneDialog(surveyListData.getSnapshot(), surveyListData.getId());
+                    } else {
+                        File file = DataFileHelpers.getSurveyFromSurveyDir(surveyListData.getId());
+                        presenter.getSurveyFromFile(file);
                     }
 
 //                    // set the survey as the current survey
@@ -293,11 +305,11 @@ public class SurveyListActivity extends BaseDataActivity
             holder.populateViews(data.getId(), data.getName(), data.isChecked());
 
             if (data.getStatus() == SurveyListData.STATUS.ONGOING) {
-                holder.setRowbackgroundColor(R.color.orange);
+                holder.setRowBackgroundColor(R.color.orange);
             } else if (data.getStatus() == SurveyListData.STATUS.COMPLETED) {
-                holder.setRowbackgroundColor(R.color.green);
+                holder.setRowBackgroundColor(R.color.green);
             } else {
-                holder.setRowbackgroundColor(R.color.white);
+                holder.setRowBackgroundColor(R.color.white);
             }
 
             onBind = false;
@@ -333,8 +345,8 @@ public class SurveyListActivity extends BaseDataActivity
             content_holder = itemView.findViewById(R.id.content_holder);
         }
 
-        public void setRowbackgroundColor(int color) {
-            content_holder.setBackgroundColor(color);
+        public void setRowBackgroundColor(int color) {
+            content_holder.setBackgroundColor(getResources().getColor(color));
         }
 
         public void setCheckBoxClickListener(CompoundButton.OnCheckedChangeListener checkBoxClickListener) {

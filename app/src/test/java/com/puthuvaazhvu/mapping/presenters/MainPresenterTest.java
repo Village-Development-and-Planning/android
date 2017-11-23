@@ -96,7 +96,7 @@ public class MainPresenterTest {
             |_
               2
               |_
-                2.1
+                2.1*
          */
 
         Question root = mock(Question.class);
@@ -191,12 +191,14 @@ public class MainPresenterTest {
 
         ArrayList<Integer> indexes = MainPresenter.getPathOfCurrentQuestion(c1_2);
 
-        assertThat(indexes.size(), is(4));
-        assertThat(indexes.get(3), is(0));
+        assertThat(indexes.size(), is(6));
+        assertThat(indexes.get(4), is(1));
 
         indexes = MainPresenter.getPathOfCurrentQuestion(c2_1);
 
-        assertThat(indexes.size(), is(4));
+        assertThat(indexes.size(), is(6));
+        assertThat(indexes.get(5), is(0));
+        assertThat(indexes.get(4), is(0));
         assertThat(indexes.get(3), is(0));
         assertThat(indexes.get(2), is(1));
         assertThat(indexes.get(1), is(0));

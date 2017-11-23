@@ -27,6 +27,7 @@ import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
+import timber.log.Timber;
 
 /**
  * Created by muthuveerappans on 11/24/17.
@@ -39,6 +40,11 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        getFromFile = GetFromFile.getInstance();
+        saveToFile = SaveToFile.getInstance();
+
+        setContentView(R.layout.splash_screen);
 
         final ProgressBar progressBar = findViewById(R.id.progressBar2);
         final TextView infoTxt = findViewById(R.id.info_txt);
@@ -77,12 +83,14 @@ public class SplashActivity extends AppCompatActivity {
 
                         int version = surveyInfoFileDataModal.getVersion();
                         if (version != Constants.Versions.SURVEY_INFO_VERSION) {
-                            DeleteFile.deleteFile(DataFileHelpers.getSurveyInfoFile(true));
+                            boolean result = DeleteFile.deleteFile(DataFileHelpers.getSurveyInfoFile(true));
+                            Timber.i("status of delete survey info file " + result);
                         }
 
                         version = answersInfoFileDataModal.getVersion();
                         if (version != Constants.Versions.ANSWERS_INFO_VERSION) {
-                            DeleteFile.deleteFile(DataFileHelpers.getAnswersInfoFile(true));
+                            boolean result = DeleteFile.deleteFile(DataFileHelpers.getAnswersInfoFile(true));
+                            Timber.i("status of delete answers info file " + result);
                         }
 
                         return new Optional<>(null);

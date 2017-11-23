@@ -45,7 +45,7 @@ public class DataFileHelpers {
         Timber.i("Survey dump: \n" + resultSurveyJson.toString());
 
         long random_uuid = System.currentTimeMillis();
-        String fileName = survey.getId() + "_" + random_uuid;
+        final String fileName = survey.getId() + "_" + random_uuid;
 
         File fileToSave = getFileToDumpAnswers(fileName, false);
 
@@ -66,7 +66,7 @@ public class DataFileHelpers {
                         ArrayList<AnswerDataModal.Snapshot> snapshots = new ArrayList<>();
                         snapshots.add(
                                 new AnswerDataModal.Snapshot(
-                                        uuid,
+                                        fileName,
                                         surveyName,
                                         pathToLastAnsweredQuestion,
                                         isSurveyIncomplete,

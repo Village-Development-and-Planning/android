@@ -15,7 +15,7 @@ import io.reactivex.annotations.NonNull;
 
 public class DeleteFile {
 
-    public static final Single<Optional> deleteFile(final File file) {
+    public static Single<Optional> deleteFileObservable(final File file) {
         return Single.create(new SingleOnSubscribe<Optional>() {
             @Override
             public void subscribe(@NonNull SingleEmitter<Optional> emitter) throws Exception {
@@ -26,5 +26,9 @@ public class DeleteFile {
                 emitter.onSuccess(new Optional<>(null));
             }
         });
+    }
+
+    public static boolean deleteFile(final File file) {
+        return file.delete();
     }
 }

@@ -17,7 +17,7 @@ import java.util.List;
 
     {
         "version": <int>,
-        "answerDataModals": [
+        "surveys": [
             {
                 _id: <string>,
                 is_over: true/false,
@@ -127,7 +127,7 @@ public class AnswersInfoFileDataModal {
             surveysArray.add(data.getAsJson());
         }
 
-        jsonObject.add("answerDataModals", surveysArray);
+        jsonObject.add("surveys", surveysArray);
 
         return jsonObject;
     }

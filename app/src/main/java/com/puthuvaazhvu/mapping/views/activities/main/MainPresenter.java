@@ -304,7 +304,7 @@ public class MainPresenter implements Contract.UserAction {
      */
     @VisibleForTesting
     public static void getPathOfCurrentQuestion(Question node, ArrayList<Integer> indexes) {
-        Question current = node.getParent();
+        Question current = node;
 
         if (current == null) {
             return; // Reached the head of the tree
@@ -348,7 +348,7 @@ public class MainPresenter implements Contract.UserAction {
 
         indexes.add(questionIndex);
 
-        getPathOfCurrentQuestion(current, indexes);
+        getPathOfCurrentQuestion(parent, indexes);
     }
 
     private void showGridUI(Question question) {

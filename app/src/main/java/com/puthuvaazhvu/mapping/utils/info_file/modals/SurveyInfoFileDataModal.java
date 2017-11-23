@@ -80,6 +80,7 @@ public class SurveyInfoFileDataModal {
             surveysArray.add(data.getAsJson());
         }
 
+        jsonObject.addProperty("version", version);
         jsonObject.add("surveys", surveysArray);
 
         return jsonObject;
