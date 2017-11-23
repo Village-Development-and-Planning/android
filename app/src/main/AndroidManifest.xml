@@ -23,9 +23,13 @@
 
         <activity android:name=".views.activities.main.MainActivity" />
 
+        <activity android:name=".views.activities.survey_list.SurveyListActivity" />
+
         <activity android:name=".views.activities.save_survey_data.SurveyDataDumpActivity" />
 
-        <activity android:name=".views.activities.survey_list.SurveyListActivity">
+        <activity
+            android:name=".views.activities.SplashActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
