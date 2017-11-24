@@ -18,7 +18,7 @@ public class SurveyListData {
     private final String id;
     private final String name;
     private boolean isChecked;
-    private final AnswerDataModal.Snapshot snapshot;
+    private final SurveySnapShot snapshot;
 
     private STATUS status;
 
@@ -30,7 +30,7 @@ public class SurveyListData {
         snapshot = null;
     }
 
-    public SurveyListData(String id, String name, boolean isChecked, AnswerDataModal.Snapshot snapshot, STATUS status) {
+    public SurveyListData(String id, String name, boolean isChecked, SurveySnapShot snapshot, STATUS status) {
         this.id = id;
         this.name = name;
         this.isChecked = isChecked;
@@ -62,7 +62,35 @@ public class SurveyListData {
         this.status = status;
     }
 
-    public AnswerDataModal.Snapshot getSnapshot() {
+    public SurveySnapShot getSurveySnapshot() {
         return snapshot;
+    }
+
+    public static class SurveySnapShot {
+        private final String surveyID;
+        private final String snapshotID;
+        private final String path;
+
+        public SurveySnapShot(String snapshotID, String path) {
+            this.surveyID = snapshotID.split("_")[0];
+            this.snapshotID = snapshotID;
+            this.path = path;
+        }
+
+        public String getSurveyID() {
+            return surveyID;
+        }
+
+        public String getSnapshotID() {
+            return snapshotID;
+        }
+
+        public String getPath() {
+            return path;
+        }
+
+        public static SurveySnapShot adapter(AnswerDataModal.Snapshot snapshot) {
+            return new SurveySnapShot(snapshot.getSnapshotId(), snapshot.getPathToLastQuestion());
+        }
     }
 }

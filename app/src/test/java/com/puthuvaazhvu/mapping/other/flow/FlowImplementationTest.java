@@ -20,6 +20,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.ArrayList;
 import java.util.Random;
 
+import io.reactivex.Single;
+
 import static junit.framework.Assert.assertSame;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -44,6 +46,24 @@ public class FlowImplementationTest {
         survey = ModalHelpers.getSurvey(this);
         root = survey.getRootQuestion();
         flowImplementation = new FlowImplementation(root);
+    }
+
+    @Test
+    public void testWithSnapshotPath() {
+        Single<Survey> surveySingle = Survey.getSurveyInstanceWithUpdatedAnswers(ModalHelpers.getAnswersJson(this));
+        Survey survey = surveySingle.blockingGet();
+
+        assertThat(survey.getId(), is("5a08957bad04f82a15a0e974"));
+
+        String snapShotPath = "0,0,1,0";
+
+        flowImplementation = new FlowImplementation(survey.getRootQuestion(), snapShotPath);
+
+        Question current = flowImplementation.getCurrent();
+
+        assertThat(current, is(notNullValue()));
+        assertThat(current.getRawNumber(), is("2"));
+        assertThat(current.getAnswers().size(), is(1));
     }
 
     @Test

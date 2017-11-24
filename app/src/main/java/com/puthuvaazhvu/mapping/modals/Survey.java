@@ -114,10 +114,10 @@ public class Survey extends BaseObject implements Parcelable {
     public JsonElement getAsJson() {
         JsonObject jsonObject = new JsonObject();
 
-        jsonObject.addProperty("id", id);
+        jsonObject.addProperty("_id", id);
         jsonObject.addProperty("name", name);
         jsonObject.addProperty("description", description);
-        jsonObject.add("question", rootQuestion.getAsJson());
+        jsonObject.add("question", rootQuestion.getAsJson().getAsJsonObject().get("question").getAsJsonObject());
 
         return jsonObject;
     }

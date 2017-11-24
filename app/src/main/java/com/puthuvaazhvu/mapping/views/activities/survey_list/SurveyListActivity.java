@@ -27,7 +27,6 @@ import com.puthuvaazhvu.mapping.utils.DataFileHelpers;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.utils.info_file.AnswersInfoFile;
 import com.puthuvaazhvu.mapping.utils.info_file.SurveyInfoFile;
-import com.puthuvaazhvu.mapping.utils.info_file.modals.AnswerDataModal;
 import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
 import com.puthuvaazhvu.mapping.utils.storage.PrefsStorage;
 import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
@@ -127,12 +126,12 @@ public class SurveyListActivity extends BaseDataActivity
                 } else {
 
                     if (surveyListData.getStatus() == SurveyListData.STATUS.ONGOING) {
-                        showSurveyOngoingDialog(surveyListData.getSnapshot());
+                        showSurveyOngoingDialog(surveyListData.getSurveySnapshot(), surveyListData.getName());
                     } else if (surveyListData.getStatus() == SurveyListData.STATUS.COMPLETED) {
-                        showSurveyDoneDialog(surveyListData.getSnapshot(), surveyListData.getId());
+                        showSurveyDoneDialog(surveyListData.getSurveySnapshot(), surveyListData.getId());
                     } else {
                         File file = DataFileHelpers.getSurveyFromSurveyDir(surveyListData.getId());
-                        presenter.getSurveyFromFile(file);
+                        presenter.getSurveyFromFile(file, null);
                     }
 
 //                    // set the survey as the current survey
@@ -148,14 +147,14 @@ public class SurveyListActivity extends BaseDataActivity
         }
     }
 
-    public void showSurveyDoneDialog(final AnswerDataModal.Snapshot snapshot, final String surveyID) {
+    public void showSurveyDoneDialog(final SurveyListData.SurveySnapShot snapshot, final String surveyID) {
         AlertDialog alertDialog = createAlertDialog(
                 getString(R.string.survey_override_dialog_message),
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         File file = DataFileHelpers.getSurveyFromSurveyDir(surveyID);
-                        presenter.getSurveyFromFile(file);
+                        presenter.getSurveyFromFile(file, null);
                     }
                 },
                 new DialogInterface.OnClickListener() {
@@ -169,14 +168,14 @@ public class SurveyListActivity extends BaseDataActivity
         alertDialog.show();
     }
 
-    public void showSurveyOngoingDialog(final AnswerDataModal.Snapshot snapshot) {
+    public void showSurveyOngoingDialog(final SurveyListData.SurveySnapShot snapshot, final String surveyName) {
         createAlertDialog(
-                String.format(getString(R.string.survey_ongoing_dialog_message), snapshot.getSurvey_name()),
+                String.format(getString(R.string.survey_ongoing_dialog_message), surveyName),
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        File file = DataFileHelpers.getSurveyFromAnswersDir(snapshot.getSnapshotId());
-                        presenter.getSurveyFromFile(file);
+                        File file = DataFileHelpers.getSurveyFromAnswersDir(snapshot.getSnapshotID());
+                        presenter.getSurveyFromFile(file, snapshot);
                     }
                 },
                 new DialogInterface.OnClickListener() {
@@ -199,7 +198,9 @@ public class SurveyListActivity extends BaseDataActivity
         builder.setPositiveButton("OKAY", positiveButtonClickListener);
         builder.setNegativeButton("CANCEL", negativeButtonClickListener);
 
-        return builder.create();
+        AlertDialog alertDialog = builder.create();
+
+        return alertDialog;
     }
 
     private void openMainSurveyActivity() {
@@ -226,9 +227,14 @@ public class SurveyListActivity extends BaseDataActivity
     }
 
     @Override
-    public void onSurveyLoaded(Survey survey) {
+    public void onSurveyLoaded(Survey survey, SurveyListData.SurveySnapShot snapshot) {
         Timber.i("Survey loaded : " + survey.getId());
-        applicationData.setSurvey(survey);
+
+        if (snapshot != null)
+            applicationData.setSurvey(survey, snapshot.getSnapshotID(), snapshot.getPath());
+        else
+            applicationData.setSurvey(survey, null, null);
+
         openMainSurveyActivity();
     }
 
@@ -305,9 +311,9 @@ public class SurveyListActivity extends BaseDataActivity
             holder.populateViews(data.getId(), data.getName(), data.isChecked());
 
             if (data.getStatus() == SurveyListData.STATUS.ONGOING) {
-                holder.setRowBackgroundColor(R.color.orange);
+                holder.setRowBackgroundColor(R.color.orange_light);
             } else if (data.getStatus() == SurveyListData.STATUS.COMPLETED) {
-                holder.setRowBackgroundColor(R.color.green);
+                holder.setRowBackgroundColor(R.color.green_light);
             } else {
                 holder.setRowBackgroundColor(R.color.white);
             }

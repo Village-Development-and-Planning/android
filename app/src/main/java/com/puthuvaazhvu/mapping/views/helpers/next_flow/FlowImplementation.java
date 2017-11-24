@@ -12,6 +12,7 @@ import com.puthuvaazhvu.mapping.modals.flow.PreFlow;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
+import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
 import com.puthuvaazhvu.mapping.views.helpers.FlowType;
 import com.puthuvaazhvu.mapping.views.helpers.ResponseData;
 import com.puthuvaazhvu.mapping.views.helpers.back_navigation.BackFlowImplementation;
@@ -39,10 +40,64 @@ public class FlowImplementation implements IFlow {
 
     private IBackFlow iBackFlow;
 
-    public FlowImplementation(Question root) {
-        this.current = root;
+    private FlowImplementation() {
         stack = new CircularFifoQueue<>(STACK_SIZE);
         this.iBackFlow = new BackFlowImplementation();
+    }
+
+    public FlowImplementation(Question root) {
+        this();
+        setCurrent(root);
+    }
+
+    public FlowImplementation(Question root, String snapshotPath) {
+        this();
+        moveToQuestion(root, snapshotPath);
+    }
+
+    private void moveToQuestion(Question root, String snapshotPath) {
+
+        boolean exception = false;
+
+        String[] indexesInString = snapshotPath.split(",");
+        ArrayList<Integer> indexes = new ArrayList<>();
+
+        for (int i = 0; i < indexesInString.length; i++) {
+            try {
+                indexes.add(Integer.parseInt(indexesInString[i]));
+            } catch (NumberFormatException e) {
+                Timber.e("Error occurred while parsing snapshot path: " + snapshotPath + " error:" + e.getMessage());
+            }
+        }
+
+        Question question = root;
+        Answer answer = null;
+
+        // we don't want to consider ROOT index and last answer index(if present)
+        // make sure we always end with a question.
+        for (int i = 1; i < (indexes.size() / 2 == 0 ? indexes.size() - 1 : indexes.size()); i++) {
+
+            int index = indexes.get(i);
+
+            if (i % 2 == 0 && answer != null) {
+                // children
+                question = answer.getChildren().get(index);
+            } else {
+                // answer
+                answer = question.getAnswers().get(index);
+            }
+
+            if (answer == null) {
+                exception = true;
+                break;
+            }
+        }
+
+        if (exception) {
+            setCurrent(root);
+        } else {
+            setCurrent(question);
+        }
     }
 
     @Override
@@ -185,6 +240,23 @@ public class FlowImplementation implements IFlow {
         return backFlowData;
     }
 
+    public FlowData getCurrentQuestionFlowData() {
+        FlowData flowData = new FlowData();
+        flowData.question = current;
+
+        ChildFlow childFlow = current.getFlowPattern().getChildFlow();
+        ChildFlow.Modes childFlowMode = childFlow.getMode();
+        ChildFlow.UI childFlowUI = childFlow.getUiToBeShown();
+
+        if (childFlowMode == ChildFlow.Modes.TOGETHER) {
+            flowData.flowType = FlowType.TOGETHER;
+            return flowData;
+        }
+
+        flowData.flowType = FlowType.SINGLE;
+        return flowData;
+    }
+
     private FlowData getNextInternal(Question current) {
         FlowData flowData = new FlowData();
 
@@ -207,6 +279,10 @@ public class FlowImplementation implements IFlow {
                 return flowData;
             }
 
+        } else if (childFlowMode == ChildFlow.Modes.TOGETHER) {
+            flowData.flowType = FlowType.TOGETHER;
+            flowData.question = current;
+            return flowData;
         }
 
         Answer latestAnswer = current.getCurrentAnswer();

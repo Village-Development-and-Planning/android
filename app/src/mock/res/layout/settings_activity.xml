@@ -11,12 +11,13 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
-        android:text="Go to answerDataModals list screen"
+        android:text="Go to survey list screen"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
         android:textColor="@color/black"
-        app:layout_constraintBaseline_toBaselineOf="@+id/show_list_of_surveys_btn"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/show_list_of_surveys_btn" />
+        app:layout_constraintRight_toLeftOf="@+id/show_list_of_surveys_btn"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintBaseline_toBaselineOf="@+id/show_list_of_surveys_btn" />
 
     <Button
         android:id="@+id/show_list_of_surveys_btn"

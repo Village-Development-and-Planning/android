@@ -46,7 +46,7 @@ public class SurveyListPresenter implements Contract.UserAction {
     }
 
     @Override
-    public void getSurveyFromFile(final File file) {
+    public void getSurveyFromFile(final File file, final SurveyListData.SurveySnapShot snapshot) {
         callback.showLoading(R.string.loading);
 
         Single<Survey> surveySingle;
@@ -64,11 +64,12 @@ public class SurveyListPresenter implements Contract.UserAction {
                     @Override
                     public void accept(@NonNull Survey survey) throws Exception {
                         callback.hideLoading();
-                        callback.onSurveyLoaded(survey);
+                        callback.onSurveyLoaded(survey, snapshot);
                     }
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(@NonNull Throwable throwable) throws Exception {
+                        Timber.e("Error while fetching survey from file " + throwable.getMessage());
                         callback.hideLoading();
                         callback.onError(R.string.err_no_data);
                     }
@@ -101,7 +102,7 @@ public class SurveyListPresenter implements Contract.UserAction {
                                         dm.getId(),
                                         dm.getSurveyName(),
                                         false,
-                                        answersDataModal.getLatestSnapShot(),
+                                        SurveyListData.SurveySnapShot.adapter(answersDataModal.getLatestSnapShot()),
                                         answersDataModal.isDone() ? SurveyListData.STATUS.COMPLETED
                                                 : SurveyListData.STATUS.ONGOING
                                 );

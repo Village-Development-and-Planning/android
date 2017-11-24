@@ -22,6 +22,7 @@ public class FlowPattern extends BaseObject implements Parcelable {
     private final ChildFlow childFlow;
     private final PostFlow postFlow;
     private final ExitFlow exitFlow;
+    private JsonObject jsonObject;
 
     public FlowPattern(PreFlow preFlow
             , QuestionFlow questionFlow
@@ -38,6 +39,8 @@ public class FlowPattern extends BaseObject implements Parcelable {
     }
 
     public FlowPattern(JsonObject jsonObject) {
+        this.jsonObject = jsonObject;
+
         JsonObject preJson = JsonHelper.getJsonObject(jsonObject, "pre");
         JsonObject questionJson = JsonHelper.getJsonObject(jsonObject, "question");
         JsonObject answerJson = JsonHelper.getJsonObject(jsonObject, "answer");
@@ -131,6 +134,6 @@ public class FlowPattern extends BaseObject implements Parcelable {
 
     @Override
     public JsonElement getAsJson() {
-        return null;
+        return jsonObject;
     }
 }

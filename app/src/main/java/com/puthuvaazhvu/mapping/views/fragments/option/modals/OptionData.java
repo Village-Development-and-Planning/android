@@ -3,6 +3,8 @@ package com.puthuvaazhvu.mapping.views.fragments.option.modals;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.puthuvaazhvu.mapping.R;
+import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.flow.FlowPattern;
 import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
@@ -148,7 +150,12 @@ public class OptionData implements Parcelable {
         if (optionsGiven != null) {
             optionsConverted = new ArrayList<>(optionsGiven.size());
             for (int i = 0; i < optionsGiven.size(); i++) {
-                optionsConverted.add(SingleOptionData.adapter(optionsGiven.get(i), false));
+                Answer answer = question.getAnswerMatch(optionsGiven.get(i).getPosition());
+                int color = -1;
+                if (answer != null) {
+                    color = R.color.green_light;
+                }
+                optionsConverted.add(SingleOptionData.adapter(optionsGiven.get(i), false, color));
             }
         }
 

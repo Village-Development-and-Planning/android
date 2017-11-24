@@ -44,4 +44,8 @@ public class FlowHelper {
     public ArrayList<Question> emptyToBeRemovedList() {
         return iFlow.emptyToBeRemovedList();
     }
+
+    public IFlow.FlowData getCurrentQuestionFlowData() {
+        return iFlow.getCurrentQuestionFlowData();
+    }
 }

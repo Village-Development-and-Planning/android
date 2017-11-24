@@ -13,6 +13,8 @@ import java.util.ArrayList;
 
 public interface IFlow {
 
+    public FlowData getCurrentQuestionFlowData();
+
     /**
      * Gets the current question that the imaginary pointer is pointing to
      *

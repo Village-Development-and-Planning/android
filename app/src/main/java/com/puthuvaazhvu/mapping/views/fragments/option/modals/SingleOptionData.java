@@ -16,12 +16,14 @@ public class SingleOptionData implements Parcelable {
     private final String text;
     private final String position;
     private boolean isSelected;
+    private int backgroundColor;
 
-    public SingleOptionData(String id, String text, String position, boolean isSelected) {
+    public SingleOptionData(String id, String text, String position, boolean isSelected, int backgroundColor) {
         this.id = id;
         this.text = text;
         this.position = position;
         this.isSelected = isSelected;
+        this.backgroundColor = backgroundColor;
     }
 
     public String getPosition() {
@@ -44,6 +46,20 @@ public class SingleOptionData implements Parcelable {
         isSelected = selected;
     }
 
+    public int getBackgroundColor() {
+        return backgroundColor;
+    }
+
+    public static SingleOptionData adapter(Option option, boolean isSelected, int backgroundColor) {
+        return new SingleOptionData(
+                option.getId(),
+                option.getTextString(),
+                option.getPosition(),
+                isSelected,
+                backgroundColor
+        );
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -55,6 +71,7 @@ public class SingleOptionData implements Parcelable {
         dest.writeString(this.text);
         dest.writeString(this.position);
         dest.writeByte(this.isSelected ? (byte) 1 : (byte) 0);
+        dest.writeInt(this.backgroundColor);
     }
 
     protected SingleOptionData(Parcel in) {
@@ -62,6 +79,7 @@ public class SingleOptionData implements Parcelable {
         this.text = in.readString();
         this.position = in.readString();
         this.isSelected = in.readByte() != 0;
+        this.backgroundColor = in.readInt();
     }
 
     public static final Creator<SingleOptionData> CREATOR = new Creator<SingleOptionData>() {
@@ -75,11 +93,4 @@ public class SingleOptionData implements Parcelable {
             return new SingleOptionData[size];
         }
     };
-
-    public static SingleOptionData adapter(Option option, boolean isSelected) {
-        return new SingleOptionData(option.getId(),
-                option.getTextString(),
-                option.getPosition(),
-                isSelected);
-    }
 }

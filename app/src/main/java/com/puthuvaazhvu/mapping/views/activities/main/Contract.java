@@ -88,6 +88,8 @@ public interface Contract {
          */
         void loadSurvey(String surveyID);
 
+        void showCurrent();
+
         /**
          * Get's the next question to be shown in the UI
          */

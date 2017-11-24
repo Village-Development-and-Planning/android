@@ -1,5 +1,5 @@
 package com.puthuvaazhvu.mapping.views.helpers;
 
 public enum FlowType {
-    GRID, SINGLE, END
+    GRID, TOGETHER, SINGLE, END
 }

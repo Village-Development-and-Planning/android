@@ -21,17 +21,47 @@ public class ApplicationData implements Parcelable {
     }
 
     private Survey survey;
+    private SurveySnapShot surveySnapShot;
 
     private ApplicationData() {
+        surveySnapShot = new SurveySnapShot();
+    }
 
+    public String getSnapshotPath() {
+        return surveySnapShot.pathToLastAnsweredQuestion;
+    }
+
+    public String getSnapShotID() {
+        return surveySnapShot.snapShotID;
     }
 
     public Survey getSurvey() {
         return survey;
     }
 
-    public void setSurvey(Survey survey) {
+    public void setSurvey(Survey survey, String snapShotID, String path) {
         this.survey = survey;
+        setSurveySnapShot(snapShotID, path);
+    }
+
+    private void setSurveySnapShot(String snapShotID, String path) {
+        if (snapShotID == null || path == null) {
+            surveySnapShot.surveyID = null;
+            surveySnapShot.pathToLastAnsweredQuestion = null;
+            return;
+        }
+
+        String surveyID = snapShotID.split("_")[0];
+
+        if (!survey.getId().equals(surveyID)) {
+            throw new IllegalArgumentException("The snapshot id should be " +
+                    "the same as the survey's id. " +
+                    "Update the survey to a different one or give another snapshot of the current survey.");
+        }
+
+        surveySnapShot.surveyID = surveyID;
+        surveySnapShot.pathToLastAnsweredQuestion = path;
+        surveySnapShot.snapShotID = snapShotID;
     }
 
     @Override
@@ -59,4 +89,10 @@ public class ApplicationData implements Parcelable {
             return new ApplicationData[size];
         }
     };
+
+    private static class SurveySnapShot {
+        public String surveyID;
+        public String snapShotID;
+        public String pathToLastAnsweredQuestion;
+    }
 }

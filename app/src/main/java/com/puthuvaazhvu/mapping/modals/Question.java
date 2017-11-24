@@ -269,6 +269,10 @@ public class Question extends BaseObject implements Parcelable {
     }
 
     public boolean containsPreFlow(String tag) {
+        if (flowPattern == null) {
+            return false;
+        }
+
         PreFlow preFlow = flowPattern.getPreFlow();
         if (preFlow != null) {
             ArrayList<String> fillTags = preFlow.getFill();
@@ -285,6 +289,8 @@ public class Question extends BaseObject implements Parcelable {
 
     private void setAnswerInternal(Answer answer) {
         if (this.getFlowPattern() == null) {
+            this.addAnswer(answer);
+            setCurrentAnswer(answer);
             return;
         }
 
@@ -312,7 +318,7 @@ public class Question extends BaseObject implements Parcelable {
             }
 
             Option loggedOption = answer.getOptions().get(0);
-            Answer matchedAnswer = getAnswerMatch(loggedOption.getId());
+            Answer matchedAnswer = getAnswerMatch(loggedOption.getPosition());
 
             if (matchedAnswer == null) {
                 this.addAnswer(answer);
@@ -343,10 +349,10 @@ public class Question extends BaseObject implements Parcelable {
      * returns the reference of the answer that matched the optionID given.
      * returns null if no answer is found
      *
-     * @param optionID The option ID to search for
+     * @param optionPosition The option position to search for
      * @return already present Answer object else null.
      */
-    private Answer getAnswerMatch(String optionID) {
+    public Answer getAnswerMatch(String optionPosition) {
 
         if (flowPattern.getAnswerFlow().getMode() == AnswerFlow.Modes.OPTION) {
 
@@ -359,7 +365,7 @@ public class Question extends BaseObject implements Parcelable {
                     ArrayList<Option> options = answer.getOptions();
 
                     for (Option option : options) {
-                        if (option.getId().equals(optionID)) {
+                        if (option.getPosition() != null && option.getPosition().equals(optionPosition)) {
                             return answer;
                         }
                     }
@@ -416,7 +422,10 @@ public class Question extends BaseObject implements Parcelable {
         });
     }
 
-    public static Question populateAnswersInternal(final Question node, final JsonObject nodeJson) {
+    public static Question populateAnswersInternal(final Question node, JsonObject nodeJson) {
+
+        if (nodeJson.has("question"))
+            nodeJson = JsonHelper.getJsonObject(nodeJson, "question");
 
         JsonArray answersJsonArray = JsonHelper.getJsonArray(nodeJson, "answers");
 
@@ -439,7 +448,7 @@ public class Question extends BaseObject implements Parcelable {
 
                 // create the answer object
                 Answer answer = new Answer(options, node);
-                node.addAnswer(answer);
+                node.setAnswer(answer);
 
                 // answers children length and this array length should be the same
                 JsonArray childrenJsonArray = JsonHelper.getJsonArray(answersJson, "children");
@@ -526,6 +535,8 @@ public class Question extends BaseObject implements Parcelable {
 
         JsonObject questionJson = new JsonObject();
         jsonObject.add("question", questionJson);
+
+        questionJson.add("flow", node.getFlowPattern().getAsJson());
 
         questionJson.addProperty("id", node.getId());
         //jsonObject.addProperty("position", node.getPosition());

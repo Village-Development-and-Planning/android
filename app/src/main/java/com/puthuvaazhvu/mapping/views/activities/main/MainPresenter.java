@@ -186,6 +186,12 @@ public class MainPresenter implements Contract.UserAction {
     }
 
     @Override
+    public void showCurrent() {
+        IFlow.FlowData flowData = flowHelper.getCurrentQuestionFlowData();
+        showUI(flowData, flowData.question);
+    }
+
+    @Override
     public void getNext() {
         if (flowHelper == null) {
             Timber.e(Constants.LOG_TAG, "The method is called too early? Call initData()/loadSurvey() first.");
@@ -230,35 +236,19 @@ public class MainPresenter implements Contract.UserAction {
             }
         }
 
-        if (question != null) {
+//        if (question != null) {
+//
+//            ChildFlow childFlow = question.getFlowPattern().getChildFlow();
+//
+//            if (childFlow != null) {
+//                if (childFlow.getMode() == ChildFlow.Modes.TOGETHER) {
+//                    activityView.shouldShowTogetherQuestion(question, QuestionData.adapter(question));
+//                    return;
+//                }
+//            }
+//        }
 
-            ChildFlow childFlow = question.getFlowPattern().getChildFlow();
-
-            if (childFlow != null) {
-                if (childFlow.getMode() == ChildFlow.Modes.TOGETHER) {
-                    activityView.shouldShowTogetherQuestion(question, QuestionData.adapter(question));
-                    return;
-                }
-            }
-        }
-
-        // only if grid for children, show grid. else show normal question view
-        if (flowData.flowType == FlowType.GRID) {
-            showGridUI(question);
-        } else if (flowData.flowType == FlowType.SINGLE) {
-            showSingleQuestionUI(question);
-        } else if (flowData.flowType == FlowType.END) {
-            activityView.onSurveyEnd();
-        } else {
-            Timber.e("Invalid UI data provided. number:  " + question.getRawNumber());
-            activityView.onError(R.string.invalid_data);
-            uiHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    activityView.hideLoading();
-                }
-            });
-        }
+        showUI(flowData, question);
     }
 
     @Override
@@ -279,6 +269,29 @@ public class MainPresenter implements Contract.UserAction {
         }
     }
 
+    private void showUI(IFlow.FlowData flowData, Question question) {
+        // only if grid for children, show grid. else show normal question view
+        if (flowData.flowType == FlowType.GRID) {
+            showGridUI(question);
+        } else if (flowData.flowType == FlowType.SINGLE) {
+            showSingleQuestionUI(question);
+        } else if (flowData.flowType == FlowType.END) {
+            activityView.onSurveyEnd();
+        } else if (flowData.flowType == FlowType.TOGETHER) {
+            activityView.shouldShowTogetherQuestion(question, QuestionData.adapter(question));
+        } else {
+            if (question != null)
+                Timber.e("Invalid UI data provided. number:  " + question.getRawNumber());
+            activityView.onError(R.string.invalid_data);
+            uiHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    activityView.hideLoading();
+                }
+            });
+        }
+    }
+
     private String getPathOfCurrentQuestion() {
         Question question = flowHelper.getCurrent();
         if (question == null) {
@@ -296,13 +309,12 @@ public class MainPresenter implements Contract.UserAction {
     }
 
     /**
-     * Starting index of the path is always Answer .
-     * Ending index of the path is always Root.
+     * Starting index of the path is always Root.
+     * Ending index of the path is always Answer.
      *
      * @param node    The current node question to start with
      * @param indexes The list of indexes that contains the path
      */
-    @VisibleForTesting
     public static void getPathOfCurrentQuestion(Question node, ArrayList<Integer> indexes) {
         Question current = node;
 
@@ -310,21 +322,23 @@ public class MainPresenter implements Contract.UserAction {
             return; // Reached the head of the tree
         }
 
-        int answerCount = current.getAnswers().size();
-        Answer lastAnswer = current.getCurrentAnswer();
+        if (!current.getAnswers().isEmpty()) {
+            int answerCount = current.getAnswers().size();
+            Answer lastAnswer = current.getCurrentAnswer();
 
-        int answersIndex = -1;
+            int answersIndex = -1;
 
-        // traverse through the answers list and find the appropriate index
-        for (int i = 0; i < answerCount; i++) {
-            if (current.getAnswers().get(i) == lastAnswer) {
-                answersIndex = i;
-                break;
+            // traverse through the answers list and find the appropriate index
+            for (int i = 0; i < answerCount; i++) {
+                if (current.getAnswers().get(i) == lastAnswer) {
+                    answersIndex = i;
+                    break;
+                }
             }
-        }
 
-        // add the answer's index
-        indexes.add(answersIndex);
+            // add the answer's index
+            indexes.add(answersIndex);
+        }
 
         // then add the question's position
         int questionIndex = -1;

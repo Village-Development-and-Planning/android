@@ -136,17 +136,21 @@ public class MainActivity extends BaseDataActivity
         }
 
         // set the global application data
-        applicationData.setSurvey(survey);
+        // applicationData.setSurvey(survey);
 
         Question root = survey.getRootQuestion();
 
-        iFlow = new FlowImplementation(root);
-
-        flowHelper = new FlowHelper(iFlow);
-
-        presenter.initData(survey, flowHelper);
-
-        presenter.getNext();
+        if (applicationData.getSnapshotPath() != null) {
+            iFlow = new FlowImplementation(root, applicationData.getSnapshotPath());
+            flowHelper = new FlowHelper(iFlow);
+            presenter.initData(survey, flowHelper);
+            presenter.showCurrent();
+        } else {
+            iFlow = new FlowImplementation(root);
+            flowHelper = new FlowHelper(iFlow);
+            presenter.initData(survey, flowHelper);
+            presenter.getNext();
+        }
     }
 
     @Override

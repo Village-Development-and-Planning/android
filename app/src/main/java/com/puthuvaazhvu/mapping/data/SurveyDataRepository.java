@@ -82,7 +82,7 @@ public class SurveyDataRepository extends DataRepository {
                     public SingleSource<? extends Survey> apply(@NonNull String surveyJsonString) throws Exception {
                         JsonParser jsonParser = new JsonParser();
                         JsonObject surveyJsonWithAnswers = jsonParser.parse(surveyJsonString).getAsJsonObject();
-                        Survey survey = new Survey(surveyJsonWithAnswers);
+                        // Survey survey = new Survey(surveyJsonWithAnswers);
                         return Survey.getSurveyInstanceWithUpdatedAnswers(surveyJsonWithAnswers);
                     }
                 })

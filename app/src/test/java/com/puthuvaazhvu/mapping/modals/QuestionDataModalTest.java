@@ -45,7 +45,7 @@ public class QuestionDataModalTest {
         assertThat(resultRoot.getAnswers().size(), is(1));
         assertThat(resultRoot.getAnswers().get(0).getOptions().size(), is(1));
         assertThat(resultRoot.getAnswers().get(0).getOptions().get(0).getType(), is("DUMMY"));
-        assertThat(resultRoot.getAnswers().get(0).getChildren().size(), is(1));
+        assertThat(resultRoot.getAnswers().get(0).getChildren().size(), is(2));
     }
 
     @Test

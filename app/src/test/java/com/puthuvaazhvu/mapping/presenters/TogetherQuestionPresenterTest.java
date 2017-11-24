@@ -102,7 +102,7 @@ public class TogetherQuestionPresenterTest {
         AnswerData answerDataMock = mock(AnswerData.class);
 
         ArrayList<SingleOptionData> singleOptionDataArrayList = new ArrayList<>();
-        singleOptionDataArrayList.add(new SingleOptionData("1", null, null, true));
+        singleOptionDataArrayList.add(new SingleOptionData("1", null, null, true, -1));
 
         when(questionDataMock.getOptionOptionData()).thenReturn(mockOptionData);
         when(questionDataMock.getOptionOptionData().getSelectedOptions()).thenReturn(singleOptionDataArrayList);
