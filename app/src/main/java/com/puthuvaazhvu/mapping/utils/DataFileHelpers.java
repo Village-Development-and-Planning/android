@@ -33,54 +33,54 @@ import timber.log.Timber;
 
 public class DataFileHelpers {
 
-    public static Single<Optional> dumpSurvey(
-            Survey survey,
-            final String pathToLastAnsweredQuestion,
-            final boolean isSurveyIncomplete,
-            final boolean isSurveyDone
-    ) {
-        JsonObject resultSurveyJson = survey.getAsJson().getAsJsonObject();
-        String toSave = resultSurveyJson.toString();
-
-        Timber.i("Survey dump: \n" + resultSurveyJson.toString());
-
-        long random_uuid = System.currentTimeMillis();
-        final String fileName = survey.getId() + "_" + random_uuid;
-
-        File fileToSave = getFileToDumpAnswers(fileName, false);
-
-        final String surveyName = survey.getName();
-        String fileNameComponents[] = fileName.split("_");
-        final String surveyID = fileNameComponents[0];
-        final String uuid = fileNameComponents[1];
-
-        final SaveToFile saveToFile = SaveToFile.getInstance();
-        final GetFromFile getFromFile = GetFromFile.getInstance();
-        final AnswersInfoFile answersInfoFile = new AnswersInfoFile(getFromFile, saveToFile);
-
-        return saveToFile.execute(toSave, fileToSave)
-                .flatMap(new Function<Optional, SingleSource<? extends Optional>>() {
-                    @Override
-                    public SingleSource<? extends Optional> apply(@NonNull Optional optional) throws Exception {
-
-                        ArrayList<AnswerDataModal.Snapshot> snapshots = new ArrayList<>();
-                        snapshots.add(
-                                new AnswerDataModal.Snapshot(
-                                        fileName,
-                                        surveyName,
-                                        pathToLastAnsweredQuestion,
-                                        isSurveyIncomplete,
-                                        "" + System.currentTimeMillis()
-                                )
-                        );
-
-                        AnswerDataModal answerDataModal = new AnswerDataModal(surveyID, isSurveyDone, snapshots);
-
-                        return answersInfoFile.updateSurvey(answerDataModal);
-
-                    }
-                });
-    }
+//    public static Single<Optional> dumpSurvey(
+//            Survey survey,
+//            final String pathToLastAnsweredQuestion,
+//            final boolean isSurveyIncomplete,
+//            final boolean isSurveyDone
+//    ) {
+//        JsonObject resultSurveyJson = survey.getAsJson().getAsJsonObject();
+//        String toSave = resultSurveyJson.toString();
+//
+//        Timber.i("Survey dump: \n" + resultSurveyJson.toString());
+//
+//        long random_uuid = System.currentTimeMillis();
+//        final String fileName = survey.getId() + "_" + random_uuid;
+//
+//        File fileToSave = getFileToDumpAnswers(fileName, false);
+//
+//        final String surveyName = survey.getName();
+//        String fileNameComponents[] = fileName.split("_");
+//        final String surveyID = fileNameComponents[0];
+//        final String uuid = fileNameComponents[1];
+//
+//        final SaveToFile saveToFile = SaveToFile.getInstance();
+//        final GetFromFile getFromFile = GetFromFile.getInstance();
+//        final AnswersInfoFile answersInfoFile = new AnswersInfoFile(getFromFile, saveToFile);
+//
+//        return saveToFile.execute(toSave, fileToSave)
+//                .flatMap(new Function<Optional, SingleSource<? extends Optional>>() {
+//                    @Override
+//                    public SingleSource<? extends Optional> apply(@NonNull Optional optional) throws Exception {
+//
+//                        ArrayList<AnswerDataModal.Snapshot> snapshots = new ArrayList<>();
+//                        snapshots.add(
+//                                new AnswerDataModal.Snapshot(
+//                                        fileName,
+//                                        surveyName,
+//                                        pathToLastAnsweredQuestion,
+//                                        isSurveyIncomplete,
+//                                        "" + System.currentTimeMillis()
+//                                )
+//                        );
+//
+//                        AnswerDataModal answerDataModal = new AnswerDataModal(surveyID, isSurveyDone, snapshots);
+//
+//                        return answersInfoFile.updateSurvey(answerDataModal);
+//
+//                    }
+//                });
+//    }
 
     public static File getSurveyFromSurveyDir(String fileName) {
         if (!fileName.contains("json")) {

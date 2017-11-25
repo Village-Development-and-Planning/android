@@ -14,6 +14,8 @@ import com.puthuvaazhvu.mapping.modals.flow.FlowPattern;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
 import java.util.ArrayList;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
@@ -47,6 +49,7 @@ public class Question extends BaseObject implements Parcelable {
     private Question parent;
     private boolean isFinished = false; // you can set to true for the question to skip
 
+    private final Lock lock = new ReentrantLock();
 
     public Question(String id, String position, Text text, String type, ArrayList<Option> optionList, ArrayList<Answer> answers, ArrayList<Tag> tag, String modifiedAt, String rawNumber, ArrayList<Question> children, Info info, FlowPattern flowPattern, Question parent) {
         this.id = id;
@@ -135,7 +138,12 @@ public class Question extends BaseObject implements Parcelable {
     }
 
     public void setOptionList(ArrayList<Option> optionList) {
-        this.optionList = optionList;
+        try {
+            lock.lock();
+            this.optionList = optionList;
+        } finally {
+            lock.unlock();
+        }
     }
 
     public boolean isFinished() {
@@ -192,7 +200,12 @@ public class Question extends BaseObject implements Parcelable {
     }
 
     public void setAnswer(Answer answer) {
-        setAnswerInternal(answer);
+        try {
+            lock.lock();
+            setAnswerInternal(answer);
+        } finally {
+            lock.unlock();
+        }
     }
 
     public ArrayList<Answer> getAnswers() {
@@ -529,7 +542,7 @@ public class Question extends BaseObject implements Parcelable {
         return getAsJsonInternal(this);
     }
 
-    private static JsonObject getAsJsonInternal(Question node) {
+    private JsonObject getAsJsonInternal(Question node) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("position", node.getPosition());
 
@@ -547,25 +560,33 @@ public class Question extends BaseObject implements Parcelable {
         questionJson.addProperty("type", node.getType());
         questionJson.addProperty("number", node.getRawNumber());
 
-        // options
-        JsonArray optionsArray = new JsonArray();
+        try {
 
-        if (node.getOptionList() != null)
-            for (Option o : node.getOptionList()) {
-                optionsArray.add(o.getAsJson());
-            }
+            lock.lock();
 
-        questionJson.add("options", optionsArray);
+            // options
+            JsonArray optionsArray = new JsonArray();
 
-        // answers
-        JsonArray answersArray = new JsonArray();
+            if (node.getOptionList() != null)
+                for (Option o : node.getOptionList()) {
+                    optionsArray.add(o.getAsJson());
+                }
 
-        if (node.getAnswers() != null)
-            for (Answer a : node.getAnswers()) {
-                answersArray.add(a.getAsJson());
-            }
+            questionJson.add("options", optionsArray);
 
-        questionJson.add("answers", answersArray);
+            // answers
+            JsonArray answersArray = new JsonArray();
+
+            if (node.getAnswers() != null)
+                for (Answer a : node.getAnswers()) {
+                    answersArray.add(a.getAsJson());
+                }
+
+            questionJson.add("answers", answersArray);
+
+        } finally {
+            lock.unlock();
+        }
 
         // children
         JsonArray childrenArray = new JsonArray();

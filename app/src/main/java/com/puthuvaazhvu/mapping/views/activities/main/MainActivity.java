@@ -1,6 +1,9 @@
 package com.puthuvaazhvu.mapping.views.activities.main;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
@@ -8,7 +11,6 @@ import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.MenuItem;
 
-import com.google.android.gms.common.api.Api;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.data.SurveyDataRepository;
 import com.puthuvaazhvu.mapping.modals.Question;
@@ -16,6 +18,7 @@ import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.network.APIs;
 import com.puthuvaazhvu.mapping.network.implementations.SingleSurveyAPI;
 import com.puthuvaazhvu.mapping.other.Constants;
+import com.puthuvaazhvu.mapping.other.RepeatingTask;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
 import com.puthuvaazhvu.mapping.utils.storage.PrefsStorage;
@@ -44,13 +47,15 @@ import com.puthuvaazhvu.mapping.views.managers.commands.FragmentReplaceCommand;
 import com.puthuvaazhvu.mapping.views.managers.receiver.StackFragmentManagerReceiver;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import timber.log.Timber;
 
-// Todo: path from snapshot is never used
 public class MainActivity extends BaseDataActivity
         implements Contract.View,
         FragmentCommunicationInterface {
+
+    private final long REPEATING_TASK_INTERVAL = TimeUnit.MINUTES.toMillis(30);
 
     private StackFragmentManagerInvoker stackFragmentManagerInvoker;
     private StackFragmentManagerReceiver stackFragmentManagerReceiver;
@@ -67,6 +72,14 @@ public class MainActivity extends BaseDataActivity
 
     private boolean defaultBackPressed = false;
 
+    private BroadcastReceiver dataDumpAckBroadcast;
+
+    private RepeatingTask repeatingTask;
+
+    private boolean dumpSurveyRepeatingTask = true;
+
+    private Handler handler;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,7 +94,7 @@ public class MainActivity extends BaseDataActivity
         SharedPreferences sharedPreferences = getSharedPreferences(Constants.PREFS, MODE_PRIVATE);
         prefsStorage = PrefsStorage.getInstance(sharedPreferences);
 
-        Handler handler = new Handler(Looper.getMainLooper());
+        handler = new Handler(Looper.getMainLooper());
 
         GetFromFile getFromFile = GetFromFile.getInstance();
         SingleSurveyAPI singleSurveyAPI = SingleSurveyAPI.getInstance(APIs.getAuth(sharedPreferences));
@@ -104,6 +117,19 @@ public class MainActivity extends BaseDataActivity
 //        }
 
         onSurveyLoaded(applicationData.getSurvey());
+
+        repeatingTask = new RepeatingTask(handler, new Runnable() {
+            @Override
+            public void run() {
+                if (dumpSurveyRepeatingTask) {
+                    Timber.i("Automatic saving done.");
+                    presenter.dumpSurveyToFile(false);
+                }
+            }
+        }, REPEATING_TASK_INTERVAL);
+
+        if (dumpSurveyRepeatingTask)
+            repeatingTask.start();
     }
 
     @Override
@@ -151,6 +177,45 @@ public class MainActivity extends BaseDataActivity
             presenter.initData(survey, flowHelper);
             presenter.getNext();
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        registerDataDumpAckBroadcast();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterDataDumpAckBroadcast();
+        repeatingTask.stop();
+    }
+
+    private void registerDataDumpAckBroadcast() {
+        IntentFilter intentFilter = new IntentFilter(Constants.INTENT_FILTERS.DUMP_SERVICE_END_BROADCAST);
+
+        dataDumpAckBroadcast = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Timber.i("Data dump ack broadcast received");
+                boolean err = intent.getExtras().getBoolean("err_status");
+                hideLoading();
+                if (err) {
+                    Timber.e(intent.getExtras().getString("msg"));
+                    onError(R.string.error_saving_survey);
+                } else {
+                    showMessage(R.string.save_successful);
+                }
+            }
+        };
+
+        registerReceiver(dataDumpAckBroadcast, intentFilter);
+    }
+
+    private void unregisterDataDumpAckBroadcast() {
+        unregisterReceiver(dataDumpAckBroadcast);
     }
 
     @Override
@@ -216,6 +281,8 @@ public class MainActivity extends BaseDataActivity
     public void onSurveyEnd() {
         Timber.i("The survey is completed");
         defaultBackPressed = true;
+        dumpSurveyRepeatingTask = false;
+        repeatingTask.stop();
         presenter.dumpSurveyToFile(true);
     }
 
@@ -255,8 +322,13 @@ public class MainActivity extends BaseDataActivity
 
     @Override
     public void hideLoading() {
-        if (progressDialog.isVisible())
-            progressDialog.dismiss();
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (progressDialog.isVisible())
+                    progressDialog.dismiss();
+            }
+        });
     }
 
     @Override

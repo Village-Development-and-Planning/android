@@ -1,7 +1,6 @@
 package com.puthuvaazhvu.mapping.views.activities.main;
 
 import android.os.Handler;
-import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 
 import com.crashlytics.android.Crashlytics;
@@ -10,11 +9,11 @@ import com.puthuvaazhvu.mapping.data.SurveyDataRepository;
 import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Text;
-import com.puthuvaazhvu.mapping.modals.flow.ChildFlow;
 import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.other.Constants;
+import com.puthuvaazhvu.mapping.other.dumpdata.DumpData;
 import com.puthuvaazhvu.mapping.utils.DataFileHelpers;
 import com.puthuvaazhvu.mapping.utils.Optional;
 import com.puthuvaazhvu.mapping.utils.info_file.AnswersInfoFile;
@@ -136,35 +135,40 @@ public class MainPresenter implements Contract.UserAction {
 
         activityView.showLoading(R.string.survey_file_saving_msg);
 
-        DataFileHelpers.dumpSurvey(survey, getPathOfCurrentQuestion(), false, isSurveyDone)
-                .observeOn(AndroidSchedulers.mainThread())
+        DumpData.getInstance().dumpSurvey(
+                survey,
+                "" + System.currentTimeMillis(),
+                getPathOfCurrentQuestion(),
+                false,
+                isSurveyDone
+        )
                 .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<Optional>() {
-                    @Override
-                    public void accept(@NonNull Optional optional) throws Exception {
-                        Timber.i("The data is saved to the file successfully.");
-                        //activityView.shouldShowSummary(survey);
-                        activityView.onSurveySaved(survey);
-                        activityView.hideLoading();
-                        activityView.showMessage(R.string.save_successful);
+                               @Override
+                               public void accept(@NonNull Optional optional) throws Exception {
+                                   activityView.onSurveySaved(survey);
+                                   activityView.hideLoading();
+                                   activityView.showMessage(R.string.save_successful);
 
-                        if (isSurveyDone) {
-                            activityView.openListOfSurveysActivity();
+                                   if (isSurveyDone) {
+                                       activityView.openListOfSurveysActivity();
+                                   }
+                               }
+                           },
+                        new Consumer<Throwable>() {
+                            @Override
+                            public void accept(@NonNull Throwable throwable) throws Exception {
+                                String errorMessage = "Error while saving file: " + throwable.getMessage();
+                                Timber.e(errorMessage);
+                                activityView.hideLoading();
+                                activityView.onError(R.string.error_saving_survey);
+
+                                // send report to fabric.io
+                                Crashlytics.logException(new Exception(errorMessage));
+                            }
                         }
-
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(@NonNull Throwable throwable) throws Exception {
-                        String errorMessage = "Error while saving file: " + throwable.getMessage();
-                        Timber.e(errorMessage);
-                        activityView.hideLoading();
-                        activityView.onError(R.string.error_saving_survey);
-
-                        // send report to fabric.io
-                        Crashlytics.logException(new Exception(errorMessage));
-                    }
-                });
+                );
     }
 
     @Override

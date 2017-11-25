@@ -18,6 +18,10 @@ public class Constants {
         public static int SURVEY_INFO_VERSION = 1;
     }
 
+    public static class INTENT_FILTERS {
+        public static final String DUMP_SERVICE_END_BROADCAST = "com.puthuvaazhvu.mapping.android.action.DUMP_END";
+    }
+
     public static class PermissionRequestCodes {
         public static final int REQUEST_GPS_CODE = 1;
         public static final int STORAGE_PERMISSION_REQUEST_CODE = 2;

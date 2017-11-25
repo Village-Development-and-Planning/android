@@ -118,6 +118,6 @@ public interface Contract {
          */
         void moveToQuestionAt(int index);
 
-        void dumpSurveyToFile(boolean is_incomplete);
+        void dumpSurveyToFile(boolean isSurveyOver);
     }
 }
