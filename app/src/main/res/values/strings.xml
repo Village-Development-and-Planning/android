@@ -19,6 +19,7 @@
     <string name="other_settings">OTHER SETTINGS</string>
     <string name="save">SAVE</string>
     <string name="record_end_gps">RECORD END POINT GPS</string>
+    <string name="grant_permissions_request">Please grant permissions for the app to work. </string>
 
     <!--success-->
     <string name="gps_recorded_successfully">GPS recorded successfully</string>

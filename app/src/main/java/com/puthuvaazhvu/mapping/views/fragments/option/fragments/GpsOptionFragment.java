@@ -123,6 +123,11 @@ public class GpsOptionFragment extends ButtonOptionsFragment
     }
 
     public OptionData getUpdatedData() {
+        if (lat == 0 || lng == 0) {
+            optionData.setAnswerData(null);
+            return optionData;
+        }
+
         GpsAnswerData gpsAnswer = new GpsAnswerData(optionData.getQuestionID(), optionData.getQuestionText(), lat, lng);
         optionData.setAnswerData(gpsAnswer);
         return optionData;

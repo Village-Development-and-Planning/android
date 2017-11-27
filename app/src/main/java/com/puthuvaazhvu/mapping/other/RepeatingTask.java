@@ -10,10 +10,12 @@ public class RepeatingTask {
     private final Handler handler;
     private final Runnable task;
     private final long millis;
+    private boolean skipFirst;
 
-    public RepeatingTask(Handler handler, final Runnable task, final long millis) {
+    public RepeatingTask(Handler handler, final Runnable task, final long millis, boolean skipFirst) {
         this.handler = handler;
         this.task = task;
+        this.skipFirst = skipFirst;
         this.millis = millis;
     }
 
@@ -32,8 +34,10 @@ public class RepeatingTask {
         @Override
         public void run() {
             try {
-                task.run();
+                if (!skipFirst)
+                    task.run();
             } finally {
+                skipFirst = false;
                 handler.postDelayed(runningTask, millis);
             }
         }

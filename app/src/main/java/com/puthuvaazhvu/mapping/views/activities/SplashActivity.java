@@ -33,23 +33,31 @@ import timber.log.Timber;
  * Created by muthuveerappans on 11/24/17.
  */
 
-public class SplashActivity extends AppCompatActivity {
+public class SplashActivity extends BaseActivity {
     GetFromFile getFromFile;
     SaveToFile saveToFile;
+    ProgressBar progressBar;
+    TextView infoTxt;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
 
         getFromFile = GetFromFile.getInstance();
         saveToFile = SaveToFile.getInstance();
 
         setContentView(R.layout.splash_screen);
 
-        final ProgressBar progressBar = findViewById(R.id.progressBar2);
-        final TextView infoTxt = findViewById(R.id.info_txt);
+        progressBar = findViewById(R.id.progressBar2);
+        infoTxt = findViewById(R.id.info_txt);
 
         infoTxt.setText("Initialising app components. Please wait...");
+
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    protected void onPermissionsGranted() {
+        super.onPermissionsGranted();
 
         checkInfoFiles()
                 .subscribeOn(Schedulers.io())

@@ -1,12 +1,16 @@
 package com.puthuvaazhvu.mapping.modals;
 
+import android.os.Parcel;
+
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.helpers.ModalHelpers;
 import com.puthuvaazhvu.mapping.modals.flow.PreFlow;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import static junit.framework.Assert.assertNotSame;

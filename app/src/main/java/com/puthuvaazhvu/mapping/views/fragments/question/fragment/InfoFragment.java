@@ -58,7 +58,7 @@ public class InfoFragment extends QuestionFragment implements View.OnClickListen
 
         if (Constants.APP_LANGUAGE == Constants.Language.ENGLISH) {
             back_button.setText(getString(R.string.back));
-            next_button.setText(getString(R.string.next_ta));
+            next_button.setText(getString(R.string.next));
         } else {
             back_button.setText(getString(R.string.back_ta));
             next_button.setText(getString(R.string.next_ta));

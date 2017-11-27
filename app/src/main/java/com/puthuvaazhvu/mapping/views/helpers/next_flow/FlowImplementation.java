@@ -311,6 +311,18 @@ public class FlowImplementation implements IFlow {
         flowData.flowType = FlowType.SINGLE;
         flowData.question = nextQuestion;
 
+        if (nextQuestion != null) {
+            QuestionFlow nextQuestionFlow = nextQuestion.getFlowPattern().getQuestionFlow();
+            QuestionFlow.UI nextQuestionUI = nextQuestionFlow.getUiMode();
+
+            ChildFlow nextQuestionChildFlow = nextQuestion.getFlowPattern().getChildFlow();
+
+            if (nextQuestionUI == QuestionFlow.UI.MESSAGE
+                    && nextQuestionChildFlow.getMode() == ChildFlow.Modes.TOGETHER) {
+                flowData.flowType = FlowType.TOGETHER;
+            }
+        }
+
         return flowData;
     }
 

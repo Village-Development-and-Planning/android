@@ -515,7 +515,13 @@ public class Question extends BaseObject implements Parcelable {
         this.text = in.readParcelable(Text.class.getClassLoader());
         this.type = in.readString();
         this.optionList = in.createTypedArrayList(Option.CREATOR);
+
         this.answers = in.createTypedArrayList(Answer.CREATOR);
+        // avoid circular reference error.
+        for (Answer answer : answers) {
+            answer.setQuestionReference(this);
+        }
+
         this.tag = in.createTypedArrayList(com.puthuvaazhvu.mapping.modals.Tag.CREATOR);
         this.modifiedAt = in.readString();
         this.rawNumber = in.readString();
@@ -606,32 +612,36 @@ public class Question extends BaseObject implements Parcelable {
 
         ArrayList<Question> childrenCopy = new ArrayList<>();
 
-        // copy only the first siblings.
-        for (Question c : children) {
+        if (children != null) {
 
-            // copy answers as well to avoid duplicate entries.
-            ArrayList<Answer> answersCopy = new ArrayList<>();
-            for (Answer a : c.getAnswers()) {
-                answersCopy.add(a.copy());
+            // copy only the first siblings.
+            for (Question c : children) {
+
+                // copy answers as well to avoid duplicate entries.
+                ArrayList<Answer> answersCopy = new ArrayList<>();
+                for (Answer a : c.getAnswers()) {
+                    answersCopy.add(a.copy());
+                }
+
+                childrenCopy.add(
+                        new Question(
+                                c.id,
+                                c.position,
+                                c.text,
+                                c.type,
+                                c.optionList,
+                                answersCopy,
+                                c.tag,
+                                c.modifiedAt,
+                                c.rawNumber,
+                                c.children,
+                                c.info,
+                                c.flowPattern,
+                                this
+                        )
+                );
             }
 
-            childrenCopy.add(
-                    new Question(
-                            c.id,
-                            c.position,
-                            c.text,
-                            c.type,
-                            c.optionList,
-                            answersCopy,
-                            c.tag,
-                            c.modifiedAt,
-                            c.rawNumber,
-                            c.children,
-                            c.info,
-                            c.flowPattern,
-                            this
-                    )
-            );
         }
 
         return new Question(

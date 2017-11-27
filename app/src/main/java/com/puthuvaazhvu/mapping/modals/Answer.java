@@ -16,7 +16,7 @@ import java.util.ArrayList;
 public class Answer extends BaseObject implements Parcelable {
     private final ArrayList<Option> options;
     private final ArrayList<Question> children;
-    private final Question questionReference;
+    private Question questionReference;
 
     public Answer(ArrayList<Option> options, Question questionReference) {
         this.options = options;
@@ -28,6 +28,10 @@ public class Answer extends BaseObject implements Parcelable {
             Question questionReferenceCopy = questionReference.copy();
             this.children.addAll(questionReferenceCopy.getChildren());
         }
+    }
+
+    public void setQuestionReference(Question questionReference) {
+        this.questionReference = questionReference;
     }
 
     @Override
@@ -59,13 +63,13 @@ public class Answer extends BaseObject implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeTypedList(this.options);
         dest.writeTypedList(this.children);
-        dest.writeParcelable(this.questionReference, flags);
+        //dest.writeParcelable(this.questionReference, flags);
     }
 
     protected Answer(Parcel in) {
         this.options = in.createTypedArrayList(Option.CREATOR);
         this.children = in.createTypedArrayList(Question.CREATOR);
-        this.questionReference = in.readParcelable(Question.class.getClassLoader());
+        //this.questionReference = in.readParcelable(Question.class.getClassLoader());
     }
 
     public static final Creator<Answer> CREATOR = new Creator<Answer>() {
@@ -86,8 +90,10 @@ public class Answer extends BaseObject implements Parcelable {
 
         JsonArray loggedOptionsArray = new JsonArray();
 
-        for (Option option : options) {
-            loggedOptionsArray.add(option.getAsJson());
+        if (options != null) {
+            for (Option option : options) {
+                loggedOptionsArray.add(option.getAsJson());
+            }
         }
 
         JsonArray childrenArray = new JsonArray();
@@ -108,7 +114,7 @@ public class Answer extends BaseObject implements Parcelable {
 
         string += "hashcode : " + Integer.toHexString(System.identityHashCode(this));
 
-        string += "\nOptions count: " + options.size();
+        string += "\nOptions count: " + (options == null ? 0 : options.size());
         string += "\nChildren [";
 
         for (Question c : children) {

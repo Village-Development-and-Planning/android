@@ -126,7 +126,7 @@ public class MainActivity extends BaseDataActivity
                     presenter.dumpSurveyToFile(false);
                 }
             }
-        }, REPEATING_TASK_INTERVAL);
+        }, REPEATING_TASK_INTERVAL, true);
 
         if (dumpSurveyRepeatingTask)
             repeatingTask.start();

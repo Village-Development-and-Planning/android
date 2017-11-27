@@ -1,21 +1,15 @@
 package com.puthuvaazhvu.mapping.views.activities;
 
 import android.Manifest;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 
-import com.puthuvaazhvu.mapping.BuildConfig;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.Utils;
-import com.puthuvaazhvu.mapping.views.activities.settings.SettingsActivity;
 
 import timber.log.Timber;
 
@@ -23,7 +17,6 @@ import timber.log.Timber;
  * Created by muthuveerappans on 10/20/17.
  */
 
-// Todo: menu in list list dialog
 public class BaseActivity extends AppCompatActivity {
     protected boolean paused;
     protected boolean resumed;
@@ -54,6 +47,7 @@ public class BaseActivity extends AppCompatActivity {
                 , Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE)) {
 
             Timber.i("Permission granted for read / write external storage");
+            onPermissionsGranted();
         }
     }
 
@@ -69,13 +63,19 @@ public class BaseActivity extends AppCompatActivity {
                         && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
 
                     Timber.i("Permission granted for read / write external storage");
+                    onPermissionsGranted();
 
                 } else {
                     // permission denied
                     checkForInitialPermissions();
+                    Utils.showMessageToast(R.string.grant_permissions_request, this);
                 }
 
                 break;
         }
+    }
+
+    protected void onPermissionsGranted() {
+
     }
 }
