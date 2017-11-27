@@ -368,6 +368,9 @@ public class FlowImplementation implements IFlow {
 
             if (preFlowAnswer != null) {
                 shouldSkip = !doesSkipPatternMatchInQuestion(optionsSkip, preFlowAnswer);
+            } else {
+                // if the question is not found. Skip it.
+                shouldSkip = true;
             }
         }
 
