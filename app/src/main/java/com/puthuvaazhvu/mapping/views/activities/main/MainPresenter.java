@@ -301,72 +301,8 @@ public class MainPresenter implements Contract.UserAction {
         if (question == null) {
             return null;
         }
-        ArrayList<Integer> indexes = getPathOfCurrentQuestion(question);
+        ArrayList<Integer> indexes = question.getPathOfCurrentQuestion();
         return TextUtils.join(",", indexes);
-    }
-
-    public static ArrayList<Integer> getPathOfCurrentQuestion(Question node) {
-        ArrayList<Integer> indexes = new ArrayList<>();
-        getPathOfCurrentQuestion(node, indexes);
-        Collections.reverse(indexes);
-        return indexes;
-    }
-
-    /**
-     * Starting index of the path is always Root.
-     * Ending index of the path is always Answer.
-     *
-     * @param node    The current node question to start with
-     * @param indexes The list of indexes that contains the path
-     */
-    public static void getPathOfCurrentQuestion(Question node, ArrayList<Integer> indexes) {
-        Question current = node;
-
-        if (current == null) {
-            return; // Reached the head of the tree
-        }
-
-        if (!current.getAnswers().isEmpty()) {
-            int answerCount = current.getAnswers().size();
-            Answer lastAnswer = current.getCurrentAnswer();
-
-            int answersIndex = -1;
-
-            // traverse through the answers list and find the appropriate index
-            for (int i = 0; i < answerCount; i++) {
-                if (current.getAnswers().get(i) == lastAnswer) {
-                    answersIndex = i;
-                    break;
-                }
-            }
-
-            // add the answer's index
-            indexes.add(answersIndex);
-        }
-
-        // then add the question's position
-        int questionIndex = -1;
-
-        // find the index of this question in it's parent
-        Question parent = current.getParent();
-        if (parent == null) {
-            // ROOT question
-            questionIndex = 0;
-        } else {
-
-            // find the child's index
-            for (int i = 0; i < parent.getChildren().size(); i++) {
-                if (parent.getChildren().get(i).getRawNumber().equals(current.getRawNumber())) {
-                    questionIndex = i;
-                    break;
-                }
-            }
-
-        }
-
-        indexes.add(questionIndex);
-
-        getPathOfCurrentQuestion(parent, indexes);
     }
 
     private void showGridUI(Question question) {

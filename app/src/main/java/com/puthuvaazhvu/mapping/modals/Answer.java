@@ -28,6 +28,10 @@ public class Answer extends BaseObject implements Parcelable {
             Question questionReferenceCopy = questionReference.copy();
             this.children.addAll(questionReferenceCopy.getChildren());
         }
+
+        for (int i = 0; i < children.size(); i++) {
+            children.get(i).setParentAnswer(this);
+        }
     }
 
     public void setQuestionReference(Question questionReference) {

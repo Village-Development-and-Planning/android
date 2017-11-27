@@ -52,53 +52,59 @@ public class FlowImplementation implements IFlow {
 
     public FlowImplementation(Question root, String snapshotPath) {
         this();
-        moveToQuestion(root, snapshotPath);
-    }
+        Question question = Question.moveToQuestion(snapshotPath, root);
 
-    private void moveToQuestion(Question root, String snapshotPath) {
-
-        boolean exception = false;
-
-        String[] indexesInString = snapshotPath.split(",");
-        ArrayList<Integer> indexes = new ArrayList<>();
-
-        for (int i = 0; i < indexesInString.length; i++) {
-            try {
-                indexes.add(Integer.parseInt(indexesInString[i]));
-            } catch (NumberFormatException e) {
-                Timber.e("Error occurred while parsing snapshot path: " + snapshotPath + " error:" + e.getMessage());
-            }
-        }
-
-        Question question = root;
-        Answer answer = null;
-
-        // we don't want to consider ROOT index and last answer index(if present)
-        // make sure we always end with a question.
-        for (int i = 1; i < (indexes.size() / 2 == 0 ? indexes.size() - 1 : indexes.size()); i++) {
-
-            int index = indexes.get(i);
-
-            if (i % 2 == 0 && answer != null) {
-                // children
-                question = answer.getChildren().get(index);
-            } else {
-                // answer
-                answer = question.getAnswers().get(index);
-            }
-
-            if (answer == null) {
-                exception = true;
-                break;
-            }
-        }
-
-        if (exception) {
+        if (question == null) {
             setCurrent(root);
         } else {
             setCurrent(question);
         }
     }
+
+//    private void moveToQuestion(Question root, String snapshotPath) {
+//
+//        boolean exception = false;
+//
+//        String[] indexesInString = snapshotPath.split(",");
+//        ArrayList<Integer> indexes = new ArrayList<>();
+//
+//        for (int i = 0; i < indexesInString.length; i++) {
+//            try {
+//                indexes.add(Integer.parseInt(indexesInString[i]));
+//            } catch (NumberFormatException e) {
+//                Timber.e("Error occurred while parsing snapshot path: " + snapshotPath + " error:" + e.getMessage());
+//            }
+//        }
+//
+//        Question question = root;
+//        Answer answer = null;
+//
+//        // we don't want to consider ROOT index and last answer index(if present)
+//        // make sure we always end with a question.
+//        for (int i = 1; i < (indexes.size() / 2 == 0 ? indexes.size() - 1 : indexes.size()); i++) {
+//
+//            int index = indexes.get(i);
+//
+//            if (i % 2 == 0 && answer != null) {
+//                // children
+//                question = answer.getChildren().get(index);
+//            } else {
+//                // answer
+//                answer = question.getAnswers().get(index);
+//            }
+//
+//            if (answer == null) {
+//                exception = true;
+//                break;
+//            }
+//        }
+//
+//        if (exception) {
+//            setCurrent(root);
+//        } else {
+//            setCurrent(question);
+//        }
+//    }
 
     @Override
     public Question getCurrent() {
@@ -361,17 +367,28 @@ public class FlowImplementation implements IFlow {
 
         if (preFlow != null) {
             String preFlowQuestionNumber = preFlow.getQuestionSkipRawNumber();
+
+            if (preFlowQuestionNumber == null) {
+                return false;
+            }
+
             ArrayList<String> optionsSkip = preFlow.getOptionSkip();
 
-            // search for the question in the answered stack
-            Answer preFlowAnswer = getQuestionForSkip(preFlowQuestionNumber);
+            Question foundForSkipPattern = question.findQuestion(preFlowQuestionNumber);
 
-            if (preFlowAnswer != null) {
-                shouldSkip = !doesSkipPatternMatchInQuestion(optionsSkip, preFlowAnswer);
+            if (foundForSkipPattern.getCurrentAnswer() != null) {
+                shouldSkip = !doesSkipPatternMatchInQuestion(optionsSkip, foundForSkipPattern.getCurrentAnswer());
             } else {
-                // if the question is not found. Skip it.
+                // if no question found then skip
                 shouldSkip = true;
             }
+
+//            // search for the question in the answered stack
+//            Answer preFlowAnswer = getQuestionForSkip(preFlowQuestionNumber);
+//
+//            if (preFlowAnswer != null) {
+//                shouldSkip = !doesSkipPatternMatchInQuestion(optionsSkip, preFlowAnswer);
+//            }
         }
 
         return shouldSkip;

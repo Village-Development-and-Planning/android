@@ -1,23 +1,22 @@
 package com.puthuvaazhvu.mapping.modals;
 
-import android.os.Parcel;
-
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.helpers.ModalHelpers;
 import com.puthuvaazhvu.mapping.modals.flow.PreFlow;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
+
+import io.reactivex.Single;
 
 import static junit.framework.Assert.assertNotSame;
 import static junit.framework.Assert.assertSame;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.mockito.Mockito.mock;
 
 /**
  * Created by muthuveerappans on 10/19/17.
@@ -30,6 +29,80 @@ public class QuestionDataModalTest {
     @Before
     public void setup() {
         survey = ModalHelpers.getSurvey(this);
+    }
+
+    @Test
+    public void test_getQuestionRawNumberPrefix() {
+        Question question = survey.getRootQuestion().getChildren().get(1).getChildren().get(1).getChildren().get(6);
+        assertThat(question.getRawNumber(), is("2.1.7"));
+        assertThat(question.getQuestionRawNumberPrefix(), is("2.1"));
+    }
+
+    @Test
+    public void test_findQuestion_rawNumber() {
+        Single<Survey> surveySingle = Survey.getSurveyInstanceWithUpdatedAnswers(ModalHelpers.getAnswersJson(this));
+        Survey survey = surveySingle.blockingGet();
+
+        assertThat(survey.getRootQuestion().getAnswers().size(), is(1));
+
+        Question question = survey.getRootQuestion().getAnswers()
+                .get(0).getChildren().get(1).getAnswers().get(0).getChildren().get(1)
+                .getAnswers().get(0).getChildren().get(0);
+
+        assertThat(question.getRawNumber(), is("2.1.1"));
+
+        Question found = question.findQuestion("2");
+
+        assertThat(found.getRawNumber(), is("2"));
+
+        question = survey.getRootQuestion().getAnswers()
+                .get(0).getChildren().get(1).getAnswers().get(0).getChildren().get(1)
+                .getAnswers().get(0).getChildren().get(1);
+
+        assertThat(question.getRawNumber(), is("2.1.2"));
+
+        found = question.findQuestion("2.1.1");
+
+        assertThat(found.getRawNumber(), is("2.1.1"));
+    }
+
+    @Test
+    public void test_getPathOfCurrentQuestion() {
+
+        /*
+            R---
+                |
+                A1-
+                | |
+                1 2-- --
+                    |   |
+                    A3  A4
+                        |
+                        2.1
+         */
+
+        Question root = survey.getRootQuestion();
+
+        Answer answer_1 = new Answer(null, root);
+        root.setAnswer(answer_1);
+
+        Answer answer_2 = new Answer(null, answer_1.getChildren().get(1));
+        Answer answer_3 = new Answer(null, answer_1.getChildren().get(1));
+
+        answer_1.getChildren().get(1).setAnswer(answer_2);
+        answer_1.getChildren().get(1).setAnswer(answer_3);
+
+        assertThat(answer_1.getChildren().get(1).getAnswers().size(), is(2));
+
+        ArrayList<Integer> index = answer_3.getChildren().get(0).getPathOfCurrentQuestion();
+
+        assertThat(index.size(), is(5));
+        assertThat(index.get(0), is(0));
+        assertThat(index.get(1), is(0));
+        assertThat(index.get(2), is(1));
+        assertThat(index.get(3), is(1));
+        assertThat(index.get(4), is(0));
+
     }
 
     @Test
