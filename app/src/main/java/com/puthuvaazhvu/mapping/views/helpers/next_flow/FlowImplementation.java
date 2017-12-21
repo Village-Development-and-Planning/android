@@ -423,7 +423,7 @@ public class FlowImplementation implements IFlow {
         ArrayList<Option> loggedOptions = toCheckAnswer.getOptions();
         for (Option option : loggedOptions) {
             for (String o : optionsSkipPositions) {
-                if (option.getPosition().equals(o)) {
+                if (option.getPosition() != null && option.getPosition().equals(o)) {
                     correctness++;
                 }
             }
