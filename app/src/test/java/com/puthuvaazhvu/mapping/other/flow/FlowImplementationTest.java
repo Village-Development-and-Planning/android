@@ -11,6 +11,7 @@ import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.InputAnswer
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.SingleAnswerData;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
 import com.puthuvaazhvu.mapping.views.helpers.FlowType;
+import com.puthuvaazhvu.mapping.views.helpers.back_navigation.BackNavigation;
 import com.puthuvaazhvu.mapping.views.helpers.next_flow.IFlow;
 import com.puthuvaazhvu.mapping.views.helpers.next_flow.FlowImplementation;
 import com.puthuvaazhvu.mapping.views.helpers.ResponseData;
@@ -18,12 +19,12 @@ import com.puthuvaazhvu.mapping.views.helpers.ResponseData;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Random;
-
-import io.reactivex.Single;
 
 import static junit.framework.Assert.assertSame;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -53,8 +54,7 @@ public class FlowImplementationTest {
 
     @Test
     public void testWithSnapshotPath() {
-        Single<Survey> surveySingle = Survey.getSurveyInstanceWithUpdatedAnswers(ModalHelpers.getAnswersJson(this));
-        Survey survey = surveySingle.blockingGet();
+        Survey survey = ModalHelpers.getAnsweredSurvey(this);
 
         assertThat(survey.getId(), is("5a08957bad04f82a15a0e974"));
 
@@ -373,7 +373,7 @@ public class FlowImplementationTest {
         assertThat(result, is(false));
 
         // household
-        jsonObject = ModalHelpers.getJson(this, "multiple_options_skip_1.json");
+        jsonObject = ModalHelpers.getJson(this, "house_hold.json");
         question = Question.populateQuestion(jsonObject);
 
         ModalHelpers.setDummyAnswersForAllQuestions(question);
@@ -472,5 +472,43 @@ public class FlowImplementationTest {
         assertThat(flowData.question.getRawNumber(), is("1.2"));
 
         assertSame(flowData.question.getParent(), parent);
+    }
+
+    @Test
+    public void testBackNavigation() {
+        JsonObject jsonObject = ModalHelpers.getJson(this, "back_test.json");
+        Question question = Question.populateQuestion(jsonObject);
+
+        assertThat(question.isRoot(), is(true));
+
+        Question question_3_5 = question.findInTree(new Question.QuestionTreeSearchPredicate() {
+            @Override
+            public boolean evaluate(Question question) {
+                return question.getRawNumber() != null && question.getRawNumber().equals("3.5");
+            }
+        });
+
+        assertThat(question_3_5.getRawNumber(), is("3.5"));
+
+        flowImplementation.setCurrent(question_3_5);
+        flowImplementation.update(ModalHelpers.dummyResponseData(question_3_5));
+        flowImplementation.getNext();
+
+        Question q_3_5_1 = flowImplementation.getCurrent();
+
+        assertThat(q_3_5_1.getRawNumber(), is("3.5.1"));
+
+        flowImplementation.update(ModalHelpers.dummyResponseData(q_3_5_1));
+        flowImplementation.getNext();
+
+        Question q_3_5_2 = flowImplementation.getCurrent();
+
+        assertThat(q_3_5_2.getRawNumber(), is("3.5.2"));
+
+        IFlow.FlowData previousData = flowImplementation.getPrevious();
+
+        assertThat(previousData.question.getRawNumber(), is("3.5.1"));
+        assertSame(previousData.question, q_3_5_1);
+        assertThat(previousData.flowType, is(FlowType.SINGLE));
     }
 }

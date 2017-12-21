@@ -41,15 +41,7 @@ public class FlowHelper {
         iFlow.setCurrent(question);
     }
 
-    public IBackFlow.BackFlowData getPrevious() {
+    public IFlow.FlowData getPrevious() {
         return iFlow.getPrevious();
-    }
-
-    public ArrayList<Question> emptyToBeRemovedList() {
-        return iFlow.emptyToBeRemovedList();
-    }
-
-    public IFlow.FlowData getCurrentQuestionFlowData() {
-        return iFlow.getCurrentQuestionFlowData();
     }
 }

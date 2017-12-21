@@ -68,11 +68,11 @@ public class Presenter implements Contract.UserAction {
 
     public static ArrayList<Question> populateAdapterData(ArrayList<Question> adapterData, Question root) {
 
-        if (root.getCurrentAnswer() == null) {
+        if (root.getLatestAnswer() == null) {
             root = addDummyAnswerToRoot(root);
         }
 
-        for (Question child : root.getCurrentAnswer().getChildren()) {
+        for (Question child : root.getLatestAnswer().getChildren()) {
             adapterData.add(child);
             populateAdapterData(adapterData, child);
         }

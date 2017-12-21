@@ -8,10 +8,13 @@ import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.utils.info_file.modals.AnswersInfoFileDataModal;
+import com.puthuvaazhvu.mapping.views.helpers.ResponseData;
 
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Random;
+
+import io.reactivex.Single;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -70,6 +73,11 @@ public class ModalHelpers {
         return new AnswersInfoFileDataModal(infoJson);
     }
 
+    public static Survey getAnsweredSurvey(Object obj) {
+        Single<Survey> surveySingle = Survey.getSurveyInstanceWithUpdatedAnswers(ModalHelpers.getAnswersJson(obj));
+        return surveySingle.blockingGet();
+    }
+
     public static JsonObject getAnswersJson(Object obj) {
         return getJson(obj, "answers_data_1.json");
     }
@@ -94,6 +102,18 @@ public class ModalHelpers {
         for (Question q : answer.getChildren()) {
             setDummyAnswersForAllQuestions(q);
         }
+    }
+
+    public static Answer getDummyAnswer(Question question) {
+        ArrayList<Option> options = new ArrayList<>();
+        options.add(new Option("", "", null, "", "-1"));
+        return new Answer(options, question);
+    }
+
+    public static ResponseData dummyResponseData(Question question) {
+        ArrayList<Option> options = new ArrayList<>();
+        options.add(new Option("", "", null, "", "-1"));
+        return new ResponseData("", question.getRawNumber(), options);
     }
 
     private static InputStream getDataFormFile(Object obj, String fileName) {

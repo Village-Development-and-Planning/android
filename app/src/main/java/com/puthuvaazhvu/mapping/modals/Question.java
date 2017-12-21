@@ -14,6 +14,7 @@ import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -47,7 +48,7 @@ public class Question extends BaseObject implements Parcelable {
     private final FlowPattern flowPattern;
     private Answer parentAnswer;
 
-    private Answer currentAnswer;
+    private Answer latestAnswer;
     private Question parent;
     private boolean isFinished = false; // you can set to true for the question to skip
 
@@ -250,12 +251,12 @@ public class Question extends BaseObject implements Parcelable {
         return flowPattern;
     }
 
-    private void setCurrentAnswer(Answer answer) {
-        currentAnswer = answer;
+    private void setLatestAnswer(Answer answer) {
+        latestAnswer = answer;
     }
 
-    public Answer getCurrentAnswer() {
-        return currentAnswer;
+    public Answer getLatestAnswer() {
+        return latestAnswer;
     }
 
     private void addAnswer(Answer answer) {
@@ -314,7 +315,7 @@ public class Question extends BaseObject implements Parcelable {
             // traverse through the children
             for (Question c : nodeAnswer.getChildren()) {
                 if (rawNumber.contains(c.getRawNumber())) {
-                    question = findAnsweredQuestionInternal(c, c.getCurrentAnswer(), rawNumber);
+                    question = findAnsweredQuestionInternal(c, c.getLatestAnswer(), rawNumber);
                     break;
                 }
             }
@@ -352,7 +353,7 @@ public class Question extends BaseObject implements Parcelable {
     private void setAnswerInternal(Answer answer) {
         if (this.getFlowPattern() == null || answer.getOptions() == null) {
             this.addAnswer(answer);
-            setCurrentAnswer(answer);
+            setLatestAnswer(answer);
             return;
         }
 
@@ -362,7 +363,7 @@ public class Question extends BaseObject implements Parcelable {
 
         if (answerFlow == null) {
             this.addAnswer(answer);
-            setCurrentAnswer(answer);
+            setLatestAnswer(answer);
             return;
         }
 
@@ -387,7 +388,7 @@ public class Question extends BaseObject implements Parcelable {
             } else {
                 // update the old answer with the new one
                 this.setAnswer(0, answer);
-                // currentAnswer = matchedAnswer;
+                // latestAnswer = matchedAnswer;
             }
 
         } else if (answerFlow.getMode() == AnswerFlow.Modes.ONCE) {
@@ -403,7 +404,7 @@ public class Question extends BaseObject implements Parcelable {
             this.addAnswer(answer);
         }
 
-        setCurrentAnswer(currentAnswer);
+        setLatestAnswer(currentAnswer);
 
     }
 
@@ -550,7 +551,7 @@ public class Question extends BaseObject implements Parcelable {
 
         if (!current.getAnswers().isEmpty()) {
             int answerCount = current.getAnswers().size();
-            Answer lastAnswer = current.getCurrentAnswer();
+            Answer lastAnswer = current.getLatestAnswer();
 
             int answersIndex = -1;
 
@@ -781,6 +782,20 @@ public class Question extends BaseObject implements Parcelable {
         return jsonObject;
     }
 
+    public void removeAnswer() {
+        AnswerFlow answerFlow = getFlowPattern().getAnswerFlow();
+
+        if (answerFlow == null) {
+            return;
+        }
+
+        if (answerFlow.getMode() == AnswerFlow.Modes.ONCE) {
+            getAnswers().clear();
+        }
+        // for OPTION the answers are going ot be updated anyway
+        // we don't care for MULTIPLE
+    }
+
     @Override
     public Question copy() {
 
@@ -833,5 +848,13 @@ public class Question extends BaseObject implements Parcelable {
                 flowPattern,
                 getParent()
         );
+    }
+
+    @Override
+    public String toString() {
+        return "Raw Number " + rawNumber + "\n" +
+                "Children count " + (children != null ? children.size() : 0) + "\n" +
+                "Answers count " + (answers != null ? answers.size() : 0) + "\n" +
+                "Parent " + (parent == null ? "ROOT" : parent.getRawNumber()) + "\n";
     }
 }

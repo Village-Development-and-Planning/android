@@ -237,7 +237,7 @@ public class QuestionDataModalTest {
         question.setAnswer(mockAnswer_3);
 
         assertThat(question.getAnswers().size(), is(2));
-        assertThat(question.getCurrentAnswer().getOptions().get(0).getId(), is(question.getOptionList().get(1).getId()));
+        assertThat(question.getLatestAnswer().getOptions().get(0).getId(), is(question.getOptionList().get(1).getId()));
     }
 
     @Test
@@ -266,7 +266,7 @@ public class QuestionDataModalTest {
 
         question.setAnswer(mockAnswer);
 
-        assertThat(question.getCurrentAnswer().getOptions().get(0).getId(), is("2"));
+        assertThat(question.getLatestAnswer().getOptions().get(0).getId(), is("2"));
         assertThat(question.getAnswers().size(), is(1));
     }
 
@@ -295,7 +295,7 @@ public class QuestionDataModalTest {
         );
         question.setAnswer(mockAnswer);
 
-        assertThat(question.getCurrentAnswer().getOptions().get(0).getId(), is("2"));
+        assertThat(question.getLatestAnswer().getOptions().get(0).getId(), is("2"));
         assertThat(question.getAnswers().size(), is(2));
     }
 

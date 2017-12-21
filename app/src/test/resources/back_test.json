@@ -1,0 +1,249 @@
+{
+  "_id": "5a2fac8026f18e2647602923",
+  "name": "Household",
+  "description": "Household Survey",
+  "question": {
+    "type": "ROOT",
+    "options": [],
+    "children": [
+      {
+        "position": "3.5",
+        "question": {
+          "options": [
+            {
+              "position": "1",
+              "option": {
+                "type": "GENERIC",
+                "text": {
+                  "english": "Yes",
+                  "tamil": "???  "
+                }
+              }
+            },
+            {
+              "position": "0",
+              "option": {
+                "type": "GENERIC",
+                "text": {
+                  "english": "No",
+                  "tamil": "?????"
+                }
+              }
+            }
+          ],
+          "children": [
+            {
+              "position": "1",
+              "question": {
+                "options": [
+                  {
+                    "position": "1",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "Daily",
+                        "tamil": "???????"
+                      }
+                    }
+                  },
+                  {
+                    "position": "2",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "2-3 time per week",
+                        "tamil": "??????????? (2 \ufffd 3 ????)"
+                      }
+                    }
+                  },
+                  {
+                    "position": "3",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "Weekly",
+                        "tamil": "????????"
+                      }
+                    }
+                  },
+                  {
+                    "position": "4",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "2-3 times per month",
+                        "tamil": "??????????? (2 \ufffd 3 ????)"
+                      }
+                    }
+                  },
+                  {
+                    "position": "5",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "Monthly once",
+                        "tamil": "??????????? ???????"
+                      }
+                    }
+                  }
+                ],
+                "children": [],
+                "text": {
+                  "english": "How often do you consume meat?",
+                  "tamil": "?????? ????????????? ?????????? ??????????????? ??????; ???????????????????????"
+                },
+                "type": "SINGLE_CHOICE",
+                "tags": "",
+                "number": "3.5.1",
+                "flow": {
+                  "pre": {
+                    "fill": []
+                  },
+                  "question": {
+                    "ui": "SINGLE_CHOICE",
+                    "validation": null
+                  },
+                  "answer": {
+                    "scope": "once"
+                  },
+                  "child": {
+                    "strategy": "cascade"
+                  },
+                  "post": [],
+                  "exit": {
+                    "strategy": "parent"
+                  }
+                }
+              }
+            },
+            {
+              "position": "2",
+              "question": {
+                "options": [
+                  {
+                    "position": "1",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "Less than Rs.500",
+                        "tamil": "??. 500 ?????? ??????"
+                      }
+                    }
+                  },
+                  {
+                    "position": "2",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "Rs.501 - Rs.1000",
+                        "tamil": "??.501\ufffd 1000 ???"
+                      }
+                    }
+                  },
+                  {
+                    "position": "3",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "Rs.1,001 - Rs.1500",
+                        "tamil": "??.1001\ufffd 1500 ???"
+                      }
+                    }
+                  },
+                  {
+                    "position": "4",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "Above Rs.1500",
+                        "tamil": "??.1500 ???? ????"
+                      }
+                    }
+                  }
+                ],
+                "children": [],
+                "text": {
+                  "english": "Approximately, how much do you spend on the purchase of meat in a month?",
+                  "tamil": "?????? ???????????? ??? ????????? ???????? ??????? ???????? ????????????"
+                },
+                "type": "SINGLE_CHOICE",
+                "tags": "",
+                "number": "3.5.2",
+                "flow": {
+                  "pre": {
+                    "fill": []
+                  },
+                  "question": {
+                    "ui": "SINGLE_CHOICE",
+                    "validation": null
+                  },
+                  "answer": {
+                    "scope": "once"
+                  },
+                  "child": {
+                    "strategy": "cascade"
+                  },
+                  "post": [],
+                  "exit": {
+                    "strategy": "parent"
+                  }
+                }
+              }
+            }
+          ],
+          "text": {
+            "english": "Do you eat meat?",
+            "tamil": "?????? ????????????? ?????????? ??????; ??????????????????????? "
+          },
+          "type": "SINGLE_CHOICE",
+          "tags": "",
+          "number": "3.5",
+          "flow": {
+            "pre": {
+              "fill": []
+            },
+            "question": {
+              "ui": "SINGLE_CHOICE",
+              "validation": null
+            },
+            "answer": {
+              "scope": "once"
+            },
+            "child": {
+              "strategy": "cascade"
+            },
+            "post": [],
+            "exit": {
+              "strategy": "parent"
+            }
+          }
+        }
+      }
+    ],
+    "flow": {
+      "pre": {
+        "fill": []
+      },
+      "question": {
+        "ui": "NONE",
+        "validation": null
+      },
+      "answer": {
+        "scope": "once"
+      },
+      "child": {
+        "strategy": "cascade"
+      },
+      "post": [],
+      "exit": {
+        "strategy": "parent"
+      }
+    }
+  },
+  "__v": 0,
+  "respondents": [
+    ""
+  ],
+  "enabled": true,
+  "modifiedAt": "2017-12-12T10:16:32.850Z"
+}

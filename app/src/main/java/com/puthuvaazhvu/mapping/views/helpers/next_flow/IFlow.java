@@ -1,6 +1,7 @@
 package com.puthuvaazhvu.mapping.views.helpers.next_flow;
 
 import com.puthuvaazhvu.mapping.modals.Question;
+import com.puthuvaazhvu.mapping.modals.flow.ChildFlow;
 import com.puthuvaazhvu.mapping.views.helpers.FlowType;
 import com.puthuvaazhvu.mapping.views.helpers.ResponseData;
 import com.puthuvaazhvu.mapping.views.helpers.back_navigation.IBackFlow;
@@ -12,8 +13,6 @@ import java.util.ArrayList;
  */
 
 public interface IFlow {
-
-    public FlowData getCurrentQuestionFlowData();
 
     void setCurrent(Question question);
 
@@ -47,8 +46,6 @@ public interface IFlow {
      */
     IFlow update(ResponseData responseData);
 
-    ArrayList<Question> emptyToBeRemovedList();
-
     /**
      * Get's the next question
      * This method also updates the pointer
@@ -57,10 +54,27 @@ public interface IFlow {
      */
     FlowData getNext();
 
-    IBackFlow.BackFlowData getPrevious();
+    IFlow.FlowData getPrevious();
 
     class FlowData {
         public Question question;
         public FlowType flowType;
+
+        public static FlowData getFlowData(Question question) {
+            FlowData flowData = new FlowData();
+            flowData.question = question;
+
+            ChildFlow childFlow = question.getFlowPattern().getChildFlow();
+            ChildFlow.Modes childFlowMode = childFlow.getMode();
+            ChildFlow.UI childFlowUI = childFlow.getUiToBeShown();
+
+            if (childFlowMode == ChildFlow.Modes.TOGETHER) {
+                flowData.flowType = FlowType.TOGETHER;
+                return flowData;
+            }
+
+            flowData.flowType = FlowType.SINGLE;
+            return flowData;
+        }
     }
 }

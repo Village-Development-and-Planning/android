@@ -70,7 +70,7 @@ public class TogetherQuestionPresenterTest {
         ArrayList<Question> questions = Presenter.populateAdapterData(adapterData, root);
 
         assertThat(root.getAnswers().size(), is(1));
-        assertSame(root.getCurrentAnswer().getChildren().get(0), questions.get(0));
+        assertSame(root.getLatestAnswer().getChildren().get(0), questions.get(0));
         assertThat(questions.size(), is(13));
         assertThat(questions.get(8).getRawNumber(), is("7.1.8.1"));
 
@@ -117,7 +117,7 @@ public class TogetherQuestionPresenterTest {
         verify(view).onAnswersUpdated(captor.capture());
 
         assertThat(captor.getValue().getAnswers().get(0).getChildren().get(7).getChildren().get(0).getRawNumber(), is("7.1.8.1"));
-        assertThat(captor.getValue().getAnswers().get(0).getChildren().get(7).getAnswers().get(0).getChildren().get(0).getCurrentAnswer()
+        assertThat(captor.getValue().getAnswers().get(0).getChildren().get(7).getAnswers().get(0).getChildren().get(0).getLatestAnswer()
                         .getOptions().get(0).getId()
                 , is("1"));
     }

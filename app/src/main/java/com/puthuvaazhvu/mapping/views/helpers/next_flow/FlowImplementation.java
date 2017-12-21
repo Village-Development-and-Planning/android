@@ -10,11 +10,9 @@ import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
 import com.puthuvaazhvu.mapping.views.helpers.FlowType;
 import com.puthuvaazhvu.mapping.views.helpers.ResponseData;
-import com.puthuvaazhvu.mapping.views.helpers.back_navigation.BackFlowImplementation;
-import com.puthuvaazhvu.mapping.views.helpers.back_navigation.IBackFlow;
+import com.puthuvaazhvu.mapping.views.helpers.back_navigation.BackNavigation;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import timber.log.Timber;
 
@@ -23,14 +21,12 @@ import timber.log.Timber;
  */
 
 public class FlowImplementation implements IFlow {
-    private final ArrayList<Question> toBeRemoved = new ArrayList<>();
-
     private Question current;
 
-    private IBackFlow iBackFlow;
+    private BackNavigation backNavigation;
 
     private FlowImplementation() {
-        this.iBackFlow = new BackFlowImplementation();
+        this.backNavigation = new BackNavigation();
     }
 
     public FlowImplementation(Question root) {
@@ -56,7 +52,7 @@ public class FlowImplementation implements IFlow {
 
     @Override
     public IFlow finishCurrent() {
-        Answer latestAnswer = current.getCurrentAnswer();
+        Answer latestAnswer = current.getLatestAnswer();
 
         if (latestAnswer != null) {
             Question reference = latestAnswer.getQuestionReference();
@@ -72,11 +68,15 @@ public class FlowImplementation implements IFlow {
 
     @Override
     public IFlow moveToIndex(int index) {
-        Answer latestAnswer = current.getCurrentAnswer();
+        Answer latestAnswer = current.getLatestAnswer();
 
         if (latestAnswer != null) {
             try {
-                setCurrent(latestAnswer.getChildren().get(index));
+                Question current = latestAnswer.getChildren().get(index);
+                setCurrent(current);
+
+                // add to back stack
+                backNavigation.addQuestionToStack(current);
             } catch (IndexOutOfBoundsException e) {
                 throw new IllegalArgumentException("The index " + index + " is not present inside the answers. "
                         + latestAnswer.toString());
@@ -117,13 +117,6 @@ public class FlowImplementation implements IFlow {
     }
 
     @Override
-    public ArrayList<Question> emptyToBeRemovedList() {
-        ArrayList<Question> result = (ArrayList<Question>) toBeRemoved.clone();
-        toBeRemoved.clear();
-        return result;
-    }
-
-    @Override
     public FlowData getNext() {
         FlowData flowData;
         Question nextQuestion = null;
@@ -139,7 +132,7 @@ public class FlowImplementation implements IFlow {
 
                 if (exitFlow.getMode() == ExitFlow.Modes.PARENT) {
 
-                    Question parent = current.getCurrentAnswer().getQuestionReference().getParent();
+                    Question parent = current.getLatestAnswer().getQuestionReference().getParent();
 
                     if (parent == null) {
                         // all question are complete
@@ -169,38 +162,51 @@ public class FlowImplementation implements IFlow {
         } while (nextQuestion == null);
 
         setCurrent(flowData.question);
+        backNavigation.addQuestionToStack(flowData.question);
 
         return flowData;
     }
 
     @Override
-    public IBackFlow.BackFlowData getPrevious() {
-        IBackFlow.BackFlowData backFlowData = iBackFlow.getPreviousQuestion(current);
+    public IFlow.FlowData getPrevious() {
 
-        Question previous = backFlowData.question;
-
-        if (previous != null) {
-            setCurrent(previous);
+        if (backNavigation.isStackEmpty()) {
+            return FlowData.getFlowData(current);
         }
 
-        return backFlowData;
+        Question prev = backNavigation.removeLatest();
+
+        // get the current last question
+        Question current = backNavigation.getLatest();
+
+        if (prev != null) {
+            removeAnswerOfQuestionFromTree(prev);
+            removeAnswerOfQuestionFromTree(current);
+        }
+
+        // set the current question
+        setCurrent(current);
+
+        // construct and return the flow data
+        return FlowData.getFlowData(current);
     }
 
-    public FlowData getCurrentQuestionFlowData() {
-        FlowData flowData = new FlowData();
-        flowData.question = current;
-
-        ChildFlow childFlow = current.getFlowPattern().getChildFlow();
-        ChildFlow.Modes childFlowMode = childFlow.getMode();
-        ChildFlow.UI childFlowUI = childFlow.getUiToBeShown();
-
-        if (childFlowMode == ChildFlow.Modes.TOGETHER) {
-            flowData.flowType = FlowType.TOGETHER;
-            return flowData;
+    public void removeAnswerOfQuestionFromTree(Question toRemove) {
+        if (toRemove.isRoot()) {
+            Timber.e("Cannot remove the root question. " + toRemove.toString());
+            return;
         }
 
-        flowData.flowType = FlowType.SINGLE;
-        return flowData;
+        Answer parentAnswer = toRemove.getParentAnswer();
+
+        for (Question c : parentAnswer.getChildren()) {
+            if (c == toRemove) {
+                // remove all the answers
+                c.removeAnswer();
+                Timber.i("Removed answer for question " + c.toString());
+                break;
+            }
+        }
     }
 
     private FlowData getNextInternal(Question current) {
@@ -231,7 +237,7 @@ public class FlowImplementation implements IFlow {
             return flowData;
         }
 
-        Answer latestAnswer = current.getCurrentAnswer();
+        Answer latestAnswer = current.getLatestAnswer();
 
         // if the current question does'nt have an answer make it the current one.
         if (latestAnswer == null) {
@@ -245,7 +251,6 @@ public class FlowImplementation implements IFlow {
 
         for (Question c : children) {
             if (shouldSkip(c)) {
-                addToRemovedList(c);
                 continue;
             }
 
@@ -270,21 +275,6 @@ public class FlowImplementation implements IFlow {
         }
 
         return flowData;
-    }
-
-    private void addToRemovedList(Question question) {
-        toBeRemoved.add(question);
-
-        // to avoid out of memory error
-        if (toBeRemoved.size() > 100) {
-            Iterator iterator = toBeRemoved.iterator();
-            int i = 0;
-            while (i < 50) {
-                iterator.next();
-                iterator.remove();
-                i++;
-            }
-        }
     }
 
 
@@ -316,8 +306,8 @@ public class FlowImplementation implements IFlow {
 
             Question foundForSkipPattern = question.findAnsweredQuestion(preFlowQuestionNumber);
 
-            if (foundForSkipPattern.getCurrentAnswer() != null) {
-                shouldSkip = !doesSkipPatternMatchInQuestion(optionsSkip, foundForSkipPattern.getCurrentAnswer());
+            if (foundForSkipPattern != null && foundForSkipPattern.getLatestAnswer() != null) {
+                shouldSkip = !doesSkipPatternMatchInQuestion(optionsSkip, foundForSkipPattern.getLatestAnswer());
             } else {
                 // if no question found then skip
                 shouldSkip = true;

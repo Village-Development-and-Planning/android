@@ -6,7 +6,6 @@ import android.text.TextUtils;
 import com.crashlytics.android.Crashlytics;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.data.SurveyDataRepository;
-import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Text;
 import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
@@ -29,7 +28,6 @@ import com.puthuvaazhvu.mapping.views.helpers.back_navigation.IBackFlow;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
@@ -201,8 +199,8 @@ public class MainPresenter implements Contract.UserAction {
 
     @Override
     public void showCurrent() {
-        IFlow.FlowData flowData = flowHelper.getCurrentQuestionFlowData();
-        showUI(flowData, flowData.question);
+        IFlow.FlowData flowData = IFlow.FlowData.getFlowData(flowHelper.getCurrent());
+        showUI(flowData);
     }
 
     @Override
@@ -250,19 +248,7 @@ public class MainPresenter implements Contract.UserAction {
             }
         }
 
-//        if (question != null) {
-//
-//            ChildFlow childFlow = question.getFlowPattern().getChildFlow();
-//
-//            if (childFlow != null) {
-//                if (childFlow.getMode() == ChildFlow.Modes.TOGETHER) {
-//                    activityView.shouldShowTogetherQuestion(question, QuestionData.adapter(question));
-//                    return;
-//                }
-//            }
-//        }
-
-        showUI(flowData, question);
+        showUI(flowData);
     }
 
     @Override
@@ -272,18 +258,12 @@ public class MainPresenter implements Contract.UserAction {
             return;
         }
 
-        IBackFlow.BackFlowData backFlowData = flowHelper.getPrevious();
-
-        Question previous = backFlowData.question;
-
-        if (previous == null) {
-            activityView.onError(R.string.cannot_go_back);
-        } else {
-            showSingleQuestionUI(previous);
-        }
+        IFlow.FlowData flowData = flowHelper.getPrevious();
+        showUI(flowData);
     }
 
-    private void showUI(IFlow.FlowData flowData, Question question) {
+    private void showUI(IFlow.FlowData flowData) {
+        Question question = flowData.question;
         // only if grid for children, show grid. else show normal question view
         if (flowData.flowType == FlowType.GRID) {
             showGridUI(question);
@@ -317,7 +297,7 @@ public class MainPresenter implements Contract.UserAction {
 
     private void showGridUI(Question question) {
         // get the children of the latest answer
-        ArrayList<Question> children = question.getCurrentAnswer().getChildren();
+        ArrayList<Question> children = question.getLatestAnswer().getChildren();
         ArrayList<GridQuestionData> data = GridQuestionData.adapter(children);
         activityView.shouldShowGrid(QuestionData.adapter(question), data);
     }
@@ -347,12 +327,6 @@ public class MainPresenter implements Contract.UserAction {
             default:
                 activityView.shouldShowSingleQuestion(questionData);
         }
-    }
-
-    private void removeQuestionsFromStack() {
-        ArrayList<Question> toBeRemoved = flowHelper.emptyToBeRemovedList();
-        if (!toBeRemoved.isEmpty())
-            activityView.remove(toBeRemoved);
     }
 
 }

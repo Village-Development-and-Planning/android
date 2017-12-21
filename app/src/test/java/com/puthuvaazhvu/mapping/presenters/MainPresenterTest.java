@@ -7,7 +7,6 @@ import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.flow.FlowPattern;
 import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
 import com.puthuvaazhvu.mapping.modals.Question;
-import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
 import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
 import com.puthuvaazhvu.mapping.views.activities.main.Contract;
@@ -78,7 +77,7 @@ public class MainPresenterTest {
         when(questionMock.getChildren()).thenReturn(new ArrayList<Question>());
         when(questionMock.getFlowPattern()).thenReturn(mockFlowPattern);
         when(questionMock.getRawNumber()).thenReturn("1");
-        when(questionMock.getCurrentAnswer()).thenReturn(new Answer(null, null));
+        when(questionMock.getLatestAnswer()).thenReturn(new Answer(null, null));
     }
 
     @Test
@@ -144,9 +143,9 @@ public class MainPresenterTest {
         mainPresenter.setSurveyQuestionFlow(flowHelper);
 
         // test for error
-        IBackFlow.BackFlowData backFlowData = new IBackFlow.BackFlowData();
-        backFlowData.question = null;
-        when(flowHelper.getPrevious()).thenReturn(backFlowData);
+        IFlow.FlowData flowData = new IFlow.FlowData();
+        flowData.question = null;
+        when(flowHelper.getPrevious()).thenReturn(flowData);
 
         mainPresenter.getPrevious();
 
@@ -155,9 +154,10 @@ public class MainPresenterTest {
         ArgumentCaptor<QuestionData> captor = ArgumentCaptor.forClass(QuestionData.class);
 
         // test for success
-        backFlowData = new IBackFlow.BackFlowData();
-        backFlowData.question = questionMock;
-        when(flowHelper.getPrevious()).thenReturn(backFlowData);
+        flowData = new IFlow.FlowData();
+        flowData.question = questionMock;
+        flowData.flowType = FlowType.SINGLE;
+        when(flowHelper.getPrevious()).thenReturn(flowData);
 
         mainPresenter.getPrevious();
 
