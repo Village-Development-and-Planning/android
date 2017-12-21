@@ -2,12 +2,14 @@ package com.puthuvaazhvu.mapping.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.view.Gravity;
 import android.widget.Toast;
 
@@ -30,6 +32,25 @@ import timber.log.Timber;
 public class Utils {
     public static String generateRandomUUID() {
         return String.valueOf(UUID.randomUUID());
+    }
+
+    public static AlertDialog createAlertDialog(
+            Context context,
+            String message,
+            DialogInterface.OnClickListener positiveButtonClickListener,
+            DialogInterface.OnClickListener negativeButtonClickListener
+    ) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setMessage(message);
+
+        if (positiveButtonClickListener != null)
+            builder.setPositiveButton("OKAY", positiveButtonClickListener);
+        if (negativeButtonClickListener != null)
+            builder.setNegativeButton("CANCEL", negativeButtonClickListener);
+
+        AlertDialog alertDialog = builder.create();
+
+        return alertDialog;
     }
 
     public static String getErrorMessage(int id, Context context) {

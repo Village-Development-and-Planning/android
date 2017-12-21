@@ -18,6 +18,7 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.puthuvaazhvu.mapping.R;
+import com.puthuvaazhvu.mapping.application.MappingApplication;
 import com.puthuvaazhvu.mapping.data.SurveyDataRepository;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.network.APIs;
@@ -30,7 +31,7 @@ import com.puthuvaazhvu.mapping.utils.info_file.SurveyInfoFile;
 import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
 import com.puthuvaazhvu.mapping.utils.storage.PrefsStorage;
 import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
-import com.puthuvaazhvu.mapping.views.activities.BaseDataActivity;
+import com.puthuvaazhvu.mapping.views.activities.MenuActivity;
 import com.puthuvaazhvu.mapping.views.activities.main.MainActivity;
 import com.puthuvaazhvu.mapping.views.activities.save_survey_data.*;
 import com.puthuvaazhvu.mapping.views.dialogs.ProgressDialog;
@@ -45,7 +46,7 @@ import timber.log.Timber;
  * Created by muthuveerappans on 10/30/17.
  */
 
-public class SurveyListActivity extends BaseDataActivity
+public class SurveyListActivity extends MenuActivity
         implements View.OnClickListener, Contract.View {
 
     private ProgressDialog progressDialog;
@@ -148,7 +149,8 @@ public class SurveyListActivity extends BaseDataActivity
     }
 
     public void showSurveyDoneDialog(final SurveyListData.SurveySnapShot snapshot, final String surveyID) {
-        AlertDialog alertDialog = createAlertDialog(
+        AlertDialog alertDialog = Utils.createAlertDialog(
+                this,
                 getString(R.string.survey_override_dialog_message),
                 new DialogInterface.OnClickListener() {
                     @Override
@@ -169,7 +171,8 @@ public class SurveyListActivity extends BaseDataActivity
     }
 
     public void showSurveyOngoingDialog(final SurveyListData.SurveySnapShot snapshot, final String surveyName) {
-        createAlertDialog(
+        Utils.createAlertDialog(
+                this,
                 String.format(getString(R.string.survey_ongoing_dialog_message), surveyName),
                 new DialogInterface.OnClickListener() {
                     @Override
@@ -185,22 +188,6 @@ public class SurveyListActivity extends BaseDataActivity
                     }
                 }
         ).show();
-    }
-
-    private AlertDialog createAlertDialog(
-            String message,
-            DialogInterface.OnClickListener positiveButtonClickListener,
-            DialogInterface.OnClickListener negativeButtonClickListener
-    ) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(message);
-
-        builder.setPositiveButton("OKAY", positiveButtonClickListener);
-        builder.setNegativeButton("CANCEL", negativeButtonClickListener);
-
-        AlertDialog alertDialog = builder.create();
-
-        return alertDialog;
     }
 
     private void openMainSurveyActivity() {
@@ -231,9 +218,10 @@ public class SurveyListActivity extends BaseDataActivity
         Timber.i("Survey loaded : " + survey.getId());
 
         if (snapshot != null)
-            applicationData.setSurvey(survey, snapshot.getSnapshotID(), snapshot.getPath());
+            MappingApplication.globalContext.getApplicationData()
+                    .setSurvey(survey, snapshot.getSnapshotID(), snapshot.getPath());
         else
-            applicationData.setSurvey(survey, null, null);
+            MappingApplication.globalContext.getApplicationData().setSurvey(survey, null, null);
 
         openMainSurveyActivity();
     }

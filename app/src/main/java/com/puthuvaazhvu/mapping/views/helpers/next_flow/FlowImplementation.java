@@ -1,24 +1,17 @@
 package com.puthuvaazhvu.mapping.views.helpers.next_flow;
 
-import android.support.annotation.VisibleForTesting;
-
 import com.puthuvaazhvu.mapping.modals.Answer;
-import com.puthuvaazhvu.mapping.modals.Text;
 import com.puthuvaazhvu.mapping.modals.flow.AnswerFlow;
 import com.puthuvaazhvu.mapping.modals.flow.ChildFlow;
 import com.puthuvaazhvu.mapping.modals.flow.ExitFlow;
-import com.puthuvaazhvu.mapping.modals.flow.FlowPattern;
 import com.puthuvaazhvu.mapping.modals.flow.PreFlow;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
-import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
 import com.puthuvaazhvu.mapping.views.helpers.FlowType;
 import com.puthuvaazhvu.mapping.views.helpers.ResponseData;
 import com.puthuvaazhvu.mapping.views.helpers.back_navigation.BackFlowImplementation;
 import com.puthuvaazhvu.mapping.views.helpers.back_navigation.IBackFlow;
-
-import org.apache.commons.collections4.queue.CircularFifoQueue;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -30,10 +23,6 @@ import timber.log.Timber;
  */
 
 public class FlowImplementation implements IFlow {
-    private static final int STACK_SIZE = 50; // max question count the stack can hold
-
-    private final CircularFifoQueue<Answer> stack; // holds the answered questions (irrespective of copies)
-
     private final ArrayList<Question> toBeRemoved = new ArrayList<>();
 
     private Question current;
@@ -41,7 +30,6 @@ public class FlowImplementation implements IFlow {
     private IBackFlow iBackFlow;
 
     private FlowImplementation() {
-        stack = new CircularFifoQueue<>(STACK_SIZE);
         this.iBackFlow = new BackFlowImplementation();
     }
 
@@ -60,51 +48,6 @@ public class FlowImplementation implements IFlow {
             setCurrent(question);
         }
     }
-
-//    private void moveToQuestion(Question root, String snapshotPath) {
-//
-//        boolean exception = false;
-//
-//        String[] indexesInString = snapshotPath.split(",");
-//        ArrayList<Integer> indexes = new ArrayList<>();
-//
-//        for (int i = 0; i < indexesInString.length; i++) {
-//            try {
-//                indexes.add(Integer.parseInt(indexesInString[i]));
-//            } catch (NumberFormatException e) {
-//                Timber.e("Error occurred while parsing snapshot path: " + snapshotPath + " error:" + e.getMessage());
-//            }
-//        }
-//
-//        Question question = root;
-//        Answer answer = null;
-//
-//        // we don't want to consider ROOT index and last answer index(if present)
-//        // make sure we always end with a question.
-//        for (int i = 1; i < (indexes.size() / 2 == 0 ? indexes.size() - 1 : indexes.size()); i++) {
-//
-//            int index = indexes.get(i);
-//
-//            if (i % 2 == 0 && answer != null) {
-//                // children
-//                question = answer.getChildren().get(index);
-//            } else {
-//                // answer
-//                answer = question.getAnswers().get(index);
-//            }
-//
-//            if (answer == null) {
-//                exception = true;
-//                break;
-//            }
-//        }
-//
-//        if (exception) {
-//            setCurrent(root);
-//        } else {
-//            setCurrent(question);
-//        }
-//    }
 
     @Override
     public Question getCurrent() {
@@ -167,9 +110,6 @@ public class FlowImplementation implements IFlow {
         Timber.i("Done creation of answers. Time taken: " + (System.currentTimeMillis() - startTime) + "ms");
 
         current.setAnswer(answer);
-
-        // add answered question to the stack
-        stack.add(answer);
 
         Timber.i("Answer created info :\n" + answer.toString());
 
@@ -359,7 +299,7 @@ public class FlowImplementation implements IFlow {
                 question.isFinished();
     }
 
-    private boolean shouldSkipBasedOnSkipPattern(Question question) {
+    public static boolean shouldSkipBasedOnSkipPattern(Question question) {
         boolean shouldSkip = false;
 
         // skip pattern
@@ -374,7 +314,7 @@ public class FlowImplementation implements IFlow {
 
             ArrayList<String> optionsSkip = preFlow.getOptionSkip();
 
-            Question foundForSkipPattern = question.findQuestion(preFlowQuestionNumber);
+            Question foundForSkipPattern = question.findAnsweredQuestion(preFlowQuestionNumber);
 
             if (foundForSkipPattern.getCurrentAnswer() != null) {
                 shouldSkip = !doesSkipPatternMatchInQuestion(optionsSkip, foundForSkipPattern.getCurrentAnswer());
@@ -382,19 +322,12 @@ public class FlowImplementation implements IFlow {
                 // if no question found then skip
                 shouldSkip = true;
             }
-
-//            // search for the question in the answered stack
-//            Answer preFlowAnswer = getQuestionForSkip(preFlowQuestionNumber);
-//
-//            if (preFlowAnswer != null) {
-//                shouldSkip = !doesSkipPatternMatchInQuestion(optionsSkip, preFlowAnswer);
-//            }
         }
 
         return shouldSkip;
     }
 
-    private boolean shouldSkipBasedOnAnswerScope(Question question) {
+    public static boolean shouldSkipBasedOnAnswerScope(Question question) {
         boolean shouldSkip = false;
         AnswerFlow.Modes answerMode = question.getFlowPattern().getAnswerFlow().getMode();
 
@@ -407,36 +340,26 @@ public class FlowImplementation implements IFlow {
         return shouldSkip;
     }
 
-    private Answer getQuestionForSkip(String rawQuestionNumber) {
-        for (int i = stack.size() - 1; i >= 0; i--) {
-            Answer answer = stack.get(i);
-            Question question = answer.getQuestionReference();
-            if (question.getRawNumber() != null && question.getRawNumber().equals(rawQuestionNumber)) {
-                return answer;
-            }
-        }
-        return null;
-    }
-
     public static boolean doesSkipPatternMatchInQuestion(ArrayList<String> optionsSkipPositions, Answer toCheckAnswer) {
-        int correctness = 0;
+        if (optionsSkipPositions == null || toCheckAnswer == null) {
+            return false;
+        }
+
+        boolean skipPatternMatch = false;
         ArrayList<Option> loggedOptions = toCheckAnswer.getOptions();
         for (Option option : loggedOptions) {
             for (String o : optionsSkipPositions) {
                 if (option.getPosition() != null && option.getPosition().equals(o)) {
-                    correctness++;
+                    skipPatternMatch = true;
+                    break;
                 }
             }
         }
-        return correctness == optionsSkipPositions.size();
+        return skipPatternMatch;
     }
 
-    private void setCurrent(Question current) {
-        this.current = current;
-    }
-
-    @VisibleForTesting
-    public void setCurrentForTesting(Question current) {
+    @Override
+    public void setCurrent(Question current) {
         this.current = current;
     }
 

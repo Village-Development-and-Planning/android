@@ -83,6 +83,11 @@ public interface Contract {
     }
 
     interface UserAction {
+
+        Question getCurrent();
+
+        void setCurrent(Question question);
+
         /**
          * Get's the survey from the {@link com.puthuvaazhvu.mapping.data.SurveyDataRepository}
          */

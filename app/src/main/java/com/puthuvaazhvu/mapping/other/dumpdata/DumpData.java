@@ -1,5 +1,6 @@
 package com.puthuvaazhvu.mapping.other.dumpdata;
 
+import com.puthuvaazhvu.mapping.application.MappingApplication;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.utils.DataFileHelpers;
 import com.puthuvaazhvu.mapping.utils.Optional;
@@ -41,6 +42,7 @@ public class DumpData {
         answersInfoFile = new AnswersInfoFile(getFromFile, saveToFile);
     }
 
+    // this method also saves the data to global application data
     public Single<Optional> dumpSurvey(
             final Survey survey,
             final String snapShotID,
@@ -66,21 +68,34 @@ public class DumpData {
                                     public SingleSource<? extends Optional> apply(@NonNull Optional optional) throws Exception {
 
                                         ArrayList<AnswerDataModal.Snapshot> snapshots = new ArrayList<>();
-                                        snapshots.add(
-                                                new AnswerDataModal.Snapshot(
-
-                                                        fileName,
-                                                        survey.getName(),
-                                                        pathToLastAnsweredQuestion,
-                                                        isSurveyIncomplete,
-                                                        "" + System.currentTimeMillis()
-                                                )
+                                        final AnswerDataModal.Snapshot snapshot = new AnswerDataModal.Snapshot(
+                                                fileName,
+                                                survey.getName(),
+                                                pathToLastAnsweredQuestion,
+                                                isSurveyIncomplete,
+                                                "" + System.currentTimeMillis()
                                         );
+                                        snapshots.add(snapshot);
 
-                                        AnswerDataModal answerDataModal =
+                                        final AnswerDataModal answerDataModal =
                                                 new AnswerDataModal(survey.getId(), isSurveyDone, snapshots);
 
-                                        return answersInfoFile.updateSurvey(answerDataModal);
+                                        return answersInfoFile.updateSurvey(answerDataModal)
+                                                .map(new Function<Optional, Optional>() {
+                                                    @Override
+                                                    public Optional apply(@NonNull Optional optional) throws Exception {
+
+                                                        // save the application data
+                                                        MappingApplication.globalContext
+                                                                .getApplicationData()
+                                                                .setSurvey(
+                                                                        survey,
+                                                                        snapshot.getSnapshotId(),
+                                                                        snapshot.getPathToLastQuestion());
+
+                                                        return new Optional(null);
+                                                    }
+                                                });
 
                                     }
                                 });

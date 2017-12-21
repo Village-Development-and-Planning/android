@@ -2,6 +2,7 @@ package com.puthuvaazhvu.mapping.views.activities.main;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -9,9 +10,11 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.view.MenuItem;
 
 import com.puthuvaazhvu.mapping.R;
+import com.puthuvaazhvu.mapping.application.MappingApplication;
 import com.puthuvaazhvu.mapping.data.SurveyDataRepository;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
@@ -23,7 +26,7 @@ import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
 import com.puthuvaazhvu.mapping.utils.storage.PrefsStorage;
 import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
-import com.puthuvaazhvu.mapping.views.activities.BaseDataActivity;
+import com.puthuvaazhvu.mapping.views.activities.MenuActivity;
 import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListActivity;
 import com.puthuvaazhvu.mapping.views.dialogs.ProgressDialog;
 import com.puthuvaazhvu.mapping.views.fragments.question.fragment.ConformationQuestionFragment;
@@ -49,9 +52,10 @@ import com.puthuvaazhvu.mapping.views.managers.receiver.StackFragmentManagerRece
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+import okhttp3.internal.Util;
 import timber.log.Timber;
 
-public class MainActivity extends BaseDataActivity
+public class MainActivity extends MenuActivity
         implements Contract.View,
         FragmentCommunicationInterface {
 
@@ -72,18 +76,20 @@ public class MainActivity extends BaseDataActivity
 
     private boolean defaultBackPressed = false;
 
-    private BroadcastReceiver dataDumpAckBroadcast;
-
     private RepeatingTask repeatingTask;
 
     private boolean dumpSurveyRepeatingTask = true;
 
     private Handler handler;
 
+    private DataFragment dataFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        dataFragment = DataFragment.getInstance(getSupportFragmentManager());
 
         progressDialog = new ProgressDialog();
         // progressDialog.setCancelable(false);
@@ -116,7 +122,7 @@ public class MainActivity extends BaseDataActivity
 //            presenter.loadSurvey(latestSurveyID);
 //        }
 
-        onSurveyLoaded(applicationData.getSurvey());
+        onSurveyLoaded(MappingApplication.globalContext.getApplicationData().getSurvey());
 
         repeatingTask = new RepeatingTask(handler, new Runnable() {
             @Override
@@ -161,13 +167,10 @@ public class MainActivity extends BaseDataActivity
             return;
         }
 
-        // set the global application data
-        // applicationData.setSurvey(survey);
-
         Question root = survey.getRootQuestion();
 
-        if (applicationData.getSnapshotPath() != null) {
-            iFlow = new FlowImplementation(root, applicationData.getSnapshotPath());
+        if (MappingApplication.globalContext.getApplicationData().getSnapshotPath() != null) {
+            iFlow = new FlowImplementation(root, MappingApplication.globalContext.getApplicationData().getSnapshotPath());
             flowHelper = new FlowHelper(iFlow);
             presenter.initData(survey, flowHelper);
             presenter.showCurrent();
@@ -182,40 +185,28 @@ public class MainActivity extends BaseDataActivity
     @Override
     protected void onResume() {
         super.onResume();
-
-        registerDataDumpAckBroadcast();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterDataDumpAckBroadcast();
         repeatingTask.stop();
     }
 
-    private void registerDataDumpAckBroadcast() {
-        IntentFilter intentFilter = new IntentFilter(Constants.INTENT_FILTERS.DUMP_SERVICE_END_BROADCAST);
-
-        dataDumpAckBroadcast = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                Timber.i("Data dump ack broadcast received");
-                boolean err = intent.getExtras().getBoolean("err_status");
-                hideLoading();
-                if (err) {
-                    Timber.e(intent.getExtras().getString("msg"));
-                    onError(R.string.error_saving_survey);
-                } else {
-                    showMessage(R.string.save_successful);
-                }
-            }
-        };
-
-        registerReceiver(dataDumpAckBroadcast, intentFilter);
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        dataFragment.setCurrentQuestion(presenter.getCurrent());
     }
 
-    private void unregisterDataDumpAckBroadcast() {
-        unregisterReceiver(dataDumpAckBroadcast);
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        Question question = dataFragment.getCurrentQuestion();
+        if (question != null) {
+            presenter.setCurrent(question);
+            presenter.showCurrent();
+        }
     }
 
     @Override
@@ -275,6 +266,11 @@ public class MainActivity extends BaseDataActivity
     @Override
     public void onSurveySaved(Survey survey) {
         Timber.i("Survey saved successfully.");
+        if (paused) {
+            return;
+        }
+
+        // update application data here
     }
 
     @Override
@@ -288,8 +284,22 @@ public class MainActivity extends BaseDataActivity
 
     @Override
     public void openListOfSurveysActivity() {
-        defaultBackPressed = true;
-        startListOfSurveysActivity();
+        if (paused) {
+            return;
+        }
+
+        AlertDialog alertDialog = Utils.createAlertDialog(
+                this,
+                getString(R.string.survey_complete),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        defaultBackPressed = true;
+                        startListOfSurveysActivity();
+                    }
+                }, null);
+        alertDialog.setCancelable(false);
+        alertDialog.show();
     }
 
     @Override
@@ -308,6 +318,10 @@ public class MainActivity extends BaseDataActivity
 
     @Override
     public void showLoading(int messageID) {
+        if (paused) {
+            return;
+        }
+
         if (progressDialog.isVisible() || progressDialog.isAdded()) {
             progressDialog.dismiss();
         }

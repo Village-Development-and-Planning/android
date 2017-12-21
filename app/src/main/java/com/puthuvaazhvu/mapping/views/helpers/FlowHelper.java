@@ -37,6 +37,10 @@ public class FlowHelper {
         return iFlow.getCurrent();
     }
 
+    public void setCurrent(Question question) {
+        iFlow.setCurrent(question);
+    }
+
     public IBackFlow.BackFlowData getPrevious() {
         return iFlow.getPrevious();
     }

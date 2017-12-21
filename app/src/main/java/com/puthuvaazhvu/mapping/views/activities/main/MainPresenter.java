@@ -73,6 +73,16 @@ public class MainPresenter implements Contract.UserAction {
     }
 
     @Override
+    public Question getCurrent() {
+        return flowHelper.getCurrent();
+    }
+
+    @Override
+    public void setCurrent(Question question) {
+        flowHelper.setCurrent(question);
+    }
+
+    @Override
     public void loadSurvey(final String surveyID) {
 
         activityView.showLoading(R.string.loading);

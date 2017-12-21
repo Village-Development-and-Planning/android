@@ -52,6 +52,13 @@ public class QuestionData implements Parcelable {
         this.responseData = responseOptionData;
     }
 
+    public static QuestionData adapter(Question question) {
+        SingleQuestion q = SingleQuestion.adapter(question);
+        OptionData optionOptionData
+                = OptionData.adapter(question);
+        return new QuestionData(q, optionOptionData);
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -62,19 +69,25 @@ public class QuestionData implements Parcelable {
         dest.writeParcelable(this.singleQuestion, flags);
         dest.writeParcelable(this.optionOptionData, flags);
         dest.writeParcelable(this.responseData, flags);
+        dest.writeInt(this.position);
     }
 
     protected QuestionData(Parcel in) {
         this.singleQuestion = in.readParcelable(SingleQuestion.class.getClassLoader());
         this.optionOptionData = in.readParcelable(OptionData.class.getClassLoader());
         this.responseData = in.readParcelable(OptionData.class.getClassLoader());
+        this.position = in.readInt();
     }
 
-    public static QuestionData adapter(Question question) {
-        SingleQuestion q = SingleQuestion.adapter(question);
-        OptionData optionOptionData
-                = OptionData.adapter(question);
-        return new QuestionData(q, optionOptionData);
-    }
+    public static final Creator<QuestionData> CREATOR = new Creator<QuestionData>() {
+        @Override
+        public QuestionData createFromParcel(Parcel source) {
+            return new QuestionData(source);
+        }
 
+        @Override
+        public QuestionData[] newArray(int size) {
+            return new QuestionData[size];
+        }
+    };
 }

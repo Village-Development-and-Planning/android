@@ -15,6 +15,8 @@ public interface IFlow {
 
     public FlowData getCurrentQuestionFlowData();
 
+    void setCurrent(Question question);
+
     /**
      * Gets the current question that the imaginary pointer is pointing to
      *

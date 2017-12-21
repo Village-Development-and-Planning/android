@@ -16,7 +16,7 @@ import timber.log.Timber;
 
 public class MappingApplication extends Application {
 
-    public static ApplicationData applicationData;
+    public static GlobalContext globalContext;
 
     @Override
     public void onCreate() {
@@ -29,6 +29,6 @@ public class MappingApplication extends Application {
 
         Fabric.with(this, new Crashlytics());
 
-        applicationData = ApplicationData.getInstance();
+        globalContext = GlobalContext.getInstance();
     }
 }

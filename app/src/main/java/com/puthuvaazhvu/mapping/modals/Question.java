@@ -85,7 +85,7 @@ public class Question extends BaseObject implements Parcelable {
         parent = other.getParent();
     }
 
-    public Question(JsonObject json) {
+    private Question(JsonObject json) {
         this.position = JsonHelper.getString(json, "position");
 
         JsonObject questionJson = JsonHelper.getJsonObject(json, "question");
@@ -270,7 +270,7 @@ public class Question extends BaseObject implements Parcelable {
         return findInTreeInternal(predicate, this);
     }
 
-    private Question findInTreeInternal(QuestionTreeSearchPredicate predicate, Question question) {
+    public static Question findInTreeInternal(QuestionTreeSearchPredicate predicate, Question question) {
 
         if (predicate.evaluate(question)) {
             return question;
@@ -291,30 +291,31 @@ public class Question extends BaseObject implements Parcelable {
         return result;
     }
 
-    public Question findQuestion(String rawNumber) {
-        return findQuestionInternal(this, null, rawNumber);
+    public Question findAnsweredQuestion(String rawNumber) {
+        return findAnsweredQuestionInternal(this, null, rawNumber);
     }
 
-    private static Question findQuestionInternal(Question node, Answer nodeAnswer, String rawNumber) {
+    private static Question findAnsweredQuestionInternal(Question node, Answer nodeAnswer, String rawNumber) {
 
-        if (rawNumber.contains(node.getRawNumber())) {
+        if (node.isRoot() || rawNumber.contains(node.getRawNumber())) {
             // search in this node to get the question.
-
-            // if the numbers are equal then this is the question
-            if (node.getRawNumber().equals(rawNumber)) {
-                return node;
-            }
 
             if (nodeAnswer == null) {
                 return null;
+            }
+
+            // if the numbers are equal then this is the question
+            if (!node.isRoot() && node.getRawNumber().equals(rawNumber)) {
+                return node;
             }
 
             Question question = null;
 
             // traverse through the children
             for (Question c : nodeAnswer.getChildren()) {
-                if (c.getRawNumber().equals(rawNumber)) {
-                    question = c;
+                if (rawNumber.contains(c.getRawNumber())) {
+                    question = findAnsweredQuestionInternal(c, c.getCurrentAnswer(), rawNumber);
+                    break;
                 }
             }
 
@@ -324,7 +325,7 @@ public class Question extends BaseObject implements Parcelable {
             // move to the parent
             Answer parentAnswer = node.getParentAnswer();
             Question parent = parentAnswer.getQuestionReference();
-            return findQuestionInternal(parent, parentAnswer, rawNumber);
+            return findAnsweredQuestionInternal(parent, parentAnswer, rawNumber);
         }
 
     }

@@ -2,12 +2,15 @@ package com.puthuvaazhvu.mapping.helpers;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.puthuvaazhvu.mapping.modals.Answer;
+import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.utils.info_file.modals.AnswersInfoFileDataModal;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Random;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -71,13 +74,26 @@ public class ModalHelpers {
         return getJson(obj, "answers_data_1.json");
     }
 
-    private static JsonObject getJson(Object obj, String fileName) {
+    public static JsonObject getJson(Object obj, String fileName) {
         String jsonString = Utils.readFromInputStream(getDataFormFile(obj, fileName));
 
         assertThat(jsonString, notNullValue());
 
         JsonParser jsonParser = new JsonParser();
         return jsonParser.parse(jsonString).getAsJsonObject();
+    }
+
+    public static void setDummyAnswersForAllQuestions(Question node) {
+
+        ArrayList<Option> options = new ArrayList<>();
+        options.add(new Option("", "", null, "", "-1"));
+
+        Answer answer = new Answer(options, node);
+        node.setAnswer(answer);
+
+        for (Question q : answer.getChildren()) {
+            setDummyAnswersForAllQuestions(q);
+        }
     }
 
     private static InputStream getDataFormFile(Object obj, String fileName) {

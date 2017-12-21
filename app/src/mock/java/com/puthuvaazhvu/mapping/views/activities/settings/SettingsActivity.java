@@ -11,7 +11,7 @@ import android.widget.Switch;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.Utils;
-import com.puthuvaazhvu.mapping.views.activities.BaseDataActivity;
+import com.puthuvaazhvu.mapping.views.activities.MenuActivity;
 import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListActivity;
 import com.puthuvaazhvu.mapping.views.activities.testing.TogetherQuestionTestFragmentActivity;
 import com.puthuvaazhvu.mapping.views.dialogs.ProgressDialog;
@@ -20,7 +20,7 @@ import com.puthuvaazhvu.mapping.views.dialogs.ProgressDialog;
  * Created by muthuveerappans on 11/1/17.
  */
 
-public class SettingsActivity extends BaseDataActivity implements View.OnClickListener {
+public class SettingsActivity extends MenuActivity implements View.OnClickListener {
     Button show_list_of_surveys_btn;
     ProgressDialog progressDialog;
 

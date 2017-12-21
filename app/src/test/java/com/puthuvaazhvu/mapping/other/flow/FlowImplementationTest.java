@@ -1,6 +1,9 @@
 package com.puthuvaazhvu.mapping.other.flow;
 
+import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.helpers.ModalHelpers;
+import com.puthuvaazhvu.mapping.modals.Answer;
+import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.views.fragments.option.modals.OptionData;
@@ -69,7 +72,7 @@ public class FlowImplementationTest {
     @Test
     public void test_update_method() {
         Question question = root.getChildren().get(0);
-        flowImplementation.setCurrentForTesting(question);
+        flowImplementation.setCurrent(question);
         QuestionData data = QuestionData.adapter(question);
 
         assertThat(question.getRawNumber(), is("1"));
@@ -99,7 +102,7 @@ public class FlowImplementationTest {
 
         //                           -- answer scope multiple ---
         question = root.getChildren().get(1).getChildren().get(1).getChildren().get(6).getChildren().get(0);
-        flowImplementation.setCurrentForTesting(question);
+        flowImplementation.setCurrent(question);
         data = QuestionData.adapter(question);
 
         assertThat(question.getRawNumber(), is("2.1.7.3"));
@@ -126,7 +129,7 @@ public class FlowImplementationTest {
     @Test
     public void test_moveToIndex_method() {
         Question question = root.getChildren().get(0);
-        flowImplementation.setCurrentForTesting(question);
+        flowImplementation.setCurrent(question);
         QuestionData data = QuestionData.adapter(question);
 
         // add mock answer
@@ -147,7 +150,7 @@ public class FlowImplementationTest {
     @Test
     public void test_getNext_gridFlow() {
         Question question = root.getChildren().get(1).getChildren().get(1).getChildren().get(6);
-        flowImplementation.setCurrentForTesting(question);
+        flowImplementation.setCurrent(question);
         QuestionData data = QuestionData.adapter(question);
 
         assertThat(question.getRawNumber(), is("2.1.7"));
@@ -190,7 +193,7 @@ public class FlowImplementationTest {
     @Test
     public void test_loopFlow_multiple() {
         Question question = root.getChildren().get(1).getChildren().get(1);
-        flowImplementation.setCurrentForTesting(question);
+        flowImplementation.setCurrent(question);
         QuestionData data = QuestionData.adapter(question);
 
         assertThat(question.getRawNumber(), is("2.1"));
@@ -213,7 +216,7 @@ public class FlowImplementationTest {
             q.setFinished(true);
         }
 
-        flowImplementation.setCurrentForTesting(current);
+        flowImplementation.setCurrent(current);
         IFlow.FlowData flowData = flowImplementation.getNext();
 
         assertThat(flowData.flowType, is(FlowType.SINGLE));
@@ -231,7 +234,7 @@ public class FlowImplementationTest {
 
         // *** ROOT ***
         Question question = root;
-        flowImplementation.setCurrentForTesting(question);
+        flowImplementation.setCurrent(question);
         QuestionData data = QuestionData.adapter(question);
 
         assertThat(question.getType(), is("ROOT"));
@@ -252,7 +255,7 @@ public class FlowImplementationTest {
 
         // *** 2 ***
         question = children.get(1);
-        flowImplementation.setCurrentForTesting(question);
+        flowImplementation.setCurrent(question);
         data = QuestionData.adapter(question);
 
         assertThat(question.getRawNumber(), is("2"));
@@ -282,7 +285,7 @@ public class FlowImplementationTest {
                     , "0"));
             data.setResponseData(responseData);
 
-            flowImplementation.setCurrentForTesting(question);
+            flowImplementation.setCurrent(question);
             flowImplementation.update(ResponseData.adapter(data));
 
             if (c.getRawNumber().equals("2.1")) {
@@ -290,11 +293,116 @@ public class FlowImplementationTest {
             }
         }
 
-        flowImplementation.setCurrentForTesting(current); // current should be populated by now
+        flowImplementation.setCurrent(current); // current should be populated by now
         IFlow.FlowData flowData = flowImplementation.getNext();
 
         assertThat(flowData.flowType, is(FlowType.SINGLE));
         assertThat(flowData.question.getRawNumber(), is("2"));
+    }
+
+    @Test
+    public void test_multipleOptionsSkip() {
+        JsonObject jsonObject = ModalHelpers.getJson(this, "multiple_options_skip.json");
+        Question question = Question.populateQuestion(jsonObject);
+
+        assertThat(question.getRawNumber(), is("2.1.6.5"));
+        flowImplementation.setCurrent(question);
+
+        ArrayList<Option> response = new ArrayList<>();
+        response.add(new Option("", "GENERIC", null, "", "1"));
+        ResponseData responseData = new ResponseData(null, question.getRawNumber(), response);
+
+        flowImplementation.update(responseData);
+
+        Answer answer_2_1_6_5 = question.getAnswers().get(0);
+
+        Question q_2_1_6_5_1 = answer_2_1_6_5.getChildren().get(0);
+        assertThat(q_2_1_6_5_1.getRawNumber(), is("2.1.6.5.1"));
+
+        boolean result = FlowImplementation.doesSkipPatternMatchInQuestion(
+                q_2_1_6_5_1.getFlowPattern().getPreFlow().getOptionSkip(),
+                answer_2_1_6_5
+        );
+
+        assertThat(result, is(true));
+
+        flowImplementation.setCurrent(q_2_1_6_5_1);
+
+        response = new ArrayList<>();
+        response.add(new Option("", "GENERIC", null, "", "1"));
+        response.add(new Option("", "GENERIC", null, "", "2"));
+        response.add(new Option("", "GENERIC", null, "", "3"));
+        response.add(new Option("", "GENERIC", null, "", "4"));
+        response.add(new Option("", "GENERIC", null, "", "5"));
+
+        responseData = new ResponseData(null, q_2_1_6_5_1.getRawNumber(), response);
+
+        flowImplementation.update(responseData);
+
+        Answer answer_2_1_6_5_1 = q_2_1_6_5_1.getAnswers().get(0);
+
+        Question q_2_1_6_5_2 = answer_2_1_6_5.getChildren().get(1);
+        assertThat(q_2_1_6_5_2.getRawNumber(), is("2.1.6.5.2"));
+
+        result = FlowImplementation.doesSkipPatternMatchInQuestion(
+                q_2_1_6_5_2.getFlowPattern().getPreFlow().getOptionSkip(),
+                answer_2_1_6_5_1
+        );
+
+        assertThat(result, is(true));
+
+        flowImplementation.setCurrent(q_2_1_6_5_1);
+
+        response = new ArrayList<>();
+        response.add(new Option("", "GENERIC", null, "", "4"));
+
+        responseData = new ResponseData(null, q_2_1_6_5_1.getRawNumber(), response);
+
+        flowImplementation.update(responseData);
+
+        answer_2_1_6_5_1 = q_2_1_6_5_1.getAnswers().get(0);
+
+        Question q_2_1_6_5_3 = answer_2_1_6_5.getChildren().get(2);
+        assertThat(q_2_1_6_5_3.getRawNumber(), is("2.1.6.5.3"));
+
+        result = FlowImplementation.doesSkipPatternMatchInQuestion(
+                q_2_1_6_5_3.getFlowPattern().getPreFlow().getOptionSkip(),
+                answer_2_1_6_5_1
+        );
+
+        assertThat(result, is(false));
+
+        // household
+        jsonObject = ModalHelpers.getJson(this, "multiple_options_skip_1.json");
+        question = Question.populateQuestion(jsonObject);
+
+        ModalHelpers.setDummyAnswersForAllQuestions(question);
+
+        Question question_2_7_3 = question.findInTree(new Question.QuestionTreeSearchPredicate() {
+            @Override
+            public boolean evaluate(Question question) {
+                return question.getRawNumber() != null && question.getRawNumber().equals("2.7.3");
+            }
+        });
+
+        assertThat(question_2_7_3.getRawNumber(), is("2.7.3"));
+        flowImplementation.setCurrent(question_2_7_3);
+
+        response = new ArrayList<>();
+        response.add(new Option("", "GENERIC", null, "", "1"));
+
+        responseData = new ResponseData(null, question.getRawNumber(), response);
+
+        flowImplementation.update(responseData);
+
+        Question question_8_5 = question.getAnswers().get(0).getChildren().get(50);
+
+        assertThat(question_8_5.getRawNumber(), is("8.5"));
+        flowImplementation.setCurrent(question_8_5);
+
+        result = FlowImplementation.shouldSkipBasedOnSkipPattern(question_8_5);
+
+        assertThat(result, is(true));
     }
 
     @Test
@@ -305,7 +413,7 @@ public class FlowImplementationTest {
 
         assertThat(question.getRawNumber(), is("2.1.7"));
 
-        flowImplementation.setCurrentForTesting(question);
+        flowImplementation.setCurrent(question);
 
         QuestionData data = QuestionData.adapter(question);
 
@@ -343,7 +451,7 @@ public class FlowImplementationTest {
 
         assertThat(question.getRawNumber(), is("1"));
 
-        flowImplementation.setCurrentForTesting(question);
+        flowImplementation.setCurrent(question);
 
         QuestionData data = QuestionData.adapter(question);
 
