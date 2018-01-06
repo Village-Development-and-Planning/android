@@ -304,7 +304,7 @@ public class FlowImplementation implements IFlow {
 
             ArrayList<String> optionsSkip = preFlow.getOptionSkip();
 
-            Question foundForSkipPattern = question.findAnsweredQuestion(preFlowQuestionNumber);
+            Question foundForSkipPattern = question.findQuestionUpwards(preFlowQuestionNumber, true);
 
             if (foundForSkipPattern != null && foundForSkipPattern.getLatestAnswer() != null) {
                 shouldSkip = !doesSkipPatternMatchInQuestion(optionsSkip, foundForSkipPattern.getLatestAnswer());

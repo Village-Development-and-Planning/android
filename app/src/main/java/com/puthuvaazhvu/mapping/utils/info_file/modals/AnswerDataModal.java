@@ -12,12 +12,10 @@ import java.util.ArrayList;
 
 public class AnswerDataModal {
     private String id;
-    private boolean isDone;
     private ArrayList<Snapshot> snapshots;
 
     public AnswerDataModal(JsonObject jsonObject) {
         id = JsonHelper.getString(jsonObject, "_id");
-        isDone = JsonHelper.getBoolean(jsonObject, "is_done");
         JsonArray array = JsonHelper.getJsonArray(jsonObject, "snap_shots");
 
         snapshots = new ArrayList<>();
@@ -32,18 +30,12 @@ public class AnswerDataModal {
     public AnswerDataModal(String id, boolean isDone, ArrayList<Snapshot> snapshots) {
         this.id = id;
         this.snapshots = snapshots;
-        this.isDone = isDone;
     }
 
     public void updateOther(AnswerDataModal other) {
         this.id = other.id;
-        this.isDone = other.isDone;
-        this.snapshots.clear();
+        //this.snapshots.clear();
         this.snapshots.addAll(other.snapshots);
-    }
-
-    public boolean isDone() {
-        return isDone;
     }
 
     public String getId() {
@@ -76,7 +68,6 @@ public class AnswerDataModal {
         JsonObject jsonObject = new JsonObject();
 
         jsonObject.addProperty("_id", id);
-        jsonObject.addProperty("is_done", isDone);
 
         JsonArray snapshotsJsonArray = new JsonArray();
         for (Snapshot snapshot : this.snapshots) {

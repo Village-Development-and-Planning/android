@@ -14,7 +14,7 @@ public class Constants {
     public static String INFO_FILE_NAME = "info.json";
 
     public static class Versions {
-        public static int ANSWERS_INFO_VERSION = 2;
+        public static int ANSWERS_INFO_VERSION = 3;
         public static int SURVEY_INFO_VERSION = 1;
     }
 

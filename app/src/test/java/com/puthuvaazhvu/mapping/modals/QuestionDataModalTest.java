@@ -51,7 +51,7 @@ public class QuestionDataModalTest {
 
         assertThat(question.getRawNumber(), is("2.1.1"));
 
-        Question found = question.findAnsweredQuestion("2");
+        Question found = question.findQuestionUpwards("2", true);
 
         assertThat(found.getRawNumber(), is("2"));
 
@@ -61,7 +61,7 @@ public class QuestionDataModalTest {
 
         assertThat(question.getRawNumber(), is("2.1.2"));
 
-        found = question.findAnsweredQuestion("2.1");
+        found = question.findQuestionUpwards("2.1", true);
 
         assertThat(found.getRawNumber(), is("2.1"));
     }

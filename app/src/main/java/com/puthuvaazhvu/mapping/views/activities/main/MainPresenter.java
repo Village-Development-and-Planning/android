@@ -139,7 +139,7 @@ public class MainPresenter implements Contract.UserAction {
     }
 
     @Override
-    public void dumpSurveyToFile(final boolean isSurveyDone) {
+    public void dumpSurveyToFile(final boolean isSurveyDone, boolean isSnapshotIncomplete) {
 
         activityView.showLoading(R.string.survey_file_saving_msg);
 
@@ -147,7 +147,7 @@ public class MainPresenter implements Contract.UserAction {
                 survey,
                 "" + System.currentTimeMillis(),
                 getPathOfCurrentQuestion(),
-                false,
+                isSnapshotIncomplete,
                 isSurveyDone
         )
                 .subscribeOn(Schedulers.io())

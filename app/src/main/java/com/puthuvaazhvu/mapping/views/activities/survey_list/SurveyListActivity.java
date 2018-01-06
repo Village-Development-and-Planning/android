@@ -151,7 +151,7 @@ public class SurveyListActivity extends MenuActivity
     public void showSurveyDoneDialog(final SurveyListData.SurveySnapShot snapshot, final String surveyID) {
         AlertDialog alertDialog = Utils.createAlertDialog(
                 this,
-                getString(R.string.survey_override_dialog_message),
+                getString(R.string.survey_start_again_msg),
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

@@ -103,8 +103,8 @@ public class SurveyListPresenter implements Contract.UserAction {
                                         dm.getSurveyName(),
                                         false,
                                         SurveyListData.SurveySnapShot.adapter(answersDataModal.getLatestSnapShot()),
-                                        answersDataModal.isDone() ? SurveyListData.STATUS.COMPLETED
-                                                : SurveyListData.STATUS.ONGOING
+                                        answersDataModal.getLatestSnapShot().isIncomplete() ? SurveyListData.STATUS.ONGOING
+                                                : SurveyListData.STATUS.COMPLETED
                                 );
 
                             } else {

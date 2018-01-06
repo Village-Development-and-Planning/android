@@ -14,7 +14,7 @@ import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -292,43 +292,71 @@ public class Question extends BaseObject implements Parcelable {
         return result;
     }
 
-    public Question findAnsweredQuestion(String rawNumber) {
-        return findAnsweredQuestionInternal(this, null, rawNumber);
+    public Question findQuestionUpwards(String rawNumber, boolean traverseWithAnswers) {
+        Question node = findNodeTraversingBack(this, rawNumber, traverseWithAnswers);
+        if (!node.isRoot() && node.getRawNumber().equals(rawNumber)) {
+            return node;
+        } else {
+            return findNodeTraversingForward(node, rawNumber, traverseWithAnswers);
+        }
     }
 
-    private static Question findAnsweredQuestionInternal(Question node, Answer nodeAnswer, String rawNumber) {
+    private Question findNodeTraversingBack(Question node, String rawNumber, boolean traverseWithAnswers) {
+        if (node.isRoot()) {
+            return node;
+        }
+        String currentNodeRawNumberWithDot = node.getRawNumber() + ".";
+        String currentNodeRawNumber = node.getRawNumber();
 
-        if (node.isRoot() || rawNumber.contains(node.getRawNumber())) {
-            // search in this node to get the question.
-
-            if (nodeAnswer == null) {
-                return null;
-            }
-
-            // if the numbers are equal then this is the question
-            if (!node.isRoot() && node.getRawNumber().equals(rawNumber)) {
-                return node;
-            }
-
-            Question question = null;
-
-            // traverse through the children
-            for (Question c : nodeAnswer.getChildren()) {
-                if (rawNumber.contains(c.getRawNumber())) {
-                    question = findAnsweredQuestionInternal(c, c.getLatestAnswer(), rawNumber);
-                    break;
-                }
-            }
-
-            return question;
-
+        if (rawNumber.equals(currentNodeRawNumber) || rawNumber.contains(currentNodeRawNumberWithDot)) {
+            return node;
         } else {
             // move to the parent
-            Answer parentAnswer = node.getParentAnswer();
-            Question parent = parentAnswer.getQuestionReference();
-            return findAnsweredQuestionInternal(parent, parentAnswer, rawNumber);
+            Question parent;
+            if (traverseWithAnswers) {
+                parent = node.getParentAnswer().getQuestionReference();
+            } else {
+                parent = node.getParent();
+            }
+            return findNodeTraversingBack(parent, rawNumber, traverseWithAnswers);
+        }
+    }
+
+    private Question findNodeTraversingForward(Question node, String rawNumber, boolean traverseWithAnswers) {
+        String currentNodeRawNumberWithDot;
+        String currentNodeRawNumber;
+
+        if (node.isRoot()) {
+            currentNodeRawNumber = "";
+            currentNodeRawNumberWithDot = "";
+        } else {
+            currentNodeRawNumberWithDot = node.getRawNumber() + ".";
+            currentNodeRawNumber = node.getRawNumber();
         }
 
+        if (rawNumber.equals(currentNodeRawNumber)) {
+            return node;
+        } else {
+            Question result = null;
+            if (node.isRoot() || rawNumber.contains(currentNodeRawNumberWithDot)) {
+                // move to child
+                List<Question> children;
+
+                if (!traverseWithAnswers) {
+                    children = node.getChildren();
+                } else {
+                    children = node.getLatestAnswer().getChildren();
+                }
+
+                for (Question c : children) {
+                    result = findNodeTraversingForward(c, rawNumber, traverseWithAnswers);
+                    if (result != null) {
+                        break;
+                    }
+                }
+            }
+            return result;
+        }
     }
 
     public boolean containsPreFlow(String tag) {

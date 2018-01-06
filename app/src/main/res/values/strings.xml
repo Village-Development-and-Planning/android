@@ -8,7 +8,7 @@
     <string name="yes">YES</string>
     <string name="survey_complete">This survey is complete</string>
     <string name="survey_ongoing_dialog_message">Continue with %1$s survey now? </string>
-    <string name="survey_override_dialog_message">Survey is already over. Do you want to override it with a new one?</string>
+    <string name="survey_start_again_msg">Do you want to start the survey?</string>
     <string name="press">PRESS</string>
     <string name="tag_line">A Tamilnadu government initiative</string>
     <string name="enter_cst">Enter your CST code</string>

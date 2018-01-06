@@ -507,8 +507,8 @@ public class FlowImplementationTest {
 
         IFlow.FlowData previousData = flowImplementation.getPrevious();
 
-        assertThat(previousData.question.getRawNumber(), is("3.5.1"));
-        assertSame(previousData.question, q_3_5_1);
+        assertThat(previousData.question.getRawNumber(), is("3.5.2"));
+        assertSame(previousData.question, q_3_5_2);
         assertThat(previousData.flowType, is(FlowType.SINGLE));
     }
 }

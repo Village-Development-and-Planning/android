@@ -114,14 +114,6 @@ public class MainActivity extends MenuActivity
                 GetFromFile.getInstance()
         );
 
-//        String latestSurveyID = prefsStorage.getLatestSurveyID();
-//
-//        if (latestSurveyID == null) {
-//            startListOfSurveysActivity();
-//        } else {
-//            presenter.loadSurvey(latestSurveyID);
-//        }
-
         onSurveyLoaded(MappingApplication.globalContext.getApplicationData().getSurvey());
 
         repeatingTask = new RepeatingTask(handler, new Runnable() {
@@ -129,7 +121,7 @@ public class MainActivity extends MenuActivity
             public void run() {
                 if (dumpSurveyRepeatingTask) {
                     Timber.i("Automatic saving done.");
-                    presenter.dumpSurveyToFile(false);
+                    presenter.dumpSurveyToFile(false, true);
                 }
             }
         }, REPEATING_TASK_INTERVAL, true);
@@ -143,7 +135,7 @@ public class MainActivity extends MenuActivity
         switch (item.getItemId()) {
             case R.id.save:
                 Timber.i("save menu clicked");
-                presenter.dumpSurveyToFile(false);
+                presenter.dumpSurveyToFile(false, true);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -279,7 +271,7 @@ public class MainActivity extends MenuActivity
         defaultBackPressed = true;
         dumpSurveyRepeatingTask = false;
         repeatingTask.stop();
-        presenter.dumpSurveyToFile(true);
+        presenter.dumpSurveyToFile(true, false);
     }
 
     @Override
