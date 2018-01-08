@@ -30,14 +30,6 @@ public class MessageQuestionFragment extends ConformationQuestionFragment {
         super.onViewCreated(view, savedInstanceState);
 
         questionData = getArguments().getParcelable("questionData");
-
-        if (Constants.APP_LANGUAGE == Constants.Language.ENGLISH) {
-            getBack_button().setText(getString(R.string.back));
-            getNext_button().setText(getString(R.string.next));
-        } else {
-            getBack_button().setText(getString(R.string.back_ta));
-            getNext_button().setText(getString(R.string.next_ta));
-        }
     }
 
     @Override

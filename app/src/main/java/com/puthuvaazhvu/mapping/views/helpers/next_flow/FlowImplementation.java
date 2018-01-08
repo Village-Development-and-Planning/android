@@ -277,7 +277,6 @@ public class FlowImplementation implements IFlow {
         return flowData;
     }
 
-
     /* skip when
         + AnswerData scope demands
         + skip pattern matches

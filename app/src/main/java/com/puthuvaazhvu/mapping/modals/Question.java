@@ -47,7 +47,6 @@ public class Question extends BaseObject implements Parcelable {
     private final Info info;
     private final FlowPattern flowPattern;
     private Answer parentAnswer;
-
     private Answer latestAnswer;
     private Question parent;
     private boolean isFinished = false; // you can set to true for the question to skip

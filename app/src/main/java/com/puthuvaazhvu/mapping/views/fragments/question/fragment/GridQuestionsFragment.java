@@ -25,22 +25,19 @@ import java.util.ArrayList;
  * Created by muthuveerappans on 10/1/17.
  */
 
-public class GridQuestionsFragment extends QuestionFragment implements View.OnClickListener {
+public class GridQuestionsFragment extends QuestionDataFragment {
     private ArrayList<GridQuestionData> data;
     private QuestionData parentData;
 
     private RecyclerView recyclerView;
     private QuestionsAdapter questionsAdapter;
 
-    private Button next_button;
-    private Button back_button;
-
     public static GridQuestionsFragment getInstance(QuestionData parentQuestion, ArrayList<GridQuestionData> data) {
         GridQuestionsFragment fragment = new GridQuestionsFragment();
 
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList("data", data);
-        bundle.putParcelable("parent_data", parentQuestion);
+        bundle.putParcelable("questionData", parentQuestion);
         fragment.setArguments(bundle);
 
         return fragment;
@@ -49,13 +46,17 @@ public class GridQuestionsFragment extends QuestionFragment implements View.OnCl
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.questions_grid, container, false);
+        View view = inflater.inflate(R.layout.questions_grid, container, false);
+        initView(view);
+        return view;
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
         data = getArguments().getParcelableArrayList("data");
-        parentData = getArguments().getParcelable("parent_data");
+        parentData = getArguments().getParcelable("questionData");
 
         recyclerView = view.findViewById(R.id.grid_questions_recycler_view);
 
@@ -86,23 +87,18 @@ public class GridQuestionsFragment extends QuestionFragment implements View.OnCl
             }
         }));
 
-        next_button = view.findViewById(R.id.next_button);
-        back_button = view.findViewById(R.id.back_button);
-
-        next_button.setOnClickListener(this);
-        back_button.setOnClickListener(this);
-
         questionsAdapter = new QuestionsAdapter();
         recyclerView.setAdapter(questionsAdapter);
     }
 
     @Override
-    public void onClick(View v) {
-        if (v.getId() == R.id.next_button) {
-            finishCurrentQuestion(parentData, false);
-        } else if (v.getId() == R.id.back_button) {
-            backButtonPressedInsideQuestion(parentData);
-        }
+    public void onBackButtonPressed(View view) {
+        backButtonPressedInsideQuestion(parentData);
+    }
+
+    @Override
+    public void onNextButtonPressed(View view) {
+        finishCurrentQuestion(parentData, false);
     }
 
     private class QuestionsAdapter extends RecyclerView.Adapter<QVH> {

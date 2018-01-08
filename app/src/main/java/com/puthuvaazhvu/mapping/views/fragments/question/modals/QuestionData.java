@@ -14,6 +14,7 @@ public class QuestionData implements Parcelable {
     private final SingleQuestion singleQuestion;
     private final OptionData optionOptionData;
     private OptionData responseData;
+    private int optionsLimit = -1;
 
     private int position = -1;
 
@@ -26,6 +27,16 @@ public class QuestionData implements Parcelable {
     public QuestionData(SingleQuestion singleQuestion, OptionData optionOptionData) {
         this.singleQuestion = singleQuestion;
         this.optionOptionData = optionOptionData;
+    }
+
+    public QuestionData(SingleQuestion singleQuestion, OptionData optionOptionData, OptionData responseData, int optionsLimit) {
+        this(singleQuestion, optionOptionData, responseData);
+        this.optionsLimit = optionsLimit;
+    }
+
+    public QuestionData(SingleQuestion singleQuestion, OptionData optionOptionData, int optionsLimit) {
+        this(singleQuestion, optionOptionData);
+        this.optionsLimit = optionsLimit;
     }
 
     public int getPosition() {
@@ -56,6 +67,12 @@ public class QuestionData implements Parcelable {
         SingleQuestion q = SingleQuestion.adapter(question);
         OptionData optionOptionData
                 = OptionData.adapter(question);
+        if (question.getFlowPattern() != null && question.getFlowPattern().getQuestionFlow() != null) {
+            int optionsLimit = question.getFlowPattern().getQuestionFlow().getOptionsLimit();
+            if (optionsLimit >= 1) {
+                return new QuestionData(q, optionOptionData, optionsLimit);
+            }
+        }
         return new QuestionData(q, optionOptionData);
     }
 
@@ -69,6 +86,7 @@ public class QuestionData implements Parcelable {
         dest.writeParcelable(this.singleQuestion, flags);
         dest.writeParcelable(this.optionOptionData, flags);
         dest.writeParcelable(this.responseData, flags);
+        dest.writeInt(this.optionsLimit);
         dest.writeInt(this.position);
     }
 
@@ -76,6 +94,7 @@ public class QuestionData implements Parcelable {
         this.singleQuestion = in.readParcelable(SingleQuestion.class.getClassLoader());
         this.optionOptionData = in.readParcelable(OptionData.class.getClassLoader());
         this.responseData = in.readParcelable(OptionData.class.getClassLoader());
+        this.optionsLimit = in.readInt();
         this.position = in.readInt();
     }
 

@@ -31,18 +31,12 @@ public class ConformationQuestionFragment extends SingleQuestionFragmentBase {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
         questionData = getArguments().getParcelable("questionData");
 
         String questionText = questionData.getSingleQuestion().getText();
         getQuestion_text().setText(questionText);
-
-        if (Constants.APP_LANGUAGE == Constants.Language.ENGLISH) {
-            getBack_button().setText(getString(R.string.no));
-            getNext_button().setText(getString(R.string.yes));
-        } else {
-            getBack_button().setText(getString(R.string.no_ta));
-            getNext_button().setText(getString(R.string.yes_ta));
-        }
     }
 
     @Override

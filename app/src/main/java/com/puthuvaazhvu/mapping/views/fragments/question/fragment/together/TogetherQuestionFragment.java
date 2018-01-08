@@ -30,8 +30,6 @@ public class TogetherQuestionFragment extends SingleQuestionFragment implements 
     private Question root;
 
     private TextView question_text;
-    private Button back_button;
-    private Button next_button;
 
     private ChildrenQuestionAsOptionFragment fragment;
 
@@ -53,16 +51,14 @@ public class TogetherQuestionFragment extends SingleQuestionFragment implements 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = LayoutInflater.from(getContext()).inflate(R.layout.together_question, container, false);
         question_text = view.findViewById(R.id.question_text);
-        back_button = view.findViewById(R.id.back_button);
-        next_button = view.findViewById(R.id.next_button);
 
-        back_button.setOnClickListener(this);
-        next_button.setOnClickListener(this);
         return view;
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
         questionData = getArguments().getParcelable("questionData");
         root = getArguments().getParcelable("root");
 
