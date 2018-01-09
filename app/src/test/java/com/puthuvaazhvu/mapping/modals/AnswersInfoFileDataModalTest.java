@@ -56,7 +56,7 @@ public class AnswersInfoFileDataModalTest {
         );
         answersInfoFileDataModal.updateWithNew(answerDataModals);
 
-        assertThat(answerDataModal.getSnapshots().size(), is(1));
+        assertThat(answerDataModal.getSnapshots().size(), is(3));
         assertThat(answersInfoFileDataModal.getAnswerDataModals().size(), is(2));
 
         // test add new

@@ -27,6 +27,7 @@
     <string name="save_successful">Save successful</string>
 
     <!--errors-->
+    <string name="invalid_ui">Invalid UI provided</string>
     <string name="err_no_data">Cannot get the required survey</string>
     <string name="question_iteration_error">Cannot proceed</string>
     <string name="survey_incomplete">Please complete all the questions</string>

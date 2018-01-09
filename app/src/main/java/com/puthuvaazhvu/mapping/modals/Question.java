@@ -201,6 +201,12 @@ public class Question extends BaseObject implements Parcelable {
         return text;
     }
 
+    public String getTextForLanguage() {
+        Text text = getText();
+        if (Constants.APP_LANGUAGE == Constants.Language.ENGLISH) return text.getEnglish();
+        else return text.getTamil();
+    }
+
     public String getType() {
         return type;
     }
@@ -408,7 +414,7 @@ public class Question extends BaseObject implements Parcelable {
             }
 
             Option loggedOption = answer.getOptions().get(0);
-            Answer matchedAnswer = getAnswerMatch(loggedOption.getPosition());
+            Answer matchedAnswer = getAnswerMatchForOption(loggedOption.getPosition());
 
             if (matchedAnswer == null) {
                 this.addAnswer(answer);
@@ -442,27 +448,24 @@ public class Question extends BaseObject implements Parcelable {
      * @param optionPosition The option position to search for
      * @return already present Answer object else null.
      */
-    public Answer getAnswerMatch(String optionPosition) {
+    public Answer getAnswerMatchForOption(String optionPosition) {
 
-        if (flowPattern.getAnswerFlow().getMode() == AnswerFlow.Modes.OPTION) {
+        ArrayList<Answer> answersLogged = this.getAnswers();
 
-            ArrayList<Answer> answersLogged = this.getAnswers();
+        if (answersLogged != null) {
 
-            if (answersLogged != null) {
+            for (Answer answer : answersLogged) {
 
-                for (Answer answer : answersLogged) {
+                ArrayList<Option> options = answer.getOptions();
 
-                    ArrayList<Option> options = answer.getOptions();
-
-                    for (Option option : options) {
-                        if (option.getPosition() != null && option.getPosition().equals(optionPosition)) {
-                            return answer;
-                        }
+                for (Option option : options) {
+                    if (option.getPosition() != null && option.getPosition().equals(optionPosition)) {
+                        return answer;
                     }
                 }
             }
-
         }
+
         return null;
     }
 

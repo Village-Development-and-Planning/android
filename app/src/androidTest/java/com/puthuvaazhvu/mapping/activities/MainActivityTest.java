@@ -11,7 +11,7 @@ import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.views.activities.main.MainActivity;
 import com.puthuvaazhvu.mapping.views.fragments.question.modals.GridQuestionData;
-import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
+import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionUIData;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -74,7 +74,7 @@ public class MainActivityTest {
         Question question = survey.getRootQuestion()
                 .getChildren().get(1).getChildren().get(1).getChildren().get(6);
 
-        QuestionData parentQuestionData = QuestionData.adapter(question);
+        QuestionUIData parentQuestionData = QuestionUIData.adapter(question);
 
         ArrayList<GridQuestionData> gridQuestionData = GridQuestionData.adapter(question.getChildren());
 
@@ -96,7 +96,7 @@ public class MainActivityTest {
 
         assertThat(question.getRawNumber(), is("1.2"));
 
-        QuestionData questionData = QuestionData.adapter(question);
+        QuestionUIData questionData = QuestionUIData.adapter(question);
 
         activity.shouldShowConformationQuestion(questionData);
 
@@ -120,7 +120,7 @@ public class MainActivityTest {
 
         assertThat(question.getRawNumber(), is("2.1.7.3.2"));
 
-        QuestionData questionData = QuestionData.adapter(question);
+        QuestionUIData questionData = QuestionUIData.adapter(question);
 
         activity.shouldShowSingleQuestion(questionData);
 
@@ -153,7 +153,7 @@ public class MainActivityTest {
 
         assertThat(question.getRawNumber(), is("2.1.3"));
 
-        QuestionData questionData = QuestionData.adapter(question);
+        QuestionUIData questionData = QuestionUIData.adapter(question);
 
         activity.shouldShowSingleQuestion(questionData);
 
@@ -183,7 +183,7 @@ public class MainActivityTest {
 
         assertThat(question.getRawNumber(), is("2.1.7.4.4"));
 
-        QuestionData questionData = QuestionData.adapter(question);
+        QuestionUIData questionData = QuestionUIData.adapter(question);
 
         activity.shouldShowSingleQuestion(questionData);
 

@@ -1,6 +1,7 @@
 package com.puthuvaazhvu.mapping.views.activities.main;
 
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 
 import com.crashlytics.android.Crashlytics;
@@ -18,13 +19,14 @@ import com.puthuvaazhvu.mapping.utils.Optional;
 import com.puthuvaazhvu.mapping.utils.info_file.AnswersInfoFile;
 import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
 import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
-import com.puthuvaazhvu.mapping.views.fragments.question.modals.GridQuestionData;
-import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
+import com.puthuvaazhvu.mapping.views.fragments.question.ConformationQuestionFragment;
+import com.puthuvaazhvu.mapping.views.fragments.question.GridQuestionsFragment;
+import com.puthuvaazhvu.mapping.views.fragments.question.InfoFragment;
+import com.puthuvaazhvu.mapping.views.fragments.question.MessageQuestionFragment;
+import com.puthuvaazhvu.mapping.views.fragments.question.SingleQuestionFragment;
 import com.puthuvaazhvu.mapping.views.helpers.FlowHelper;
 import com.puthuvaazhvu.mapping.views.helpers.FlowType;
 import com.puthuvaazhvu.mapping.views.helpers.next_flow.IFlow;
-import com.puthuvaazhvu.mapping.views.helpers.ResponseData;
-import com.puthuvaazhvu.mapping.views.helpers.back_navigation.IBackFlow;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -71,6 +73,11 @@ public class MainPresenter implements Contract.UserAction {
     }
 
     @Override
+    public Survey getSurvey() {
+        return survey;
+    }
+
+    @Override
     public Question getCurrent() {
         return flowHelper.getCurrent();
     }
@@ -112,7 +119,7 @@ public class MainPresenter implements Contract.UserAction {
     }
 
     @Override
-    public void finishCurrent(QuestionData questionData) {
+    public void finishCurrent(Question question) {
         if (flowHelper == null) {
             Timber.e(Constants.LOG_TAG, "The method is called too early? Call initData()/loadSurvey() first.");
             return;
@@ -180,7 +187,7 @@ public class MainPresenter implements Contract.UserAction {
     }
 
     @Override
-    public void updateCurrentQuestion(final QuestionData questionData, final Runnable runnable) {
+    public void updateCurrentQuestion(final Question question, final ArrayList<Option> response, final Runnable runnable) {
         if (flowHelper == null) {
             Timber.e(Constants.LOG_TAG, "The method is called too early? Call initData()/loadSurvey() first.");
             return;
@@ -191,7 +198,7 @@ public class MainPresenter implements Contract.UserAction {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                flowHelper.update(ResponseData.adapter(questionData));
+                flowHelper.update(response);
                 uiHandler.post(runnable);
             }
         }).start();
@@ -228,19 +235,19 @@ public class MainPresenter implements Contract.UserAction {
             while (questionFlow.getUiMode() == QuestionFlow.UI.NONE) {
 
                 // create dummy answer
+
                 ArrayList<Option> dummyOptions = new ArrayList<>();
                 dummyOptions.add(
                         new Option(
                                 "-1",
-                                "DUMMY",
+                                "dummy",
                                 new Text("-1", "DUMMY", "DUMMY", null),
                                 "",
                                 "-1"
                         )
                 );
 
-                ResponseData responseData = new ResponseData("-1", question.getRawNumber(), dummyOptions);
-                flowHelper.update(responseData);
+                flowHelper.update(dummyOptions);
 
                 flowData = flowHelper.getNext();
                 question = flowData.question;
@@ -265,18 +272,17 @@ public class MainPresenter implements Contract.UserAction {
     private void showUI(IFlow.FlowData flowData) {
         Question question = flowData.question;
         // only if grid for children, show grid. else show normal question view
+        Fragment fragment = null;
         if (flowData.flowType == FlowType.GRID) {
-            showGridUI(question);
+            fragment = new GridQuestionsFragment();
+            activityView.loadQuestionUI(fragment, "grid");
         } else if (flowData.flowType == FlowType.SINGLE) {
             showSingleQuestionUI(question);
         } else if (flowData.flowType == FlowType.END) {
             activityView.onSurveyEnd();
-        } else if (flowData.flowType == FlowType.TOGETHER) {
-            activityView.shouldShowTogetherQuestion(question, QuestionData.adapter(question));
         } else {
             if (question != null)
                 Timber.e("Invalid UI data provided. number:  " + question.getRawNumber());
-            activityView.onError(R.string.invalid_data);
             uiHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -286,6 +292,35 @@ public class MainPresenter implements Contract.UserAction {
         }
     }
 
+    private void showSingleQuestionUI(Question question) {
+        Fragment fragment = null;
+        String tag = "";
+        // check and show UI accordingly
+        switch (question.getFlowPattern().getQuestionFlow().getUiMode()) {
+            case INFO:
+                fragment = new InfoFragment();
+                tag = "info";
+                break;
+            case CONFIRMATION:
+                fragment = new ConformationQuestionFragment();
+                tag = "confirmation";
+                break;
+            case MESSAGE:
+                fragment = new MessageQuestionFragment();
+                tag = "message";
+                break;
+            case SINGLE_CHOICE:
+            case MULTIPLE_CHOICE:
+            case INPUT:
+            case GPS:
+                fragment = new SingleQuestionFragment();
+                tag = "single";
+        }
+
+        if (fragment != null)
+            activityView.loadQuestionUI(fragment, tag);
+    }
+
     private String getPathOfCurrentQuestion() {
         Question question = flowHelper.getCurrent();
         if (question == null) {
@@ -293,40 +328,6 @@ public class MainPresenter implements Contract.UserAction {
         }
         ArrayList<Integer> indexes = question.getPathOfCurrentQuestion();
         return TextUtils.join(",", indexes);
-    }
-
-    private void showGridUI(Question question) {
-        // get the children of the latest answer
-        ArrayList<Question> children = question.getLatestAnswer().getChildren();
-        ArrayList<GridQuestionData> data = GridQuestionData.adapter(children);
-        activityView.shouldShowGrid(QuestionData.adapter(question), data);
-    }
-
-    private void showSingleQuestionUI(Question question) {
-
-        if (question.getFlowPattern() == null) {
-            if (question.isRoot()) {
-                activityView.toggleDefaultBackPressed(true);
-            }
-            return;
-        }
-
-        QuestionData questionData = QuestionData.adapter(question);
-
-        // check and show UI accordingly
-        switch (question.getFlowPattern().getQuestionFlow().getUiMode()) {
-            case INFO:
-                activityView.shouldShowQuestionAsInfo(questionData);
-                break;
-            case CONFIRMATION:
-                activityView.shouldShowConformationQuestion(questionData);
-                break;
-            case MESSAGE:
-                activityView.shouldShowMessageQuestion(questionData);
-                break;
-            default:
-                activityView.shouldShowSingleQuestion(questionData);
-        }
     }
 
 }

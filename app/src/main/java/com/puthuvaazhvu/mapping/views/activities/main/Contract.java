@@ -1,11 +1,14 @@
 package com.puthuvaazhvu.mapping.views.activities.main;
 
+import android.support.v4.app.Fragment;
+
+import com.google.gson.JsonObject;
+import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
-import com.puthuvaazhvu.mapping.views.fragments.question.modals.GridQuestionData;
-import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
 import com.puthuvaazhvu.mapping.views.helpers.FlowHelper;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
@@ -18,39 +21,6 @@ public interface Contract {
 
         void onError(int messageID);
 
-        /**
-         * Callback called when the children questions need to be shown in a grid
-         *
-         * @param question The single question that should be shown.
-         * @param parent   parent question
-         */
-        void shouldShowGrid(QuestionData parent, ArrayList<GridQuestionData> question);
-
-        /**
-         * Callback called when particular single question should be shown as it is.
-         *
-         * @param question
-         */
-        void shouldShowSingleQuestion(QuestionData question);
-
-        /**
-         * Callback called when the type of the {@link Question} is INFO.
-         *
-         * @param question
-         */
-        void shouldShowQuestionAsInfo(QuestionData question);
-
-        /**
-         * Callback called when the type of the {@link Question} is CONFORMATION.
-         *
-         * @param question
-         */
-        void shouldShowConformationQuestion(QuestionData question);
-
-        void shouldShowMessageQuestion(QuestionData question);
-
-        void shouldShowTogetherQuestion(Question currentQuestionReference, QuestionData question);
-
         void shouldShowSummary(Survey survey);
 
         void onSurveySaved(Survey survey);
@@ -59,20 +29,6 @@ public interface Contract {
 
         void onSurveyEnd();
 
-        /**
-         * Callback called when a particular question should be removed from the stack.
-         *
-         * @param question The question to be removed.
-         */
-        void remove(Question question);
-
-        /**
-         * Callback called when a list of questions needs to be removed from the stack.
-         *
-         * @param questions The list of removal questions.
-         */
-        void remove(ArrayList<Question> questions);
-
         void showLoading(int messageID);
 
         void showMessage(int messageID);
@@ -80,9 +36,13 @@ public interface Contract {
         void hideLoading();
 
         void toggleDefaultBackPressed(boolean toggle);
+
+        void loadQuestionUI(Fragment fragment, String tag);
     }
 
     interface UserAction {
+
+        Survey getSurvey();
 
         Question getCurrent();
 
@@ -107,14 +67,14 @@ public interface Contract {
          */
         void initData(Survey survey, FlowHelper flowHelper);
 
-        void finishCurrent(QuestionData questionData);
+        void finishCurrent(Question question);
 
         /**
          * Helper to update the given question with the updated answer data.
          *
          * @param currentQuestion
          */
-        void updateCurrentQuestion(QuestionData currentQuestion, Runnable runnable);
+        void updateCurrentQuestion(Question currentQuestion, ArrayList<Option> response, Runnable runnable);
 
         /**
          * Set the current question for the pointer to point to. This will be shown in the UI.

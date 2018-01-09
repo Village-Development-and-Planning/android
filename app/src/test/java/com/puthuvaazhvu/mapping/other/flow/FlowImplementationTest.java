@@ -6,21 +6,14 @@ import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.OptionData;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.InputAnswerData;
-import com.puthuvaazhvu.mapping.views.fragments.option.modals.answer.SingleAnswerData;
-import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
+import com.puthuvaazhvu.mapping.modals.Text;
 import com.puthuvaazhvu.mapping.views.helpers.FlowType;
-import com.puthuvaazhvu.mapping.views.helpers.back_navigation.BackNavigation;
 import com.puthuvaazhvu.mapping.views.helpers.next_flow.IFlow;
 import com.puthuvaazhvu.mapping.views.helpers.next_flow.FlowImplementation;
-import com.puthuvaazhvu.mapping.views.helpers.ResponseData;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
@@ -73,55 +66,51 @@ public class FlowImplementationTest {
     public void test_update_method() {
         Question question = root.getChildren().get(0);
         flowImplementation.setCurrent(question);
-        QuestionData data = QuestionData.adapter(question);
 
         assertThat(question.getRawNumber(), is("1"));
 
-        // add mock answer
-        OptionData responseData = OptionData.adapter(question);
-        responseData.setAnswerData(new InputAnswerData(question.getRawNumber(), question.getTextString(), "TEST"));
-        data.setResponseData(responseData);
-
-        Question current = flowImplementation.update(ResponseData.adapter(data)).getCurrent();
+        Question current = flowImplementation.update(ModalHelpers.getDummyOptions()).getCurrent();
 
         assertThat(current.getAnswers().size(), is(1));
-        assertThat(current.getAnswers().get(0).getOptions().get(0).getTextString(), is("TEST"));
         assertThat(current.getAnswers().get(0).getChildren().size(), is(question.getChildren().size()));
         assertThat(current.getAnswers().get(0).getChildren().get(0).getParent(), is(question));
 
         //                           -- answer scope single ---
 
-        responseData.setAnswerData(new InputAnswerData(question.getRawNumber(), question.getTextString(), "TEST1"));
-        data.setResponseData(responseData);
-
-        current = flowImplementation.update(ResponseData.adapter(data)).getCurrent();
+        current = flowImplementation.update(ModalHelpers.getDummyOptions()).getCurrent();
 
         assertThat(current.getAnswers().size(), is(1));
-        assertThat(current.getAnswers().get(0).getOptions().get(0).getTextString(), is("TEST1"));
         assertThat(current.getAnswers().get(0).getChildren().size(), is(question.getChildren().size()));
 
         //                           -- answer scope multiple ---
         question = root.getChildren().get(1).getChildren().get(1).getChildren().get(6).getChildren().get(0);
         flowImplementation.setCurrent(question);
-        data = QuestionData.adapter(question);
 
         assertThat(question.getRawNumber(), is("2.1.7.3"));
 
         // add mock answer
-        responseData = OptionData.adapter(question);
-        responseData.setAnswerData(new SingleAnswerData(question.getRawNumber(), question.getTextString(), "1", "TEST", "0"));
-        data.setResponseData(responseData);
+        ArrayList<Option> options = new ArrayList<>();
+        options.add(new Option(
+                "1",
+                "",
+                null,
+                "",
+                ""
+        ));
 
-        current = flowImplementation.update(ResponseData.adapter(data)).getCurrent();
+        current = flowImplementation.update(options).getCurrent();
         assertThat(current.getAnswers().get(0).getOptions().get(0).getId(), is("1"));
 
-        // add mock answer
-        responseData = OptionData.adapter(question);
-        responseData.setAnswerData(new SingleAnswerData(question.getRawNumber(), question.getTextString(), "2", "TEST1", "0"));
-        data.setResponseData(responseData);
+        options = new ArrayList<>();
+        options.add(new Option(
+                "2",
+                "",
+                null,
+                "",
+                ""
+        ));
 
-        current = flowImplementation.update(ResponseData.adapter(data)).getCurrent();
-
+        current = flowImplementation.update(options).getCurrent();
         assertThat(current.getAnswers().size(), is(2));
         assertThat(current.getAnswers().get(1).getOptions().get(0).getId(), is("2"));
     }
@@ -130,16 +119,10 @@ public class FlowImplementationTest {
     public void test_moveToIndex_method() {
         Question question = root.getChildren().get(0);
         flowImplementation.setCurrent(question);
-        QuestionData data = QuestionData.adapter(question);
-
-        // add mock answer
-        OptionData responseData = OptionData.adapter(question);
-        responseData.setAnswerData(new InputAnswerData(question.getRawNumber(), question.getTextString(), "TEST"));
-        data.setResponseData(responseData);
 
         assertThat(question.getRawNumber(), is("1"));
 
-        flowImplementation.update(ResponseData.adapter(data));
+        flowImplementation.update(ModalHelpers.getDummyOptions());
 
         Question current = flowImplementation.moveToIndex(3).getCurrent();
 
@@ -151,18 +134,12 @@ public class FlowImplementationTest {
     public void test_getNext_gridFlow() {
         Question question = root.getChildren().get(1).getChildren().get(1).getChildren().get(6);
         flowImplementation.setCurrent(question);
-        QuestionData data = QuestionData.adapter(question);
 
         assertThat(question.getRawNumber(), is("2.1.7"));
 
-        // add mock answer
-        OptionData responseData = OptionData.adapter(question);
-        responseData.setAnswerData(new SingleAnswerData(question.getRawNumber(), question.getTextString(), "1", "TEST1", "0"));
-        data.setResponseData(responseData);
-
         Question current;
 
-        flowImplementation.update(ResponseData.adapter(data)).getCurrent();
+        flowImplementation.update(ModalHelpers.getDummyOptions()).getCurrent();
 
         // get the next question
         IFlow.FlowData flowData = flowImplementation.getNext();
@@ -174,14 +151,7 @@ public class FlowImplementationTest {
         current = flowImplementation.moveToIndex(0).getCurrent();
         assertThat(current.getRawNumber(), is("2.1.7.3"));
 
-        // add mock answer
-        data = QuestionData.adapter(flowImplementation.getCurrent());
-
-        responseData = OptionData.adapter(question);
-        responseData.setAnswerData(new SingleAnswerData(question.getRawNumber(), question.getTextString(), "1", "TEST1", "0"));
-        data.setResponseData(responseData);
-
-        flowImplementation.update(ResponseData.adapter(data));
+        flowImplementation.update(ModalHelpers.getDummyOptions());
 
         // finish the current question
         flowImplementation.finishCurrent();
@@ -194,16 +164,11 @@ public class FlowImplementationTest {
     public void test_loopFlow_multiple() {
         Question question = root.getChildren().get(1).getChildren().get(1);
         flowImplementation.setCurrent(question);
-        QuestionData data = QuestionData.adapter(question);
 
         assertThat(question.getRawNumber(), is("2.1"));
 
         // mock answer
-        OptionData responseData = OptionData.adapter(question);
-        responseData.setAnswerData(new SingleAnswerData(question.getRawNumber(), question.getTextString(), "1", "TEST", "0"));
-        data.setResponseData(responseData);
-
-        Question current = flowImplementation.update(ResponseData.adapter(data)).getCurrent();
+        Question current = flowImplementation.update(ModalHelpers.getDummyOptions()).getCurrent();
 
         assertThat(current.getRawNumber(), is("2.1"));
 
@@ -235,16 +200,10 @@ public class FlowImplementationTest {
         // *** ROOT ***
         Question question = root;
         flowImplementation.setCurrent(question);
-        QuestionData data = QuestionData.adapter(question);
 
         assertThat(question.getType(), is("ROOT"));
 
-        // add mock answer
-        OptionData responseData = OptionData.adapter(question);
-        responseData.setAnswerData(new SingleAnswerData(question.getRawNumber(), question.getTextString(), "1", "DUMMY FOR ROOT", "0"));
-        data.setResponseData(responseData);
-
-        Question current = flowImplementation.update(ResponseData.adapter(data)).getCurrent();
+        Question current = flowImplementation.update(ModalHelpers.getDummyOptions()).getCurrent();
 
         // add mock answer to all the children
         ArrayList<Question> children = current.getAnswers().get(0).getChildren();
@@ -256,16 +215,12 @@ public class FlowImplementationTest {
         // *** 2 ***
         question = children.get(1);
         flowImplementation.setCurrent(question);
-        data = QuestionData.adapter(question);
 
         assertThat(question.getRawNumber(), is("2"));
 
         // add mock answer
-        responseData = OptionData.adapter(question);
-        responseData.setAnswerData(new SingleAnswerData(question.getRawNumber(), question.getTextString(), "1", "TEST", "0"));
-        data.setResponseData(responseData);
 
-        current = flowImplementation.update(ResponseData.adapter(data)).getCurrent();
+        current = flowImplementation.update(ModalHelpers.getDummyOptions()).getCurrent();
 
         children = current.getAnswers().get(0).getChildren();
 
@@ -275,18 +230,9 @@ public class FlowImplementationTest {
         Random random = new Random();
         for (Question c : children) {
             question = c;
-            data = QuestionData.adapter(question);
-
-            responseData = OptionData.adapter(question);
-            responseData.setAnswerData(new SingleAnswerData(question.getRawNumber()
-                    , question.getTextString()
-                    , "" + random.nextInt(100)
-                    , "TEST " + random.nextInt(100)
-                    , "0"));
-            data.setResponseData(responseData);
 
             flowImplementation.setCurrent(question);
-            flowImplementation.update(ResponseData.adapter(data));
+            flowImplementation.update(ModalHelpers.getDummyOptions());
 
             if (c.getRawNumber().equals("2.1")) {
                 c.setFinished(true);
@@ -310,9 +256,8 @@ public class FlowImplementationTest {
 
         ArrayList<Option> response = new ArrayList<>();
         response.add(new Option("", "GENERIC", null, "", "1"));
-        ResponseData responseData = new ResponseData(null, question.getRawNumber(), response);
 
-        flowImplementation.update(responseData);
+        flowImplementation.update(response);
 
         Answer answer_2_1_6_5 = question.getAnswers().get(0);
 
@@ -335,9 +280,7 @@ public class FlowImplementationTest {
         response.add(new Option("", "GENERIC", null, "", "4"));
         response.add(new Option("", "GENERIC", null, "", "5"));
 
-        responseData = new ResponseData(null, q_2_1_6_5_1.getRawNumber(), response);
-
-        flowImplementation.update(responseData);
+        flowImplementation.update(response);
 
         Answer answer_2_1_6_5_1 = q_2_1_6_5_1.getAnswers().get(0);
 
@@ -356,9 +299,7 @@ public class FlowImplementationTest {
         response = new ArrayList<>();
         response.add(new Option("", "GENERIC", null, "", "4"));
 
-        responseData = new ResponseData(null, q_2_1_6_5_1.getRawNumber(), response);
-
-        flowImplementation.update(responseData);
+        flowImplementation.update(response);
 
         answer_2_1_6_5_1 = q_2_1_6_5_1.getAnswers().get(0);
 
@@ -391,9 +332,7 @@ public class FlowImplementationTest {
         response = new ArrayList<>();
         response.add(new Option("", "GENERIC", null, "", "1"));
 
-        responseData = new ResponseData(null, question.getRawNumber(), response);
-
-        flowImplementation.update(responseData);
+        flowImplementation.update(response);
 
         Question question_8_5 = question.getAnswers().get(0).getChildren().get(50);
 
@@ -415,29 +354,22 @@ public class FlowImplementationTest {
 
         flowImplementation.setCurrent(question);
 
-        QuestionData data = QuestionData.adapter(question);
-
-        // add mock answer
-        OptionData responseData = OptionData.adapter(question);
-        // the option position is important as inside the code only that is checked for skip pattern
-        responseData.setAnswerData(new SingleAnswerData(question.getRawNumber(), question.getTextString(), "1", "TEST", "0"));
-        data.setResponseData(responseData);
-
-        flowImplementation.update(ResponseData.adapter(data));
+        flowImplementation.update(ModalHelpers.getDummyOptions());
 
         question = flowImplementation.moveToIndex(0).getCurrent();
 
-        data = QuestionData.adapter(question);
-
         assertThat(question.getRawNumber(), is("2.1.7.3"));
 
-        // add mock answer
-        responseData = OptionData.adapter(question);
-        // the option position is important as inside the code only that is checked for skip pattern
-        responseData.setAnswerData(new SingleAnswerData(question.getRawNumber(), question.getTextString(), "1", "NO", "0"));
-        data.setResponseData(responseData);
+        ArrayList<Option> options = new ArrayList<>();
+        options.add(new Option(
+                "",
+                "",
+                new Text("", "NO", "NO", ""),
+                "",
+                "0"
+        ));
 
-        flowImplementation.update(ResponseData.adapter(data));
+        flowImplementation.update(options);
 
         IFlow.FlowData flowData = flowImplementation.getNext();
 
@@ -453,15 +385,7 @@ public class FlowImplementationTest {
 
         flowImplementation.setCurrent(question);
 
-        QuestionData data = QuestionData.adapter(question);
-
-        // add mock answer
-        OptionData responseData = OptionData.adapter(question);
-        // the option position is important as inside the code only that is checked for skip pattern
-        responseData.setAnswerData(new InputAnswerData(question.getRawNumber(), question.getTextString(), "TEST"));
-        data.setResponseData(responseData);
-
-        flowImplementation.update(ResponseData.adapter(data));
+        flowImplementation.update(ModalHelpers.getDummyOptions());
 
         Question parent = flowImplementation.getCurrent();
 
@@ -491,14 +415,14 @@ public class FlowImplementationTest {
         assertThat(question_3_5.getRawNumber(), is("3.5"));
 
         flowImplementation.setCurrent(question_3_5);
-        flowImplementation.update(ModalHelpers.dummyResponseData(question_3_5));
+        flowImplementation.update(ModalHelpers.getDummyOptions());
         flowImplementation.getNext();
 
         Question q_3_5_1 = flowImplementation.getCurrent();
 
         assertThat(q_3_5_1.getRawNumber(), is("3.5.1"));
 
-        flowImplementation.update(ModalHelpers.dummyResponseData(q_3_5_1));
+        flowImplementation.update(ModalHelpers.getDummyOptions());
         flowImplementation.getNext();
 
         Question q_3_5_2 = flowImplementation.getCurrent();

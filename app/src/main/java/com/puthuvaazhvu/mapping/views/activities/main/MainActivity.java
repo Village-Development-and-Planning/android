@@ -1,10 +1,7 @@
 package com.puthuvaazhvu.mapping.views.activities.main;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
@@ -16,6 +13,7 @@ import android.view.MenuItem;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.application.MappingApplication;
 import com.puthuvaazhvu.mapping.data.SurveyDataRepository;
+import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.network.APIs;
@@ -29,16 +27,10 @@ import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
 import com.puthuvaazhvu.mapping.views.activities.MenuActivity;
 import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListActivity;
 import com.puthuvaazhvu.mapping.views.dialogs.ProgressDialog;
-import com.puthuvaazhvu.mapping.views.fragments.question.fragment.ConformationQuestionFragment;
-import com.puthuvaazhvu.mapping.views.fragments.question.fragment.FragmentCommunicationInterface;
-import com.puthuvaazhvu.mapping.views.fragments.question.fragment.GridQuestionsFragment;
-import com.puthuvaazhvu.mapping.views.fragments.question.fragment.InfoFragment;
-import com.puthuvaazhvu.mapping.views.fragments.question.fragment.MessageQuestionFragment;
-import com.puthuvaazhvu.mapping.views.fragments.question.fragment.together.TogetherQuestionFragment;
-import com.puthuvaazhvu.mapping.views.fragments.question.fragment.QuestionFragment;
-import com.puthuvaazhvu.mapping.views.fragments.question.fragment.SingleQuestionFragment;
-import com.puthuvaazhvu.mapping.views.fragments.question.modals.QuestionData;
-import com.puthuvaazhvu.mapping.views.fragments.question.modals.GridQuestionData;
+import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.ConfirmationQuestionCommunication;
+import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.GridQuestionFragmentCommunication;
+import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.QuestionDataFragmentCommunication;
+import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.SingleQuestionFragmentCommunication;
 import com.puthuvaazhvu.mapping.views.fragments.summary.SummaryFragment;
 import com.puthuvaazhvu.mapping.views.helpers.FlowHelper;
 import com.puthuvaazhvu.mapping.views.helpers.next_flow.IFlow;
@@ -52,12 +44,14 @@ import com.puthuvaazhvu.mapping.views.managers.receiver.StackFragmentManagerRece
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-import okhttp3.internal.Util;
 import timber.log.Timber;
 
 public class MainActivity extends MenuActivity
         implements Contract.View,
-        FragmentCommunicationInterface {
+        SingleQuestionFragmentCommunication,
+        QuestionDataFragmentCommunication,
+        GridQuestionFragmentCommunication,
+        ConfirmationQuestionCommunication {
 
     private final long REPEATING_TASK_INTERVAL = TimeUnit.MINUTES.toMillis(30);
 
@@ -207,44 +201,8 @@ public class MainActivity extends MenuActivity
     }
 
     @Override
-    public void shouldShowGrid(QuestionData parent, ArrayList<GridQuestionData> question) {
-        QuestionFragment fragment = GridQuestionsFragment.getInstance(parent, question);
-        replaceFragmentCommand(fragment, parent.getSingleQuestion().getRawNumber());
-        executePendingCommands();
-    }
-
-    @Override
-    public void shouldShowSingleQuestion(QuestionData question) {
-        QuestionFragment fragment = SingleQuestionFragment.getInstance(question);
-        replaceFragmentCommand(fragment, question.getSingleQuestion().getRawNumber());
-        executePendingCommands();
-    }
-
-    @Override
-    public void shouldShowQuestionAsInfo(QuestionData question) {
-        InfoFragment fragment = InfoFragment.getInstance(question);
-        replaceFragmentCommand(fragment, question.getSingleQuestion().getRawNumber());
-        executePendingCommands();
-    }
-
-    @Override
-    public void shouldShowConformationQuestion(QuestionData question) {
-        ConformationQuestionFragment fragment = ConformationQuestionFragment.getInstance(question);
-        replaceFragmentCommand(fragment, question.getSingleQuestion().getRawNumber());
-        executePendingCommands();
-    }
-
-    @Override
-    public void shouldShowMessageQuestion(QuestionData question) {
-        MessageQuestionFragment fragment = MessageQuestionFragment.getInstance(question);
-        replaceFragmentCommand(fragment, question.getSingleQuestion().getRawNumber());
-        executePendingCommands();
-    }
-
-    @Override
-    public void shouldShowTogetherQuestion(Question currentReference, QuestionData question) {
-        TogetherQuestionFragment fragment = TogetherQuestionFragment.getInstance(currentReference, question);
-        replaceFragmentCommand(fragment, question.getSingleQuestion().getRawNumber());
+    public void loadQuestionUI(Fragment fragment, String tag) {
+        replaceFragmentCommand(fragment, tag);
         executePendingCommands();
     }
 
@@ -291,21 +249,9 @@ public class MainActivity extends MenuActivity
                     }
                 }, null);
         alertDialog.setCancelable(false);
-        alertDialog.show();
-    }
 
-    @Override
-    public void remove(Question question) {
-        addPopFragmentCommand(question.getRawNumber());
-    }
-
-    @Override
-    public void remove(ArrayList<Question> questions) {
-        for (int i = 0; i < questions.size(); i++) {
-            String tag = questions.get(i).getRawNumber();
-            addPopFragmentCommand(tag);
-        }
-        executePendingCommands();
+        if (!paused)
+            alertDialog.show();
     }
 
     @Override
@@ -342,66 +288,12 @@ public class MainActivity extends MenuActivity
         defaultBackPressed = toggle;
     }
 
-    @Override
-    public void onQuestionAnswered(QuestionData questionData, boolean isNewRoot) {
-        if (isNewRoot) {
-            // if a question is clicked
-            int position = questionData.getPosition();
-
-            if (position < 0) {
-                throw new IllegalArgumentException("The position is invalid.");
-            }
-
-            moveToQuestionAt(position);
-
-        } else {
-            // normal stack flow
-            updateCurrentQuestion(questionData, new Runnable() {
-                @Override
-                public void run() {
-                    getNextQuestion();
-                }
-            });
-        }
-    }
-
-    @Override
-    public void finishCurrentQuestion(final QuestionData questionData, boolean shouldLogOptions) {
-        if (shouldLogOptions) {
-            updateCurrentQuestion(questionData, new Runnable() {
-                @Override
-                public void run() {
-                    presenter.finishCurrent(questionData);
-                    presenter.getNext();
-                }
-            });
-        } else {
-            presenter.finishCurrent(questionData);
-            presenter.getNext();
-        }
-    }
-
-    @Override
-    public void onBackPressedFromQuestion(QuestionData currentQuestionData) {
-        presenter.getPrevious();
-    }
-
-    @Override
-    public void onErrorWhileAnswering(final String message) {
-        this.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Utils.showMessageToast(message, MainActivity.this);
-            }
-        });
-    }
-
     public void moveToQuestionAt(int index) {
         presenter.moveToQuestionAt(index);
     }
 
-    public void updateCurrentQuestion(QuestionData questionData, Runnable runnable) {
-        presenter.updateCurrentQuestion(questionData, runnable);
+    public void updateCurrentQuestion(Question question, ArrayList<Option> response, Runnable runnable) {
+        presenter.updateCurrentQuestion(question, response, runnable);
     }
 
     public void getNextQuestion() {
@@ -437,5 +329,69 @@ public class MainActivity extends MenuActivity
 
     public void forceCrash() {
         throw new RuntimeException("This is a test crash");
+    }
+
+    @Override
+    public void onBackPressedFromGrid(Question question) {
+        onBackPressedFromSingleQuestion(question);
+    }
+
+    @Override
+    public void onNextPressedFromGrid(Question question) {
+        presenter.finishCurrent(question);
+        presenter.getNext();
+    }
+
+    @Override
+    public void onQuestionSelectedFromGrid(Question question, int pos) {
+        // if a question is clicked
+        if (pos < 0) {
+            throw new IllegalArgumentException("The position is invalid.");
+        }
+
+        moveToQuestionAt(pos);
+    }
+
+    @Override
+    public Question getCurrentQuestionFromActivity() {
+        return presenter.getCurrent();
+    }
+
+    @Override
+    public void onNextPressedFromSingleQuestion(Question question, ArrayList<Option> response) {
+        // normal stack flow
+        updateCurrentQuestion(question, response, new Runnable() {
+            @Override
+            public void run() {
+                getNextQuestion();
+            }
+        });
+    }
+
+    @Override
+    public void onBackPressedFromSingleQuestion(Question question) {
+        presenter.getPrevious();
+    }
+
+    @Override
+    public void onError(final String message) {
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Utils.showMessageToast(message, MainActivity.this);
+            }
+        });
+    }
+
+    @Override
+    public void onBackPressedFromConformationQuestion(final Question question, ArrayList<Option> response) {
+        updateCurrentQuestion(question, response, new Runnable() {
+            @Override
+            public void run() {
+                presenter.finishCurrent(question);
+                presenter.getNext();
+            }
+        });
+
     }
 }

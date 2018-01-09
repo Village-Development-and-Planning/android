@@ -13,7 +13,6 @@ import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.activities.MenuActivity;
 import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListActivity;
-import com.puthuvaazhvu.mapping.views.activities.testing.TogetherQuestionTestFragmentActivity;
 import com.puthuvaazhvu.mapping.views.dialogs.ProgressDialog;
 
 /**
@@ -66,7 +65,6 @@ public class SettingsActivity extends MenuActivity implements View.OnClickListen
                 showListOfSurveyActivity();
                 break;
             case R.id.message_fragment_test:
-                showMessageQuestionTestActivity();
                 break;
             case R.id.dump_survey:
                 // dumpSurvey();
@@ -111,11 +109,6 @@ public class SettingsActivity extends MenuActivity implements View.OnClickListen
     private void showListOfSurveyActivity() {
         Intent intent = new Intent(this, SurveyListActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-    }
-
-    private void showMessageQuestionTestActivity() {
-        Intent intent = new Intent(this, TogetherQuestionTestFragmentActivity.class);
         startActivity(intent);
     }
 }

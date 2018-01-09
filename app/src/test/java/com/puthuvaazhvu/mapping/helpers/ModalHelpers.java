@@ -1,5 +1,7 @@
 package com.puthuvaazhvu.mapping.helpers;
 
+import android.graphics.Path;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.puthuvaazhvu.mapping.modals.Answer;
@@ -8,11 +10,10 @@ import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.utils.info_file.modals.AnswersInfoFileDataModal;
-import com.puthuvaazhvu.mapping.views.helpers.ResponseData;
 
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Random;
 
 import io.reactivex.Single;
 
@@ -104,16 +105,16 @@ public class ModalHelpers {
         }
     }
 
+    public static ArrayList<Option> getDummyOptions() {
+        ArrayList<Option> options = new ArrayList<>();
+        options.add(new Option("", "dummy", null, "", "-1"));
+        return options;
+    }
+
     public static Answer getDummyAnswer(Question question) {
         ArrayList<Option> options = new ArrayList<>();
         options.add(new Option("", "", null, "", "-1"));
         return new Answer(options, question);
-    }
-
-    public static ResponseData dummyResponseData(Question question) {
-        ArrayList<Option> options = new ArrayList<>();
-        options.add(new Option("", "", null, "", "-1"));
-        return new ResponseData("", question.getRawNumber(), options);
     }
 
     private static InputStream getDataFormFile(Object obj, String fileName) {

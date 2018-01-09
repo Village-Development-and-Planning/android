@@ -9,7 +9,6 @@ import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
 import com.puthuvaazhvu.mapping.views.helpers.FlowType;
-import com.puthuvaazhvu.mapping.views.helpers.ResponseData;
 import com.puthuvaazhvu.mapping.views.helpers.back_navigation.BackNavigation;
 
 import java.util.ArrayList;
@@ -76,7 +75,7 @@ public class FlowImplementation implements IFlow {
                 setCurrent(current);
 
                 // add to back stack
-                backNavigation.addQuestionToStack(current);
+                addEntryToBackStack();
             } catch (IndexOutOfBoundsException e) {
                 throw new IllegalArgumentException("The index " + index + " is not present inside the answers. "
                         + latestAnswer.toString());
@@ -90,22 +89,11 @@ public class FlowImplementation implements IFlow {
     }
 
     @Override
-    public IFlow update(ResponseData responseData) {
-        String rawNumber = responseData.getRawNumber();
-        if (rawNumber != null && !rawNumber.equals(current.getRawNumber())) {
-            Timber.e("Number mismatch " + "current: " + current.getRawNumber() + " received: " + rawNumber);
-            return this;
-        }
-
-        ArrayList<Option> loggedOption = new ArrayList<>();
-        loggedOption.addAll(responseData.getResponse());
-
+    public IFlow update(ArrayList<Option> response) {
         long startTime = System.currentTimeMillis();
         Timber.i("Started creation of answers");
 
-        Answer answer = new Answer(
-                loggedOption,
-                current);
+        Answer answer = new Answer(response, current);
 
         Timber.i("Done creation of answers. Time taken: " + (System.currentTimeMillis() - startTime) + "ms");
 
@@ -162,7 +150,7 @@ public class FlowImplementation implements IFlow {
         } while (nextQuestion == null);
 
         setCurrent(flowData.question);
-        backNavigation.addQuestionToStack(flowData.question);
+        addEntryToBackStack();
 
         return flowData;
     }
@@ -207,6 +195,15 @@ public class FlowImplementation implements IFlow {
                 break;
             }
         }
+    }
+
+    private void addEntryToBackStack() {
+        if (current == null) {
+            return;
+        }
+
+        if (current.getFlowPattern().getQuestionFlow().getUiMode() != QuestionFlow.UI.NONE)
+            backNavigation.addQuestionToStack(current);
     }
 
     private FlowData getNextInternal(Question current) {

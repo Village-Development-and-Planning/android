@@ -1,5 +1,7 @@
 package com.puthuvaazhvu.mapping.views.helpers;
 
+import com.google.gson.JsonObject;
+import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.views.helpers.back_navigation.IBackFlow;
 import com.puthuvaazhvu.mapping.views.helpers.next_flow.IFlow;
@@ -21,8 +23,8 @@ public class FlowHelper {
         return iFlow.getNext();
     }
 
-    public IFlow update(ResponseData responseData) {
-        return iFlow.update(responseData);
+    public IFlow update(ArrayList<Option> options) {
+        return iFlow.update(options);
     }
 
     public IFlow moveToIndex(int index) {

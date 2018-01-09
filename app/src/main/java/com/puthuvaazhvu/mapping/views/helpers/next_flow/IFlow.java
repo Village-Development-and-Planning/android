@@ -1,10 +1,9 @@
 package com.puthuvaazhvu.mapping.views.helpers.next_flow;
 
+import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.flow.ChildFlow;
 import com.puthuvaazhvu.mapping.views.helpers.FlowType;
-import com.puthuvaazhvu.mapping.views.helpers.ResponseData;
-import com.puthuvaazhvu.mapping.views.helpers.back_navigation.IBackFlow;
 
 import java.util.ArrayList;
 
@@ -41,10 +40,10 @@ public interface IFlow {
     /**
      * Updates the current question with the answer
      *
-     * @param responseData The data that contains the answer
+     * @param response The data that contains the answer
      * @return Instance of {@link IFlow}
      */
-    IFlow update(ResponseData responseData);
+    IFlow update(ArrayList<Option> response);
 
     /**
      * Get's the next question

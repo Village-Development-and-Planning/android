@@ -44,9 +44,10 @@ public class BaseActivity extends AppCompatActivity {
 
     private void checkForInitialPermissions() {
         if (Utils.isPermissionGranted(this, Constants.PermissionRequestCodes.STORAGE_PERMISSION_REQUEST_CODE
-                , Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                , Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE,
+                android.Manifest.permission.ACCESS_FINE_LOCATION)) {
 
-            Timber.i("Permission granted for read / write external storage");
+            Timber.i("Permission granted for read / write external storage, access fine location");
             onPermissionsGranted();
         }
     }
@@ -60,9 +61,10 @@ public class BaseActivity extends AppCompatActivity {
 
                 if (grantResults.length == 2
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED
-                        && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                        && grantResults[1] == PackageManager.PERMISSION_GRANTED
+                        && grantResults[2] == PackageManager.PERMISSION_GRANTED) {
 
-                    Timber.i("Permission granted for read / write external storage");
+                    Timber.i("Permission granted for read / write external storage, access fine location");
                     onPermissionsGranted();
 
                 } else {
