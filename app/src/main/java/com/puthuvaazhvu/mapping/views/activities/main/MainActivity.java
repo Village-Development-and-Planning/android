@@ -30,6 +30,7 @@ import com.puthuvaazhvu.mapping.views.dialogs.ProgressDialog;
 import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.ConfirmationQuestionCommunication;
 import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.GridQuestionFragmentCommunication;
 import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.QuestionDataFragmentCommunication;
+import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.ShowTogetherQuestionCommunication;
 import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.SingleQuestionFragmentCommunication;
 import com.puthuvaazhvu.mapping.views.fragments.summary.SummaryFragment;
 import com.puthuvaazhvu.mapping.views.helpers.FlowHelper;
@@ -51,7 +52,8 @@ public class MainActivity extends MenuActivity
         SingleQuestionFragmentCommunication,
         QuestionDataFragmentCommunication,
         GridQuestionFragmentCommunication,
-        ConfirmationQuestionCommunication {
+        ConfirmationQuestionCommunication,
+        ShowTogetherQuestionCommunication {
 
     private final long REPEATING_TASK_INTERVAL = TimeUnit.MINUTES.toMillis(30);
 
@@ -392,6 +394,16 @@ public class MainActivity extends MenuActivity
                 presenter.getNext();
             }
         });
+    }
 
+    @Override
+    public void onBackPressedFromShownTogetherQuestion(Question question) {
+        onBackPressedFromSingleQuestion(question);
+    }
+
+    @Override
+    public void onNextPressedFromShownTogetherQuestion(Question question) {
+        presenter.finishCurrent(question);
+        presenter.getNext();
     }
 }

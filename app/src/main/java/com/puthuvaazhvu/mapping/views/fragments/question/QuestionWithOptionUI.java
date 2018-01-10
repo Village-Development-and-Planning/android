@@ -10,15 +10,14 @@ import android.widget.TextView;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.views.fragments.options.OptionsUI;
-import com.puthuvaazhvu.mapping.views.fragments.options.OptionsUIFactory;
+import com.puthuvaazhvu.mapping.views.fragments.options.CreateOptionsUI;
+import com.puthuvaazhvu.mapping.views.fragments.options.factory.OptionsUIFactory;
 
 /**
  * Created by muthuveerappans on 1/9/18.
  */
 
 public abstract class QuestionWithOptionUI extends QuestionDataFragment {
-    TextView question_text;
-
     OptionsUI optionsUI;
 
     ViewGroup optionsContainer;
@@ -27,28 +26,24 @@ public abstract class QuestionWithOptionUI extends QuestionDataFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = LayoutInflater.from(getContext()).inflate(R.layout.single_question, container, false);
-        initView(view);
         return view;
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        question_text = view.findViewById(R.id.question_text);
         optionsContainer = view.findViewById(R.id.options_container);
-        loadOptionUI(getQuestion());
+        loadOptionUI(getQuestion(), getOptionsUIFactory());
     }
 
-    public TextView getQuestionText() {
-        return question_text;
-    }
+    public abstract OptionsUIFactory getOptionsUIFactory();
 
     /**
      * Helper to load the options based on the correct option type provided.
      */
-    protected void loadOptionUI(Question question) {
-        OptionsUIFactory optionsUIFactory = new OptionsUIFactory(question, optionsContainer);
-        optionsUI = optionsUIFactory.createOptionsUI();
+    protected void loadOptionUI(Question question, OptionsUIFactory optionsUIFactory) {
+        CreateOptionsUI createOptionsUI = new CreateOptionsUI(question);
+        optionsUI = createOptionsUI.createOptionsUI(optionsUIFactory);
         optionsUI.attachToRoot();
     }
 }

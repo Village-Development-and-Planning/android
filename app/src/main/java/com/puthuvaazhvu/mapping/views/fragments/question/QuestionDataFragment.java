@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.Question;
@@ -17,6 +18,7 @@ import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces
 
 public abstract class QuestionDataFragment extends QuestionFragment {
     protected QuestionDataFragmentCommunication questionDataFragmentCommunication;
+    TextView question_text;
 
     @Override
     public void onAttach(Context context) {
@@ -33,8 +35,6 @@ public abstract class QuestionDataFragment extends QuestionFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = LayoutInflater.from(getContext()).inflate(R.layout.single_question, container, false);
-        initView(view);
-
         return view;
     }
 
@@ -42,11 +42,17 @@ public abstract class QuestionDataFragment extends QuestionFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        question_text = view.findViewById(R.id.question_text);
+
         if (questionDataFragmentCommunication.getCurrentQuestionFromActivity().getFlowPattern().getQuestionFlow().isBack()) {
             getBackButton().setVisibility(View.VISIBLE);
         } else {
             getBackButton().setVisibility(View.INVISIBLE);
         }
+    }
+
+    public TextView getQuestionText() {
+        return question_text;
     }
 
     public Question getQuestion() {

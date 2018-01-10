@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.Option;
+import com.puthuvaazhvu.mapping.views.custom_components.ChildLinearLayoutManager;
 import com.puthuvaazhvu.mapping.views.fragments.options.adapters.CheckBoxAdapter;
 import com.puthuvaazhvu.mapping.views.fragments.options.adapters.CheckableOptionsAsListAdapter;
 import com.puthuvaazhvu.mapping.views.fragments.options.adapters.RadioButtonAdapter;
@@ -23,19 +24,39 @@ import java.util.ArrayList;
 public class CheckBoxOptionsAsListUI extends CheckableOptionsUI {
     private RecyclerView recyclerView;
 
-    public CheckBoxOptionsAsListUI(ViewGroup frame, Context context, CheckableOptionsAsListUIData checkableOptionsAsListUIData) {
+    public CheckBoxOptionsAsListUI(
+            ViewGroup frame,
+            Context context,
+            CheckableOptionsAsListUIData checkableOptionsAsListUIData) {
         super(frame, context, checkableOptionsAsListUIData);
+    }
+
+    public CheckBoxOptionsAsListUI(
+            ViewGroup frame,
+            Context context,
+            CheckableOptionsAsListUIData checkableOptionsAsListUIData,
+            boolean shouldScroll) {
+        super(frame, context, checkableOptionsAsListUIData, shouldScroll);
     }
 
     @Override
     public View createView() {
         View view = super.createView();
         recyclerView = view.findViewById(R.id.options_recycler_view);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(
-                context,
-                LinearLayoutManager.VERTICAL,
-                false);
-        recyclerView.setLayoutManager(linearLayoutManager);
+
+        RecyclerView.LayoutManager layoutManager;
+        if (shouldScroll) {
+            layoutManager = new LinearLayoutManager(
+                    context,
+                    LinearLayoutManager.VERTICAL,
+                    false);
+        } else {
+            layoutManager = new ChildLinearLayoutManager(context,
+                    LinearLayoutManager.VERTICAL,
+                    false);
+        }
+
+        recyclerView.setLayoutManager(layoutManager);
 
         // set the adapter
         CheckableOptionsAsListAdapter checkableOptionsAsListAdapter = new CheckBoxAdapter(checkableOptionsAsListUIData);

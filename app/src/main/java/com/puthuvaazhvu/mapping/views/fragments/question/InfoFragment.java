@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.puthuvaazhvu.mapping.R;
+import com.puthuvaazhvu.mapping.views.fragments.options.factory.OptionsUIFactory;
 
 /**
  * Created by muthuveerappans on 10/10/17.
@@ -24,7 +25,6 @@ public class InfoFragment extends SingleQuestionFragmentBase implements View.OnC
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.info_question, container, false);
-        initView(view);
         return view;
     }
 
@@ -34,6 +34,11 @@ public class InfoFragment extends SingleQuestionFragmentBase implements View.OnC
 
         question_text = view.findViewById(R.id.question_text);
         question_text.setText(getQuestion().getTextForLanguage());
+    }
+
+    @Override
+    public OptionsUIFactory getOptionsUIFactory() {
+        return new OptionsUIFactory(getQuestion(), optionsContainer);
     }
 
     @Override

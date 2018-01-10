@@ -23,6 +23,7 @@ import com.puthuvaazhvu.mapping.views.fragments.question.ConformationQuestionFra
 import com.puthuvaazhvu.mapping.views.fragments.question.GridQuestionsFragment;
 import com.puthuvaazhvu.mapping.views.fragments.question.InfoFragment;
 import com.puthuvaazhvu.mapping.views.fragments.question.MessageQuestionFragment;
+import com.puthuvaazhvu.mapping.views.fragments.question.ShownTogetherFragment;
 import com.puthuvaazhvu.mapping.views.fragments.question.SingleQuestionFragment;
 import com.puthuvaazhvu.mapping.views.helpers.FlowHelper;
 import com.puthuvaazhvu.mapping.views.helpers.FlowType;
@@ -280,6 +281,9 @@ public class MainPresenter implements Contract.UserAction {
             showSingleQuestionUI(question);
         } else if (flowData.flowType == FlowType.END) {
             activityView.onSurveyEnd();
+        } else if (flowData.flowType == FlowType.TOGETHER) {
+            fragment = new ShownTogetherFragment();
+            activityView.loadQuestionUI(fragment, "shown_together");
         } else {
             if (question != null)
                 Timber.e("Invalid UI data provided. number:  " + question.getRawNumber());

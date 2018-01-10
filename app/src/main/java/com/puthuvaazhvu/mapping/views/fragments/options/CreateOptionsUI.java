@@ -5,6 +5,7 @@ import android.view.ViewGroup;
 
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
+import com.puthuvaazhvu.mapping.views.fragments.options.factory.OptionsUIFactory;
 import com.puthuvaazhvu.mapping.views.fragments.options.modals.CheckableOptionsAsListUIData;
 import com.puthuvaazhvu.mapping.views.fragments.options.modals.OptionsUIData;
 
@@ -14,35 +15,31 @@ import timber.log.Timber;
  * Created by muthuveerappans on 1/9/18.
  */
 
-public class OptionsUIFactory {
+public class CreateOptionsUI {
     private final Question question;
-    private final ViewGroup frame;
-    private final Context context;
 
-    public OptionsUIFactory(Question question, ViewGroup frame) {
+    public CreateOptionsUI(Question question) {
         this.question = question;
-        this.frame = frame;
-        this.context = frame.getContext();
     }
 
-    public OptionsUI createOptionsUI() {
+    public OptionsUI createOptionsUI(OptionsUIFactory optionsUIFactory) {
         QuestionFlow.UI ui = question.getFlowPattern().getQuestionFlow().getUiMode();
         switch (ui) {
             case GPS:
-                return new GPSOptionsUI(frame, context);
+                return optionsUIFactory.createGpsOptionUI();
             case INPUT:
-                return new InputOptionsUI(frame, context, OptionsUIData.adapter(question));
+                return optionsUIFactory.createInputOptionsUI();
             case MULTIPLE_CHOICE:
-                return new CheckBoxOptionsAsListUI(frame, context, CheckableOptionsAsListUIData.adapter(question));
+                return optionsUIFactory.createCheckBoxOptionsAsListUI();
             case SINGLE_CHOICE:
-                return new RadioButtonOptionsAsListUI(frame, context, CheckableOptionsAsListUIData.adapter(question));
+                return optionsUIFactory.createRadioButtonOptionsAsListUI();
             case INFO:
-                return new DummyOptionsUI(frame, context, question.getTextForLanguage()); // Todo: change this
+                return optionsUIFactory.createDummyOptionsUI(); // Todo: change this
             case CONFIRMATION:
             case DUMMY:
             case MESSAGE:
             case NONE:
-                return new DummyOptionsUI(frame, context, question.getTextForLanguage());
+                return optionsUIFactory.createDummyOptionsUI();
             default:
                 Timber.e("No UI found for " + ui.name());
                 return null;

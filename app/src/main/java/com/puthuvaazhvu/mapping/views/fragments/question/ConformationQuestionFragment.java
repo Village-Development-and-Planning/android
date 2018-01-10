@@ -5,15 +5,14 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.View;
 
-import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Text;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.views.fragments.options.OptionsUI;
-import com.puthuvaazhvu.mapping.views.fragments.options.OptionsUIFactory;
+import com.puthuvaazhvu.mapping.views.fragments.options.CreateOptionsUI;
+import com.puthuvaazhvu.mapping.views.fragments.options.factory.OptionsUIFactory;
 import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.ConfirmationQuestionCommunication;
-import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.GridQuestionFragmentCommunication;
 
 import java.util.ArrayList;
 
@@ -22,8 +21,6 @@ import java.util.ArrayList;
  */
 
 public class ConformationQuestionFragment extends SingleQuestionFragmentBase {
-    private OptionsUI optionsUI;
-
     protected ConfirmationQuestionCommunication conformationQuestionFragment;
 
     @Override
@@ -51,8 +48,11 @@ public class ConformationQuestionFragment extends SingleQuestionFragmentBase {
 
         String questionText = getQuestion().getTextForLanguage();
         getQuestionText().setText(questionText);
+    }
 
-        optionsUI = new OptionsUIFactory(getQuestion(), optionsContainer).createOptionsUI();
+    @Override
+    public OptionsUIFactory getOptionsUIFactory() {
+        return new OptionsUIFactory(getQuestion(), optionsContainer);
     }
 
     @Override

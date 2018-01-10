@@ -18,6 +18,7 @@ import timber.log.Timber;
  */
 
 public class CheckBoxAdapter extends CheckableOptionsAsListAdapter {
+    private boolean onBind;
 
     public CheckBoxAdapter(CheckableOptionsAsListUIData optionsUIData) {
         super(optionsUIData);
@@ -30,12 +31,16 @@ public class CheckBoxAdapter extends CheckableOptionsAsListAdapter {
         cbvh.setCheckBoxClickListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
-                if (hasOptionsLimitReached() && checked) {
-                    Timber.i("Options limit reached");
-                    return;
+                if (!onBind) {
+                    SingleData singleData = (SingleData) compoundButton.getTag();
+                    if (hasOptionsLimitReached() && checked) {
+                        Timber.i("Options limit reached");
+                        singleData.setSelected(false);
+                    } else {
+                        singleData.setSelected(checked);
+                    }
+                    CheckBoxAdapter.this.notifyDataSetChanged();
                 }
-                SingleData singleData = (SingleData) compoundButton.getTag();
-                singleData.setSelected(checked);
             }
         });
         return cbvh;
@@ -46,7 +51,10 @@ public class CheckBoxAdapter extends CheckableOptionsAsListAdapter {
         CheckBoxVH vh = (CheckBoxVH) holder;
         SingleData singleData = optionsUIData.getSingleDataArrayList().get(position);
         vh.getCheck_box().setTag(singleData);
+
+        onBind = true;
         vh.populateViews(singleData.getText(), singleData.isSelected());
+        onBind = false;
     }
 
     class CheckBoxVH extends RecyclerView.ViewHolder {

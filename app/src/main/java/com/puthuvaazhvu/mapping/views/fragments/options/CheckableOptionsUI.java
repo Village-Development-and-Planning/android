@@ -20,10 +20,21 @@ import java.util.ArrayList;
 
 public abstract class CheckableOptionsUI extends OptionsUI {
     public final CheckableOptionsAsListUIData checkableOptionsAsListUIData;
+    protected boolean shouldScroll;
 
     public CheckableOptionsUI(ViewGroup frame, Context context, CheckableOptionsAsListUIData checkableOptionsAsListUIData) {
         super(frame, context);
         this.checkableOptionsAsListUIData = checkableOptionsAsListUIData;
+        this.shouldScroll = true;
+    }
+
+    public CheckableOptionsUI(
+            ViewGroup frame,
+            Context context,
+            CheckableOptionsAsListUIData checkableOptionsAsListUIData,
+            boolean shouldScroll) {
+        this(frame, context, checkableOptionsAsListUIData);
+        this.shouldScroll = shouldScroll;
     }
 
     public ArrayList<Option> getResponse() {
@@ -31,7 +42,7 @@ public abstract class CheckableOptionsUI extends OptionsUI {
         for (CheckableOptionsAsListUIData.SingleData singleData : checkableOptionsAsListUIData.getLoggedOptions()) {
             options.add(new Option(
                     "",
-                    "multiple",
+                    "MULTIPLE",
                     new Text("", singleData.getText(), singleData.getText(), ""),
                     "",
                     singleData.getPosition()

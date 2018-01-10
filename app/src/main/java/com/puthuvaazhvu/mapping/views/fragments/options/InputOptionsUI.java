@@ -53,7 +53,7 @@ public class InputOptionsUI extends OptionsUI {
         if (input.isEmpty()) {
             return null;
         }
-        options.add(new Option("", "input", new Text("", input, input, ""), "", ""));
+        options.add(new Option("", "INPUT", new Text("", input, input, ""), "", ""));
         return options;
     }
 }

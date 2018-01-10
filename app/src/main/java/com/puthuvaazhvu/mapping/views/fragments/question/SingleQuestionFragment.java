@@ -8,6 +8,7 @@ import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.utils.Utils;
+import com.puthuvaazhvu.mapping.views.fragments.options.factory.OptionsUIFactory;
 
 import java.util.ArrayList;
 
@@ -26,6 +27,11 @@ public class SingleQuestionFragment extends SingleQuestionFragmentBase implement
 
         String text = rawNumber + ". " + questionText;
         getQuestionText().setText(text);
+    }
+
+    @Override
+    public OptionsUIFactory getOptionsUIFactory() {
+        return new OptionsUIFactory(getQuestion(), optionsContainer);
     }
 
     @Override

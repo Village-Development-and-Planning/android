@@ -21,7 +21,7 @@
 
         <activity android:name=".views.activities.save_survey_data.SurveyDataDumpActivity" />
 
-        <activity android:name=".views.activities.survey_list.SurveyListActivity"/>
+        <activity android:name=".views.activities.survey_list.SurveyListActivity" />
 
         <activity android:name=".views.activities.SplashActivity">
             <intent-filter>
@@ -33,7 +33,9 @@
 
         <activity android:name=".views.activities.settings.SettingsActivity" />
 
-        <activity android:name=".views.activities.testing.TogetherQuestionTestFragmentActivity" />
+        <activity android:name=".views.testing.ShownTogetherQuestionFragmentActivity" />
+
+        <activity android:name=".views.testing.MultipleChoiceQuestionFragmentTesting" />
 
         <meta-data
             android:name="io.fabric.ApiKey"

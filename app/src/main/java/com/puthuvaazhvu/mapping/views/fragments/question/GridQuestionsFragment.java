@@ -46,9 +46,7 @@ public class GridQuestionsFragment extends QuestionDataFragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.questions_grid, container, false);
-        initView(view);
-        return view;
+        return inflater.inflate(R.layout.questions_grid, container, false);
     }
 
     @Override

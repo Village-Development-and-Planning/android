@@ -32,7 +32,7 @@ public class DummyOptionsUI extends OptionsUI {
     @Override
     public ArrayList<Option> response() {
         ArrayList<Option> options = new ArrayList<>();
-        options.add(new Option("", "dummy",
+        options.add(new Option("", "DUMMY",
                 new Text("", "dummy", "dummy", ""),
                 "", ""));
         return options;

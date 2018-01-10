@@ -29,6 +29,8 @@ public abstract class QuestionFragment extends Fragment implements View.OnClickL
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        initView(view);
+
         if (Constants.APP_LANGUAGE == Constants.Language.ENGLISH) {
             back_button.setText(getString(R.string.back));
             next_button.setText(getString(R.string.next));
