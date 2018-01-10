@@ -350,6 +350,9 @@ public class Question extends BaseObject implements Parcelable {
                 if (!traverseWithAnswers) {
                     children = node.getChildren();
                 } else {
+                    if (node.getAnswers().isEmpty()) {
+                        return null;
+                    }
                     children = node.getLatestAnswer().getChildren();
                 }
 

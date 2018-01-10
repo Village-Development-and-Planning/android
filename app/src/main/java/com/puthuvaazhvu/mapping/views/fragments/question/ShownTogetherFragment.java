@@ -101,7 +101,7 @@ public class ShownTogetherFragment extends QuestionDataFragment {
     private void updateAnswersInQuestionTreeWithReadAnswers() {
         for (Question question : dataList) {
             OptionsUI optionsUI = optionsUiObjects.get(question.getRawNumber());
-            if (optionsUI != null) {
+            if (optionsUI != null && optionsUI.response() != null) {
                 Answer answer = new Answer(optionsUI.response(), question);
                 question.setAnswer(answer);
             }
