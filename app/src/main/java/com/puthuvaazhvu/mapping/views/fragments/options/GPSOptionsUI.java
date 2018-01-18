@@ -18,7 +18,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.Option;
+import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Text;
+import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.Utils;
 
 import java.util.ArrayList;
@@ -41,8 +43,8 @@ public class GPSOptionsUI extends OptionsUI
 
     private FusedLocationProviderClient mFusedLocationClient;
 
-    public GPSOptionsUI(ViewGroup frame, Context context) {
-        super(frame, context);
+    public GPSOptionsUI(ViewGroup frame, Context context, Question question) {
+        super(frame, context, question);
         activity = (AppCompatActivity) context;
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
     }
@@ -56,6 +58,12 @@ public class GPSOptionsUI extends OptionsUI
         button.setOnClickListener(this);
 
         textView = view.findViewById(R.id.location_text);
+
+        if (getLatestOptions() != null) {
+            Option lo = getLatestOptions().get(0);
+            textView.setText(lo.getTextString());
+        }
+
         return view;
     }
 

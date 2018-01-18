@@ -10,7 +10,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.Option;
+import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Text;
+import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.views.fragments.options.modals.OptionsUIData;
 
 import java.util.ArrayList;
@@ -23,8 +25,8 @@ public class InputOptionsUI extends OptionsUI {
     private EditText editText;
     private final OptionsUIData optionData;
 
-    public InputOptionsUI(ViewGroup frame, Context context, OptionsUIData optionData) {
-        super(frame, context);
+    public InputOptionsUI(ViewGroup frame, Context context, Question question, OptionsUIData optionData) {
+        super(frame, context, question);
         this.optionData = optionData;
     }
 
@@ -43,6 +45,12 @@ public class InputOptionsUI extends OptionsUI {
                 editText.setRawInputType(InputType.TYPE_CLASS_TEXT);
                 break;
         }
+
+        if (getLatestOptions() != null) {
+            Option lo = getLatestOptions().get(0);
+            editText.setText(lo.getTextString());
+        }
+
         return view;
     }
 

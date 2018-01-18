@@ -8,8 +8,6 @@ import com.crashlytics.android.Crashlytics;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.data.SurveyDataRepository;
 import com.puthuvaazhvu.mapping.modals.Option;
-import com.puthuvaazhvu.mapping.modals.Text;
-import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.other.Constants;
@@ -19,15 +17,13 @@ import com.puthuvaazhvu.mapping.utils.Optional;
 import com.puthuvaazhvu.mapping.utils.info_file.AnswersInfoFile;
 import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
 import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
+import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogic;
 import com.puthuvaazhvu.mapping.views.fragments.question.ConformationQuestionFragment;
 import com.puthuvaazhvu.mapping.views.fragments.question.GridQuestionsFragment;
 import com.puthuvaazhvu.mapping.views.fragments.question.InfoFragment;
 import com.puthuvaazhvu.mapping.views.fragments.question.MessageQuestionFragment;
 import com.puthuvaazhvu.mapping.views.fragments.question.ShownTogetherFragment;
 import com.puthuvaazhvu.mapping.views.fragments.question.SingleQuestionFragment;
-import com.puthuvaazhvu.mapping.views.helpers.FlowHelper;
-import com.puthuvaazhvu.mapping.views.helpers.FlowType;
-import com.puthuvaazhvu.mapping.views.helpers.next_flow.IFlow;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -46,7 +42,7 @@ public class MainPresenter implements Contract.UserAction {
     private final Contract.View activityView;
     private final SurveyDataRepository dataRepository;
 
-    private FlowHelper flowHelper;
+    private FlowLogic flowLogic;
 
     private Survey survey;
 
@@ -69,7 +65,6 @@ public class MainPresenter implements Contract.UserAction {
         this.uiHandler = uiHandler;
         this.saveToFile = saveToFile;
         this.getFromFile = getFromFile;
-
         this.answersInfoFile = new AnswersInfoFile(getFromFile, saveToFile);
     }
 
@@ -80,12 +75,12 @@ public class MainPresenter implements Contract.UserAction {
 
     @Override
     public Question getCurrent() {
-        return flowHelper.getCurrent();
+        return flowLogic.getCurrent().question;
     }
 
     @Override
     public void setCurrent(Question question) {
-        flowHelper.setCurrent(question);
+        flowLogic.setCurrent(question, FlowLogic.FlowData.FlowUIType.DEFAULT);
     }
 
     @Override
@@ -113,37 +108,33 @@ public class MainPresenter implements Contract.UserAction {
     }
 
     @Override
-    public void initData(Survey survey, FlowHelper flowHelper) {
+    public void initData(Survey survey, FlowLogic flowLogic) {
         // init
-        setSurveyQuestionFlow(flowHelper);
         this.survey = survey;
+        this.flowLogic = flowLogic;
     }
 
     @Override
     public void finishCurrent(Question question) {
-        if (flowHelper == null) {
+        if (flowLogic == null) {
             Timber.e(Constants.LOG_TAG, "The method is called too early? Call initData()/loadSurvey() first.");
             return;
         }
 
-        flowHelper.finishCurrentQuestion();
-    }
-
-    public void setSurveyQuestionFlow(FlowHelper flowHelper) {
-        this.flowHelper = flowHelper;
+        flowLogic.finishCurrent();
     }
 
     @Override
     public void moveToQuestionAt(int index) {
-        if (flowHelper == null) {
+        if (flowLogic == null) {
             Timber.e(Constants.LOG_TAG, "The method is called too early? Call initData()/loadSurvey() first.");
             return;
         }
 
-        Question current = flowHelper.moveToIndex(index).getCurrent();
+        FlowLogic.FlowData current = flowLogic.moveToIndexInChild(index).getCurrent();
 
         // call UI with the set question
-        showSingleQuestionUI(current);
+        showUI(current);
     }
 
     @Override
@@ -189,7 +180,7 @@ public class MainPresenter implements Contract.UserAction {
 
     @Override
     public void updateCurrentQuestion(final Question question, final ArrayList<Option> response, final Runnable runnable) {
-        if (flowHelper == null) {
+        if (flowLogic == null) {
             Timber.e(Constants.LOG_TAG, "The method is called too early? Call initData()/loadSurvey() first.");
             return;
         }
@@ -199,7 +190,7 @@ public class MainPresenter implements Contract.UserAction {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                flowHelper.update(response);
+                flowLogic.update(response);
                 uiHandler.post(runnable);
             }
         }).start();
@@ -207,92 +198,41 @@ public class MainPresenter implements Contract.UserAction {
 
     @Override
     public void showCurrent() {
-        IFlow.FlowData flowData = IFlow.FlowData.getFlowData(flowHelper.getCurrent());
-        showUI(flowData);
+        showUI(flowLogic.getCurrent());
     }
 
     @Override
     public void getNext() {
-        if (flowHelper == null) {
+        if (flowLogic == null) {
             Timber.e(Constants.LOG_TAG, "The method is called too early? Call initData()/loadSurvey() first.");
             return;
         }
 
-        // 1. get the next question to be shown
-        IFlow.FlowData flowData = flowHelper.getNext();
-
-        // 2. remove the answered questions from the stack.
-        //    This comes 2nd because the remove question are populated in the flow helper only.
-        // removeQuestionsFromStack();
-
-        // 3. show the new question
-        Question question = flowData.question;
-
-        // check question UI flow
-        if (question != null) {
-
-            QuestionFlow questionFlow = question.getFlowPattern().getQuestionFlow();
-
-            while (questionFlow.getUiMode() == QuestionFlow.UI.NONE) {
-
-                // create dummy answer
-
-                ArrayList<Option> dummyOptions = new ArrayList<>();
-                dummyOptions.add(
-                        new Option(
-                                "-1",
-                                "dummy",
-                                new Text("-1", "DUMMY", "DUMMY", null),
-                                "",
-                                "-1"
-                        )
-                );
-
-                flowHelper.update(dummyOptions);
-
-                flowData = flowHelper.getNext();
-                question = flowData.question;
-                questionFlow = question.getFlowPattern().getQuestionFlow();
-            }
-        }
-
-        showUI(flowData);
+        showUI(flowLogic.getNext());
     }
 
     @Override
     public void getPrevious() {
-        if (flowHelper == null) {
+        if (flowLogic == null) {
             Timber.e(Constants.LOG_TAG, "The method is called too early? Call initData()/loadSurvey() first.");
             return;
         }
-
-        IFlow.FlowData flowData = flowHelper.getPrevious();
-        showUI(flowData);
+        showUI(flowLogic.getPrevious());
     }
 
-    private void showUI(IFlow.FlowData flowData) {
-        Question question = flowData.question;
-        // only if grid for children, show grid. else show normal question view
+    private void showUI(FlowLogic.FlowData flowData) {
         Fragment fragment = null;
-        if (flowData.flowType == FlowType.GRID) {
+
+        if (flowData.flowType == FlowLogic.FlowData.FlowUIType.GRID) {
             fragment = new GridQuestionsFragment();
             activityView.loadQuestionUI(fragment, "grid");
-        } else if (flowData.flowType == FlowType.SINGLE) {
-            showSingleQuestionUI(question);
-        } else if (flowData.flowType == FlowType.END) {
-            activityView.onSurveyEnd();
-        } else if (flowData.flowType == FlowType.TOGETHER) {
+        } else if (flowData.flowType == FlowLogic.FlowData.FlowUIType.TOGETHER) {
             fragment = new ShownTogetherFragment();
             activityView.loadQuestionUI(fragment, "shown_together");
+        } else if (flowData.flowType == FlowLogic.FlowData.FlowUIType.END) {
+            activityView.onSurveyEnd();
         } else {
-            if (question != null)
-                Timber.e("Invalid UI data provided. number:  " + question.getRawNumber());
-            uiHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    activityView.hideLoading();
-                }
-            });
+            showSingleQuestionUI(flowData.question);
         }
     }
 
@@ -326,7 +266,7 @@ public class MainPresenter implements Contract.UserAction {
     }
 
     private String getPathOfCurrentQuestion() {
-        Question question = flowHelper.getCurrent();
+        Question question = flowLogic.getCurrent().question;
         if (question == null) {
             return null;
         }

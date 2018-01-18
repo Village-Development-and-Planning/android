@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
+import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogic;
 import com.puthuvaazhvu.mapping.views.helpers.FlowHelper;
 
 import java.lang.reflect.Array;
@@ -65,7 +66,7 @@ public interface Contract {
         /**
          * Main starting point of the questions flow for the UI
          */
-        void initData(Survey survey, FlowHelper flowHelper);
+        void initData(Survey survey, FlowLogic flowLogic);
 
         void finishCurrent(Question question);
 

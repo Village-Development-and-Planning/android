@@ -5,7 +5,7 @@ import android.view.ViewGroup;
 
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.views.fragments.options.CheckBoxOptionsAsListUI;
-import com.puthuvaazhvu.mapping.views.fragments.options.DummyOptionsUI;
+import com.puthuvaazhvu.mapping.views.fragments.options.DummyOptionsWithValidDataUI;
 import com.puthuvaazhvu.mapping.views.fragments.options.GPSOptionsUI;
 import com.puthuvaazhvu.mapping.views.fragments.options.InputOptionsUI;
 import com.puthuvaazhvu.mapping.views.fragments.options.RadioButtonOptionsAsListUI;
@@ -28,22 +28,22 @@ public class OptionsUIFactory {
     }
 
     public GPSOptionsUI createGpsOptionUI() {
-        return new GPSOptionsUI(frame, context);
+        return new GPSOptionsUI(frame, context, question);
     }
 
     public InputOptionsUI createInputOptionsUI() {
-        return new InputOptionsUI(frame, context, OptionsUIData.adapter(question));
+        return new InputOptionsUI(frame, context, question, OptionsUIData.adapter(question));
     }
 
     public CheckBoxOptionsAsListUI createCheckBoxOptionsAsListUI() {
-        return new CheckBoxOptionsAsListUI(frame, context, CheckableOptionsAsListUIData.adapter(question));
+        return new CheckBoxOptionsAsListUI(frame, context, CheckableOptionsAsListUIData.adapter(question), question);
     }
 
     public RadioButtonOptionsAsListUI createRadioButtonOptionsAsListUI() {
-        return new RadioButtonOptionsAsListUI(frame, context, CheckableOptionsAsListUIData.adapter(question));
+        return new RadioButtonOptionsAsListUI(frame, context, CheckableOptionsAsListUIData.adapter(question), question);
     }
 
-    public DummyOptionsUI createDummyOptionsUI() {
-        return new DummyOptionsUI(frame, context, question.getTextForLanguage());
+    public DummyOptionsWithValidDataUI createDummyOptionsUI() {
+        return new DummyOptionsWithValidDataUI(frame, context, question.getTextForLanguage(), question);
     }
 }

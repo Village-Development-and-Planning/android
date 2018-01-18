@@ -12,6 +12,7 @@ import java.util.ArrayList;
  * Created by muthuveerappans on 10/15/17.
  */
 
+@Deprecated
 public class FlowHelper {
     private final IFlow iFlow;
 

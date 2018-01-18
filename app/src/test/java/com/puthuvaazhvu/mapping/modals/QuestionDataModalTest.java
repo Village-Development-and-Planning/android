@@ -1,7 +1,7 @@
 package com.puthuvaazhvu.mapping.modals;
 
 import com.google.gson.JsonObject;
-import com.puthuvaazhvu.mapping.helpers.ModalHelpers;
+import com.puthuvaazhvu.mapping.helpers.DataHelpers;
 import com.puthuvaazhvu.mapping.modals.flow.PreFlow;
 
 import org.junit.Before;
@@ -28,7 +28,7 @@ public class QuestionDataModalTest {
 
     @Before
     public void setup() {
-        survey = ModalHelpers.getSurvey(this);
+        survey = DataHelpers.getSurvey(this);
     }
 
     @Test
@@ -40,7 +40,7 @@ public class QuestionDataModalTest {
 
     @Test
     public void test_findQuestion_rawNumber() {
-        Single<Survey> surveySingle = Survey.getSurveyInstanceWithUpdatedAnswers(ModalHelpers.getAnswersJson(this));
+        Single<Survey> surveySingle = Survey.getSurveyInstanceWithUpdatedAnswers(DataHelpers.getAnswersJson(this));
         Survey survey = surveySingle.blockingGet();
 
         assertThat(survey.getRootQuestion().getAnswers().size(), is(1));
@@ -107,9 +107,9 @@ public class QuestionDataModalTest {
 
     @Test
     public void test_populateAnswersInternal_method() {
-        Survey survey = ModalHelpers.getSurvey(this, "survey_data_1.json");
+        Survey survey = DataHelpers.getSurvey(this, "survey_data_1.json");
 
-        JsonObject answers = ModalHelpers.getAnswersJson(this);
+        JsonObject answers = DataHelpers.getAnswersJson(this);
         JsonObject questionWithAnswersJson = answers.get("question").getAsJsonObject();
 
         Question rootNode = survey.getRootQuestion();

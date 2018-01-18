@@ -21,6 +21,13 @@ public class Answer extends BaseObject implements Parcelable {
     private final ArrayList<Option> options;
     private final ArrayList<Question> children;
     private Question questionReference;
+    private long timeStamp;
+    private int currentChildIndex;
+
+    public Answer(ArrayList<Option> options, Question questionReference, long timeStamp) {
+        this(options, questionReference);
+        this.timeStamp = timeStamp;
+    }
 
     public Answer(ArrayList<Option> options, Question questionReference) {
         this.options = options;
@@ -42,6 +49,39 @@ public class Answer extends BaseObject implements Parcelable {
         this.questionReference = questionReference;
     }
 
+    public void setCurrentChildIndex(int currentChildIndex) {
+        if (currentChildIndex < 0 || currentChildIndex >= getChildren().size())
+            throw new IllegalArgumentException("The child index is out of range " + currentChildIndex);
+        this.currentChildIndex = currentChildIndex;
+    }
+
+    public void resetCurrentChildIndex() {
+        currentChildIndex = 0;
+    }
+
+    public Question getCurrentChildQuestion() {
+        if (currentChildIndex < 0)
+            throw new IllegalArgumentException("The child index is " + currentChildIndex);
+        return getChildren().get(currentChildIndex);
+    }
+
+    public int incrementCurrentChildIndex() {
+        currentChildIndex++;
+        return currentChildIndex;
+    }
+
+    public boolean isCurrentChildIndexOutOfBounds() {
+        return currentChildIndex < 0 || currentChildIndex >= children.size();
+    }
+
+    public int getCurrentChildIndex() {
+        return currentChildIndex;
+    }
+
+    public static boolean isAnswerDummy(Answer answer) {
+        return answer.getOptions().size() > 0 && answer.getOptions().get(0).getId().equals("DUMMY");
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -57,6 +97,15 @@ public class Answer extends BaseObject implements Parcelable {
             positions.add(o.getPosition());
         }
         return positions;
+    }
+
+    public void setOptions(ArrayList<Option> otherOptions) {
+        options.clear();
+        options.addAll(otherOptions);
+    }
+
+    public void setTimeStamp(long timeStamp) {
+        this.timeStamp = timeStamp;
     }
 
     public ArrayList<Question> getChildren() {

@@ -2,7 +2,7 @@ package com.puthuvaazhvu.mapping.modals;
 
 import android.content.Context;
 
-import com.puthuvaazhvu.mapping.helpers.ModalHelpers;
+import com.puthuvaazhvu.mapping.helpers.DataHelpers;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +37,7 @@ public class DataModelTest {
 
     @Test
     public void testSurveyModel() {
-        Survey survey = ModalHelpers.getSurvey(this);
+        Survey survey = DataHelpers.getSurvey(this);
 
         Question root = survey.getRootQuestion();
 

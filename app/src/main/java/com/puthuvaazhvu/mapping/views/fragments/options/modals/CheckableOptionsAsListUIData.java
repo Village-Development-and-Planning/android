@@ -74,8 +74,16 @@ public class CheckableOptionsAsListUIData extends OptionsUIData implements Parce
         ArrayList<SingleData> singleDataArrayList = new ArrayList<>();
         for (Option option : question.getOptionList()) {
             SingleData s = SingleData.adapter(option);
-            if (question.getAnswerMatchForOption(option.getPosition()) != null) {
-                s.setBackgroundColor(R.color.green_light);
+//            if (question.getAnswerMatchForOption(option.getPosition()) != null) {
+//                s.setBackgroundColor(R.color.green_light);
+//            }
+            if (!Question.isLatestAnswerDummy(question) &&
+                    question.getLatestAnswer() != null) {
+                for (Option oa : question.getLatestAnswer().getOptions()) {
+                    if (oa.getPosition() != null && oa.getPosition().equals(option.getPosition())) {
+                        s.isSelected = true;
+                    }
+                }
             }
             singleDataArrayList.add(s);
         }

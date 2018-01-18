@@ -2,7 +2,7 @@ package com.puthuvaazhvu.mapping.modals;
 
 import android.content.Context;
 
-import com.puthuvaazhvu.mapping.helpers.ModalHelpers;
+import com.puthuvaazhvu.mapping.helpers.DataHelpers;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -33,14 +33,14 @@ public class SurveyDataModelTest {
 
     @Test
     public void testSurveyModel() {
-        Survey survey = ModalHelpers.getSurvey(this);
+        Survey survey = DataHelpers.getSurvey(this);
 
         assertThat(survey, is(notNullValue()));
     }
 
     @Test
     public void test_updateWithAnswers() {
-        Single<Survey> surveySingle = Survey.getSurveyInstanceWithUpdatedAnswers(ModalHelpers.getAnswersJson(this));
+        Single<Survey> surveySingle = Survey.getSurveyInstanceWithUpdatedAnswers(DataHelpers.getAnswersJson(this));
         Survey survey = surveySingle.blockingGet();
 
         assertThat(survey.getRootQuestion().getAnswers().size(), is(1));

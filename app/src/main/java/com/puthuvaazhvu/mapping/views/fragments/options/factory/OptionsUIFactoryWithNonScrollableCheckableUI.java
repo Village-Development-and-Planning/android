@@ -19,11 +19,19 @@ public class OptionsUIFactoryWithNonScrollableCheckableUI extends OptionsUIFacto
 
     @Override
     public CheckBoxOptionsAsListUI createCheckBoxOptionsAsListUI() {
-        return new CheckBoxOptionsAsListUI(frame, context, CheckableOptionsAsListUIData.adapter(question), false);
+        return new CheckBoxOptionsAsListUI(frame,
+                context,
+                CheckableOptionsAsListUIData.adapter(question),
+                question,
+                false);
     }
 
     @Override
     public RadioButtonOptionsAsListUI createRadioButtonOptionsAsListUI() {
-        return new RadioButtonOptionsAsListUI(frame, context, CheckableOptionsAsListUIData.adapter(question), false);
+        return new RadioButtonOptionsAsListUI(frame,
+                context,
+                CheckableOptionsAsListUIData.adapter(question),
+                question,
+                false);
     }
 }

@@ -19,6 +19,7 @@ import timber.log.Timber;
  * Created by muthuveerappans on 10/15/17.
  */
 
+@Deprecated
 public class FlowImplementation implements IFlow {
     private Question current;
 

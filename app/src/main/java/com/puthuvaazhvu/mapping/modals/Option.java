@@ -21,7 +21,7 @@ import java.util.ArrayList;
  */
 
 public class Option extends BaseObject implements Parcelable {
-    private final String id;
+    private String id;
     private final String type;
     private final Text text;
     private final String modifiedAt;
@@ -43,6 +43,7 @@ public class Option extends BaseObject implements Parcelable {
             optionJson = json;
         }
         id = JsonHelper.getString(optionJson, "_id");
+        if (id == null) id = "";
         type = JsonHelper.getString(optionJson, "type");
         modifiedAt = JsonHelper.getString(optionJson, "modifiedAt");
 

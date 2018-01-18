@@ -9,7 +9,9 @@ import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.view.MenuItem;
+import android.view.View;
 
+import com.google.gson.JsonParser;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.application.MappingApplication;
 import com.puthuvaazhvu.mapping.data.SurveyDataRepository;
@@ -27,6 +29,8 @@ import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
 import com.puthuvaazhvu.mapping.views.activities.MenuActivity;
 import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListActivity;
 import com.puthuvaazhvu.mapping.views.dialogs.ProgressDialog;
+import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogic;
+import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogicImplementation;
 import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.ConfirmationQuestionCommunication;
 import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.GridQuestionFragmentCommunication;
 import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.QuestionDataFragmentCommunication;
@@ -55,6 +59,8 @@ public class MainActivity extends MenuActivity
         ConfirmationQuestionCommunication,
         ShowTogetherQuestionCommunication {
 
+    public static final boolean DEBUG = true; // Todo:
+
     private final long REPEATING_TASK_INTERVAL = TimeUnit.MINUTES.toMillis(30);
 
     private StackFragmentManagerInvoker stackFragmentManagerInvoker;
@@ -62,9 +68,7 @@ public class MainActivity extends MenuActivity
 
     private Contract.UserAction presenter;
 
-    private FlowHelper flowHelper;
-
-    private IFlow iFlow;
+    private FlowLogic flowLogic;
 
     private ProgressDialog progressDialog;
 
@@ -110,7 +114,17 @@ public class MainActivity extends MenuActivity
                 GetFromFile.getInstance()
         );
 
-        onSurveyLoaded(MappingApplication.globalContext.getApplicationData().getSurvey());
+        if (DEBUG) {
+            String dataString = Utils.readFromAssetsFile(this, "sample_grid_data_flow.json");
+            JsonParser jsonParser = new JsonParser();
+            Survey survey = new Survey(jsonParser.parse(dataString).getAsJsonObject());
+            Question root = survey.getRootQuestion();
+            flowLogic = new FlowLogicImplementation(root);
+            presenter.initData(survey, flowLogic);
+            presenter.getNext();
+        } else {
+            onSurveyLoaded(MappingApplication.globalContext.getApplicationData().getSurvey());
+        }
 
         repeatingTask = new RepeatingTask(handler, new Runnable() {
             @Override
@@ -158,14 +172,15 @@ public class MainActivity extends MenuActivity
         Question root = survey.getRootQuestion();
 
         if (MappingApplication.globalContext.getApplicationData().getSnapshotPath() != null) {
-            iFlow = new FlowImplementation(root, MappingApplication.globalContext.getApplicationData().getSnapshotPath());
-            flowHelper = new FlowHelper(iFlow);
-            presenter.initData(survey, flowHelper);
+            flowLogic = new FlowLogicImplementation(
+                    root,
+                    MappingApplication.globalContext.getApplicationData().getSnapshotPath()
+            );
+            presenter.initData(survey, flowLogic);
             presenter.showCurrent();
         } else {
-            iFlow = new FlowImplementation(root);
-            flowHelper = new FlowHelper(iFlow);
-            presenter.initData(survey, flowHelper);
+            flowLogic = new FlowLogicImplementation(root);
+            presenter.initData(survey, flowLogic);
             presenter.getNext();
         }
     }
@@ -231,7 +246,11 @@ public class MainActivity extends MenuActivity
         defaultBackPressed = true;
         dumpSurveyRepeatingTask = false;
         repeatingTask.stop();
-        presenter.dumpSurveyToFile(true, false);
+        if (DEBUG) {
+            Utils.showMessageToast("Survey is over", this);
+            findViewById(R.id.container).setVisibility(View.GONE);
+        } else
+            presenter.dumpSurveyToFile(true, false);
     }
 
     @Override

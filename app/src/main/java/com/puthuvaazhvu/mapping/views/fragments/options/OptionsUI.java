@@ -9,7 +9,9 @@ import android.view.ViewGroup;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Option;
+import com.puthuvaazhvu.mapping.modals.Question;
 
 import java.util.ArrayList;
 
@@ -21,13 +23,28 @@ public abstract class OptionsUI {
     protected final ViewGroup frame;
     protected final Context context;
     protected final LayoutInflater layoutInflater;
+    protected final Question question;
 
     private AlertDialog errorDialog;
 
-    public OptionsUI(ViewGroup frame, Context context) {
+    public OptionsUI(ViewGroup frame, Context context, Question question) {
         this.frame = frame;
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
+        this.question = question;
+    }
+
+    protected ArrayList<Option> getLatestOptions() {
+        if (Question.isLatestAnswerDummy(question)) return null;
+
+        Answer answer = question.getLatestAnswer();
+        if (answer != null) {
+            ArrayList<Option> latestOptions = answer.getOptions();
+            if (latestOptions != null && latestOptions.size() > 0) {
+                return latestOptions;
+            }
+        }
+        return null;
     }
 
     public abstract View createView();

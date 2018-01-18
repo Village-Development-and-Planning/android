@@ -24,6 +24,8 @@ import io.reactivex.SingleOnSubscribe;
 import io.reactivex.annotations.NonNull;
 import timber.log.Timber;
 
+import static com.puthuvaazhvu.mapping.modals.Answer.isAnswerDummy;
+
 /**
  * Created by muthuveerappans on 8/24/17.
  */
@@ -47,7 +49,6 @@ public class Question extends BaseObject implements Parcelable {
     private final Info info;
     private final FlowPattern flowPattern;
     private Answer parentAnswer;
-    private Answer latestAnswer;
     private Question parent;
     private boolean isFinished = false; // you can set to true for the question to skip
 
@@ -256,12 +257,9 @@ public class Question extends BaseObject implements Parcelable {
         return flowPattern;
     }
 
-    private void setLatestAnswer(Answer answer) {
-        latestAnswer = answer;
-    }
-
     public Answer getLatestAnswer() {
-        return latestAnswer;
+        if (answers.isEmpty()) return null;
+        return answers.get(answers.size() - 1);
     }
 
     private void addAnswer(Answer answer) {
@@ -295,6 +293,13 @@ public class Question extends BaseObject implements Parcelable {
         }
 
         return result;
+    }
+
+    public int getIndexOfChild(Question child) {
+        for (int i = 0; i < children.size(); i++) {
+            if (children.get(i).getRawNumber() == child.getRawNumber()) return i;
+        }
+        return -1;
     }
 
     public Question findQuestionUpwards(String rawNumber, boolean traverseWithAnswers) {
@@ -389,7 +394,6 @@ public class Question extends BaseObject implements Parcelable {
     private void setAnswerInternal(Answer answer) {
         if (this.getFlowPattern() == null || answer.getOptions() == null) {
             this.addAnswer(answer);
-            setLatestAnswer(answer);
             return;
         }
 
@@ -399,7 +403,6 @@ public class Question extends BaseObject implements Parcelable {
 
         if (answerFlow == null) {
             this.addAnswer(answer);
-            setLatestAnswer(answer);
             return;
         }
 
@@ -439,9 +442,6 @@ public class Question extends BaseObject implements Parcelable {
         } else {
             this.addAnswer(answer);
         }
-
-        setLatestAnswer(currentAnswer);
-
     }
 
     /**
@@ -827,6 +827,29 @@ public class Question extends BaseObject implements Parcelable {
         }
         // for OPTION the answers are going ot be updated anyway
         // we don't care for MULTIPLE
+    }
+
+    public static ArrayList<Option> noDataWithValidOptions() {
+        ArrayList<Option> options = new ArrayList<>();
+        options.add(new Option("", "NO DATA",
+                new Text("", "", "", ""),
+                "", ""));
+        return options;
+    }
+
+    public static ArrayList<Option> dummyOptions() {
+        ArrayList<Option> options = new ArrayList<>();
+        options.add(new Option("DUMMY", "DUMMY",
+                new Text("DUMMY", "dummy", "dummy", ""),
+                "", ""));
+        return options;
+    }
+
+    public static boolean isLatestAnswerDummy(Question question) {
+        if (question.getAnswers().size() <= 0) {
+            return false;
+        }
+        return isAnswerDummy(question.getLatestAnswer());
     }
 
     @Override

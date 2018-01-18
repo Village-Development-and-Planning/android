@@ -56,7 +56,10 @@ public class ShownTogetherFragment extends QuestionDataFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         dataList = new ArrayList<>();
-        addDummyAnswersToQuestionTree(dataList, getQuestion());
+        dataList.addAll(getQuestion().getLatestAnswer().getChildren());
+        // add a valid answer to avoid locking in the same question
+        getQuestion().getLatestAnswer().setOptions(Question.noDataWithValidOptions());
+        //addDummyAnswersToQuestionTree(dataList, getQuestion());
         shownTogetherAdapter = new ShownTogetherAdapter();
         optionsUiObjects = new HashMap<>();
     }
@@ -102,31 +105,24 @@ public class ShownTogetherFragment extends QuestionDataFragment {
         for (Question question : dataList) {
             OptionsUI optionsUI = optionsUiObjects.get(question.getRawNumber());
             if (optionsUI != null && optionsUI.response() != null) {
-                Answer answer = new Answer(optionsUI.response(), question);
-                question.setAnswer(answer);
+//                Answer answer = new Answer(optionsUI.response(), question);
+//                question.setAnswer(answer);
+                question.getLatestAnswer().setOptions(optionsUI.response());
             }
         }
     }
 
-    private void addDummyAnswersToQuestionTree(ArrayList<Question> data, Question node) {
-        if (node.getAnswers().isEmpty()) {
-            ArrayList<Option> options = new ArrayList<>();
-            options.add(new Option(
-                    "",
-                    "DUMMY",
-                    new Text("", "dummy", "dummy", ""),
-                    "",
-                    ""
-            ));
-            Answer dummyAnswer = new Answer(options, node);
-            node.setAnswer(dummyAnswer);
-        }
-
-        for (Question child : node.getLatestAnswer().getChildren()) {
-            data.add(child);
-            addDummyAnswersToQuestionTree(data, child);
-        }
-    }
+//    private void addDummyAnswersToQuestionTree(ArrayList<Question> data, Question node) {
+//        if (node.getAnswers().isEmpty()) {
+//            Answer dummyAnswer = new Answer(Question.noDataWithValidOptions(), node);
+//            node.setAnswer(dummyAnswer);
+//        }
+//
+//        for (Question child : node.getLatestAnswer().getChildren()) {
+//            data.add(child);
+//            addDummyAnswersToQuestionTree(data, child);
+//        }
+//    }
 
     private class ShownTogetherAdapter extends RecyclerView.Adapter<ShownTogetherVH> {
 

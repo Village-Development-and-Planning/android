@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.modals.Option;
+import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Text;
 
 import java.util.ArrayList;
@@ -16,11 +17,11 @@ import java.util.ArrayList;
  * Created by muthuveerappans on 1/9/18.
  */
 
-public class DummyOptionsUI extends OptionsUI {
+public class DummyOptionsWithValidDataUI extends OptionsUI {
     private String dummyText;
 
-    public DummyOptionsUI(ViewGroup frame, Context context, String dummyText) {
-        super(frame, context);
+    public DummyOptionsWithValidDataUI(ViewGroup frame, Context context, String dummyText, Question question) {
+        super(frame, context, question);
         this.dummyText = dummyText;
     }
 
@@ -31,10 +32,6 @@ public class DummyOptionsUI extends OptionsUI {
 
     @Override
     public ArrayList<Option> response() {
-        ArrayList<Option> options = new ArrayList<>();
-        options.add(new Option("", "DUMMY",
-                new Text("", "dummy", "dummy", ""),
-                "", ""));
-        return options;
+        return Question.noDataWithValidOptions();
     }
 }

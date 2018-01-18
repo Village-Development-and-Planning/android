@@ -10,6 +10,7 @@ import timber.log.Timber;
  * Created by muthuveerappans on 12/21/17.
  */
 
+@Deprecated
 public class BackNavigation {
     private final ArrayList<Question> questionStack;
 

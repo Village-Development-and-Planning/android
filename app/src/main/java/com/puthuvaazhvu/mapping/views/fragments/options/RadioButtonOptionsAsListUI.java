@@ -10,6 +10,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.Option;
+import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.views.custom_components.ChildLinearLayoutManager;
 import com.puthuvaazhvu.mapping.views.fragments.options.adapters.CheckableOptionsAsListAdapter;
 import com.puthuvaazhvu.mapping.views.fragments.options.adapters.RadioButtonAdapter;
@@ -28,16 +29,18 @@ public class RadioButtonOptionsAsListUI extends CheckableOptionsUI {
     public RadioButtonOptionsAsListUI(
             ViewGroup frame,
             Context context,
-            CheckableOptionsAsListUIData checkableOptionsAsListUIData) {
-        super(frame, context, checkableOptionsAsListUIData);
+            CheckableOptionsAsListUIData checkableOptionsAsListUIData,
+            Question question) {
+        super(frame, context, checkableOptionsAsListUIData, question);
     }
 
     public RadioButtonOptionsAsListUI(
             ViewGroup frame,
             Context context,
             CheckableOptionsAsListUIData checkableOptionsAsListUIData,
+            Question question,
             boolean shouldScroll) {
-        super(frame, context, checkableOptionsAsListUIData, shouldScroll);
+        super(frame, context, checkableOptionsAsListUIData, question, shouldScroll);
     }
 
     @Override
@@ -71,6 +74,6 @@ public class RadioButtonOptionsAsListUI extends CheckableOptionsUI {
         if (checkableOptionsAsListUIData.getLoggedOptions().size() <= 0) {
             return null;
         }
-        return getResponse();
+        return getResponse("SINGLE_CHOICE");
     }
 }

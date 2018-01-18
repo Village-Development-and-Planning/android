@@ -1,7 +1,5 @@
 package com.puthuvaazhvu.mapping.helpers;
 
-import android.graphics.Path;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.puthuvaazhvu.mapping.modals.Answer;
@@ -12,7 +10,6 @@ import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.utils.info_file.modals.AnswersInfoFileDataModal;
 
 import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import io.reactivex.Single;
@@ -25,7 +22,7 @@ import static org.hamcrest.Matchers.notNullValue;
  * Created by muthuveerappans on 10/16/17.
  */
 
-public class ModalHelpers {
+public class DataHelpers {
     public static Survey getSurvey(Object obj) {
         String fileName = "survey_data_test_unit.json";
         return getSurvey(obj, fileName);
@@ -75,7 +72,7 @@ public class ModalHelpers {
     }
 
     public static Survey getAnsweredSurvey(Object obj) {
-        Single<Survey> surveySingle = Survey.getSurveyInstanceWithUpdatedAnswers(ModalHelpers.getAnswersJson(obj));
+        Single<Survey> surveySingle = Survey.getSurveyInstanceWithUpdatedAnswers(DataHelpers.getAnswersJson(obj));
         return surveySingle.blockingGet();
     }
 

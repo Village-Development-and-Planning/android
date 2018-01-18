@@ -11,6 +11,7 @@ import java.util.ArrayList;
  * Created by muthuveerappans on 10/15/17.
  */
 
+@Deprecated
 public interface IFlow {
 
     void setCurrent(Question question);

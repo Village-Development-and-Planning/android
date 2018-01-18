@@ -9,6 +9,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.Option;
+import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Text;
 import com.puthuvaazhvu.mapping.views.fragments.options.modals.CheckableOptionsAsListUIData;
 
@@ -22,8 +23,11 @@ public abstract class CheckableOptionsUI extends OptionsUI {
     public final CheckableOptionsAsListUIData checkableOptionsAsListUIData;
     protected boolean shouldScroll;
 
-    public CheckableOptionsUI(ViewGroup frame, Context context, CheckableOptionsAsListUIData checkableOptionsAsListUIData) {
-        super(frame, context);
+    public CheckableOptionsUI(ViewGroup frame,
+                              Context context,
+                              CheckableOptionsAsListUIData checkableOptionsAsListUIData,
+                              Question question) {
+        super(frame, context, question);
         this.checkableOptionsAsListUIData = checkableOptionsAsListUIData;
         this.shouldScroll = true;
     }
@@ -32,17 +36,18 @@ public abstract class CheckableOptionsUI extends OptionsUI {
             ViewGroup frame,
             Context context,
             CheckableOptionsAsListUIData checkableOptionsAsListUIData,
+            Question question,
             boolean shouldScroll) {
-        this(frame, context, checkableOptionsAsListUIData);
+        this(frame, context, checkableOptionsAsListUIData, question);
         this.shouldScroll = shouldScroll;
     }
 
-    public ArrayList<Option> getResponse() {
+    public ArrayList<Option> getResponse(String type) {
         ArrayList<Option> options = new ArrayList<>();
         for (CheckableOptionsAsListUIData.SingleData singleData : checkableOptionsAsListUIData.getLoggedOptions()) {
             options.add(new Option(
                     "",
-                    "MULTIPLE",
+                    type,
                     new Text("", singleData.getText(), singleData.getText(), ""),
                     "",
                     singleData.getPosition()

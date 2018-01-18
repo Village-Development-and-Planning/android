@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.puthuvaazhvu.mapping.R;
+import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.flow.FlowPattern;
 import com.puthuvaazhvu.mapping.utils.RecyclerItemClickListener;
@@ -81,6 +82,9 @@ public class GridQuestionsFragment extends QuestionDataFragment {
             }
         }));
 
+        // add a valid answer to avoid locking in the same question
+        getQuestion().getLatestAnswer().setOptions(Question.noDataWithValidOptions());
+
         children = getQuestion().getLatestAnswer().getChildren();
 
         questionsAdapter = new QuestionsAdapter();
@@ -108,7 +112,15 @@ public class GridQuestionsFragment extends QuestionDataFragment {
         @Override
         public void onBindViewHolder(QVH holder, int position) {
             Question child = children.get(position);
-            holder.populateViews(child.getTextForLanguage(), child.getAnswers().size());
+
+            // remove dummy answers in count
+            int count = child.getAnswers().size();
+            for (Answer answer : child.getAnswers()) {
+                if (Answer.isAnswerDummy(answer)) count--;
+            }
+
+
+            holder.populateViews(child.getTextForLanguage(), count);
         }
 
         @Override
