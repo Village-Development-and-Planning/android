@@ -48,6 +48,8 @@ public abstract class FlowLogic {
      */
     public abstract FlowLogic update(ArrayList<Option> response);
 
+    public abstract FlowLogic update(ArrayList<Option> response, Question question);
+
     /**
      * Get's the next question
      * This method also updates the pointer

@@ -31,15 +31,13 @@ import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListActivity;
 import com.puthuvaazhvu.mapping.views.dialogs.ProgressDialog;
 import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogic;
 import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogicImplementation;
+import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.BaseQuestionFragmentCommunication;
 import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.ConfirmationQuestionCommunication;
 import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.GridQuestionFragmentCommunication;
 import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.QuestionDataFragmentCommunication;
 import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.ShowTogetherQuestionCommunication;
 import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.SingleQuestionFragmentCommunication;
 import com.puthuvaazhvu.mapping.views.fragments.summary.SummaryFragment;
-import com.puthuvaazhvu.mapping.views.helpers.FlowHelper;
-import com.puthuvaazhvu.mapping.views.helpers.next_flow.IFlow;
-import com.puthuvaazhvu.mapping.views.helpers.next_flow.FlowImplementation;
 import com.puthuvaazhvu.mapping.views.managers.StackFragmentManagerInvoker;
 import com.puthuvaazhvu.mapping.views.managers.commands.FragmentPopCommand;
 import com.puthuvaazhvu.mapping.views.managers.commands.FragmentPushCommand;
@@ -57,9 +55,10 @@ public class MainActivity extends MenuActivity
         QuestionDataFragmentCommunication,
         GridQuestionFragmentCommunication,
         ConfirmationQuestionCommunication,
-        ShowTogetherQuestionCommunication {
+        ShowTogetherQuestionCommunication,
+        BaseQuestionFragmentCommunication {
 
-    public static final boolean DEBUG = true; // Todo:
+    public static final boolean DEBUG = false;
 
     private final long REPEATING_TASK_INTERVAL = TimeUnit.MINUTES.toMillis(30);
 
@@ -115,7 +114,7 @@ public class MainActivity extends MenuActivity
         );
 
         if (DEBUG) {
-            String dataString = Utils.readFromAssetsFile(this, "sample_grid_data_flow.json");
+            String dataString = Utils.readFromAssetsFile(this, "sample_data_shown_together_flow.json");
             JsonParser jsonParser = new JsonParser();
             Survey survey = new Survey(jsonParser.parse(dataString).getAsJsonObject());
             Question root = survey.getRootQuestion();
@@ -424,5 +423,10 @@ public class MainActivity extends MenuActivity
     public void onNextPressedFromShownTogetherQuestion(Question question) {
         presenter.finishCurrent(question);
         presenter.getNext();
+    }
+
+    @Override
+    public FlowLogic getFlowLogic() {
+        return flowLogic;
     }
 }

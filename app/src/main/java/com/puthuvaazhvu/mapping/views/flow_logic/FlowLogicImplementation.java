@@ -90,7 +90,9 @@ public class FlowLogicImplementation extends FlowLogic {
             try {
                 Question current = latestAnswer.getChildren().get(index);
 
-                // just set the current as a dummy answer would have been added to this question already.
+                // add a dummy answer
+                addAnswer(Question.dummyOptions(), current);
+
                 setCurrent(current, FlowData.FlowUIType.DEFAULT);
 
                 // add to back stack
@@ -109,277 +111,29 @@ public class FlowLogicImplementation extends FlowLogic {
 
     @Override
     public FlowLogic update(ArrayList<Option> response) {
-        if (currentFlowData.question.getAnswers().size() <= 0) {
+        update(response, currentFlowData.question);
+        return this;
+    }
+
+    @Override
+    public FlowLogic update(ArrayList<Option> response, Question question) {
+        if (question.getAnswers().size() <= 0) {
             // add a new dummy answer if answers list is empty.
-            Answer answer = new Answer(response, currentFlowData.question, System.currentTimeMillis());
-            currentFlowData.question.setAnswer(answer);
-            Timber.i("Answer count for the question: \n" + currentFlowData.question.toString()
+            Answer answer = new Answer(Question.dummyOptions(), question, System.currentTimeMillis());
+            question.setAnswer(answer);
+            Timber.i("Answer count for the question: \n" + question.toString()
                     + " is 0, so adding a new one.\n" + answer.toString());
         }
 
         long startTime = System.currentTimeMillis();
 
-        Answer answer = currentFlowData.question.getLatestAnswer();
+        Answer answer = question.getLatestAnswer();
         answer.setOptions(response);
         answer.setTimeStamp(startTime);
 
         Timber.i("Answer updated info :\n" + answer.toString());
-
         return this;
     }
-
-//    @Override
-//    public FlowData getNext() {
-//        FlowData flowData = new FlowData();
-//        Question nextQuestion = null;
-//        FlowData.FlowUIType flowType = FlowData.FlowUIType.DEFAULT;
-//        Question current = currentFlowData.question;
-//
-//        do {
-//
-//            Answer latestAnswer = current.getLatestAnswer();
-//
-//            // if the current question does'nt have an answer make it the current one.
-//            if (current.getAnswers().isEmpty()) {
-//                nextQuestion = current;
-//                flowType = FlowData.FlowUIType.DEFAULT;
-//                break;
-//            }
-//
-//            // check the child flow
-//            ChildFlow childFlow = current.getFlowPattern().getChildFlow();
-//            ChildFlow.Modes childFlowMode = childFlow.getMode();
-//            ChildFlow.UI childFlowUI = childFlow.getUiToBeShown();
-//
-//            if (childFlowMode == ChildFlow.Modes.SELECT) {
-//
-//                if (childFlowUI == ChildFlow.UI.GRID) {
-//                    // return children grid
-//                    nextQuestion = current;
-//                    flowType = FlowData.FlowUIType.GRID;
-//                    break;
-//                }
-//
-//            } else if (childFlowMode == ChildFlow.Modes.TOGETHER) {
-//                nextQuestion = current;
-//                flowType = FlowData.FlowUIType.TOGETHER;
-//                break;
-//            }
-//
-//            // process of getting the next question
-//
-//            ArrayList<Question> children = latestAnswer.getChildren();
-//
-//            int start = latestAnswer.getCurrentChildIndex() + 1;
-//            for (int i = 0; i < children.size(); i++) {
-//            }
-//
-//            if (start == latestAnswer.getChildren().size()) latestAnswer.setCurrentChildIndex(-1);
-//
-//            nextQuestion = latestAnswer.getCurrentChildQuestion();
-//
-//            // move to the parent question if the next question is null
-//            if (nextQuestion == null) {
-//                // check the exit flow
-//                ExitFlow exitFlow = current.getFlowPattern().getExitFlow();
-//
-//                if (exitFlow.getMode() == ExitFlow.Modes.END) {
-//
-//                    // all question are complete
-//                    flowType = FlowData.FlowUIType.END;
-//                    nextQuestion = null;
-//                    break;
-//
-//                } else if (exitFlow.getMode() == ExitFlow.Modes.PARENT) {
-//
-//                    // move to the parent
-//                    Question parent = current.getParentAnswer().getQuestionReference();
-//
-//                    if (parent == null) {
-//                        // all question are complete
-//                        flowType = FlowData.FlowUIType.END;
-//                        nextQuestion = null;
-//                        break;
-//                    }
-//
-//                    current = parent;
-//
-//                } else if (exitFlow.getMode() == ExitFlow.Modes.LOOP) {
-//
-//                    AnswerFlow answerFlow = current.getFlowPattern().getAnswerFlow();
-//
-//                    if (answerFlow.getMode() == AnswerFlow.Modes.OPTION &&
-//                            shouldSkipBasedOnAnswerScope(current)) {
-//
-//                        // finish the current question and move to it's parent
-//                        current.setFinished(true);
-//                        current = current.getLatestAnswer().getQuestionReference().getParent();
-//
-//                    } else {
-//                        // return normal flow
-//                        nextQuestion = current;
-//                        break;
-//                    }
-//                }
-//            }
-//
-//        } while (nextQuestion == null);
-//
-//        flowData.question = nextQuestion;
-//        flowData.flowType = flowType;
-//
-//        if (flowType == FlowData.FlowUIType.END) {
-//            // Finish the survey at this point at any cost.
-//            return flowData;
-//        }
-//
-//        // add dummy answers to the current question
-//        addAnswer(Question.dummyOptions(), nextQuestion);
-//
-//        QuestionFlow questionFlow = nextQuestion.getFlowPattern().getQuestionFlow();
-//        ChildFlow childFlow = nextQuestion.getFlowPattern().getChildFlow();
-//        ChildFlow.Modes childFlowMode = childFlow.getMode();
-//        ChildFlow.UI childFlowUI = childFlow.getUiToBeShown();
-//
-//        if (childFlowMode == ChildFlow.Modes.TOGETHER || childFlowMode == ChildFlow.Modes.SELECT) {
-//            addDummyAnswersToChildren(nextQuestion);
-//        }
-//
-//        setCurrent(nextQuestion, flowType);
-//
-//        if (questionFlow != null && questionFlow.getUiMode() == QuestionFlow.UI.NONE) {
-//            return getNext();
-//        } else {
-//            // add this question to the back stack
-//            addEntryToBackStack(flowData);
-//        }
-//
-//        return flowData;
-//    }
-
-//    @Override
-//    public FlowData getNext() {
-//
-//        Question nextQuestion = null;
-//        FlowData.FlowUIType flowType = FlowData.FlowUIType.DEFAULT;
-//
-//        do {
-//            Question current = currentFlowData.question;
-//
-////            if (current.getFlowPattern() == null) {
-////                Timber.e("The flow pattern for the question " + current.toString() + " is null.");
-////                continue;
-////            }
-//
-//            Answer latestAnswer = current.getLatestAnswer();
-//
-//            // if the current question does'nt have an answer make it the current one.
-//            if (latestAnswer == null) {
-//                nextQuestion = current;
-//                break;
-//            }
-//
-//            ArrayList<Question> children = latestAnswer.getChildren();
-//
-//            // check the child flow
-//            ChildFlow childFlow = current.getFlowPattern().getChildFlow();
-//            ChildFlow.Modes childFlowMode = childFlow.getMode();
-//            ChildFlow.UI childFlowUI = childFlow.getUiToBeShown();
-//
-//            if (childFlowMode == ChildFlow.Modes.SELECT) {
-//
-//                if (childFlowUI == ChildFlow.UI.GRID) {
-//                    // return children grid
-//                    nextQuestion = current;
-//                    flowType = FlowData.FlowUIType.GRID;
-//                    break;
-//                }
-//
-//            } else if (childFlowMode == ChildFlow.Modes.TOGETHER) {
-//                nextQuestion = current;
-//                flowType = FlowData.FlowUIType.TOGETHER;
-//                break;
-//            }
-//
-//            for (Question c : children) {
-//                if (shouldSkip(c)) {
-//                    continue;
-//                }
-//
-//                // set the current question
-//                nextQuestion = c;
-//                break;
-//            }
-//
-//            // if the next question is still null move to it's parent
-//            if (nextQuestion == null) {
-//                // check the exit flow
-//                ExitFlow exitFlow = current.getFlowPattern().getExitFlow();
-//
-//                if (exitFlow.getMode() == ExitFlow.Modes.END) {
-//                    // all question are complete
-//                    flowType = FlowData.FlowUIType.END;
-//                    nextQuestion = null;
-//                    break;
-//                } else if (exitFlow.getMode() == ExitFlow.Modes.PARENT) {
-//
-//                    Question parent = current.getLatestAnswer().getQuestionReference().getParent();
-//
-//                    if (parent == null) {
-//                        // all question are complete
-//                        flowType = FlowData.FlowUIType.END;
-//                        nextQuestion = null;
-//                        break;
-//                    }
-//
-//                    setCurrent(parent, FlowData.FlowUIType.DEFAULT);
-//
-//                } else if (exitFlow.getMode() == ExitFlow.Modes.LOOP) {
-//
-//                    AnswerFlow answerFlow = currentFlowData.question.getFlowPattern().getAnswerFlow();
-//
-//                    if (answerFlow.getMode() == AnswerFlow.Modes.OPTION &&
-//                            shouldSkipBasedOnAnswerScope(currentFlowData.question)) {
-//                        finishCurrent();
-//                    } else {
-//                        // return normal flow
-//                        nextQuestion = current;
-//                        break;
-//                    }
-//                }
-//            }
-//
-//        } while (nextQuestion == null);
-//
-//        if (nextQuestion == null) {
-//            // Finish the survey at this point at any cost.
-//            flowType = FlowData.FlowUIType.END;
-//            currentFlowData.flowType = flowType;
-//            return currentFlowData;
-//        }
-//
-//        addAnswer(Question.dummyOptions(), nextQuestion);
-//
-//        QuestionFlow questionFlow = nextQuestion.getFlowPattern().getQuestionFlow();
-//        ChildFlow childFlow = nextQuestion.getFlowPattern().getChildFlow();
-//        ChildFlow.Modes childFlowMode = childFlow.getMode();
-//        ChildFlow.UI childFlowUI = childFlow.getUiToBeShown();
-//
-//        if (childFlowMode == ChildFlow.Modes.TOGETHER || childFlowMode == ChildFlow.Modes.SELECT) {
-//            addDummyAnswersToChildren(nextQuestion);
-//        }
-//
-//        setCurrent(nextQuestion, flowType);
-//
-//        if (questionFlow != null && questionFlow.getUiMode() == QuestionFlow.UI.NONE) {
-//            return getNext();
-//        } else {
-//            // add this question to the back stack
-//            addEntryToBackStack(currentFlowData);
-//        }
-//
-//        return currentFlowData;
-//    }
 
     @Override
     public FlowData getPrevious() {
@@ -394,8 +148,8 @@ public class FlowLogicImplementation extends FlowLogic {
 
         if (current != null) {
             Answer latestAnswer = current.question.getLatestAnswer();
-            Question parent = latestAnswer.getQuestionReference().getParent();
-            Answer parentAnswer = parent.getLatestAnswer();
+            Answer parentAnswer = current.question.getParentAnswer();
+            Question parent = parentAnswer.getQuestionReference();
 
             // change the visible child index position
             int index = parent.getIndexOfChild(current.question);
@@ -442,23 +196,29 @@ public class FlowLogicImplementation extends FlowLogic {
 
         addAnswer(Question.dummyOptions(), nextFlowData.question);
 
+        setCurrent(nextFlowData.question, nextFlowData.flowType);
+
         QuestionFlow questionFlow = nextFlowData.question.getFlowPattern().getQuestionFlow();
         if (questionFlow != null && questionFlow.getUiMode() == QuestionFlow.UI.NONE) {
             return getNext();
         }
 
-        ChildFlow childFlow = nextFlowData.question.getFlowPattern().getChildFlow();
-        ChildFlow.Modes childFlowMode = childFlow.getMode();
-        ChildFlow.UI childFlowUI = childFlow.getUiToBeShown();
+//        ChildFlow childFlow = nextFlowData.question.getFlowPattern().getChildFlow();
+//        ChildFlow.Modes childFlowMode = childFlow.getMode();
+//        ChildFlow.UI childFlowUI = childFlow.getUiToBeShown();
 
-        if (childFlowMode == ChildFlow.Modes.SELECT && childFlowUI == ChildFlow.UI.GRID) {
-            addDummyAnswersToChildren(nextFlowData.question);
-        } else if (childFlowMode == ChildFlow.Modes.TOGETHER) {
-            addDummyAnswersToChildren(nextFlowData.question);
-        }
+        // if the type is shown together then pre populate the children question with dummy answers
+//        if (childFlowMode == ChildFlow.Modes.TOGETHER) {
+//            addDummyAnswersToChildren(nextFlowData.question);
+//        }
 
-        // finally set the current question and add to back stack
-        setCurrent(nextFlowData.question, nextFlowData.flowType);
+//        if (childFlowMode == ChildFlow.Modes.SELECT && childFlowUI == ChildFlow.UI.GRID) {
+//            addDummyAnswersToChildren(nextFlowData.question);
+//        } else if (childFlowMode == ChildFlow.Modes.TOGETHER) {
+//            addDummyAnswersToChildren(nextFlowData.question);
+//        }
+
+        // add to back stack
         addEntryToBackStack(nextFlowData);
 
         return nextFlowData;
@@ -625,9 +385,10 @@ public class FlowLogicImplementation extends FlowLogic {
         + skip pattern matches
     */
     public static boolean shouldSkip(Question question) {
-        return shouldSkipBasedOnAnswerScope(question) ||
-                shouldSkipBasedOnSkipPattern(question) ||
-                question.isFinished();
+//        return shouldSkipBasedOnAnswerScope(question) ||
+//                shouldSkipBasedOnSkipPattern(question) ||
+//                question.isFinished();
+        return shouldSkipBasedOnSkipPattern(question);
     }
 
     public static boolean shouldSkipBasedOnSkipPattern(Question question) {

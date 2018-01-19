@@ -1,5 +1,6 @@
 package com.puthuvaazhvu.mapping.views.fragments.question;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -8,6 +9,8 @@ import android.widget.Button;
 
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.other.Constants;
+import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.BaseQuestionFragmentCommunication;
+import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.ShowTogetherQuestionCommunication;
 
 /**
  * Created by muthuveerappans on 10/1/17.
@@ -16,6 +19,19 @@ import com.puthuvaazhvu.mapping.other.Constants;
 public abstract class QuestionFragment extends Fragment implements View.OnClickListener {
     protected Button back_button;
     protected Button next_button;
+
+    protected BaseQuestionFragmentCommunication baseQuestionFragmentCommunication;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        try {
+            baseQuestionFragmentCommunication = (BaseQuestionFragmentCommunication) context;
+        } catch (ClassCastException e) {
+            throw new IllegalArgumentException("Please implement the " + BaseQuestionFragmentCommunication.class.getSimpleName() + " on the parent ativity");
+        }
+    }
 
     protected void initView(View view) {
         back_button = view.findViewById(R.id.back_button);

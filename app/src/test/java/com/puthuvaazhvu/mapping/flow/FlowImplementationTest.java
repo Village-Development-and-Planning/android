@@ -149,9 +149,6 @@ public class FlowImplementationTest {
         Question nextQuestion = flowLogicImplementation.getNext().question;
 
         assertThat(nextQuestion.getAnswers().size(), is(1));
-        for (Question c : nextQuestion.getAnswers().get(0).getChildren()) {
-            assertThat(c.getAnswers().size(), is(1));
-        }
 
         // test grid question
         survey = DataHelpers.getSurvey(this, "grid_question.json");
@@ -162,14 +159,9 @@ public class FlowImplementationTest {
 
         nextQuestion = flowLogicImplementation.getNext().question;
         assertThat(nextQuestion.getAnswers().size(), is(1));
-        for (Question c : nextQuestion.getAnswers().get(0).getChildren()) {
-            assertThat(c.getAnswers().size(), is(1));
-        }
 
         flowLogicImplementation.moveToIndexInChild(0);
         assertThat(flowLogicImplementation.getCurrent().question.getRawNumber(), is("2.1.7.3"));
-        assertThat(flowLogicImplementation.getCurrent().question.getAnswers().size(), is(1));
-        assertThat(flowLogicImplementation.getCurrent().question.getAnswers().get(0).getOptions().get(0).getType(), is("DUMMY"));
 
         // test skip pattern
         survey = DataHelpers.getSurvey(this, "multiple_options_skip.json");

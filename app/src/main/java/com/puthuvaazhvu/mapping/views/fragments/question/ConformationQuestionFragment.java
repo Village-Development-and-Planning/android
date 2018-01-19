@@ -69,7 +69,7 @@ public class ConformationQuestionFragment extends SingleQuestionFragmentBase {
         ArrayList<Option> options = new ArrayList<>();
         options.add(new Option(
                 "",
-                "dummy",
+                "CONFIRMATION",
                 new Text("", text, text, ""),
                 "",
                 ""

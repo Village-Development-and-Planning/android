@@ -77,12 +77,6 @@ public class ShownTogetherFragment extends QuestionDataFragment {
         together_question_container = view.findViewById(R.id.together_question_container);
         together_question_container.setAdapter(shownTogetherAdapter);
 
-//        optionsRecyclerView = view.findViewById(R.id.together_question_recycler_view);
-//        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
-//        optionsRecyclerView.setLayoutManager(linearLayoutManager);
-//
-//        optionsRecyclerView.setAdapter(shownTogetherAdapter);
-
         String questionText = getQuestion().getTextForLanguage();
         String rawNumber = getQuestion().getRawNumber();
 
@@ -107,22 +101,11 @@ public class ShownTogetherFragment extends QuestionDataFragment {
             if (optionsUI != null && optionsUI.response() != null) {
 //                Answer answer = new Answer(optionsUI.response(), question);
 //                question.setAnswer(answer);
-                question.getLatestAnswer().setOptions(optionsUI.response());
+                baseQuestionFragmentCommunication.getFlowLogic().update(optionsUI.response(), question);
+                //question.getLatestAnswer().setOptions(optionsUI.response());
             }
         }
     }
-
-//    private void addDummyAnswersToQuestionTree(ArrayList<Question> data, Question node) {
-//        if (node.getAnswers().isEmpty()) {
-//            Answer dummyAnswer = new Answer(Question.noDataWithValidOptions(), node);
-//            node.setAnswer(dummyAnswer);
-//        }
-//
-//        for (Question child : node.getLatestAnswer().getChildren()) {
-//            data.add(child);
-//            addDummyAnswersToQuestionTree(data, child);
-//        }
-//    }
 
     private class ShownTogetherAdapter extends RecyclerView.Adapter<ShownTogetherVH> {
 

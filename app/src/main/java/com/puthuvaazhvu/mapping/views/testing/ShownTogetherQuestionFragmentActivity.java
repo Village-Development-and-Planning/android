@@ -10,6 +10,9 @@ import com.google.gson.JsonParser;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.utils.Utils;
+import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogic;
+import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogicImplementation;
+import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.BaseQuestionFragmentCommunication;
 import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.QuestionDataFragmentCommunication;
 import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.ShowTogetherQuestionCommunication;
 import com.puthuvaazhvu.mapping.views.fragments.question.ShownTogetherFragment;
@@ -21,7 +24,8 @@ import timber.log.Timber;
  */
 
 public class ShownTogetherQuestionFragmentActivity extends AppCompatActivity
-        implements ShowTogetherQuestionCommunication, QuestionDataFragmentCommunication {
+        implements ShowTogetherQuestionCommunication, QuestionDataFragmentCommunication,
+        BaseQuestionFragmentCommunication {
 
     Question root;
 
@@ -60,5 +64,10 @@ public class ShownTogetherQuestionFragmentActivity extends AppCompatActivity
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.container, new ShownTogetherFragment());
         fragmentTransaction.commit();
+    }
+
+    @Override
+    public FlowLogic getFlowLogic() {
+        return new FlowLogicImplementation();
     }
 }
