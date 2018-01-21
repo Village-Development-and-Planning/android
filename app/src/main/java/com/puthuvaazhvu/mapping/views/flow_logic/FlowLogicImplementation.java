@@ -68,16 +68,22 @@ public class FlowLogicImplementation extends FlowLogic {
 
     @Override
     public FlowLogic finishCurrent() {
-        Answer latestAnswer = currentFlowData.question.getLatestAnswer();
+//        Answer latestAnswer = currentFlowData.question.getLatestAnswer();
+//
+//        if (latestAnswer != null) {
+////            Question reference = latestAnswer.getQuestionReference();
+////            reference.setFinished(true); // set the finished flag to true so we can skip this Q when necessary
+//            Question parent = question.getParentAnswer().getQuestionReference();
+//            question.getParentAnswer().incrementCurrentChildIndex();
+//            setCurrent(reference.getParent(), FlowData.FlowUIType.DEFAULT);
+//        } else {
+//            throw new IllegalArgumentException("The answers list is empty. Check if the current question "
+//                    + currentFlowData.question.getRawNumber() + " is answered first.");
+//        }
 
-        if (latestAnswer != null) {
-            Question reference = latestAnswer.getQuestionReference();
-            reference.setFinished(true); // set the finished flag to true so we can skip this Q when necessary
-            setCurrent(reference.getParent(), FlowData.FlowUIType.DEFAULT);
-        } else {
-            throw new IllegalArgumentException("The answers list is empty. Check if the current question "
-                    + currentFlowData.question.getRawNumber() + " is answered first.");
-        }
+        Question parent = currentFlowData.question.getParentAnswer().getQuestionReference();
+        currentFlowData.question.getParentAnswer().incrementCurrentChildIndex();
+        setCurrent(parent, FlowData.FlowUIType.DEFAULT);
 
         return this;
     }

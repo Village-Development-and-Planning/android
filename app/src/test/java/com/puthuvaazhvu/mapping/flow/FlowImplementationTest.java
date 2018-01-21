@@ -121,7 +121,6 @@ public class FlowImplementationTest {
 
         flowLogicImplementation.finishCurrent();
 
-        assertThat(question.isFinished(), is(true));
         assertSame(flowLogicImplementation.getCurrent().question, question.getParentAnswer().getQuestionReference());
     }
 
@@ -332,6 +331,11 @@ public class FlowImplementationTest {
         nextFlowData = flowLogicImplementation.getNext();
         assertThat(nextFlowData.question.getRawNumber(), is("2.1.7"));
         assertThat(nextFlowData.flowType, is(FlowLogic.FlowData.FlowUIType.GRID));
+
+        flowLogicImplementation.finishCurrent();
+        nextFlowData = flowLogicImplementation.getNext();
+        assertThat(nextFlowData.question.getRawNumber(), is("1.1"));
+        assertThat(nextFlowData.flowType, is(FlowLogic.FlowData.FlowUIType.DEFAULT));
     }
 
     @Test

@@ -8156,6 +8156,44 @@
             }
           }
         }
+      },
+      {
+        "position": "1.1",
+        "question": {
+          "options": [],
+          "children": [],
+          "text": {
+            "english": "Enter your surveyor code",
+            "tamil": "????????? ???????? ?????????? ????? ?????????"
+          },
+          "type": "INPUT",
+          "tags": "AUTH_SURVEYOR_CODE",
+          "number": "1.1",
+          "flow": {
+            "_tags": {
+              "AUTH_SURVEYOR_CODE": "AUTH_"
+            },
+            "pre": {
+              "fill": []
+            },
+            "question": {
+              "ui": "INPUT",
+              "validation": null
+            },
+            "answer": {
+              "scope": "once"
+            },
+            "child": {
+              "strategy": "cascade"
+            },
+            "post": [
+              "SURVEYOR_CODE"
+            ],
+            "exit": {
+              "strategy": "parent"
+            }
+          }
+        }
       }
     ],
     "flow": {
