@@ -5,12 +5,16 @@ import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -37,16 +41,31 @@ public class GPSOptionsUI extends OptionsUI
 
     protected Button button;
     private final AppCompatActivity activity;
-    private Location location;
-    private boolean gpsOK;
+    private Location lastLocation;
     private TextView textView;
 
     private FusedLocationProviderClient mFusedLocationClient;
+
+    private LocationRequest mLocationRequest;
+    private LocationCallback mLocationCallback;
 
     public GPSOptionsUI(ViewGroup frame, Context context, Question question) {
         super(frame, context, question);
         activity = (AppCompatActivity) context;
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
+        createLocationRequest();
+        startLocationUpdates();
+
+        mLocationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                for (Location location : locationResult.getLocations()) {
+                    // Update UI with location data
+                    lastLocation = location;
+                }
+                if (lastLocation != null) updateUI();
+            }
+        };
     }
 
     @Override
@@ -76,13 +95,15 @@ public class GPSOptionsUI extends OptionsUI
 
     @Override
     public ArrayList<Option> response() {
-        if (location == null) {
+        if (lastLocation == null) {
             return null;
         }
 
+        stopLocationUpdates();
+
         ArrayList<Option> options = new ArrayList<>();
 
-        String loc = location.getLatitude() + "," + location.getLongitude();
+        String loc = lastLocation.getLatitude() + "," + lastLocation.getLongitude();
         options.add(new Option("", "GPS", new Text("", loc, loc, ""), "", ""));
 
         return options;
@@ -95,15 +116,39 @@ public class GPSOptionsUI extends OptionsUI
                     @Override
                     public void onComplete(@NonNull Task<Location> task) {
                         if (task.isSuccessful() && task.getResult() != null) {
-                            location = task.getResult();
-
-                            Utils.showMessageToast(R.string.gps_recorded_successfully, context);
-                            textView.setText("" + location.getLatitude() + ", " + "" + location.getLongitude());
+                            lastLocation = task.getResult();
+                            if (lastLocation != null) updateUI();
+                            //Utils.showMessageToast(R.string.gps_recorded_successfully, context);
                         } else {
                             Timber.e(task.getException());
                             Utils.showMessageToast(R.string.gps_connection_err, context);
                         }
                     }
                 });
+    }
+
+    private void updateUI() {
+        textView.setText("" + lastLocation.getLatitude() + ", " + "" + lastLocation.getLongitude());
+    }
+
+    private void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
+    private void stopLocationUpdates() {
+        mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+    }
+
+    private void startLocationUpdates() {
+        try {
+            mFusedLocationClient.requestLocationUpdates(mLocationRequest,
+                    mLocationCallback,
+                    null /* Looper */);
+        } catch (SecurityException e) {
+            Timber.e(e.getLocalizedMessage());
+        }
     }
 }
