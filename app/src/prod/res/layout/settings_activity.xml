@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/move_to_home_page_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/go_to_main_page_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Go to main page"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
+
+        <Button
+            android:id="@+id/main_page_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="GO" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#000000" />
+
+    <LinearLayout
+        android:id="@+id/app_primary_language_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/app_primary_language_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Select app primary language"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
+
+        <RadioGroup
+            android:id="@+id/language_radio_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RadioButton
+                android:id="@+id/tamil_rb"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="TAMIL"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />
+
+            <RadioButton
+                android:id="@+id/english_rb"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="ENGLISH"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />
+
+        </RadioGroup>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#000000" />
+
+</LinearLayout>

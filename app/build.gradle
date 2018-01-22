@@ -22,6 +22,14 @@ repositories {
 }
 
 android {
+    signingConfigs {
+        release {
+            storeFile file("puthuvaalvu_android_key.keystore")
+            storePassword 'thambi@99'
+            keyAlias 'puthuvaalvu'
+            keyPassword 'thambi@99'
+        }
+    }
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
     defaultConfig {
@@ -36,9 +44,13 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            debuggable true
+            signingConfig signingConfigs.release
         }
         debug {
             applicationIdSuffix ".debug"
+            debuggable true
+            signingConfig signingConfigs.release
         }
     }
     productFlavors {
@@ -49,7 +61,6 @@ android {
 
         }
     }
-
     // Remove specific build flavours as it's not needed.
     android.variantFilter { variant ->
         if (variant.buildType.name.equals('release')
@@ -61,7 +72,6 @@ android {
             variant.setIgnore(true);
         }
     }
-
     // Always show the result of every unit test, even if it passes.
     testOptions.unitTests.all {
         testLogging {
@@ -73,7 +83,7 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     compile "com.android.support:appcompat-v7:$rootProject.ext.supportLibraryVersion"
     compile "com.android.support:recyclerview-v7:$rootProject.ext.supportLibraryVersion"
     compile "com.android.support:support-v4:$rootProject.supportLibraryVersion"
@@ -82,9 +92,7 @@ dependencies {
     compile group: 'com.google.code.gson', name: 'gson', version: "$rootProject.ext.gsonVersion"
     compile "com.android.support.constraint:constraint-layout:$rootProject.ext.constraintLayoutVersion"
     compile "org.apache.commons:commons-collections4:$rootProject.ext.apacheCommonsLangVersion"
-
     compile "com.google.android.gms:play-services-location:$rootProject.ext.googlePlayServicesVersion"
-
     compile "io.reactivex.rxjava2:rxandroid:$rootProject.ext.rxAndroidVersion"
     compile "io.reactivex.rxjava2:rxjava:$rootProject.ext.rxJavaVersion"
 
@@ -102,8 +110,10 @@ dependencies {
 
     // JUnit 4 framework for testing
     testCompile "junit:junit:$rootProject.ext.junitVersion"
+
     // Mockito framework for testing
     testCompile "org.mockito:mockito-core:$rootProject.ext.mockitoVersion"
+
     // Hamcrest matching
     testCompile "org.hamcrest:hamcrest-library:$rootProject.ext.hamcrestVersion"
 
@@ -111,7 +121,6 @@ dependencies {
     androidTestCompile("com.android.support.test.espresso:espresso-core:$rootProject.ext.espressoVersion", {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-
     androidTestCompile("com.android.support.test.espresso:espresso-contrib:$rootProject.ext.espressoVersion") {
         exclude module: 'support-annotations'
         exclude module: 'support-v4'
@@ -119,9 +128,6 @@ dependencies {
         exclude module: 'recyclerview-v7'
         exclude module: 'design'
     }
-
-    androidTestCompile 'com.android.support:support-annotations:' + rootProject.supportLibraryVersion;
-
-    androidTestCompile 'com.android.support.test:runner:' + rootProject.runnerVersion;
-
+    androidTestCompile 'com.android.support:support-annotations:' + rootProject.supportLibraryVersion
+    androidTestCompile 'com.android.support.test:runner:' + rootProject.runnerVersion
 }

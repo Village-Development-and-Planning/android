@@ -20,6 +20,7 @@ import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.network.APIs;
 import com.puthuvaazhvu.mapping.network.implementations.SingleSurveyAPI;
+import com.puthuvaazhvu.mapping.other.Config;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.other.RepeatingTask;
 import com.puthuvaazhvu.mapping.utils.Utils;
@@ -58,7 +59,7 @@ public class MainActivity extends MenuActivity
         ShowTogetherQuestionCommunication,
         BaseQuestionFragmentCommunication {
 
-    public static final boolean DEBUG = false;
+    public static final boolean DEBUG = Config.DEBUG;
 
     private final long REPEATING_TASK_INTERVAL = TimeUnit.MINUTES.toMillis(30);
 

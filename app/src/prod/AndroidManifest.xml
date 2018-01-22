@@ -27,6 +27,8 @@
 
         <activity android:name=".views.activities.save_survey_data.SurveyDataDumpActivity" />
 
+        <activity android:name=".views.activities.settings.SettingsActivity" />
+
         <activity
             android:name=".views.activities.SplashActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">

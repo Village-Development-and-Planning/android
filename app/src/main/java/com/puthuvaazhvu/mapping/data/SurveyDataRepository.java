@@ -114,8 +114,13 @@ public class SurveyDataRepository extends DataRepository {
                 });
     }
 
-    private static Survey fillWithDynamicOptions(Survey survey, String optionsFillJson) {
+    private static Survey fillWithDynamicOptions(Survey survey, String optionsFillJson) throws Exception {
         //String optionsFillJson = Utils.readFromAssetsFile(context, "options_fill.json");
+
+        if (optionsFillJson == null) {
+            Timber.e("Dynamic fill options could'nt be added as the options are null.");
+            throw new Exception("Dynamic fill options could'nt be added as the options are null.");
+        }
 
         JsonParser jsonParser = new JsonParser();
         JsonObject rootJson = jsonParser.parse(optionsFillJson).getAsJsonObject();
