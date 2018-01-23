@@ -19,6 +19,7 @@ import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
 import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
 import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogic;
 import com.puthuvaazhvu.mapping.views.fragments.question.ConformationQuestionFragment;
+import com.puthuvaazhvu.mapping.views.fragments.question.GPSQuestionFragment;
 import com.puthuvaazhvu.mapping.views.fragments.question.GridQuestionsFragment;
 import com.puthuvaazhvu.mapping.views.fragments.question.InfoFragment;
 import com.puthuvaazhvu.mapping.views.fragments.question.MessageQuestionFragment;
@@ -256,9 +257,13 @@ public class MainPresenter implements Contract.UserAction {
             case SINGLE_CHOICE:
             case MULTIPLE_CHOICE:
             case INPUT:
-            case GPS:
                 fragment = new SingleQuestionFragment();
                 tag = "single";
+                break;
+            case GPS:
+                fragment = new GPSQuestionFragment();
+                tag = "gps";
+                break;
         }
 
         if (fragment != null)

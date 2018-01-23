@@ -4,15 +4,25 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.View;
+import android.view.ViewGroup;
 
+import com.puthuvaazhvu.mapping.R;
+import com.puthuvaazhvu.mapping.modals.Question;
+import com.puthuvaazhvu.mapping.views.fragments.options.CreateOptionsUI;
+import com.puthuvaazhvu.mapping.views.fragments.options.OptionsUI;
+import com.puthuvaazhvu.mapping.views.fragments.options.factory.OptionsUIFactory;
 import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.SingleQuestionFragmentCommunication;
 
 /**
  * Created by muthuveerappans on 1/9/18.
  */
 
-public abstract class SingleQuestionFragmentBase extends QuestionWithOptionUI {
+public abstract class SingleQuestionFragmentBase extends QuestionDataFragment {
     protected SingleQuestionFragmentCommunication singleQuestionFragmentCommunication;
+
+    OptionsUI optionsUI;
+
+    ViewGroup optionsContainer;
 
     @Override
     public void onAttach(Context context) {
@@ -34,9 +44,26 @@ public abstract class SingleQuestionFragmentBase extends QuestionWithOptionUI {
 
         String text = rawNumber + ". " + questionText;
         getQuestionText().setText(text);
+
+        optionsContainer = view.findViewById(R.id.options_container);
+
+        OptionsUIFactory optionsUIFactory = getOptionsUIFactory();
+        if (optionsUIFactory != null)
+            loadOptionUI(getQuestion(), optionsUIFactory);
     }
 
     public SingleQuestionFragmentCommunication getSingleQuestionFragmentCommunication() {
         return singleQuestionFragmentCommunication;
+    }
+
+    public abstract OptionsUIFactory getOptionsUIFactory();
+
+    /**
+     * Helper to load the options based on the correct option type provided.
+     */
+    protected void loadOptionUI(Question question, OptionsUIFactory optionsUIFactory) {
+        CreateOptionsUI createOptionsUI = new CreateOptionsUI(question);
+        optionsUI = createOptionsUI.createOptionsUI(optionsUIFactory);
+        optionsUI.attachToRoot();
     }
 }

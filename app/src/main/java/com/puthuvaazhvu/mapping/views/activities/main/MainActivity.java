@@ -305,6 +305,17 @@ public class MainActivity extends MenuActivity
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // pass gps result to gps framgnet
+        Fragment frg = getSupportFragmentManager().findFragmentByTag("gps");
+        if (frg != null) {
+            frg.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    @Override
     public void toggleDefaultBackPressed(boolean toggle) {
         defaultBackPressed = toggle;
     }

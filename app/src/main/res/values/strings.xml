@@ -34,7 +34,7 @@
     <string name="question_iteration_error">Cannot proceed</string>
     <string name="survey_incomplete">Please complete all the questions</string>
     <string name="options_not_entered_err">Please provide valid options</string>
-    <string name="gps_connection_err">Error connection GPS</string>
+    <string name="gps_connection_err">Error connection GPS. Make sure GPS is enable on the device.</string>
     <string name="gps_error_title">Error recording gps</string>
     <string name="error_saving_survey">Error saving the survey</string>
     <string name="cannot_go_back">Cannot go back</string>

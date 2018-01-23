@@ -1,6 +1,7 @@
 package com.puthuvaazhvu.mapping.views.fragments.options;
 
 import android.content.Context;
+import android.content.Intent;
 import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentTransaction;
@@ -51,10 +52,11 @@ public class GPSOptionsUI extends OptionsUI
 
     public GPSOptionsUI(ViewGroup frame, Context context, Question question) {
         super(frame, context, question);
+
         activity = (AppCompatActivity) context;
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
+
         createLocationRequest();
-        startLocationUpdates();
 
         mLocationCallback = new LocationCallback() {
             @Override
@@ -66,6 +68,8 @@ public class GPSOptionsUI extends OptionsUI
                 if (lastLocation != null) updateUI();
             }
         };
+
+        startLocationUpdates();
     }
 
     @Override
