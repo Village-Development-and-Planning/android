@@ -26,6 +26,7 @@ public class Option extends BaseObject implements Parcelable {
     private final Text text;
     private final String modifiedAt;
     private final String position;
+    private String imageData;
 
     public Option(String id, String type, Text text, String modifiedAt, String position) {
         this.id = id;
@@ -33,6 +34,15 @@ public class Option extends BaseObject implements Parcelable {
         this.text = text;
         this.modifiedAt = modifiedAt;
         this.position = position;
+    }
+
+    public Option(String id, String type, Text text, String modifiedAt, String position, String imageData) {
+        this.id = id;
+        this.type = type;
+        this.text = text;
+        this.modifiedAt = modifiedAt;
+        this.position = position;
+        this.imageData = imageData;
     }
 
     public Option(JsonObject json) {
@@ -48,6 +58,12 @@ public class Option extends BaseObject implements Parcelable {
         modifiedAt = JsonHelper.getString(optionJson, "modifiedAt");
 
         JsonObject textJson = JsonHelper.getJsonObject(optionJson, "text");
+
+        JsonObject imageDataJson = JsonHelper.getJsonObject(optionJson, "image");
+        if (imageDataJson != null) {
+            imageData = JsonHelper.getString(imageDataJson, "data");
+        }
+
         text = new Text(textJson);
     }
 
@@ -78,6 +94,10 @@ public class Option extends BaseObject implements Parcelable {
             default:
                 return text.getEnglish();
         }
+    }
+
+    public String getImageData() {
+        return imageData;
     }
 
     public String getId() {
@@ -112,6 +132,7 @@ public class Option extends BaseObject implements Parcelable {
         parcel.writeParcelable(text, i);
         parcel.writeString(modifiedAt);
         parcel.writeString(position);
+        parcel.writeString(imageData);
     }
 
     public static ArrayList<Option> getOptions(JsonArray optionsJsonArray) {
@@ -139,6 +160,6 @@ public class Option extends BaseObject implements Parcelable {
 
     @Override
     public Option copy() {
-        return new Option(id, type, text.copy(), modifiedAt, position);
+        return new Option(id, type, text.copy(), modifiedAt, position, imageData);
     }
 }

@@ -7,6 +7,7 @@ import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.flow.FlowPattern;
+import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
 
 import java.util.ArrayList;
 
@@ -71,12 +72,17 @@ public class CheckableOptionsAsListUIData extends OptionsUIData implements Parce
     };
 
     public static CheckableOptionsAsListUIData adapter(Question question) {
+        boolean showImage = false;
+        FlowPattern flowPattern = question.getFlowPattern();
+        if (flowPattern != null) {
+            QuestionFlow questionFlow = flowPattern.getQuestionFlow();
+            if (questionFlow != null)
+                showImage = questionFlow.isShowImage();
+        }
+
         ArrayList<SingleData> singleDataArrayList = new ArrayList<>();
         for (Option option : question.getOptionList()) {
-            SingleData s = SingleData.adapter(option);
-//            if (question.getAnswerMatchForOption(option.getPosition()) != null) {
-//                s.setBackgroundColor(R.color.green_light);
-//            }
+            SingleData s = SingleData.adapter(option, showImage);
             if (!Question.isLatestAnswerDummy(question) &&
                     question.getLatestAnswer() != null) {
                 for (Option oa : question.getLatestAnswer().getOptions()) {
@@ -103,11 +109,19 @@ public class CheckableOptionsAsListUIData extends OptionsUIData implements Parce
         private final String position;
         private boolean isSelected;
         private int backgroundColor = -1;
+        private String imageData;
 
         public SingleData(String id, String text, String position) {
             this.id = id;
             this.text = text;
             this.position = position;
+        }
+
+        public SingleData(String id, String text, String position, String imageData) {
+            this.id = id;
+            this.text = text;
+            this.position = position;
+            this.imageData = imageData;
         }
 
         public String getId() {
@@ -138,6 +152,10 @@ public class CheckableOptionsAsListUIData extends OptionsUIData implements Parce
             this.backgroundColor = backgroundColor;
         }
 
+        public String getImageData() {
+            return imageData;
+        }
+
         @Override
         public int describeContents() {
             return 0;
@@ -150,6 +168,7 @@ public class CheckableOptionsAsListUIData extends OptionsUIData implements Parce
             dest.writeString(this.position);
             dest.writeByte(this.isSelected ? (byte) 1 : (byte) 0);
             dest.writeInt(this.backgroundColor);
+            dest.writeString(this.imageData);
         }
 
         protected SingleData(Parcel in) {
@@ -158,6 +177,7 @@ public class CheckableOptionsAsListUIData extends OptionsUIData implements Parce
             this.position = in.readString();
             this.isSelected = in.readByte() != 0;
             this.backgroundColor = in.readInt();
+            this.imageData = in.readString();
         }
 
         public static final Creator<SingleData> CREATOR = new Creator<SingleData>() {
@@ -172,8 +192,20 @@ public class CheckableOptionsAsListUIData extends OptionsUIData implements Parce
             }
         };
 
-        public static SingleData adapter(Option option) {
-            return new SingleData(option.getId(), option.getTextString(), option.getPosition());
+        public static SingleData adapter(Option option, boolean showImage) {
+            if (showImage)
+                return new SingleData(
+                        option.getId(),
+                        option.getTextString(),
+                        option.getPosition(),
+                        option.getImageData()
+                );
+            else
+                return new SingleData(
+                        option.getId(),
+                        option.getTextString(),
+                        option.getPosition()
+                );
         }
     }
 

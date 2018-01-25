@@ -15,6 +15,7 @@ public class QuestionFlow extends BaseObject implements Parcelable {
     private final UI uiMode;
     private boolean back = true;
     private int optionsLimit;
+    private boolean showImage;
 
     @Override
     public JsonElement getAsJson() {
@@ -46,6 +47,8 @@ public class QuestionFlow extends BaseObject implements Parcelable {
         }
 
         optionsLimit = JsonHelper.getInt(jsonObject, "optionsLimit");
+
+        showImage = JsonHelper.getBoolean(jsonObject, "showImage");
     }
 
     public static UI parseUI(String ui) {
@@ -88,6 +91,10 @@ public class QuestionFlow extends BaseObject implements Parcelable {
         }
     }
 
+    public boolean isShowImage() {
+        return showImage;
+    }
+
     public int getOptionsLimit() {
         return optionsLimit;
     }
@@ -123,6 +130,7 @@ public class QuestionFlow extends BaseObject implements Parcelable {
         dest.writeInt(this.uiMode == null ? -1 : this.uiMode.ordinal());
         dest.writeByte(this.back ? (byte) 1 : (byte) 0);
         dest.writeInt(this.optionsLimit);
+        dest.writeByte(this.showImage ? (byte) 1 : (byte) 0);
     }
 
     protected QuestionFlow(Parcel in) {
@@ -132,6 +140,7 @@ public class QuestionFlow extends BaseObject implements Parcelable {
         this.uiMode = tmpUiMode == -1 ? null : UI.values()[tmpUiMode];
         this.back = in.readByte() != 0;
         this.optionsLimit = in.readInt();
+        this.showImage = in.readByte() != 0;
     }
 
     public static final Creator<QuestionFlow> CREATOR = new Creator<QuestionFlow>() {

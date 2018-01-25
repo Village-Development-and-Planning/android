@@ -114,18 +114,6 @@ public class MainActivity extends MenuActivity
                 GetFromFile.getInstance()
         );
 
-        if (DEBUG) {
-            String dataString = Utils.readFromAssetsFile(this, "sample_data_shown_together_flow.json");
-            JsonParser jsonParser = new JsonParser();
-            Survey survey = new Survey(jsonParser.parse(dataString).getAsJsonObject());
-            Question root = survey.getRootQuestion();
-            flowLogic = new FlowLogicImplementation(root);
-            presenter.initData(survey, flowLogic);
-            presenter.getNext();
-        } else {
-            onSurveyLoaded(MappingApplication.globalContext.getApplicationData().getSurvey());
-        }
-
         repeatingTask = new RepeatingTask(handler, new Runnable() {
             @Override
             public void run() {
@@ -135,6 +123,18 @@ public class MainActivity extends MenuActivity
                 }
             }
         }, REPEATING_TASK_INTERVAL, true);
+
+        if (DEBUG) {
+            String dataString = Utils.readFromAssetsFile(this, "question_with_image.json");
+            JsonParser jsonParser = new JsonParser();
+            Survey survey = new Survey(jsonParser.parse(dataString).getAsJsonObject());
+            Question root = survey.getRootQuestion();
+            flowLogic = new FlowLogicImplementation(root);
+            presenter.initData(survey, flowLogic);
+            presenter.getNext();
+        } else {
+            onSurveyLoaded(MappingApplication.globalContext.getApplicationData().getSurvey());
+        }
 
         if (dumpSurveyRepeatingTask)
             repeatingTask.start();
