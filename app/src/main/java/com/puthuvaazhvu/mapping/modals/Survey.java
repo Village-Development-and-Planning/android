@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
 import com.puthuvaazhvu.mapping.utils.Optional;
 
@@ -50,25 +51,25 @@ public class Survey extends BaseObject implements Parcelable {
         JsonObject questionsJson = JsonHelper.getJsonObject(json, "question");
 
         if (questionsJson != null) {
-            rootQuestion = Question.populateQuestion(json);
+            rootQuestion = QuestionUtils.populateQuestionFromJson(null, json);
         } else {
             rootQuestion = null;
         }
     }
 
-    public static Single<Survey> getSurveyInstanceWithUpdatedAnswers(final JsonObject surveyJson) {
-        return Single.just(new Survey(surveyJson))
-                .map(new Function<Survey, Survey>() {
-                    @Override
-                    public Survey apply(@NonNull Survey survey) throws Exception {
-                        JsonObject questionJson = JsonHelper.getJsonObject(surveyJson, "question");
-                        if (questionJson != null) {
-                            Question.populateAnswersInternal(survey.getRootQuestion(), questionJson);
-                        }
-                        return survey;
-                    }
-                });
-    }
+//    public static Single<Survey> getSurveyWithUpdatedAnswers(final JsonObject surveyJson) {
+//        return Single.just(new Survey(surveyJson))
+//                .map(new Function<Survey, Survey>() {
+//                    @Override
+//                    public Survey apply(@NonNull Survey survey) throws Exception {
+//                        JsonObject questionJson = JsonHelper.getJsonObject(surveyJson, "question");
+//                        if (questionJson != null) {
+//                            Question.populateAnswersInternal(survey.getRootQuestion(), questionJson);
+//                        }
+//                        return survey;
+//                    }
+//                });
+//    }
 
     public String getId() {
         return id;
@@ -90,25 +91,25 @@ public class Survey extends BaseObject implements Parcelable {
         return description;
     }
 
-    public boolean dynamicOptionsFillForQuestion(final String fillTag, ArrayList<Option> options) {
-
-        Question root = rootQuestion;
-
-        Question result = root.findInTree(new Question.QuestionTreeSearchPredicate() {
-            @Override
-            public boolean evaluate(Question question) {
-                return question.containsPreFlow(fillTag);
-            }
-        });
-
-        if (result == null) {
-            return false;
-        }
-
-        result.setOptionList(options);
-
-        return true;
-    }
+//    public boolean dynamicOptionsFillForQuestion(final String fillTag, ArrayList<Option> options) {
+//
+//        Question root = rootQuestion;
+//
+//        Question result = root.findInTree(new Question.QuestionTreeSearchPredicate() {
+//            @Override
+//            public boolean evaluate(Question question) {
+//                return question.containsPreFlow(fillTag);
+//            }
+//        });
+//
+//        if (result == null) {
+//            return false;
+//        }
+//
+//        result.setOptionList(options);
+//
+//        return true;
+//    }
 
     @Override
     public JsonElement getAsJson() {

@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import com.google.gson.JsonParser;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.Question;
+import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogic;
 import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogicImplementation;
@@ -42,7 +43,7 @@ public class ShownTogetherQuestionFragmentActivity extends AppCompatActivity
     private Question getData() {
         String questionString = Utils.readFromAssetsFile(this, "message_question.json");
         JsonParser jsonParser = new JsonParser();
-        return Question.populateQuestion(jsonParser.parse(questionString).getAsJsonObject());
+        return QuestionUtils.populateQuestionFromJson(null, jsonParser.parse(questionString).getAsJsonObject());
     }
 
     @Override

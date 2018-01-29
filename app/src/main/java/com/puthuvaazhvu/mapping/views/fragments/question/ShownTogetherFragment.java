@@ -17,6 +17,7 @@ import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Text;
+import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.views.custom_components.LinearLayoutRecyclerView;
 import com.puthuvaazhvu.mapping.views.fragments.options.CreateOptionsUI;
 import com.puthuvaazhvu.mapping.views.fragments.options.OptionsUI;
@@ -56,9 +57,9 @@ public class ShownTogetherFragment extends QuestionDataFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         dataList = new ArrayList<>();
-        dataList.addAll(getQuestion().getLatestAnswer().getChildren());
+        dataList.addAll(QuestionUtils.getLastAnswer(getQuestion()).getChildren());
         // add a valid answer to avoid locking in the same question
-        getQuestion().getLatestAnswer().setOptions(Question.noDataWithValidOptions());
+        QuestionUtils.getLastAnswer(getQuestion()).setOptions(QuestionUtils.generateQuestionWithDummyAndValidOptions());
         //addDummyAnswersToQuestionTree(dataList, getQuestion());
         shownTogetherAdapter = new ShownTogetherAdapter();
         optionsUiObjects = new HashMap<>();
@@ -77,7 +78,7 @@ public class ShownTogetherFragment extends QuestionDataFragment {
         together_question_container = view.findViewById(R.id.together_question_container);
         together_question_container.setAdapter(shownTogetherAdapter);
 
-        String questionText = getQuestion().getTextForLanguage();
+        String questionText = QuestionUtils.getTextString(getQuestion());
         String rawNumber = getQuestion().getRawNumber();
 
         String text = rawNumber + ". " + questionText;
@@ -100,7 +101,7 @@ public class ShownTogetherFragment extends QuestionDataFragment {
             OptionsUI optionsUI = optionsUiObjects.get(question.getRawNumber());
             if (optionsUI != null && optionsUI.response() != null) {
 //                Answer answer = new Answer(optionsUI.response(), question);
-//                question.setAnswer(answer);
+//                question.setAnswerAt(answer);
                 baseQuestionFragmentCommunication.getFlowLogic().update(optionsUI.response(), question);
                 //question.getLatestAnswer().setOptions(optionsUI.response());
             }
@@ -147,7 +148,7 @@ public class ShownTogetherFragment extends QuestionDataFragment {
 
             optionsUiObjects.put(question.getRawNumber(), optionsUI);
 
-            questionTextView.setText(question.getTextForLanguage());
+            questionTextView.setText(QuestionUtils.getTextString(question));
         }
     }
 }

@@ -10,6 +10,7 @@ import com.puthuvaazhvu.mapping.data.SurveyDataRepository;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
+import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.other.dumpdata.DumpData;
 import com.puthuvaazhvu.mapping.utils.DataFileHelpers;
@@ -275,7 +276,7 @@ public class MainPresenter implements Contract.UserAction {
         if (question == null) {
             return null;
         }
-        ArrayList<Integer> indexes = question.getPathOfCurrentQuestion();
+        ArrayList<Integer> indexes = QuestionUtils.getPathOfQuestion(question);
         return TextUtils.join(",", indexes);
     }
 

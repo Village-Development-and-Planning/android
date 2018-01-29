@@ -10,6 +10,7 @@ import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Text;
+import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 
 import java.util.ArrayList;
 
@@ -32,6 +33,6 @@ public class DummyOptionsWithValidDataUI extends OptionsUI {
 
     @Override
     public ArrayList<Option> response() {
-        return Question.noDataWithValidOptions();
+        return QuestionUtils.generateQuestionWithDummyAndValidOptions();
     }
 }

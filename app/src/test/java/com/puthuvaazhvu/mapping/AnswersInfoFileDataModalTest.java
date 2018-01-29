@@ -1,4 +1,4 @@
-package com.puthuvaazhvu.mapping.modals;
+package com.puthuvaazhvu.mapping;
 
 import com.puthuvaazhvu.mapping.helpers.DataHelpers;
 import com.puthuvaazhvu.mapping.utils.info_file.modals.AnswerDataModal;

@@ -16,6 +16,8 @@ import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.flow.FlowPattern;
+import com.puthuvaazhvu.mapping.modals.utils.AnswerUtils;
+import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.utils.RecyclerItemClickListener;
 import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.GridQuestionFragmentCommunication;
 
@@ -83,9 +85,9 @@ public class GridQuestionsFragment extends QuestionDataFragment {
         }));
 
         // add a valid answer to avoid locking in the same question
-        getQuestion().getLatestAnswer().setOptions(Question.noDataWithValidOptions());
+        QuestionUtils.getLastAnswer(getQuestion()).setOptions(QuestionUtils.generateQuestionWithDummyAndValidOptions());
 
-        children = getQuestion().getLatestAnswer().getChildren();
+        children = QuestionUtils.getLastAnswer(getQuestion()).getChildren();
 
         questionsAdapter = new QuestionsAdapter();
         recyclerView.setAdapter(questionsAdapter);
@@ -116,11 +118,11 @@ public class GridQuestionsFragment extends QuestionDataFragment {
             // remove dummy answers in count
             int count = child.getAnswers().size();
             for (Answer answer : child.getAnswers()) {
-                if (Answer.isAnswerDummy(answer)) count--;
+                if (AnswerUtils.isAnswerDummy(answer)) count--;
             }
 
 
-            holder.populateViews(child.getTextForLanguage(), count);
+            holder.populateViews(QuestionUtils.getTextString(child), count);
         }
 
         @Override

@@ -6,6 +6,7 @@ import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.modals.Text;
+import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogic;
 import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogicImplementation;
 
@@ -31,16 +32,16 @@ import static org.mockito.Mockito.verify;
 public class FlowImplementationTest {
 
     private void addDummyAnswersToChildren(Question node) {
-        Answer answer = new Answer(Question.dummyOptions(), node, System.currentTimeMillis());
-        node.setAnswer(answer);
+        Answer answer = new Answer(QuestionUtils.generateQuestionWithDummyOptions(), node, System.currentTimeMillis());
+        node.addAnswer(answer);
 
-        for (Question child : node.getLatestAnswer().getChildren()) {
+        for (Question child : QuestionUtils.getLastAnswer(node).getChildren()) {
             addDummyAnswersToChildren(child);
         }
     }
 
     private Question moveTo(String path, Question question) {
-        return Question.moveToQuestion(path, question);
+        return QuestionUtils.moveToQuestionFromPath(path, question);
     }
 
     @Test
@@ -69,7 +70,8 @@ public class FlowImplementationTest {
         flowLogic.update(options);
 
         assertThat(flowLogic.getCurrent().question.getAnswers().size(), is(1));
-        assertThat(flowLogic.getCurrent().question.getLatestAnswer().getOptions().get(0).getType(), is("TEST_DATA"));
+        assertThat(QuestionUtils.getLastAnswer(flowLogic.getCurrent().question)
+                .getOptions().get(0).getType(), is("TEST_DATA"));
     }
 
     @Test
@@ -86,7 +88,7 @@ public class FlowImplementationTest {
         assertThat(question.getRawNumber(), is("1.2"));
         flowLogicImplementation.setCurrent(question, FlowLogic.FlowData.FlowUIType.DEFAULT);
 
-        flowLogicImplementation.addAnswer(Question.dummyOptions(), question);
+        flowLogicImplementation.addAnswer(QuestionUtils.generateQuestionWithDummyOptions(), question);
         assertThat(flowLogicImplementation.getCurrent().question.getAnswers().size(), is(1));
     }
 
@@ -271,7 +273,7 @@ public class FlowImplementationTest {
         // test grid question
         survey = DataHelpers.getSurvey(this, "grid_question.json");
         root = survey.getRootQuestion();
-        root.setAnswer(new Answer(Question.dummyOptions(), root));
+        root.addAnswer(new Answer(QuestionUtils.generateQuestionWithDummyOptions(), root));
         assertThat(root.getType(), is("ROOT"));
 
         flowLogicImplementation.setCurrent(root, FlowLogic.FlowData.FlowUIType.DEFAULT);
@@ -289,7 +291,7 @@ public class FlowImplementationTest {
         // test normal flow
         survey = DataHelpers.getSurvey(this, "flow_data.json");
         root = survey.getRootQuestion();
-        root.setAnswer(new Answer(Question.dummyOptions(), root));
+        root.addAnswer(new Answer(QuestionUtils.generateQuestionWithDummyOptions(), root));
         assertThat(root.getType(), is("ROOT"));
         flowLogicImplementation = new FlowLogicImplementation();
         nextQuestion = flowLogicImplementation.childFlow(root).question;
@@ -397,7 +399,7 @@ public class FlowImplementationTest {
                         "TEST_DATA",
                         new Text("", "TEST", "TEST", ""),
                         "",
-                        "2")
+                        "1")
         );
         flowLogicImplementation.update(options);
 
@@ -411,7 +413,20 @@ public class FlowImplementationTest {
                         "TEST_DATA",
                         new Text("", "TEST", "TEST", ""),
                         "",
-                        "2")
+                        "1")
+        );
+        flowLogicImplementation.update(options);
+
+        nextFlowData = flowLogicImplementation.getNext();
+        assertThat(nextFlowData.flowType, is(FlowLogic.FlowData.FlowUIType.LOOP));
+
+        options = new ArrayList<>();
+        options.add(
+                new Option("",
+                        "TEST_DATA",
+                        new Text("", "TEST", "TEST", ""),
+                        "",
+                        "0")
         );
         flowLogicImplementation.update(options);
 

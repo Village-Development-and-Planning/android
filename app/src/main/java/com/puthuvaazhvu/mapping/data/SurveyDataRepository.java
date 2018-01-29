@@ -8,6 +8,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Survey;
+import com.puthuvaazhvu.mapping.modals.utils.SurveyUtils;
 import com.puthuvaazhvu.mapping.network.implementations.SingleSurveyAPI;
 import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
 
@@ -83,7 +84,7 @@ public class SurveyDataRepository extends DataRepository {
                         JsonParser jsonParser = new JsonParser();
                         JsonObject surveyJsonWithAnswers = jsonParser.parse(surveyJsonString).getAsJsonObject();
                         // Survey survey = new Survey(surveyJsonWithAnswers);
-                        return Survey.getSurveyInstanceWithUpdatedAnswers(surveyJsonWithAnswers);
+                        return SurveyUtils.getSurveyWithUpdatedAnswers(surveyJsonWithAnswers);
                     }
                 })
                 .map(new Function<Survey, Survey>() {
@@ -136,7 +137,7 @@ public class SurveyDataRepository extends DataRepository {
                 options.add(new Option(optionElement.getAsJsonObject()));
             }
 
-            boolean result = survey.dynamicOptionsFillForQuestion(fillTag, options);
+            boolean result = SurveyUtils.fillOptionsForQuestion(survey.getRootQuestion(), fillTag, options);
 
             if (!result) {
                 Timber.e("Dynamic fill options could'nt be added at " + fillTag);

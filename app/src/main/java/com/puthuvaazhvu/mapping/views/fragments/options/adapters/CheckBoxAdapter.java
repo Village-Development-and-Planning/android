@@ -1,5 +1,6 @@
 package com.puthuvaazhvu.mapping.views.fragments.options.adapters;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
@@ -11,6 +12,8 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.fragments.options.modals.CheckableOptionsAsListUIData;
@@ -65,9 +68,12 @@ public class CheckBoxAdapter extends CheckableOptionsAsListAdapter {
 
         if (singleData.getImageData() != null) {
             byte[] decodedString = Base64.decode(singleData.getImageData(), Base64.DEFAULT);
-            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-            if (decodedByte != null)
-                vh.setImageBitmap(decodedByte);
+            vh.setImageFromBytes(decodedString);
+            //Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+//            if (decodedByte != null)
+//                vh.setImageBitmap(decodedByte);
+        } else {
+            vh.imageView.setVisibility(View.GONE);
         }
 
         onBind = false;
@@ -76,12 +82,15 @@ public class CheckBoxAdapter extends CheckableOptionsAsListAdapter {
     class CheckBoxVH extends RecyclerView.ViewHolder {
         private CheckBox check_box;
         private ImageView imageView;
+        private Context context;
 
         public CheckBoxVH(View itemView) {
             super(itemView);
             check_box = itemView.findViewById(R.id.check_box);
             imageView = itemView.findViewById(R.id.img_checkmark);
             imageView.setVisibility(View.GONE);
+
+            this.context = itemView.getContext();
         }
 
         public void populateViews(String text, boolean isChecked) {
@@ -91,6 +100,15 @@ public class CheckBoxAdapter extends CheckableOptionsAsListAdapter {
 
         public void setImageBitmap(Bitmap bitmap) {
             imageView.setImageBitmap(bitmap);
+        }
+
+        public void setImageFromBytes(byte[] imageByteArray) {
+            imageView.setVisibility(View.VISIBLE);
+            Glide.with(context)
+                    .load(imageByteArray)
+                    .apply(new RequestOptions()
+                            .fitCenter())
+                    .into(imageView);
         }
 
         public void setCheckBoxClickListener(CompoundButton.OnCheckedChangeListener checkBoxClickListener) {

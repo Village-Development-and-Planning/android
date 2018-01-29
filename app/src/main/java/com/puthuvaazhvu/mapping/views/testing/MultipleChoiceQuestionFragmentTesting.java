@@ -9,6 +9,7 @@ import com.google.gson.JsonParser;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
+import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.QuestionDataFragmentCommunication;
 import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.SingleQuestionFragmentCommunication;
@@ -41,7 +42,7 @@ public class MultipleChoiceQuestionFragmentTesting extends AppCompatActivity
     private Question getData() {
         String questionString = Utils.readFromAssetsFile(this, "multiple_choice_with_options_count.json");
         JsonParser jsonParser = new JsonParser();
-        return Question.populateQuestion(jsonParser.parse(questionString).getAsJsonObject());
+        return QuestionUtils.populateQuestionFromJson(null, jsonParser.parse(questionString).getAsJsonObject());
     }
 
     private void addFragment() {

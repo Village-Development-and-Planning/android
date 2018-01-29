@@ -13,7 +13,8 @@ import java.util.List;
 
 public class JsonHelper {
     public static boolean isJsonValid(JsonObject jsonObject, String key) {
-        return !jsonObject.isJsonNull() && jsonObject.has(key) && !jsonObject.get(key).isJsonNull();
+        return jsonObject != null &&
+                !jsonObject.isJsonNull() && jsonObject.has(key) && !jsonObject.get(key).isJsonNull();
     }
 
     public static boolean getBoolean(JsonObject jsonObject, String key) {

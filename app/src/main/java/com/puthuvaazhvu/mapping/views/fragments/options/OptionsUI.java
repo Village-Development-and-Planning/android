@@ -12,6 +12,7 @@ import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
+import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 
 import java.util.ArrayList;
 
@@ -35,9 +36,9 @@ public abstract class OptionsUI {
     }
 
     protected ArrayList<Option> getLatestOptions() {
-        if (Question.isLatestAnswerDummy(question)) return null;
+        if (QuestionUtils.isLastAnswerDummy(question)) return null;
 
-        Answer answer = question.getLatestAnswer();
+        Answer answer = QuestionUtils.getLastAnswer(question);
         if (answer != null) {
             ArrayList<Option> latestOptions = answer.getOptions();
             if (latestOptions != null && latestOptions.size() > 0) {

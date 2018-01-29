@@ -8,6 +8,7 @@ import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.flow.FlowPattern;
 import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
+import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 
 import java.util.ArrayList;
 
@@ -83,9 +84,9 @@ public class CheckableOptionsAsListUIData extends OptionsUIData implements Parce
         ArrayList<SingleData> singleDataArrayList = new ArrayList<>();
         for (Option option : question.getOptionList()) {
             SingleData s = SingleData.adapter(option, showImage);
-            if (!Question.isLatestAnswerDummy(question) &&
-                    question.getLatestAnswer() != null) {
-                for (Option oa : question.getLatestAnswer().getOptions()) {
+            if (!QuestionUtils.isLastAnswerDummy(question) &&
+                    QuestionUtils.getLastAnswer(question) != null) {
+                for (Option oa : QuestionUtils.getLastAnswer(question).getOptions()) {
                     if (oa.getPosition() != null && oa.getPosition().equals(option.getPosition())) {
                         s.isSelected = true;
                     }
@@ -97,7 +98,7 @@ public class CheckableOptionsAsListUIData extends OptionsUIData implements Parce
         return new CheckableOptionsAsListUIData(
                 "",
                 question.getRawNumber(),
-                question.getTextForLanguage(),
+                QuestionUtils.getTextString(question),
                 question.getFlowPattern(),
                 singleDataArrayList
         );

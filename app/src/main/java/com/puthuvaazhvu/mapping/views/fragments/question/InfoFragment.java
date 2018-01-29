@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.puthuvaazhvu.mapping.R;
+import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.views.fragments.options.factory.OptionsUIFactory;
 
 /**
@@ -33,7 +34,7 @@ public class InfoFragment extends SingleQuestionFragmentBase implements View.OnC
         super.onViewCreated(view, savedInstanceState);
 
         question_text = view.findViewById(R.id.question_text);
-        question_text.setText(getQuestion().getTextForLanguage());
+        question_text.setText(QuestionUtils.getTextString(getQuestion()));
     }
 
     @Override

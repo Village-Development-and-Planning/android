@@ -8,6 +8,7 @@ import android.view.View;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Text;
+import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.views.fragments.options.OptionsUI;
 import com.puthuvaazhvu.mapping.views.fragments.options.CreateOptionsUI;
@@ -46,7 +47,7 @@ public class ConformationQuestionFragment extends SingleQuestionFragmentBase {
             getNextButton().setText(getText(R.string.yes_ta));
         }
 
-        String questionText = getQuestion().getTextForLanguage();
+        String questionText = QuestionUtils.getTextString(getQuestion());
         getQuestionText().setText(questionText);
     }
 

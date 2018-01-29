@@ -7,6 +7,7 @@ import android.view.View;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.Option;
+import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.fragments.options.factory.OptionsUIFactory;
 
@@ -22,7 +23,7 @@ public class SingleQuestionFragment extends SingleQuestionFragmentBase implement
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        String questionText = getQuestion().getTextForLanguage();
+        String questionText = QuestionUtils.getTextString(getQuestion());
         String rawNumber = getQuestion().getRawNumber();
 
         String text = rawNumber + ". " + questionText;

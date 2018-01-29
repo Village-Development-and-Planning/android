@@ -6,6 +6,8 @@ import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
+import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
+import com.puthuvaazhvu.mapping.modals.utils.SurveyUtils;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.utils.info_file.modals.AnswersInfoFileDataModal;
 
@@ -54,7 +56,7 @@ public class DataHelpers {
 
         assertThat(questionJson, notNullValue());
 
-        return Question.populateQuestion(questionJson);
+        return QuestionUtils.populateQuestionFromJson(null, questionJson);
     }
 
     public static AnswersInfoFileDataModal getAnswersInfoFileModal(Object obj) {
@@ -72,7 +74,7 @@ public class DataHelpers {
     }
 
     public static Survey getAnsweredSurvey(Object obj) {
-        Single<Survey> surveySingle = Survey.getSurveyInstanceWithUpdatedAnswers(DataHelpers.getAnswersJson(obj));
+        Single<Survey> surveySingle = SurveyUtils.getSurveyWithUpdatedAnswers(DataHelpers.getAnswersJson(obj));
         return surveySingle.blockingGet();
     }
 
@@ -87,19 +89,6 @@ public class DataHelpers {
 
         JsonParser jsonParser = new JsonParser();
         return jsonParser.parse(jsonString).getAsJsonObject();
-    }
-
-    public static void setDummyAnswersForAllQuestions(Question node) {
-
-        ArrayList<Option> options = new ArrayList<>();
-        options.add(new Option("", "", null, "", "-1"));
-
-        Answer answer = new Answer(options, node);
-        node.setAnswer(answer);
-
-        for (Question q : answer.getChildren()) {
-            setDummyAnswersForAllQuestions(q);
-        }
     }
 
     public static ArrayList<Option> getDummyOptions() {

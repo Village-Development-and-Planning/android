@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.ViewGroup;
 
 import com.puthuvaazhvu.mapping.modals.Question;
+import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.views.fragments.options.CheckBoxOptionsAsListUI;
 import com.puthuvaazhvu.mapping.views.fragments.options.DummyOptionsWithValidDataUI;
 import com.puthuvaazhvu.mapping.views.fragments.options.GPSOptionsUI;
@@ -44,6 +45,6 @@ public class OptionsUIFactory {
     }
 
     public DummyOptionsWithValidDataUI createDummyOptionsUI() {
-        return new DummyOptionsWithValidDataUI(frame, context, question.getTextForLanguage(), question);
+        return new DummyOptionsWithValidDataUI(frame, context, QuestionUtils.getTextString(question), question);
     }
 }

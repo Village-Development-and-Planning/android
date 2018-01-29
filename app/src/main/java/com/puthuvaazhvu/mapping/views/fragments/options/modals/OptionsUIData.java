@@ -9,6 +9,7 @@ import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.flow.FlowPattern;
 import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
+import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 
 import java.util.ArrayList;
 
@@ -67,7 +68,7 @@ public class OptionsUIData implements Parcelable {
 
     public static OptionsUIData adapter(Question question) {
         return new OptionsUIData("",
-                question.getRawNumber(), question.getTextForLanguage(), question.getFlowPattern());
+                question.getRawNumber(), QuestionUtils.getTextString(question), question.getFlowPattern());
     }
 }
 

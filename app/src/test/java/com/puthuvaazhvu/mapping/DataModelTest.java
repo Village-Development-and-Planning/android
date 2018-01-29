@@ -1,8 +1,10 @@
-package com.puthuvaazhvu.mapping.modals;
+package com.puthuvaazhvu.mapping;
 
 import android.content.Context;
 
 import com.puthuvaazhvu.mapping.helpers.DataHelpers;
+import com.puthuvaazhvu.mapping.modals.Question;
+import com.puthuvaazhvu.mapping.modals.Survey;
 
 import org.junit.Before;
 import org.junit.Test;

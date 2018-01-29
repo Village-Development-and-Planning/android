@@ -8,8 +8,12 @@ import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.flow.AnswerFlow;
 import com.puthuvaazhvu.mapping.modals.flow.ChildFlow;
 import com.puthuvaazhvu.mapping.modals.flow.ExitFlow;
+import com.puthuvaazhvu.mapping.modals.flow.FlowPattern;
 import com.puthuvaazhvu.mapping.modals.flow.PreFlow;
 import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
+import com.puthuvaazhvu.mapping.modals.utils.AnswerUtils;
+import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
+import com.puthuvaazhvu.mapping.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +24,7 @@ import timber.log.Timber;
  * Created by muthuveerappans on 16/01/18.
  */
 
+// Todo: error for LOOP OPTIONS question
 public class FlowLogicImplementation extends FlowLogic {
     private BackStack backStack;
 
@@ -35,7 +40,7 @@ public class FlowLogicImplementation extends FlowLogic {
 
     public FlowLogicImplementation(Question root, String snapshotPath) {
         this();
-        Question question = Question.moveToQuestion(snapshotPath, root);
+        Question question = QuestionUtils.moveToQuestionFromPath(snapshotPath, root);
 
         if (question == null) {
             setCurrent(root, FlowData.FlowUIType.DEFAULT);
@@ -45,7 +50,7 @@ public class FlowLogicImplementation extends FlowLogic {
             Question parent = parentAnswer.getQuestionReference();
 
             // change the visible child index position
-            int index = parent.getIndexOfChild(question);
+            int index = QuestionUtils.getIndexOfChild(parent, question);
 
             if (index >= 0) {
                 parentAnswer.setCurrentChildIndex(index);
@@ -68,19 +73,6 @@ public class FlowLogicImplementation extends FlowLogic {
 
     @Override
     public FlowLogic finishCurrent() {
-//        Answer latestAnswer = currentFlowData.question.getLatestAnswer();
-//
-//        if (latestAnswer != null) {
-////            Question reference = latestAnswer.getQuestionReference();
-////            reference.setFinished(true); // set the finished flag to true so we can skip this Q when necessary
-//            Question parent = question.getParentAnswer().getQuestionReference();
-//            question.getParentAnswer().incrementCurrentChildIndex();
-//            setCurrent(reference.getParent(), FlowData.FlowUIType.DEFAULT);
-//        } else {
-//            throw new IllegalArgumentException("The answers list is empty. Check if the current question "
-//                    + currentFlowData.question.getRawNumber() + " is answered first.");
-//        }
-
         Question parent = currentFlowData.question.getParentAnswer().getQuestionReference();
         currentFlowData.question.getParentAnswer().incrementCurrentChildIndex();
         setCurrent(parent, FlowData.FlowUIType.DEFAULT);
@@ -90,14 +82,14 @@ public class FlowLogicImplementation extends FlowLogic {
 
     @Override
     public FlowLogic moveToIndexInChild(int index) {
-        Answer latestAnswer = currentFlowData.question.getLatestAnswer();
+        Answer latestAnswer = QuestionUtils.getLastAnswer(currentFlowData.question);
 
         if (latestAnswer != null) {
             try {
                 Question current = latestAnswer.getChildren().get(index);
 
                 // add a dummy answer
-                addAnswer(Question.dummyOptions(), current);
+                addAnswer(QuestionUtils.generateQuestionWithDummyOptions(), current);
 
                 setCurrent(current, FlowData.FlowUIType.DEFAULT);
 
@@ -125,19 +117,21 @@ public class FlowLogicImplementation extends FlowLogic {
     public FlowLogic update(ArrayList<Option> response, Question question) {
         if (question.getAnswers().size() <= 0) {
             // add a new dummy answer if answers list is empty.
-            Answer answer = new Answer(Question.dummyOptions(), question, System.currentTimeMillis());
-            question.setAnswer(answer);
+            Answer answer = new Answer(QuestionUtils.generateQuestionWithDummyOptions()
+                    , question, System.currentTimeMillis());
+            setAnswerToQuestionBasedOnType(question, answer);
             Timber.i("Answer count for the question: \n" + question.toString()
                     + " is 0, so adding a new one.\n" + answer.toString());
         }
 
         long startTime = System.currentTimeMillis();
 
-        Answer answer = question.getLatestAnswer();
+        Answer answer = QuestionUtils.getLastAnswer(question);
         answer.setOptions(response);
         answer.setTimeStamp(startTime);
 
         Timber.i("Answer updated info :\n" + answer.toString());
+
         return this;
     }
 
@@ -153,12 +147,12 @@ public class FlowLogicImplementation extends FlowLogic {
         FlowData current = backStack.getLatest();
 
         if (current != null) {
-            Answer latestAnswer = current.question.getLatestAnswer();
+            Answer latestAnswer = QuestionUtils.getLastAnswer(current.question);
             Answer parentAnswer = current.question.getParentAnswer();
             Question parent = parentAnswer.getQuestionReference();
 
             // change the visible child index position
-            int index = parent.getIndexOfChild(current.question);
+            int index = QuestionUtils.getIndexOfChild(parent, current.question);
 
             if (index >= 0) {
                 parentAnswer.setCurrentChildIndex(index);
@@ -200,7 +194,7 @@ public class FlowLogicImplementation extends FlowLogic {
 
         } while (nextFlowData.question == null);
 
-        addAnswer(Question.dummyOptions(), nextFlowData.question);
+        addAnswer(QuestionUtils.generateQuestionWithDummyOptions(), nextFlowData.question);
 
         setCurrent(nextFlowData.question, nextFlowData.flowType);
 
@@ -256,7 +250,7 @@ public class FlowLogicImplementation extends FlowLogic {
             AnswerFlow answerFlow = question.getFlowPattern().getAnswerFlow();
 
             if (answerFlow.getMode() == AnswerFlow.Modes.OPTION &&
-                    shouldSkipBasedOnAnswerScope(question)) {
+                    SkipHelper.shouldSkipBasedOnAnswerScope(question)) {
 
                 // finish the current question
                 question.setFinished(true);
@@ -301,7 +295,7 @@ public class FlowLogicImplementation extends FlowLogic {
                 return flowData;
             }
 
-            Answer latestAnswer = question.getLatestAnswer();
+            Answer latestAnswer = QuestionUtils.getLastAnswer(question);
 
             // if there are no child questions, we have to get the next question
             if (latestAnswer.isCurrentChildIndexOutOfBounds()) {
@@ -312,7 +306,7 @@ public class FlowLogicImplementation extends FlowLogic {
             Question q = null;
             for (int i = latestAnswer.getCurrentChildIndex(); i < latestAnswer.getChildren().size(); i++) {
                 Question child = latestAnswer.getChildren().get(i);
-                if (shouldSkip(child)) {
+                if (SkipHelper.shouldSkip(child)) {
                     continue;
                 }
                 q = child;
@@ -320,7 +314,7 @@ public class FlowLogicImplementation extends FlowLogic {
             }
 
             if (q != null) {
-                int i = latestAnswer.getQuestionReference().getIndexOfChild(q);
+                int i = QuestionUtils.getIndexOfChild(latestAnswer.getQuestionReference(), q);
                 if (i >= 0) {
                     latestAnswer.setCurrentChildIndex(i);
                 } else {
@@ -348,7 +342,7 @@ public class FlowLogicImplementation extends FlowLogic {
         for (Question c : parentAnswer.getChildren()) {
             if (c == toRemove) {
                 // remove all the answers
-                c.removeAnswer();
+                QuestionUtils.removeAnswerFromQuestion(c);
                 Timber.i("Removed answer for question " + c.toString());
                 break;
             }
@@ -357,22 +351,23 @@ public class FlowLogicImplementation extends FlowLogic {
 
     @VisibleForTesting
     public void addDummyAnswersToChildren(Question node) {
-        addAnswer(Question.dummyOptions(), node);
+        addAnswer(QuestionUtils.generateQuestionWithDummyOptions(), node);
 
-        for (Question child : node.getLatestAnswer().getChildren()) {
+        for (Question child : QuestionUtils.getLastAnswer(node).getChildren()) {
             addDummyAnswersToChildren(child);
         }
     }
 
     @VisibleForTesting
     public void addAnswer(ArrayList<Option> response, Question question) {
-        if (Question.isLatestAnswerDummy(question)) return; // return if the latest answer is dummy
+        if (QuestionUtils.isLastAnswerDummy(question))
+            return; // return if the latest answer is dummy
 
-        if (shouldSkipBasedOnAnswerScope(question))
+        if (SkipHelper.shouldSkipBasedOnAnswerScope(question))
             return;
 
         Answer answer = new Answer(response, question, System.currentTimeMillis());
-        question.setAnswer(answer);
+        setAnswerToQuestionBasedOnType(question, answer);
 
         Timber.i("Dummy answer created info :\n" + answer.toString());
     }
@@ -386,88 +381,138 @@ public class FlowLogicImplementation extends FlowLogic {
             backStack.addQuestionToStack(flowData);
     }
 
-    /* skip when
-        + AnswerData scope demands
-        + skip pattern matches
-    */
-    public static boolean shouldSkip(Question question) {
+    private void setAnswerToQuestionBasedOnType(Question question, Answer answer) {
+        FlowPattern flowPattern = question.getFlowPattern();
+        if (flowPattern == null || answer.getOptions() == null) {
+            question.addAnswer(answer);
+            return;
+        }
+
+        AnswerFlow answerFlow = flowPattern.getAnswerFlow();
+
+        if (answerFlow == null) {
+            question.addAnswer(answer);
+            return;
+        }
+
+        if (answerFlow.getMode() == AnswerFlow.Modes.OPTION) {
+
+            Timber.e("Option types should be handled in a previous stage.");
+            if (question.getAnswers().size() <= question.getOptionList().size()) {
+                question.addAnswer(answer);
+            }
+
+        } else if (answerFlow.getMode() == AnswerFlow.Modes.ONCE) {
+            if (question.getAnswers().size() > 0)
+                question.setAnswerAt(0, answer);
+            else question.addAnswer(answer);
+        } else {
+            question.addAnswer(answer);
+        }
+    }
+
+    private static class SkipHelper {
+        private static boolean shouldSkip(Question question) {
 //        return shouldSkipBasedOnAnswerScope(question) ||
 //                shouldSkipBasedOnSkipPattern(question) ||
 //                question.isFinished();
-        return shouldSkipBasedOnSkipPattern(question);
-    }
+            return shouldSkipBasedOnSkipPattern(question);
+        }
 
-    public static boolean shouldSkipBasedOnSkipPattern(Question question) {
-        boolean shouldSkip = false;
+        private static boolean shouldSkipBasedOnSkipPattern(Question question) {
+            boolean shouldSkip = false;
 
-        // skip pattern
-        PreFlow preFlow = question.getFlowPattern().getPreFlow();
+            // skip pattern
+            PreFlow preFlow = question.getFlowPattern().getPreFlow();
 
-        if (preFlow != null) {
-            String preFlowQuestionNumber = preFlow.getQuestionSkipRawNumber();
+            if (preFlow != null) {
+                String preFlowQuestionNumber = preFlow.getQuestionSkipRawNumber();
 
-            if (preFlowQuestionNumber == null) {
+                if (preFlowQuestionNumber == null) {
+                    return false;
+                }
+
+                ArrayList<String> optionsSkip = preFlow.getOptionSkip();
+
+                Question questionFoundForSkipPattern = QuestionUtils.findQuestionFrom(question,
+                        preFlowQuestionNumber, true);
+
+                if (questionFoundForSkipPattern != null && QuestionUtils.getLastAnswer(questionFoundForSkipPattern) != null) {
+                    shouldSkip = !doesSkipPatternMatchInQuestion(optionsSkip
+                            , QuestionUtils.getLastAnswer(questionFoundForSkipPattern));
+                } else {
+                    // if no question found then skip
+                    shouldSkip = true;
+                }
+            }
+
+            return shouldSkip;
+        }
+
+        private static boolean shouldSkipBasedOnAnswerScope(Question question) {
+            boolean shouldSkip = false;
+            AnswerFlow answerFlow = question.getFlowPattern().getAnswerFlow();
+
+            if (answerFlow == null) {
                 return false;
             }
 
-            ArrayList<String> optionsSkip = preFlow.getOptionSkip();
+            AnswerFlow.Modes answerMode = answerFlow.getMode();
 
-            Question foundForSkipPattern = question.findQuestionUpwards(preFlowQuestionNumber, true);
+            List<Answer> answerList = new ArrayList<>();
 
-            if (foundForSkipPattern != null && foundForSkipPattern.getLatestAnswer() != null) {
-                shouldSkip = !doesSkipPatternMatchInQuestion(optionsSkip, foundForSkipPattern.getLatestAnswer());
-            } else {
-                // if no question found then skip
-                shouldSkip = true;
+            // remove the dummy answers
+            for (Answer answer : question.getAnswers()) {
+                if (AnswerUtils.isAnswerDummy(answer)) continue;
+                answerList.add(answer);
             }
+
+            if (answerMode == AnswerFlow.Modes.ONCE) {
+                shouldSkip = answerList.size() == 1;
+            } else if (answerMode == AnswerFlow.Modes.OPTION) {
+                shouldSkip = shouldSkipForLoopOptionType(question);
+            }
+
+            return shouldSkip;
         }
 
-        return shouldSkip;
-    }
+        private static boolean shouldSkipForLoopOptionType(Question question) {
+            ArrayList<Answer> answers = question.getAnswers();
 
-    public static boolean shouldSkipBasedOnAnswerScope(Question question) {
-        boolean shouldSkip = false;
-        AnswerFlow answerFlow = question.getFlowPattern().getAnswerFlow();
+            if (answers.isEmpty()) return false;
 
-        if (answerFlow == null) {
-            return false;
+            ArrayList<String> originalOptionPositions = new ArrayList<>();
+            ArrayList<String> loggedOptionPositions = new ArrayList<>();
+
+            for (Option option : question.getOptionList()) {
+                originalOptionPositions.add(option.getPosition());
+            }
+
+            for (Answer answer : question.getAnswers()) {
+                if (!answer.getOptions().isEmpty())
+                    loggedOptionPositions.add(answer.getOptions().get(0).getPosition());
+            }
+
+            return Utils.equalLists(originalOptionPositions, loggedOptionPositions);
         }
 
-        AnswerFlow.Modes answerMode = answerFlow.getMode();
+        private static boolean doesSkipPatternMatchInQuestion(ArrayList<String> optionsSkipPositions, Answer toCheckAnswer) {
+            if (optionsSkipPositions == null || toCheckAnswer == null) {
+                return false;
+            }
 
-        List<Answer> answerList = new ArrayList<>();
-
-        // remove the dummy answers
-        for (Answer answer : question.getAnswers()) {
-            if (Answer.isAnswerDummy(answer)) continue;
-            answerList.add(answer);
-        }
-
-        if (answerMode == AnswerFlow.Modes.ONCE) {
-            shouldSkip = answerList.size() == 1;
-        } else if (answerMode == AnswerFlow.Modes.OPTION) {
-            shouldSkip = question.getOptionList().size() == answerList.size();
-        }
-
-        return shouldSkip;
-    }
-
-    public static boolean doesSkipPatternMatchInQuestion(ArrayList<String> optionsSkipPositions, Answer toCheckAnswer) {
-        if (optionsSkipPositions == null || toCheckAnswer == null) {
-            return false;
-        }
-
-        boolean skipPatternMatch = false;
-        ArrayList<Option> loggedOptions = toCheckAnswer.getOptions();
-        for (Option option : loggedOptions) {
-            for (String o : optionsSkipPositions) {
-                if (option.getPosition() != null && option.getPosition().equals(o)) {
-                    skipPatternMatch = true;
-                    break;
+            boolean skipPatternMatch = false;
+            ArrayList<Option> loggedOptions = toCheckAnswer.getOptions();
+            for (Option option : loggedOptions) {
+                for (String o : optionsSkipPositions) {
+                    if (option.getPosition() != null && option.getPosition().equals(o)) {
+                        skipPatternMatch = true;
+                        break;
+                    }
                 }
             }
+            return skipPatternMatch;
         }
-        return skipPatternMatch;
     }
 
     private static class BackStack {

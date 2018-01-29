@@ -59,12 +59,6 @@ public class Answer extends BaseObject implements Parcelable {
         currentChildIndex = 0;
     }
 
-    public Question getCurrentChildQuestion() {
-        if (currentChildIndex < 0)
-            throw new IllegalArgumentException("The child index is " + currentChildIndex);
-        return getChildren().get(currentChildIndex);
-    }
-
     public int incrementCurrentChildIndex() {
         currentChildIndex++;
         return currentChildIndex;
@@ -78,9 +72,9 @@ public class Answer extends BaseObject implements Parcelable {
         return currentChildIndex;
     }
 
-    public static boolean isAnswerDummy(Answer answer) {
-        return answer.getOptions().size() > 0 && answer.getOptions().get(0).getId().equals("DUMMY");
-    }
+//    public static boolean isAnswerDummy(Answer answer) {
+//        return answer.getOptions().size() > 0 && answer.getOptions().get(0).getId().equals("DUMMY");
+//    }
 
     @Override
     public int describeContents() {
@@ -89,14 +83,6 @@ public class Answer extends BaseObject implements Parcelable {
 
     public ArrayList<Option> getOptions() {
         return options;
-    }
-
-    public ArrayList<String> getOptionListPositions() {
-        ArrayList<String> positions = new ArrayList<>();
-        for (Option o : options) {
-            positions.add(o.getPosition());
-        }
-        return positions;
     }
 
     public void setOptions(ArrayList<Option> otherOptions) {

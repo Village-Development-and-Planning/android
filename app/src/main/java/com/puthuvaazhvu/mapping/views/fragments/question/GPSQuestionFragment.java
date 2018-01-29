@@ -35,6 +35,7 @@ import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Text;
+import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.fragments.options.factory.OptionsUIFactory;
 
@@ -169,9 +170,9 @@ public class GPSQuestionFragment extends SingleQuestionFragmentBase {
     }
 
     protected ArrayList<Option> getLatestOptions() {
-        if (Question.isLatestAnswerDummy(getQuestion())) return null;
+        if (QuestionUtils.isLastAnswerDummy(getQuestion())) return null;
 
-        Answer answer = getQuestion().getLatestAnswer();
+        Answer answer = QuestionUtils.getLastAnswer(getQuestion());
         if (answer != null) {
             ArrayList<Option> latestOptions = answer.getOptions();
             if (latestOptions != null && latestOptions.size() > 0) {

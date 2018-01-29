@@ -1,8 +1,14 @@
-package com.puthuvaazhvu.mapping.modals;
+package com.puthuvaazhvu.mapping;
 
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.helpers.DataHelpers;
+import com.puthuvaazhvu.mapping.modals.Answer;
+import com.puthuvaazhvu.mapping.modals.Option;
+import com.puthuvaazhvu.mapping.modals.Question;
+import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.modals.flow.PreFlow;
+import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
+import com.puthuvaazhvu.mapping.modals.utils.SurveyUtils;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +28,7 @@ import static org.mockito.Mockito.mock;
  * Created by muthuveerappans on 10/19/17.
  */
 
-public class QuestionDataModalTest {
+public class QuestionUtilsTest {
 
     private Survey survey;
 
@@ -35,12 +41,12 @@ public class QuestionDataModalTest {
     public void test_getQuestionRawNumberPrefix() {
         Question question = survey.getRootQuestion().getChildren().get(1).getChildren().get(1).getChildren().get(6);
         assertThat(question.getRawNumber(), is("2.1.7"));
-        assertThat(question.getQuestionRawNumberPrefix(), is("2.1"));
+        assertThat(QuestionUtils.getQuestionParentNumber(question), is("2.1"));
     }
 
     @Test
     public void test_findQuestion_rawNumber() {
-        Single<Survey> surveySingle = Survey.getSurveyInstanceWithUpdatedAnswers(DataHelpers.getAnswersJson(this));
+        Single<Survey> surveySingle = SurveyUtils.getSurveyWithUpdatedAnswers(DataHelpers.getAnswersJson(this));
         Survey survey = surveySingle.blockingGet();
 
         assertThat(survey.getRootQuestion().getAnswers().size(), is(1));
@@ -51,7 +57,7 @@ public class QuestionDataModalTest {
 
         assertThat(question.getRawNumber(), is("2.1.1"));
 
-        Question found = question.findQuestionUpwards("2", true);
+        Question found = QuestionUtils.findQuestionFrom(question, "2", true);
 
         assertThat(found.getRawNumber(), is("2"));
 
@@ -61,7 +67,7 @@ public class QuestionDataModalTest {
 
         assertThat(question.getRawNumber(), is("2.1.2"));
 
-        found = question.findQuestionUpwards("2.1", true);
+        found = QuestionUtils.findQuestionFrom(question, "2.1", true);
 
         assertThat(found.getRawNumber(), is("2.1"));
     }
@@ -84,17 +90,17 @@ public class QuestionDataModalTest {
         Question root = survey.getRootQuestion();
 
         Answer answer_1 = new Answer(null, root);
-        root.setAnswer(answer_1);
+        root.addAnswer(answer_1);
 
         Answer answer_2 = new Answer(null, answer_1.getChildren().get(1));
         Answer answer_3 = new Answer(null, answer_1.getChildren().get(1));
 
-        answer_1.getChildren().get(1).setAnswer(answer_2);
-        answer_1.getChildren().get(1).setAnswer(answer_3);
+        answer_1.getChildren().get(1).addAnswer(answer_2);
+        answer_1.getChildren().get(1).addAnswer(answer_3);
 
         assertThat(answer_1.getChildren().get(1).getAnswers().size(), is(2));
 
-        ArrayList<Integer> index = answer_3.getChildren().get(0).getPathOfCurrentQuestion();
+        ArrayList<Integer> index = QuestionUtils.getPathOfQuestion(answer_3.getChildren().get(0));
 
         assertThat(index.size(), is(5));
         assertThat(index.get(0), is(0));
@@ -117,7 +123,7 @@ public class QuestionDataModalTest {
         assertThat(rootNode.getType(), is("ROOT"));
         assertThat(questionWithAnswersJson.get("type").getAsString(), is("ROOT"));
 
-        Question resultRoot = Question.populateAnswersInternal(rootNode, questionWithAnswersJson);
+        Question resultRoot = QuestionUtils.populateAnswersFromJson(rootNode, questionWithAnswersJson);
 
         assertThat(resultRoot.getAnswers().size(), is(1));
         assertThat(resultRoot.getAnswers().get(0).getOptions().size(), is(1));
@@ -131,12 +137,13 @@ public class QuestionDataModalTest {
 
         assertThat(root.getType(), is("ROOT"));
 
-        Question result = root.findInTree(new Question.QuestionTreeSearchPredicate() {
-            @Override
-            public boolean evaluate(Question question) {
-                return question.containsPreFlow(PreFlow.Tag.HABITATION_NAME);
-            }
-        });
+        Question result = QuestionUtils.findQuestionInTreeWithPredicate(root,
+                new QuestionUtils.QuestionTreeSearchPredicate() {
+                    @Override
+                    public boolean evaluate(Question question) {
+                        return QuestionUtils.containsPreFlowTag(question, PreFlow.Tag.HABITATION_NAME);
+                    }
+                });
 
         assertThat(result.getRawNumber(), is("2"));
 
@@ -153,21 +160,23 @@ public class QuestionDataModalTest {
 
         assertThat(root.getType(), is("ROOT"));
 
-        Question result = root.findInTree(new Question.QuestionTreeSearchPredicate() {
-            @Override
-            public boolean evaluate(Question question) {
-                return question.containsPreFlow(PreFlow.Tag.HABITATION_NAME);
-            }
-        });
+        Question result = QuestionUtils.findQuestionInTreeWithPredicate(root,
+                new QuestionUtils.QuestionTreeSearchPredicate() {
+                    @Override
+                    public boolean evaluate(Question question) {
+                        return QuestionUtils.containsPreFlowTag(question, PreFlow.Tag.HABITATION_NAME);
+                    }
+                });
 
         assertThat(result.getRawNumber(), is("2"));
 
-        result = root.findInTree(new Question.QuestionTreeSearchPredicate() {
-            @Override
-            public boolean evaluate(Question question) {
-                return question.containsPreFlow(PreFlow.Tag.VILLAGE_NAME);
-            }
-        });
+        result = QuestionUtils.findQuestionInTreeWithPredicate(root,
+                new QuestionUtils.QuestionTreeSearchPredicate() {
+                    @Override
+                    public boolean evaluate(Question question) {
+                        return QuestionUtils.containsPreFlowTag(question, PreFlow.Tag.VILLAGE_NAME);
+                    }
+                });
 
         assertThat(result.getRawNumber(), is("1.5"));
     }
@@ -178,11 +187,11 @@ public class QuestionDataModalTest {
 
         assertThat(question.getRawNumber(), is("2"));
 
-        boolean result = question.containsPreFlow(PreFlow.Tag.HABITATION_NAME);
+        boolean result = QuestionUtils.containsPreFlowTag(question, PreFlow.Tag.HABITATION_NAME);
 
         assertThat(result, is(true));
 
-        result = question.containsPreFlow(PreFlow.Tag.BLOCK_NAME);
+        result = QuestionUtils.containsPreFlowTag(question, PreFlow.Tag.BLOCK_NAME);
 
         assertThat(result, is(false));
 
@@ -190,113 +199,9 @@ public class QuestionDataModalTest {
 
         assertThat(question.getRawNumber(), is("1.5"));
 
-        result = question.containsPreFlow(PreFlow.Tag.VILLAGE_NAME);
+        result = QuestionUtils.containsPreFlowTag(question, PreFlow.Tag.VILLAGE_NAME);
 
         assertThat(result, is(true));
-    }
-
-    @Test
-    public void test_setAnswer_method_option_scope() {
-        Question question = survey.getRootQuestion().getChildren().get(1);
-
-        assertThat(question.getRawNumber(), is("2"));
-
-        ArrayList<Option> mockOptions = new ArrayList<>();
-        mockOptions.add(question.getOptionList().get(0));
-
-        Answer mockAnswer = new Answer(
-                mockOptions,
-                question
-        );
-
-        question.setAnswer(mockAnswer);
-
-        assertThat(question.getAnswers().size(), is(1));
-
-        mockOptions = new ArrayList<>();
-        mockOptions.add(question.getOptionList().get(1));
-
-        Answer mockAnswer_2 = new Answer(
-                mockOptions,
-                question
-        );
-
-        question.setAnswer(mockAnswer_2);
-
-        assertThat(question.getAnswers().size(), is(2));
-
-        // try adding the answered option
-        mockOptions = new ArrayList<>();
-        mockOptions.add(question.getOptionList().get(1));
-
-        Answer mockAnswer_3 = new Answer(
-                mockOptions,
-                question
-        );
-
-        question.setAnswer(mockAnswer_3);
-
-        assertThat(question.getAnswers().size(), is(2));
-        assertThat(question.getLatestAnswer().getOptions().get(0).getId(), is(question.getOptionList().get(1).getId()));
-    }
-
-    @Test
-    public void test_setAnswer_once_scope() {
-        Question question = survey.getRootQuestion().getChildren().get(1).getChildren().get(0);
-
-        assertThat(question.getRawNumber(), is("2.0"));
-
-        ArrayList<Option> mockOptions = new ArrayList<>();
-        mockOptions.add(new Option("1", null, null, null, null));
-
-        Answer mockAnswer = new Answer(
-                mockOptions,
-                question
-        );
-
-        question.setAnswer(mockAnswer);
-
-        mockOptions = new ArrayList<>();
-        mockOptions.add(new Option("2", null, null, null, null));
-
-        mockAnswer = new Answer(
-                mockOptions,
-                question
-        );
-
-        question.setAnswer(mockAnswer);
-
-        assertThat(question.getLatestAnswer().getOptions().get(0).getId(), is("2"));
-        assertThat(question.getAnswers().size(), is(1));
-    }
-
-    @Test
-    public void test_setAnswer_multiple_scope() {
-        Question question = survey.getRootQuestion().getChildren().get(1).getChildren().get(1);
-
-        assertThat(question.getRawNumber(), is("2.1"));
-
-        ArrayList<Option> mockOptions = new ArrayList<>();
-        mockOptions.add(new Option("1", null, null, null, null));
-
-        Answer mockAnswer = new Answer(
-                mockOptions,
-                question
-        );
-
-        question.setAnswer(mockAnswer);
-
-        mockOptions = new ArrayList<>();
-        mockOptions.add(new Option("2", null, null, null, null));
-
-        mockAnswer = new Answer(
-                mockOptions,
-                question
-        );
-        question.setAnswer(mockAnswer);
-
-        assertThat(question.getLatestAnswer().getOptions().get(0).getId(), is("2"));
-        assertThat(question.getAnswers().size(), is(2));
     }
 
     @Test
@@ -313,7 +218,7 @@ public class QuestionDataModalTest {
                 question
         );
 
-        question.setAnswer(mockAnswer);
+        question.addAnswer(mockAnswer);
 
         Question child = mockAnswer.getChildren().get(1);
 
@@ -333,7 +238,7 @@ public class QuestionDataModalTest {
                 child
         );
 
-        child.setAnswer(mockAnswer);
+        child.addAnswer(mockAnswer);
 
 
         JsonObject jsonObject = question.getAsJson().getAsJsonObject().get("question").getAsJsonObject();

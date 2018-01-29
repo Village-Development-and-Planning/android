@@ -1,8 +1,10 @@
-package com.puthuvaazhvu.mapping.modals;
+package com.puthuvaazhvu.mapping;
 
 import android.content.Context;
 
 import com.puthuvaazhvu.mapping.helpers.DataHelpers;
+import com.puthuvaazhvu.mapping.modals.Survey;
+import com.puthuvaazhvu.mapping.modals.utils.SurveyUtils;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +24,7 @@ import static org.hamcrest.Matchers.notNullValue;
  */
 
 @RunWith(MockitoJUnitRunner.class)
-public class SurveyDataModelTest {
+public class SurveyUtilsTest {
     @Mock
     private Context context;
 
@@ -40,7 +42,7 @@ public class SurveyDataModelTest {
 
     @Test
     public void test_updateWithAnswers() {
-        Single<Survey> surveySingle = Survey.getSurveyInstanceWithUpdatedAnswers(DataHelpers.getAnswersJson(this));
+        Single<Survey> surveySingle = SurveyUtils.getSurveyWithUpdatedAnswers(DataHelpers.getAnswersJson(this));
         Survey survey = surveySingle.blockingGet();
 
         assertThat(survey.getRootQuestion().getAnswers().size(), is(1));

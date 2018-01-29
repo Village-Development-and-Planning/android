@@ -12,6 +12,8 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.fragments.options.modals.CheckableOptionsAsListUIData;
@@ -76,9 +78,12 @@ public class RadioButtonAdapter extends CheckableOptionsAsListAdapter {
 
         if (singleData.getImageData() != null) {
             byte[] decodedString = Base64.decode(singleData.getImageData(), Base64.DEFAULT);
-            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-            if (decodedByte != null)
-                vh.setImageBitmap(decodedByte);
+            vh.setImageFromBytes(decodedString);
+            //Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+//            if (decodedByte != null)
+//                vh.setImageBitmap(decodedByte);
+        } else {
+            vh.imageView.setVisibility(View.GONE);
         }
         onBind = false;
     }
@@ -107,6 +112,15 @@ public class RadioButtonAdapter extends CheckableOptionsAsListAdapter {
             } else {
                 layout.setBackgroundColor(context.getResources().getColor(R.color.white));
             }
+        }
+
+        public void setImageFromBytes(byte[] imageByteArray) {
+            imageView.setVisibility(View.VISIBLE);
+            Glide.with(context)
+                    .load(imageByteArray)
+                    .apply(new RequestOptions()
+                            .fitCenter())
+                    .into(imageView);
         }
 
         public void setImageBitmap(Bitmap image) {
