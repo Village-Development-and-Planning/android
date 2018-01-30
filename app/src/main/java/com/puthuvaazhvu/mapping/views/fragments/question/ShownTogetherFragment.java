@@ -57,9 +57,11 @@ public class ShownTogetherFragment extends QuestionDataFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         dataList = new ArrayList<>();
-        dataList.addAll(QuestionUtils.getLastAnswer(getQuestion()).getChildren());
+        dataList.addAll(getQuestion().getCurrentAnswer().getChildren());
+//        dataList.addAll(QuestionUtils.getLastAnswer(getQuestion()).getChildren());
         // add a valid answer to avoid locking in the same question
-        QuestionUtils.getLastAnswer(getQuestion()).setOptions(QuestionUtils.generateQuestionWithDummyAndValidOptions());
+        getQuestion().getCurrentAnswer().setOptions(QuestionUtils.generateQuestionWithDummyAndValidOptions());
+//        QuestionUtils.getLastAnswer(getQuestion()).setOptions(QuestionUtils.generateQuestionWithDummyAndValidOptions());
         //addDummyAnswersToQuestionTree(dataList, getQuestion());
         shownTogetherAdapter = new ShownTogetherAdapter();
         optionsUiObjects = new HashMap<>();

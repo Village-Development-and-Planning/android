@@ -24,7 +24,6 @@ import timber.log.Timber;
  * Created by muthuveerappans on 16/01/18.
  */
 
-// Todo: error for LOOP OPTIONS question
 public class FlowLogicImplementation extends FlowLogic {
     private BackStack backStack;
 
@@ -74,7 +73,6 @@ public class FlowLogicImplementation extends FlowLogic {
     @Override
     public FlowLogic finishCurrent() {
         Question parent = currentFlowData.question.getParentAnswer().getQuestionReference();
-        currentFlowData.question.getParentAnswer().incrementCurrentChildIndex();
         setCurrent(parent, FlowData.FlowUIType.DEFAULT);
 
         return this;
@@ -82,11 +80,12 @@ public class FlowLogicImplementation extends FlowLogic {
 
     @Override
     public FlowLogic moveToIndexInChild(int index) {
-        Answer latestAnswer = QuestionUtils.getLastAnswer(currentFlowData.question);
+//        Answer latestAnswer = QuestionUtils.getLastAnswer(currentFlowData.question);
+        Answer currentAnswer = currentFlowData.question.getCurrentAnswer();
 
-        if (latestAnswer != null) {
+        if (currentAnswer != null) {
             try {
-                Question current = latestAnswer.getChildren().get(index);
+                Question current = currentAnswer.getChildren().get(index);
 
                 // add a dummy answer
                 addAnswer(QuestionUtils.generateQuestionWithDummyOptions(), current);
@@ -97,7 +96,7 @@ public class FlowLogicImplementation extends FlowLogic {
                 addEntryToBackStack(currentFlowData);
             } catch (IndexOutOfBoundsException e) {
                 throw new IllegalArgumentException("The index " + index + " is not present inside the answers. "
-                        + latestAnswer.toString());
+                        + currentAnswer.toString());
             }
         } else {
             Timber.e("The answers list is empty. Check if the current question "
@@ -117,16 +116,31 @@ public class FlowLogicImplementation extends FlowLogic {
     public FlowLogic update(ArrayList<Option> response, Question question) {
         if (question.getAnswers().size() <= 0) {
             // add a new dummy answer if answers list is empty.
-            Answer answer = new Answer(QuestionUtils.generateQuestionWithDummyOptions()
-                    , question, System.currentTimeMillis());
-            setAnswerToQuestionBasedOnType(question, answer);
+            addAnswer(QuestionUtils.generateQuestionWithDummyOptions(), question);
             Timber.i("Answer count for the question: \n" + question.toString()
-                    + " is 0, so adding a new one.\n" + answer.toString());
+                    + " is 0, so adding a new one.\n" + question.getCurrentAnswer().toString());
         }
 
         long startTime = System.currentTimeMillis();
 
-        Answer answer = QuestionUtils.getLastAnswer(question);
+        if (QuestionUtils.isLoopQuestion(question)) {
+            // dummy answers should have been already added so just update with the current data
+            for (int i = 0; i < question.getOptionList().size(); i++) {
+                if (question.getOptionList().get(i).getPosition().equals(response.get(0).getPosition())) {
+                    // update
+                    Answer current = question.getAnswers().get(i);
+                    current.setOptions(response);
+                    question.getAnswers().get(i).setTimeStamp(startTime);
+                    question.setCurrentAnswer(current);
+
+                    Timber.i("Answer updated info :\n" + question.getAnswers().get(i).toString());
+
+                    return this;
+                }
+            }
+        }
+
+        Answer answer = question.getCurrentAnswer();
         answer.setOptions(response);
         answer.setTimeStamp(startTime);
 
@@ -139,36 +153,28 @@ public class FlowLogicImplementation extends FlowLogic {
     public FlowData getPrevious() {
 
         // first remove the last question
-        if (backStack.removeLatest() == null) {
+        FlowData lastFlowData = backStack.removeLatest();
+        if (lastFlowData == null) {
             return currentFlowData;
-        }
+        } else {
+            Answer parentAnswer = lastFlowData.question.getParentAnswer();
 
-        // get the current last question
-        FlowData current = backStack.getLatest();
-
-        if (current != null) {
-            Answer latestAnswer = QuestionUtils.getLastAnswer(current.question);
-            Answer parentAnswer = current.question.getParentAnswer();
-            Question parent = parentAnswer.getQuestionReference();
-
-            // change the visible child index position
-            int index = QuestionUtils.getIndexOfChild(parent, current.question);
-
-            if (index >= 0) {
-                parentAnswer.setCurrentChildIndex(index);
+            if (parentAnswer.isVisibleChildIndexOutOfBounds(parentAnswer.getCurrentChildIndex() - 1)) {
+                parentAnswer.setCurrentChildIndex(0);
+            } else {
+                // change the visible child index position
+                parentAnswer.decrementCurrentChildIndex();
             }
 
-            // reset the current visible child index.
-            latestAnswer.resetCurrentChildIndex();
+            FlowData upcomingFlowData = backStack.getLatest();
 
-            // set the current question
-            setCurrent(current.question, current.flowType);
-            return current;
+            setCurrent(upcomingFlowData.question, upcomingFlowData.flowType);
+
+            return upcomingFlowData;
         }
-
-        return currentFlowData;
     }
 
+    // gets the next question and updates the child visible index in the parent.
     @Override
     public FlowData getNext() {
 
@@ -194,7 +200,11 @@ public class FlowLogicImplementation extends FlowLogic {
 
         } while (nextFlowData.question == null);
 
-        addAnswer(QuestionUtils.generateQuestionWithDummyOptions(), nextFlowData.question);
+        if (QuestionUtils.isLoopQuestion(nextFlowData.question)) {
+            for (int i = 0; i < nextFlowData.question.getOptionList().size(); i++)
+                addAnswer(QuestionUtils.generateQuestionWithDummyOptions(), nextFlowData.question);
+        } else
+            addAnswer(QuestionUtils.generateQuestionWithDummyOptions(), nextFlowData.question);
 
         setCurrent(nextFlowData.question, nextFlowData.flowType);
 
@@ -202,21 +212,6 @@ public class FlowLogicImplementation extends FlowLogic {
         if (questionFlow != null && questionFlow.getUiMode() == QuestionFlow.UI.NONE) {
             return getNext();
         }
-
-//        ChildFlow childFlow = nextFlowData.question.getFlowPattern().getChildFlow();
-//        ChildFlow.Modes childFlowMode = childFlow.getMode();
-//        ChildFlow.UI childFlowUI = childFlow.getUiToBeShown();
-
-        // if the type is shown together then pre populate the children question with dummy answers
-//        if (childFlowMode == ChildFlow.Modes.TOGETHER) {
-//            addDummyAnswersToChildren(nextFlowData.question);
-//        }
-
-//        if (childFlowMode == ChildFlow.Modes.SELECT && childFlowUI == ChildFlow.UI.GRID) {
-//            addDummyAnswersToChildren(nextFlowData.question);
-//        } else if (childFlowMode == ChildFlow.Modes.TOGETHER) {
-//            addDummyAnswersToChildren(nextFlowData.question);
-//        }
 
         // add to back stack
         addEntryToBackStack(nextFlowData);
@@ -262,7 +257,8 @@ public class FlowLogicImplementation extends FlowLogic {
         }
 
         Question parent = question.getParentAnswer().getQuestionReference();
-        question.getParentAnswer().incrementCurrentChildIndex();
+        Answer parentAnswer = question.getParentAnswer();
+        parentAnswer.incrementCurrentChildIndex();
         flowData.question = parent;
         return flowData;
     }
@@ -295,17 +291,12 @@ public class FlowLogicImplementation extends FlowLogic {
                 return flowData;
             }
 
-            Answer latestAnswer = QuestionUtils.getLastAnswer(question);
-
-            // if there are no child questions, we have to get the next question
-            if (latestAnswer.isCurrentChildIndexOutOfBounds()) {
-                latestAnswer.resetCurrentChildIndex();
-                return flowData;
-            }
+            Answer currentAnswer = question.getCurrentAnswer();
 
             Question q = null;
-            for (int i = latestAnswer.getCurrentChildIndex(); i < latestAnswer.getChildren().size(); i++) {
-                Question child = latestAnswer.getChildren().get(i);
+            for (int i = currentAnswer.getCurrentChildIndex(); i < currentAnswer.getChildren().size(); i++) {
+                Question child = currentAnswer.getChildren().get(i);
+                currentAnswer.incrementCurrentChildIndex();
                 if (SkipHelper.shouldSkip(child)) {
                     continue;
                 }
@@ -314,12 +305,6 @@ public class FlowLogicImplementation extends FlowLogic {
             }
 
             if (q != null) {
-                int i = QuestionUtils.getIndexOfChild(latestAnswer.getQuestionReference(), q);
-                if (i >= 0) {
-                    latestAnswer.setCurrentChildIndex(i);
-                } else {
-                    throw new IllegalArgumentException("Child not found. Child: " + q.toString());
-                }
                 flowData.question = q;
                 return flowData;
             }
@@ -353,14 +338,15 @@ public class FlowLogicImplementation extends FlowLogic {
     public void addDummyAnswersToChildren(Question node) {
         addAnswer(QuestionUtils.generateQuestionWithDummyOptions(), node);
 
-        for (Question child : QuestionUtils.getLastAnswer(node).getChildren()) {
+        for (Question child : node.getCurrentAnswer().getChildren()) {
             addDummyAnswersToChildren(child);
         }
     }
 
     @VisibleForTesting
     public void addAnswer(ArrayList<Option> response, Question question) {
-        if (QuestionUtils.isLastAnswerDummy(question))
+        // for loop options the multiple dummy answers are added so should consider checking latest dummy.
+        if (QuestionUtils.isCurrentAnswerDummy(question) && !QuestionUtils.isLoopQuestion(question))
             return; // return if the latest answer is dummy
 
         if (SkipHelper.shouldSkipBasedOnAnswerScope(question))
@@ -368,6 +354,7 @@ public class FlowLogicImplementation extends FlowLogic {
 
         Answer answer = new Answer(response, question, System.currentTimeMillis());
         setAnswerToQuestionBasedOnType(question, answer);
+        question.setCurrentAnswer(answer);
 
         Timber.i("Dummy answer created info :\n" + answer.toString());
     }
@@ -397,8 +384,7 @@ public class FlowLogicImplementation extends FlowLogic {
 
         if (answerFlow.getMode() == AnswerFlow.Modes.OPTION) {
 
-            Timber.e("Option types should be handled in a previous stage.");
-            if (question.getAnswers().size() <= question.getOptionList().size()) {
+            if (question.getAnswers().size() < question.getOptionList().size()) {
                 question.addAnswer(answer);
             }
 
@@ -437,9 +423,9 @@ public class FlowLogicImplementation extends FlowLogic {
                 Question questionFoundForSkipPattern = QuestionUtils.findQuestionFrom(question,
                         preFlowQuestionNumber, true);
 
-                if (questionFoundForSkipPattern != null && QuestionUtils.getLastAnswer(questionFoundForSkipPattern) != null) {
+                if (questionFoundForSkipPattern != null && questionFoundForSkipPattern.getCurrentAnswer() != null) {
                     shouldSkip = !doesSkipPatternMatchInQuestion(optionsSkip
-                            , QuestionUtils.getLastAnswer(questionFoundForSkipPattern));
+                            , questionFoundForSkipPattern.getCurrentAnswer());
                 } else {
                     // if no question found then skip
                     shouldSkip = true;

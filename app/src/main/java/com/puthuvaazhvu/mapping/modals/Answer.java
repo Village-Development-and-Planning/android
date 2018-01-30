@@ -50,23 +50,21 @@ public class Answer extends BaseObject implements Parcelable {
     }
 
     public void setCurrentChildIndex(int currentChildIndex) {
-        if (currentChildIndex < 0 || currentChildIndex >= getChildren().size())
-            throw new IllegalArgumentException("The child index is out of range " + currentChildIndex);
         this.currentChildIndex = currentChildIndex;
     }
 
-    public void resetCurrentChildIndex() {
-        currentChildIndex = 0;
+    public boolean isVisibleChildIndexOutOfBounds(int index) {
+        return index < 0 || index >= children.size();
     }
 
-    public int incrementCurrentChildIndex() {
+    public void incrementCurrentChildIndex() {
         currentChildIndex++;
-        return currentChildIndex;
     }
 
-    public boolean isCurrentChildIndexOutOfBounds() {
-        return currentChildIndex < 0 || currentChildIndex >= children.size();
+    public void decrementCurrentChildIndex() {
+        currentChildIndex--;
     }
+
 
     public int getCurrentChildIndex() {
         return currentChildIndex;

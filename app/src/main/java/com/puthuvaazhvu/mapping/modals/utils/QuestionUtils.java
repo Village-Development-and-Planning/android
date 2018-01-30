@@ -42,13 +42,6 @@ public class QuestionUtils {
         }
     }
 
-    public static Answer getLastAnswer(Question question) {
-        ArrayList<Answer> answers = question.getAnswers();
-        if (answers.isEmpty())
-            throw new IllegalArgumentException("The answers size for " + question.toString() + " is empty.");
-        return answers.get(answers.size() - 1);
-    }
-
     public static ArrayList<Integer> getPathOfQuestion(Question question) {
         ArrayList<Integer> indexes = new ArrayList<>();
         getPathOfQuestion(question, indexes);
@@ -72,7 +65,8 @@ public class QuestionUtils {
 
         if (!current.getAnswers().isEmpty()) {
             int answerCount = current.getAnswers().size();
-            Answer lastAnswer = getLastAnswer(current);
+//            Answer lastAnswer = getLastAnswer(current);
+            Answer lastAnswer = current.getCurrentAnswer();
 
             int answersIndex = -1;
 
@@ -113,11 +107,11 @@ public class QuestionUtils {
         getPathOfQuestion(parent, indexes);
     }
 
-    public static boolean isLastAnswerDummy(Question question) {
+    public static boolean isCurrentAnswerDummy(Question question) {
         if (question.getAnswers().size() <= 0) {
             return false;
         }
-        return AnswerUtils.isAnswerDummy(getLastAnswer(question));
+        return AnswerUtils.isAnswerDummy(question.getCurrentAnswer());
     }
 
     public static Question populateAnswersFromJson(final Question node, JsonObject nodeJson) {
@@ -313,7 +307,8 @@ public class QuestionUtils {
                     if (from.getAnswers().isEmpty()) {
                         return null;
                     }
-                    children = QuestionUtils.getLastAnswer(from).getChildren();
+//                    children = QuestionUtils.getLastAnswer(from).getChildren();
+                    children = from.getCurrentAnswer().getChildren();
                 }
 
                 for (Question c : children) {

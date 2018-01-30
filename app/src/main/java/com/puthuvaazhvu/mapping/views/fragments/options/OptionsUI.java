@@ -36,9 +36,9 @@ public abstract class OptionsUI {
     }
 
     protected ArrayList<Option> getLatestOptions() {
-        if (QuestionUtils.isLastAnswerDummy(question)) return null;
+        if (QuestionUtils.isCurrentAnswerDummy(question)) return null;
 
-        Answer answer = QuestionUtils.getLastAnswer(question);
+        Answer answer = question.getCurrentAnswer();
         if (answer != null) {
             ArrayList<Option> latestOptions = answer.getOptions();
             if (latestOptions != null && latestOptions.size() > 0) {

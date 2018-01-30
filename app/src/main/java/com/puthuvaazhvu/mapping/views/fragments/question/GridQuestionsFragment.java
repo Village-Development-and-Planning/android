@@ -85,9 +85,11 @@ public class GridQuestionsFragment extends QuestionDataFragment {
         }));
 
         // add a valid answer to avoid locking in the same question
-        QuestionUtils.getLastAnswer(getQuestion()).setOptions(QuestionUtils.generateQuestionWithDummyAndValidOptions());
+        getQuestion().getCurrentAnswer().setOptions(QuestionUtils.generateQuestionWithDummyAndValidOptions());
+//        QuestionUtils.getLastAnswer(getQuestion()).setOptions(QuestionUtils.generateQuestionWithDummyAndValidOptions());
 
-        children = QuestionUtils.getLastAnswer(getQuestion()).getChildren();
+//        children = QuestionUtils.getLastAnswer(getQuestion()).getChildren();
+        children = getQuestion().getCurrentAnswer().getChildren();
 
         questionsAdapter = new QuestionsAdapter();
         recyclerView.setAdapter(questionsAdapter);

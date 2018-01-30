@@ -44,6 +44,7 @@ public class Question extends BaseObject implements Parcelable {
     private final Info info;
     private final FlowPattern flowPattern;
     private Answer parentAnswer;
+    private Answer currentAnswer;
     private Question parent;
     private boolean isFinished = false; // you can set to true for the question to skip
 
@@ -126,6 +127,14 @@ public class Question extends BaseObject implements Parcelable {
         } finally {
             lock.unlock();
         }
+    }
+
+    public Answer getCurrentAnswer() {
+        return currentAnswer;
+    }
+
+    public void setCurrentAnswer(Answer currentAnswer) {
+        this.currentAnswer = currentAnswer;
     }
 
     public ArrayList<Option> getOptionList() {
@@ -219,6 +228,7 @@ public class Question extends BaseObject implements Parcelable {
 
     public void addAnswer(Answer answer) {
         this.answers.add(answer);
+        this.setCurrentAnswer(answer);
     }
 
     public void setAnswerAt(int index, Answer answer) {

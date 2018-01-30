@@ -35,7 +35,7 @@ public class FlowImplementationTest {
         Answer answer = new Answer(QuestionUtils.generateQuestionWithDummyOptions(), node, System.currentTimeMillis());
         node.addAnswer(answer);
 
-        for (Question child : QuestionUtils.getLastAnswer(node).getChildren()) {
+        for (Question child : node.getCurrentAnswer().getChildren()) {
             addDummyAnswersToChildren(child);
         }
     }
@@ -70,7 +70,9 @@ public class FlowImplementationTest {
         flowLogic.update(options);
 
         assertThat(flowLogic.getCurrent().question.getAnswers().size(), is(1));
-        assertThat(QuestionUtils.getLastAnswer(flowLogic.getCurrent().question)
+//        assertThat(QuestionUtils.getLastAnswer(flowLogic.getCurrent().question)
+//                .getOptions().get(0).getType(), is("TEST_DATA"));
+        assertThat(flowLogic.getCurrent().question.getCurrentAnswer()
                 .getOptions().get(0).getType(), is("TEST_DATA"));
     }
 
@@ -273,7 +275,8 @@ public class FlowImplementationTest {
         // test grid question
         survey = DataHelpers.getSurvey(this, "grid_question.json");
         root = survey.getRootQuestion();
-        root.addAnswer(new Answer(QuestionUtils.generateQuestionWithDummyOptions(), root));
+        Answer answer = new Answer(QuestionUtils.generateQuestionWithDummyOptions(), root);
+        root.addAnswer(answer);
         assertThat(root.getType(), is("ROOT"));
 
         flowLogicImplementation.setCurrent(root, FlowLogic.FlowData.FlowUIType.DEFAULT);
@@ -291,7 +294,8 @@ public class FlowImplementationTest {
         // test normal flow
         survey = DataHelpers.getSurvey(this, "flow_data.json");
         root = survey.getRootQuestion();
-        root.addAnswer(new Answer(QuestionUtils.generateQuestionWithDummyOptions(), root));
+        answer = new Answer(QuestionUtils.generateQuestionWithDummyOptions(), root);
+        root.addAnswer(answer);
         assertThat(root.getType(), is("ROOT"));
         flowLogicImplementation = new FlowLogicImplementation();
         nextQuestion = flowLogicImplementation.childFlow(root).question;
@@ -427,6 +431,45 @@ public class FlowImplementationTest {
                         new Text("", "TEST", "TEST", ""),
                         "",
                         "0")
+        );
+        flowLogicImplementation.update(options);
+
+        nextFlowData = flowLogicImplementation.getNext();
+        assertThat(nextFlowData.flowType, is(FlowLogic.FlowData.FlowUIType.LOOP));
+
+        options = new ArrayList<>();
+        options.add(
+                new Option("",
+                        "TEST_DATA",
+                        new Text("", "TEST", "TEST", ""),
+                        "",
+                        "1")
+        );
+        flowLogicImplementation.update(options);
+
+        nextFlowData = flowLogicImplementation.getNext();
+        assertThat(nextFlowData.flowType, is(FlowLogic.FlowData.FlowUIType.LOOP));
+
+        options = new ArrayList<>();
+        options.add(
+                new Option("",
+                        "TEST_DATA",
+                        new Text("", "TEST", "TEST", ""),
+                        "",
+                        "0")
+        );
+        flowLogicImplementation.update(options);
+
+        nextFlowData = flowLogicImplementation.getNext();
+        assertThat(nextFlowData.flowType, is(FlowLogic.FlowData.FlowUIType.LOOP));
+
+        options = new ArrayList<>();
+        options.add(
+                new Option("",
+                        "TEST_DATA",
+                        new Text("", "TEST", "TEST", ""),
+                        "",
+                        "2")
         );
         flowLogicImplementation.update(options);
 

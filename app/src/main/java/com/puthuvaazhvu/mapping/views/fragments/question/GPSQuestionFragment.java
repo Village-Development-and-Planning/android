@@ -8,12 +8,9 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
@@ -33,7 +30,6 @@ import com.google.android.gms.tasks.Task;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Option;
-import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Text;
 import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.utils.Utils;
@@ -123,8 +119,8 @@ public class GPSQuestionFragment extends SingleQuestionFragmentBase {
 
         textView = view.findViewById(R.id.location_text);
 
-        if (getLatestOptions() != null) {
-            Option lo = getLatestOptions().get(0);
+        if (getCurrentAnswerOptions() != null) {
+            Option lo = getCurrentAnswerOptions().get(0);
             textView.setText(lo.getTextString());
         }
     }
@@ -169,14 +165,14 @@ public class GPSQuestionFragment extends SingleQuestionFragmentBase {
         return null;
     }
 
-    protected ArrayList<Option> getLatestOptions() {
-        if (QuestionUtils.isLastAnswerDummy(getQuestion())) return null;
+    protected ArrayList<Option> getCurrentAnswerOptions() {
+        if (QuestionUtils.isCurrentAnswerDummy(getQuestion())) return null;
 
-        Answer answer = QuestionUtils.getLastAnswer(getQuestion());
+        Answer answer = getQuestion().getCurrentAnswer();
         if (answer != null) {
-            ArrayList<Option> latestOptions = answer.getOptions();
-            if (latestOptions != null && latestOptions.size() > 0) {
-                return latestOptions;
+            ArrayList<Option> currOpt = answer.getOptions();
+            if (currOpt != null && currOpt.size() > 0) {
+                return currOpt;
             }
         }
         return null;
