@@ -16,7 +16,12 @@ import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
 
 import timber.log.Timber;
 
@@ -52,7 +57,7 @@ public class FlowLogicImplementation extends FlowLogic {
             int index = QuestionUtils.getIndexOfChild(parent, question);
 
             if (index >= 0) {
-                parentAnswer.setCurrentChildIndex(index);
+                parentAnswer.setNextVisibleChildIndex(index);
             }
 
             setCurrent(question, FlowData.FlowUIType.DEFAULT);
@@ -130,7 +135,8 @@ public class FlowLogicImplementation extends FlowLogic {
                     // update
                     Answer current = question.getAnswers().get(i);
                     current.setOptions(response);
-                    question.getAnswers().get(i).setTimeStamp(startTime);
+                    current.setTimeStamp(startTime);
+                    current.setNextVisibleChildIndex(0);
                     question.setCurrentAnswer(current);
 
                     Timber.i("Answer updated info :\n" + question.getAnswers().get(i).toString());
@@ -151,26 +157,26 @@ public class FlowLogicImplementation extends FlowLogic {
 
     @Override
     public FlowData getPrevious() {
-
         // first remove the last question
         FlowData lastFlowData = backStack.removeLatest();
         if (lastFlowData == null) {
             return currentFlowData;
         } else {
-            Answer parentAnswer = lastFlowData.question.getParentAnswer();
 
-            if (parentAnswer.isVisibleChildIndexOutOfBounds(parentAnswer.getCurrentChildIndex() - 1)) {
-                parentAnswer.setCurrentChildIndex(0);
-            } else {
-                // change the visible child index position
-                parentAnswer.decrementCurrentChildIndex();
-            }
+            Answer removedQuestionParentAnswer = lastFlowData.question.getParentAnswer();
 
-            FlowData upcomingFlowData = backStack.getLatest();
+            if (!backStack.isQuestionRepeatedInBackStack(lastFlowData))
+                removedQuestionParentAnswer.decrementChildIndex();
 
-            setCurrent(upcomingFlowData.question, upcomingFlowData.flowType);
+            FlowData prevFlowData = backStack.getLatest();
 
-            return upcomingFlowData;
+            setCurrent(prevFlowData.question, prevFlowData.flowType);
+
+            Timber.i("Showing question " + prevFlowData.question.getRawNumber());
+            Timber.i("next child question index " + removedQuestionParentAnswer.getNextVisibleChildIndex());
+            Timber.i("Question child count " + removedQuestionParentAnswer.getChildren().size());
+
+            return prevFlowData;
         }
     }
 
@@ -178,7 +184,7 @@ public class FlowLogicImplementation extends FlowLogic {
     @Override
     public FlowData getNext() {
 
-        FlowData nextFlowData = null;
+        FlowData nextFlowData;
         Question current = currentFlowData.question;
 
         do {
@@ -256,10 +262,7 @@ public class FlowLogicImplementation extends FlowLogic {
             }
         }
 
-        Question parent = question.getParentAnswer().getQuestionReference();
-        Answer parentAnswer = question.getParentAnswer();
-        parentAnswer.incrementCurrentChildIndex();
-        flowData.question = parent;
+        flowData.question = question.getParentAnswer().getQuestionReference();
         return flowData;
     }
 
@@ -294,9 +297,9 @@ public class FlowLogicImplementation extends FlowLogic {
             Answer currentAnswer = question.getCurrentAnswer();
 
             Question q = null;
-            for (int i = currentAnswer.getCurrentChildIndex(); i < currentAnswer.getChildren().size(); i++) {
+            for (int i = currentAnswer.getNextVisibleChildIndex(); i < currentAnswer.getChildren().size(); i++) {
                 Question child = currentAnswer.getChildren().get(i);
-                currentAnswer.incrementCurrentChildIndex();
+                currentAnswer.nextVisibleChildIndex();
                 if (SkipHelper.shouldSkip(child)) {
                     continue;
                 }
@@ -314,24 +317,6 @@ public class FlowLogicImplementation extends FlowLogic {
         }
 
         return flowData;
-    }
-
-    private void removeAnswerOfQuestionFromTree(Question toRemove) {
-        if (toRemove.isRoot()) {
-            Timber.e("Cannot remove the root question. " + toRemove.toString());
-            return;
-        }
-
-        Answer parentAnswer = toRemove.getParentAnswer();
-
-        for (Question c : parentAnswer.getChildren()) {
-            if (c == toRemove) {
-                // remove all the answers
-                QuestionUtils.removeAnswerFromQuestion(c);
-                Timber.i("Removed answer for question " + c.toString());
-                break;
-            }
-        }
     }
 
     @VisibleForTesting
@@ -531,10 +516,21 @@ public class FlowLogicImplementation extends FlowLogic {
             // always maintain min of 1 element in the array
             // this is for the ROOT question.
             if (indexToRemove > 0) {
-                return questionStack.remove(indexToRemove);
+                FlowData f = questionStack.remove(indexToRemove);
+                return f;
             }
 
             return null;
+        }
+
+        public boolean isQuestionRepeatedInBackStack(FlowData flowData) {
+            int count = 0;
+            for (FlowData f : questionStack) {
+                if (f.question.getRawNumber().equals(flowData.question.getRawNumber())) {
+                    count++;
+                }
+            }
+            return count > 0;
         }
     }
 }

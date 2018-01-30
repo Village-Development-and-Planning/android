@@ -322,6 +322,16 @@ public class QuestionUtils {
         }
     }
 
+    public static int getValidAnswersCount(Question question) {
+        int count = 0;
+        for (Answer answer : question.getAnswers()) {
+            if (!AnswerUtils.isAnswerDummy(answer)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     public static boolean isLoopQuestion(Question question) {
         FlowPattern flowPattern = question.getFlowPattern();
 

@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.puthuvaazhvu.mapping.R;
+import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.flow.FlowPattern;
@@ -18,25 +19,25 @@ import java.util.ArrayList;
 
 public class CheckableOptionsAsListUIData extends OptionsUIData implements Parcelable {
 
-    private ArrayList<SingleData> singleDataArrayList;
+    private ArrayList<SingleDataOption> singleDataOptionArrayList;
 
     public CheckableOptionsAsListUIData(
             String questionID,
             String questionRawNumber,
             String questionText,
             FlowPattern flowPattern,
-            ArrayList<SingleData> singleDataArrayList) {
+            ArrayList<SingleDataOption> singleDataOptionArrayList) {
         super(questionID, questionRawNumber, questionText, flowPattern);
-        this.singleDataArrayList = singleDataArrayList;
+        this.singleDataOptionArrayList = singleDataOptionArrayList;
     }
 
-    public ArrayList<SingleData> getSingleDataArrayList() {
-        return singleDataArrayList;
+    public ArrayList<SingleDataOption> getSingleDataOptionArrayList() {
+        return singleDataOptionArrayList;
     }
 
-    public ArrayList<SingleData> getLoggedOptions() {
-        ArrayList<SingleData> result = new ArrayList<>();
-        for (SingleData o : singleDataArrayList) {
+    public ArrayList<SingleDataOption> getLoggedOptions() {
+        ArrayList<SingleDataOption> result = new ArrayList<>();
+        for (SingleDataOption o : singleDataOptionArrayList) {
             if (o.isSelected()) {
                 result.add(o);
             }
@@ -52,12 +53,12 @@ public class CheckableOptionsAsListUIData extends OptionsUIData implements Parce
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
-        dest.writeTypedList(this.singleDataArrayList);
+        dest.writeTypedList(this.singleDataOptionArrayList);
     }
 
     protected CheckableOptionsAsListUIData(Parcel in) {
         super(in);
-        this.singleDataArrayList = in.createTypedArrayList(SingleData.CREATOR);
+        this.singleDataOptionArrayList = in.createTypedArrayList(SingleDataOption.CREATOR);
     }
 
     public static final Creator<CheckableOptionsAsListUIData> CREATOR = new Creator<CheckableOptionsAsListUIData>() {
@@ -74,6 +75,7 @@ public class CheckableOptionsAsListUIData extends OptionsUIData implements Parce
 
     public static CheckableOptionsAsListUIData adapter(Question question) {
         boolean showImage = false;
+
         FlowPattern flowPattern = question.getFlowPattern();
         if (flowPattern != null) {
             QuestionFlow questionFlow = flowPattern.getQuestionFlow();
@@ -81,9 +83,9 @@ public class CheckableOptionsAsListUIData extends OptionsUIData implements Parce
                 showImage = questionFlow.isShowImage();
         }
 
-        ArrayList<SingleData> singleDataArrayList = new ArrayList<>();
+        ArrayList<SingleDataOption> singleDataOptionArrayList = new ArrayList<>();
         for (Option option : question.getOptionList()) {
-            SingleData s = SingleData.adapter(option, showImage);
+            SingleDataOption s = SingleDataOption.adapter(option, showImage, false);
             if (!QuestionUtils.isCurrentAnswerDummy(question) &&
                     question.getCurrentAnswer() != null) {
                 for (Option oa : question.getCurrentAnswer().getOptions()) {
@@ -92,7 +94,20 @@ public class CheckableOptionsAsListUIData extends OptionsUIData implements Parce
                     }
                 }
             }
-            singleDataArrayList.add(s);
+            singleDataOptionArrayList.add(s);
+        }
+
+        if (QuestionUtils.isLoopQuestion(question)) {
+            // show the background color
+
+            for (SingleDataOption singleDataOption : singleDataOptionArrayList) {
+                singleDataOption.setShouldShowBackgroundColor(true);
+                for (Answer answer : question.getAnswers()) {
+                    if (answer.getOptions().get(0).getPosition().equals(singleDataOption.getPosition())) {
+                        singleDataOption.setBackgroundColor(R.color.green_light);
+                    }
+                }
+            }
         }
 
         return new CheckableOptionsAsListUIData(
@@ -100,25 +115,26 @@ public class CheckableOptionsAsListUIData extends OptionsUIData implements Parce
                 question.getRawNumber(),
                 QuestionUtils.getTextString(question),
                 question.getFlowPattern(),
-                singleDataArrayList
+                singleDataOptionArrayList
         );
     }
 
-    public static class SingleData implements Parcelable {
+    public static class SingleDataOption implements Parcelable {
         private final String id;
         private final String text;
         private final String position;
         private boolean isSelected;
         private int backgroundColor = -1;
         private String imageData;
+        private boolean shouldShowBackgroundColor = false;
 
-        public SingleData(String id, String text, String position) {
+        public SingleDataOption(String id, String text, String position) {
             this.id = id;
             this.text = text;
             this.position = position;
         }
 
-        public SingleData(String id, String text, String position, String imageData) {
+        public SingleDataOption(String id, String text, String position, String imageData) {
             this.id = id;
             this.text = text;
             this.position = position;
@@ -162,6 +178,14 @@ public class CheckableOptionsAsListUIData extends OptionsUIData implements Parce
             return 0;
         }
 
+        public boolean isShouldShowBackgroundColor() {
+            return shouldShowBackgroundColor;
+        }
+
+        public void setShouldShowBackgroundColor(boolean shouldShowBackgroundColor) {
+            this.shouldShowBackgroundColor = shouldShowBackgroundColor;
+        }
+
         @Override
         public void writeToParcel(Parcel dest, int flags) {
             dest.writeString(this.id);
@@ -170,9 +194,10 @@ public class CheckableOptionsAsListUIData extends OptionsUIData implements Parce
             dest.writeByte(this.isSelected ? (byte) 1 : (byte) 0);
             dest.writeInt(this.backgroundColor);
             dest.writeString(this.imageData);
+            dest.writeByte(this.isSelected ? (byte) 1 : (byte) 0);
         }
 
-        protected SingleData(Parcel in) {
+        protected SingleDataOption(Parcel in) {
             this.id = in.readString();
             this.text = in.readString();
             this.position = in.readString();
@@ -181,32 +206,36 @@ public class CheckableOptionsAsListUIData extends OptionsUIData implements Parce
             this.imageData = in.readString();
         }
 
-        public static final Creator<SingleData> CREATOR = new Creator<SingleData>() {
+        public static final Creator<SingleDataOption> CREATOR = new Creator<SingleDataOption>() {
             @Override
-            public SingleData createFromParcel(Parcel source) {
-                return new SingleData(source);
+            public SingleDataOption createFromParcel(Parcel source) {
+                return new SingleDataOption(source);
             }
 
             @Override
-            public SingleData[] newArray(int size) {
-                return new SingleData[size];
+            public SingleDataOption[] newArray(int size) {
+                return new SingleDataOption[size];
             }
         };
 
-        public static SingleData adapter(Option option, boolean showImage) {
+        public static SingleDataOption adapter(Option option, boolean showImage, boolean shouldShowBackgroundColor) {
+            SingleDataOption singleDataOption;
             if (showImage)
-                return new SingleData(
+                singleDataOption = new SingleDataOption(
                         option.getId(),
                         option.getTextString(),
                         option.getPosition(),
                         option.getImageData()
                 );
             else
-                return new SingleData(
+                singleDataOption = new SingleDataOption(
                         option.getId(),
                         option.getTextString(),
                         option.getPosition()
                 );
+
+            singleDataOption.setShouldShowBackgroundColor(shouldShowBackgroundColor);
+            return singleDataOption;
         }
     }
 

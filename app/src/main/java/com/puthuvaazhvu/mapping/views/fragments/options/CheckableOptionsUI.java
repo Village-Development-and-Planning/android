@@ -1,12 +1,9 @@
 package com.puthuvaazhvu.mapping.views.fragments.options;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
@@ -44,13 +41,13 @@ public abstract class CheckableOptionsUI extends OptionsUI {
 
     public ArrayList<Option> getResponse(String type) {
         ArrayList<Option> options = new ArrayList<>();
-        for (CheckableOptionsAsListUIData.SingleData singleData : checkableOptionsAsListUIData.getLoggedOptions()) {
+        for (CheckableOptionsAsListUIData.SingleDataOption singleDataOption : checkableOptionsAsListUIData.getLoggedOptions()) {
             options.add(new Option(
                     "",
                     type,
-                    new Text("", singleData.getText(), singleData.getText(), ""),
+                    new Text("", singleDataOption.getText(), singleDataOption.getText(), ""),
                     "",
-                    singleData.getPosition()
+                    singleDataOption.getPosition()
             ));
         }
         return options;

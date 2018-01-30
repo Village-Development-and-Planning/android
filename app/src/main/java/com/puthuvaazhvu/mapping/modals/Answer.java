@@ -2,15 +2,11 @@ package com.puthuvaazhvu.mapping.modals;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.v7.widget.RecyclerView;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
@@ -22,7 +18,7 @@ public class Answer extends BaseObject implements Parcelable {
     private final ArrayList<Question> children;
     private Question questionReference;
     private long timeStamp;
-    private int currentChildIndex;
+    private int nextVisibleChildIndex;
 
     public Answer(ArrayList<Option> options, Question questionReference, long timeStamp) {
         this(options, questionReference);
@@ -49,25 +45,25 @@ public class Answer extends BaseObject implements Parcelable {
         this.questionReference = questionReference;
     }
 
-    public void setCurrentChildIndex(int currentChildIndex) {
-        this.currentChildIndex = currentChildIndex;
+    public void setNextVisibleChildIndex(int currentChildIndex) {
+        this.nextVisibleChildIndex = currentChildIndex;
     }
 
     public boolean isVisibleChildIndexOutOfBounds(int index) {
         return index < 0 || index >= children.size();
     }
 
-    public void incrementCurrentChildIndex() {
-        currentChildIndex++;
+    public void nextVisibleChildIndex() {
+        nextVisibleChildIndex++;
     }
 
-    public void decrementCurrentChildIndex() {
-        currentChildIndex--;
+    public void decrementChildIndex() {
+        nextVisibleChildIndex--;
     }
 
 
-    public int getCurrentChildIndex() {
-        return currentChildIndex;
+    public int getNextVisibleChildIndex() {
+        return nextVisibleChildIndex;
     }
 
 //    public static boolean isAnswerDummy(Answer answer) {

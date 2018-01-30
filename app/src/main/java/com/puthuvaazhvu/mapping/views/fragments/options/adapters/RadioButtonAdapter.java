@@ -2,7 +2,6 @@ package com.puthuvaazhvu.mapping.views.fragments.options.adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
 import android.view.LayoutInflater;
@@ -15,15 +14,8 @@ import android.widget.RadioButton;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.puthuvaazhvu.mapping.R;
-import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.fragments.options.modals.CheckableOptionsAsListUIData;
-import com.puthuvaazhvu.mapping.views.fragments.options.modals.CheckableOptionsAsListUIData.SingleData;
-
-import io.reactivex.Scheduler;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
-import timber.log.Timber;
+import com.puthuvaazhvu.mapping.views.fragments.options.modals.CheckableOptionsAsListUIData.SingleDataOption;
 
 /**
  * Created by muthuveerappans on 1/9/18.
@@ -49,11 +41,11 @@ public class RadioButtonAdapter extends CheckableOptionsAsListAdapter {
 
                 // fix https://stackoverflow.com/questions/27070220/android-recyclerview-notifydatasetchanged-illegalstateexception
                 if (!onBind) {
-                    SingleData singleData = (SingleData) compoundButton.getTag();
-                    for (SingleData o : optionsUIData.getSingleDataArrayList()) {
+                    SingleDataOption singleDataOption = (SingleDataOption) compoundButton.getTag();
+                    for (SingleDataOption o : optionsUIData.getSingleDataOptionArrayList()) {
                         o.setSelected(false);
                     }
-                    singleData.setSelected(b);
+                    singleDataOption.setSelected(b);
                     RadioButtonAdapter.this.notifyDataSetChanged();
                 }
             }
@@ -64,20 +56,20 @@ public class RadioButtonAdapter extends CheckableOptionsAsListAdapter {
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         final RadioButtonVH vh = (RadioButtonVH) holder;
-        final SingleData singleData = optionsUIData.getSingleDataArrayList().get(position);
-        vh.getRadio_button().setTag(singleData);
+        final SingleDataOption singleDataOption = optionsUIData.getSingleDataOptionArrayList().get(position);
+        vh.getRadio_button().setTag(singleDataOption);
 
         onBind = true;
 
         vh.populateViews(
-                singleData.getText(),
-                singleData.isSelected(),
-                singleData.getId(),
-                singleData.getBackgroundColor()
+                singleDataOption.getText(),
+                singleDataOption.isSelected(),
+                singleDataOption.getId(),
+                singleDataOption.isShouldShowBackgroundColor() ? singleDataOption.getBackgroundColor() : -1
         );
 
-        if (singleData.getImageData() != null) {
-            byte[] decodedString = Base64.decode(singleData.getImageData(), Base64.DEFAULT);
+        if (singleDataOption.getImageData() != null) {
+            byte[] decodedString = Base64.decode(singleDataOption.getImageData(), Base64.DEFAULT);
             vh.setImageFromBytes(decodedString);
             //Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
 //            if (decodedByte != null)

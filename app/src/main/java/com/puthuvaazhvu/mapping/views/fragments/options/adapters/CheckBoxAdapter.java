@@ -2,7 +2,6 @@ package com.puthuvaazhvu.mapping.views.fragments.options.adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
 import android.view.LayoutInflater;
@@ -15,13 +14,9 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.puthuvaazhvu.mapping.R;
-import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.fragments.options.modals.CheckableOptionsAsListUIData;
-import com.puthuvaazhvu.mapping.views.fragments.options.modals.CheckableOptionsAsListUIData.SingleData;
+import com.puthuvaazhvu.mapping.views.fragments.options.modals.CheckableOptionsAsListUIData.SingleDataOption;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
 /**
@@ -43,12 +38,12 @@ public class CheckBoxAdapter extends CheckableOptionsAsListAdapter {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
                 if (!onBind) {
-                    SingleData singleData = (SingleData) compoundButton.getTag();
+                    SingleDataOption singleDataOption = (SingleDataOption) compoundButton.getTag();
                     if (hasOptionsLimitReached() && checked) {
                         Timber.i("Options limit reached");
-                        singleData.setSelected(false);
+                        singleDataOption.setSelected(false);
                     } else {
-                        singleData.setSelected(checked);
+                        singleDataOption.setSelected(checked);
                     }
                     CheckBoxAdapter.this.notifyDataSetChanged();
                 }
@@ -60,14 +55,15 @@ public class CheckBoxAdapter extends CheckableOptionsAsListAdapter {
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         final CheckBoxVH vh = (CheckBoxVH) holder;
-        SingleData singleData = optionsUIData.getSingleDataArrayList().get(position);
-        vh.getCheck_box().setTag(singleData);
+        SingleDataOption singleDataOption = optionsUIData.getSingleDataOptionArrayList().get(position);
+        vh.getCheck_box().setTag(singleDataOption);
 
         onBind = true;
-        vh.populateViews(singleData.getText(), singleData.isSelected());
+        vh.populateViews(singleDataOption.getText(), singleDataOption.isSelected(),
+                singleDataOption.isShouldShowBackgroundColor() ? singleDataOption.getBackgroundColor() : -1);
 
-        if (singleData.getImageData() != null) {
-            byte[] decodedString = Base64.decode(singleData.getImageData(), Base64.DEFAULT);
+        if (singleDataOption.getImageData() != null) {
+            byte[] decodedString = Base64.decode(singleDataOption.getImageData(), Base64.DEFAULT);
             vh.setImageFromBytes(decodedString);
             //Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
 //            if (decodedByte != null)
@@ -82,6 +78,7 @@ public class CheckBoxAdapter extends CheckableOptionsAsListAdapter {
     class CheckBoxVH extends RecyclerView.ViewHolder {
         private CheckBox check_box;
         private ImageView imageView;
+        private View layout;
         private Context context;
 
         public CheckBoxVH(View itemView) {
@@ -89,13 +86,20 @@ public class CheckBoxAdapter extends CheckableOptionsAsListAdapter {
             check_box = itemView.findViewById(R.id.check_box);
             imageView = itemView.findViewById(R.id.img_checkmark);
             imageView.setVisibility(View.GONE);
+            layout = itemView.findViewById(R.id.holder);
 
             this.context = itemView.getContext();
         }
 
-        public void populateViews(String text, boolean isChecked) {
+        public void populateViews(String text, boolean isChecked, int color) {
             check_box.setText(text);
             check_box.setChecked(isChecked);
+
+            if (color != -1) {
+                layout.setBackgroundColor(context.getResources().getColor(color));
+            } else {
+                layout.setBackgroundColor(context.getResources().getColor(R.color.white));
+            }
         }
 
         public void setImageBitmap(Bitmap bitmap) {

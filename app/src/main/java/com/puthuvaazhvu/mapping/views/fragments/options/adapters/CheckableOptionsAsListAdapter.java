@@ -3,9 +3,6 @@ package com.puthuvaazhvu.mapping.views.fragments.options.adapters;
 import android.support.v7.widget.RecyclerView;
 
 import com.puthuvaazhvu.mapping.views.fragments.options.modals.CheckableOptionsAsListUIData;
-import com.puthuvaazhvu.mapping.views.fragments.options.modals.OptionsUIData;
-
-import java.util.ArrayList;
 
 /**
  * Created by muthuveerappans on 1/9/18.
@@ -26,6 +23,6 @@ public abstract class CheckableOptionsAsListAdapter extends RecyclerView.Adapter
 
     @Override
     public int getItemCount() {
-        return optionsUIData.getSingleDataArrayList().size();
+        return optionsUIData.getSingleDataOptionArrayList().size();
     }
 }

@@ -6,8 +6,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
@@ -15,7 +13,6 @@ import com.puthuvaazhvu.mapping.views.custom_components.ChildLinearLayoutManager
 import com.puthuvaazhvu.mapping.views.fragments.options.adapters.CheckableOptionsAsListAdapter;
 import com.puthuvaazhvu.mapping.views.fragments.options.adapters.RadioButtonAdapter;
 import com.puthuvaazhvu.mapping.views.fragments.options.modals.CheckableOptionsAsListUIData;
-import com.puthuvaazhvu.mapping.views.fragments.options.modals.CheckableOptionsAsListUIData.SingleData;
 
 import java.util.ArrayList;
 
