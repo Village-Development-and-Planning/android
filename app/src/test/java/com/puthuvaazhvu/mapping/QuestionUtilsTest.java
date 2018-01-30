@@ -1,7 +1,7 @@
 package com.puthuvaazhvu.mapping;
 
 import com.google.gson.JsonObject;
-import com.puthuvaazhvu.mapping.helpers.DataHelpers;
+import com.puthuvaazhvu.mapping.helpers.TestUtils;
 import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
@@ -34,7 +34,7 @@ public class QuestionUtilsTest {
 
     @Before
     public void setup() {
-        survey = DataHelpers.getSurvey(this);
+        survey = TestUtils.getSurvey(this);
     }
 
     @Test
@@ -46,7 +46,7 @@ public class QuestionUtilsTest {
 
     @Test
     public void test_findQuestion_rawNumber() {
-        Single<Survey> surveySingle = SurveyUtils.getSurveyWithUpdatedAnswers(DataHelpers.getAnswersJson(this));
+        Single<Survey> surveySingle = SurveyUtils.getSurveyWithUpdatedAnswers(TestUtils.getAnswersJson(this));
         Survey survey = surveySingle.blockingGet();
 
         assertThat(survey.getRootQuestion().getAnswers().size(), is(1));
@@ -74,48 +74,32 @@ public class QuestionUtilsTest {
 
     @Test
     public void test_getPathOfCurrentQuestion() {
+        Survey survey = TestUtils.getSurvey(this, "answers_data_1.json");
+        JsonObject questionJson =
+                TestUtils.getJson(this, "answers_data_1.json").get("question").getAsJsonObject();
+        QuestionUtils.populateAnswersFromJson(survey.getRootQuestion(), questionJson);
 
-        /*
-            R---
-                |
-                A1-
-                | |
-                1 2-- --
-                    |   |
-                    A3  A4
-                        |
-                        2.1
-         */
+        assertThat(survey.getId(), is("5a08957bad04f82a15a0e974"));
+        assertThat(survey.getRootQuestion().getAnswers().size(), is(1));
 
-        Question root = survey.getRootQuestion();
+        Question question = survey.getRootQuestion().getAnswers().get(0)
+                .getChildren().get(1).getAnswers().get(1).getChildren().get(1).getAnswers().get(0)
+                .getChildren().get(0);
 
-        Answer answer_1 = new Answer(null, root);
-        root.addAnswer(answer_1);
+        assertThat(question.getRawNumber(), is("2.1.1"));
 
-        Answer answer_2 = new Answer(null, answer_1.getChildren().get(1));
-        Answer answer_3 = new Answer(null, answer_1.getChildren().get(1));
+        ArrayList<Integer> path = QuestionUtils.getPathOfQuestion(question);
+        assertThat(path.toString(), is("[0, 0, 1, 1, 1, 0, 0]"));
 
-        answer_1.getChildren().get(1).addAnswer(answer_2);
-        answer_1.getChildren().get(1).addAnswer(answer_3);
-
-        assertThat(answer_1.getChildren().get(1).getAnswers().size(), is(2));
-
-        ArrayList<Integer> index = QuestionUtils.getPathOfQuestion(answer_3.getChildren().get(0));
-
-        assertThat(index.size(), is(5));
-        assertThat(index.get(0), is(0));
-        assertThat(index.get(1), is(0));
-        assertThat(index.get(2), is(1));
-        assertThat(index.get(3), is(1));
-        assertThat(index.get(4), is(0));
-
+        Question q = QuestionUtils.moveToQuestionUsingPath("0,0,1,1,1,0,0", survey.getRootQuestion());
+        assertThat(q.getRawNumber(), is("2.1.1"));
     }
 
     @Test
     public void test_populateAnswersInternal_method() {
-        Survey survey = DataHelpers.getSurvey(this, "survey_data_1.json");
+        Survey survey = TestUtils.getSurvey(this, "survey_data_1.json");
 
-        JsonObject answers = DataHelpers.getAnswersJson(this);
+        JsonObject answers = TestUtils.getAnswersJson(this);
         JsonObject questionWithAnswersJson = answers.get("question").getAsJsonObject();
 
         Question rootNode = survey.getRootQuestion();

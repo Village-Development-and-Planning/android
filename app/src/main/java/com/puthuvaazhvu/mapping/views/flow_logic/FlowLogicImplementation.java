@@ -16,12 +16,7 @@ import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.utils.Utils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
 
 import timber.log.Timber;
 
@@ -44,7 +39,7 @@ public class FlowLogicImplementation extends FlowLogic {
 
     public FlowLogicImplementation(Question root, String snapshotPath) {
         this();
-        Question question = QuestionUtils.moveToQuestionFromPath(snapshotPath, root);
+        Question question = QuestionUtils.moveToQuestionUsingPath(snapshotPath, root);
 
         if (question == null) {
             setCurrent(root, FlowData.FlowUIType.DEFAULT);
@@ -57,7 +52,9 @@ public class FlowLogicImplementation extends FlowLogic {
             int index = QuestionUtils.getIndexOfChild(parent, question);
 
             if (index >= 0) {
-                parentAnswer.setNextVisibleChildIndex(index);
+                parentAnswer.setNextVisibleChildIndex(index + 1);
+            } else {
+                parentAnswer.setNextVisibleChildIndex(0);
             }
 
             setCurrent(question, FlowData.FlowUIType.DEFAULT);
@@ -254,7 +251,8 @@ public class FlowLogicImplementation extends FlowLogic {
                     SkipHelper.shouldSkipBasedOnAnswerScope(question)) {
 
                 // finish the current question
-                question.setFinished(true);
+                //question.setFinished(true);
+                finishCurrent();
             } else {
                 flowData.question = question;
                 flowData.flowType = FlowData.FlowUIType.LOOP;

@@ -1,6 +1,6 @@
 package com.puthuvaazhvu.mapping;
 
-import com.puthuvaazhvu.mapping.helpers.DataHelpers;
+import com.puthuvaazhvu.mapping.helpers.TestUtils;
 import com.puthuvaazhvu.mapping.utils.info_file.modals.AnswerDataModal;
 import com.puthuvaazhvu.mapping.utils.info_file.modals.AnswersInfoFileDataModal;
 
@@ -25,7 +25,7 @@ public class AnswersInfoFileDataModalTest {
 
     @Before
     public void init() {
-        answersInfoFileDataModal = DataHelpers.getAnswersInfoFileModal(this);
+        answersInfoFileDataModal = TestUtils.getAnswersInfoFileModal(this);
 
         assertThat(answersInfoFileDataModal.getVersion(), is(1));
         assertThat(answersInfoFileDataModal.getAnswerDataModals().size(), is(2));

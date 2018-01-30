@@ -1,5 +1,6 @@
 package com.puthuvaazhvu.mapping.modals.utils;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -49,63 +50,158 @@ public class QuestionUtils {
         return indexes;
     }
 
-    /**
-     * Starting index of the path is always Root.
-     * Ending index of the path is always Answer.
-     *
-     * @param node    The current node question to start with
-     * @param indexes The list of indexes that contains the path
-     */
+    // starts from a question ends in root
     public static void getPathOfQuestion(Question node, ArrayList<Integer> indexes) {
-        Question current = node;
-
-        if (current == null) {
-            return; // Reached the head of the tree
+        if (node.isRoot()) {
+            indexes.add(0); // add index for root
+            return; // reached the head of the tree
         }
 
-        if (!current.getAnswers().isEmpty()) {
-            int answerCount = current.getAnswers().size();
-//            Answer lastAnswer = getLastAnswer(current);
-            Answer lastAnswer = current.getCurrentAnswer();
+        int indexOfChild = QuestionUtils.getIndexOfChild(node.getParent(), node);
+        indexes.add(indexOfChild);
 
-            int answersIndex = -1;
+        Answer parentAnswer = node.getParentAnswer();
+        int parentAnswerIndex = parentAnswer.getQuestionReference().getAnswers().indexOf(parentAnswer);
+        indexes.add(parentAnswerIndex);
 
-            // traverse through the answers list and find the appropriate index
-            for (int i = 0; i < answerCount; i++) {
-                if (current.getAnswers().get(i) == lastAnswer) {
-                    answersIndex = i;
-                    break;
-                }
-            }
-
-            // add the answer's index
-            indexes.add(answersIndex);
-        }
-
-        // then add the question's position
-        int questionIndex = -1;
-
-        // find the index of this question in it's parent
-        Question parent = current.getParent();
-        if (parent == null) {
-            // ROOT question
-            questionIndex = 0;
-        } else {
-
-            // find the child's index
-            for (int i = 0; i < parent.getChildren().size(); i++) {
-                if (parent.getChildren().get(i).getRawNumber().equals(current.getRawNumber())) {
-                    questionIndex = i;
-                    break;
-                }
-            }
-
-        }
-
-        indexes.add(questionIndex);
-
-        getPathOfQuestion(parent, indexes);
+        getPathOfQuestion(parentAnswer.getQuestionReference(), indexes);
     }
+
+    public static Question moveToQuestionUsingPath(String snapshotPath, Question root) {
+        String[] indexesInString = snapshotPath.split(",");
+
+        ArrayList<Integer> indexes = new ArrayList<>();
+
+        for (int i = 0; i < indexesInString.length; i++) {
+            try {
+                indexes.add(Integer.parseInt(indexesInString[i]));
+            } catch (NumberFormatException e) {
+                Timber.e("Error occurred while parsing snapshot path: "
+                        + snapshotPath + " error:" + e.getMessage());
+            }
+        }
+
+        try {
+
+            Question node = root;
+
+            for (int i = 1; i < indexes.size() - 1; i += 2) {
+                int answerIndex = indexes.get(i);
+                int questionIndex = indexes.get(i + 1);
+                node = node.getAnswers().get(answerIndex).getChildren().get(questionIndex);
+            }
+
+            return node;
+
+        } catch (Exception e) {
+            String err = "Question not properly populated " + e.getLocalizedMessage();
+            Timber.e(err);
+        }
+
+        return root;
+    }
+
+//    public static Question moveToQuestionUsingPath(String snapshotPath, Question root) {
+//        boolean exception = false;
+//
+//        String[] indexesInString = snapshotPath.split(",");
+//        ArrayList<Integer> indexes = new ArrayList<>();
+//
+//        for (int i = 0; i < indexesInString.length; i++) {
+//            try {
+//                indexes.add(Integer.parseInt(indexesInString[i]));
+//            } catch (NumberFormatException e) {
+//                Timber.e("Error occurred while parsing snapshot path: " + snapshotPath + " error:" + e.getMessage());
+//            }
+//        }
+//
+//        Question question = root;
+//        Answer answer = null;
+//
+//        // we don't want to consider ROOT index and last answer index(if present)
+//        // make sure we always end with a question.
+//        for (int i = 1; i < (indexes.size() / 2 == 0 ? indexes.size() - 1 : indexes.size()); i++) {
+//
+//            int index = indexes.get(i);
+//
+//            if (i % 2 == 0 && answer != null) {
+//                // children
+//                question = answer.getChildren().get(index);
+//            } else {
+//                // answer
+//                answer = question.getAnswers().get(index);
+//            }
+//
+//            if (answer == null) {
+//                exception = true;
+//                break;
+//            }
+//        }
+//
+//        if (exception) {
+//            return null;
+//        } else {
+//            return question;
+//        }
+//    }
+
+
+//    /**
+//     * Starting index of the path is always Root.
+//     * Ending index of the path is always Answer.
+//     *
+//     * @param node    The current node question to start with
+//     * @param indexes The list of indexes that contains the path
+//     */
+//    public static void getPathOfQuestion(Question node, ArrayList<Integer> indexes) {
+//        Question current = node;
+//
+//        if (current == null) {
+//            return; // Reached the head of the tree
+//        }
+//
+//        if (!current.getAnswers().isEmpty()) {
+//            int answerCount = current.getAnswers().size();
+//            Answer lastAnswer = current.getCurrentAnswer();
+//
+//            int answersIndex = -1;
+//
+//            // traverse through the answers list and find the appropriate index
+//            for (int i = 0; i < answerCount; i++) {
+//                if (current.getAnswers().get(i) == lastAnswer) {
+//                    answersIndex = i;
+//                    break;
+//                }
+//            }
+//
+//            // add the answer's index
+//            indexes.add(answersIndex);
+//        }
+//
+//        // then add the question's position
+//        int questionIndex = -1;
+//
+//        // find the index of this question in it's parent
+//        Question parent = current.getParent();
+//        if (parent == null) {
+//            // ROOT question
+//            questionIndex = 0;
+//        } else {
+//
+//            // find the child's index
+//            for (int i = 0; i < parent.getChildren().size(); i++) {
+//                if (parent.getChildren().get(i).getRawNumber().equals(current.getRawNumber())) {
+//                    questionIndex = i;
+//                    break;
+//                }
+//            }
+//
+//        }
+//
+//        indexes.add(questionIndex);
+//
+//        getPathOfQuestion(parent, indexes);
+//    }
 
     public static boolean isCurrentAnswerDummy(Question question) {
         if (question.getAnswers().size() <= 0) {
@@ -164,50 +260,6 @@ public class QuestionUtils {
         }
 
         return node;
-    }
-
-    public static Question moveToQuestionFromPath(String snapshotPath, Question root) {
-        boolean exception = false;
-
-        String[] indexesInString = snapshotPath.split(",");
-        ArrayList<Integer> indexes = new ArrayList<>();
-
-        for (int i = 0; i < indexesInString.length; i++) {
-            try {
-                indexes.add(Integer.parseInt(indexesInString[i]));
-            } catch (NumberFormatException e) {
-                Timber.e("Error occurred while parsing snapshot path: " + snapshotPath + " error:" + e.getMessage());
-            }
-        }
-
-        Question question = root;
-        Answer answer = null;
-
-        // we don't want to consider ROOT index and last answer index(if present)
-        // make sure we always end with a question.
-        for (int i = 1; i < (indexes.size() / 2 == 0 ? indexes.size() - 1 : indexes.size()); i++) {
-
-            int index = indexes.get(i);
-
-            if (i % 2 == 0 && answer != null) {
-                // children
-                question = answer.getChildren().get(index);
-            } else {
-                // answer
-                answer = question.getAnswers().get(index);
-            }
-
-            if (answer == null) {
-                exception = true;
-                break;
-            }
-        }
-
-        if (exception) {
-            return null;
-        } else {
-            return question;
-        }
     }
 
     public static String getQuestionParentNumber(Question question) {

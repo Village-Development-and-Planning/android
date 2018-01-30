@@ -24,7 +24,7 @@ import static org.hamcrest.Matchers.notNullValue;
  * Created by muthuveerappans on 10/16/17.
  */
 
-public class DataHelpers {
+public class TestUtils {
     public static Survey getSurvey(Object obj) {
         String fileName = "survey_data_test_unit.json";
         return getSurvey(obj, fileName);
@@ -74,7 +74,7 @@ public class DataHelpers {
     }
 
     public static Survey getAnsweredSurvey(Object obj) {
-        Single<Survey> surveySingle = SurveyUtils.getSurveyWithUpdatedAnswers(DataHelpers.getAnswersJson(obj));
+        Single<Survey> surveySingle = SurveyUtils.getSurveyWithUpdatedAnswers(TestUtils.getAnswersJson(obj));
         return surveySingle.blockingGet();
     }
 

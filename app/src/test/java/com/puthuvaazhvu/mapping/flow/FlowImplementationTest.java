@@ -1,6 +1,6 @@
 package com.puthuvaazhvu.mapping.flow;
 
-import com.puthuvaazhvu.mapping.helpers.DataHelpers;
+import com.puthuvaazhvu.mapping.helpers.TestUtils;
 import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
@@ -41,12 +41,12 @@ public class FlowImplementationTest {
     }
 
     private Question moveTo(String path, Question question) {
-        return QuestionUtils.moveToQuestionFromPath(path, question);
+        return QuestionUtils.moveToQuestionUsingPath(path, question);
     }
 
     @Test
     public void test_update() {
-        Survey survey = DataHelpers.getSurvey(this, "flow_data.json");
+        Survey survey = TestUtils.getSurvey(this, "flow_data.json");
         Question root = survey.getRootQuestion();
 
         assertThat(survey.getId(), is("5a5ef00e0526a120e341d7da"));
@@ -78,7 +78,7 @@ public class FlowImplementationTest {
 
     @Test
     public void test_addAnswer() {
-        Survey survey = DataHelpers.getSurvey(this, "flow_data.json");
+        Survey survey = TestUtils.getSurvey(this, "flow_data.json");
         Question root = survey.getRootQuestion();
 
         assertThat(survey.getId(), is("5a5ef00e0526a120e341d7da"));
@@ -96,7 +96,7 @@ public class FlowImplementationTest {
 
     @Test
     public void test_addAnswersToChildren() {
-        Survey survey = DataHelpers.getSurvey(this, "flow_data.json");
+        Survey survey = TestUtils.getSurvey(this, "flow_data.json");
         Question root = survey.getRootQuestion();
 
         assertThat(survey.getId(), is("5a5ef00e0526a120e341d7da"));
@@ -111,7 +111,7 @@ public class FlowImplementationTest {
 
     @Test
     public void test_finishCurrent() {
-        Survey survey = DataHelpers.getSurvey(this, "flow_data.json");
+        Survey survey = TestUtils.getSurvey(this, "flow_data.json");
         Question root = survey.getRootQuestion();
 
         assertThat(survey.getId(), is("5a5ef00e0526a120e341d7da"));
@@ -130,7 +130,7 @@ public class FlowImplementationTest {
 
     @Test
     public void test_getNext() {
-        Survey survey = DataHelpers.getSurvey(this, "flow_data.json");
+        Survey survey = TestUtils.getSurvey(this, "flow_data.json");
         Question root = survey.getRootQuestion();
 
         assertThat(survey.getId(), is("5a5ef00e0526a120e341d7da"));
@@ -144,7 +144,7 @@ public class FlowImplementationTest {
         assertThat(flowLogicImplementation.getCurrent().question.getRawNumber(), is("1.1"));
 
         // test shown together
-        survey = DataHelpers.getSurvey(this, "shown_together_question.json");
+        survey = TestUtils.getSurvey(this, "shown_together_question.json");
         root = survey.getRootQuestion();
         assertThat(root.getType(), is("ROOT"));
 
@@ -154,7 +154,7 @@ public class FlowImplementationTest {
         assertThat(nextQuestion.getAnswers().size(), is(1));
 
         // test grid question
-        survey = DataHelpers.getSurvey(this, "grid_question.json");
+        survey = TestUtils.getSurvey(this, "grid_question.json");
         root = survey.getRootQuestion();
         assertThat(root.getType(), is("ROOT"));
 
@@ -167,7 +167,7 @@ public class FlowImplementationTest {
         assertThat(flowLogicImplementation.getCurrent().question.getRawNumber(), is("2.1.7.3"));
 
         // test skip pattern
-        survey = DataHelpers.getSurvey(this, "multiple_options_skip.json");
+        survey = TestUtils.getSurvey(this, "multiple_options_skip.json");
         root = survey.getRootQuestion();
         assertThat(root.getType(), is("ROOT"));
 
@@ -195,7 +195,7 @@ public class FlowImplementationTest {
         assertThat(nextQuestion.getAnswers().size(), is(1));
 
         // test skip false
-        survey = DataHelpers.getSurvey(this, "multiple_options_skip.json");
+        survey = TestUtils.getSurvey(this, "multiple_options_skip.json");
         root = survey.getRootQuestion();
         flowLogicImplementation = new FlowLogicImplementation(root);
 
@@ -222,7 +222,7 @@ public class FlowImplementationTest {
 
     @Test
     public void test_moveToIndexInChild() {
-        Survey survey = DataHelpers.getSurvey(this, "flow_data.json");
+        Survey survey = TestUtils.getSurvey(this, "flow_data.json");
         Question root = survey.getRootQuestion();
 
         assertThat(survey.getId(), is("5a5ef00e0526a120e341d7da"));
@@ -240,7 +240,7 @@ public class FlowImplementationTest {
     public void test_getPrevious() {
         FlowLogic.FlowData flowData;
 
-        Survey survey = DataHelpers.getSurvey(this, "back_test.json");
+        Survey survey = TestUtils.getSurvey(this, "back_test.json");
         Question root = survey.getRootQuestion();
         FlowLogicImplementation flowLogicImplementation = new FlowLogicImplementation(root);
 
@@ -273,7 +273,7 @@ public class FlowImplementationTest {
         Question nextQuestion;
 
         // test grid question
-        survey = DataHelpers.getSurvey(this, "grid_question.json");
+        survey = TestUtils.getSurvey(this, "grid_question.json");
         root = survey.getRootQuestion();
         Answer answer = new Answer(QuestionUtils.generateQuestionWithDummyOptions(), root);
         root.addAnswer(answer);
@@ -292,7 +292,7 @@ public class FlowImplementationTest {
         assertThat(flowData.flowType, is(FlowLogic.FlowData.FlowUIType.GRID));
 
         // test normal flow
-        survey = DataHelpers.getSurvey(this, "flow_data.json");
+        survey = TestUtils.getSurvey(this, "flow_data.json");
         root = survey.getRootQuestion();
         answer = new Answer(QuestionUtils.generateQuestionWithDummyOptions(), root);
         root.addAnswer(answer);
@@ -310,7 +310,7 @@ public class FlowImplementationTest {
         FlowLogic.FlowData nextFlowData;
         ArrayList<Option> options;
 
-        survey = DataHelpers.getSurvey(this, "grid_question.json");
+        survey = TestUtils.getSurvey(this, "grid_question.json");
         root = survey.getRootQuestion();
         assertThat(root.getType(), is("ROOT"));
         flowLogicImplementation.setCurrent(root, FlowLogic.FlowData.FlowUIType.DEFAULT);
@@ -352,7 +352,7 @@ public class FlowImplementationTest {
         FlowLogic.FlowData nextFlowData;
         ArrayList<Option> options;
 
-        survey = DataHelpers.getSurvey(this, "loop_multiple_flow.json");
+        survey = TestUtils.getSurvey(this, "loop_multiple_flow.json");
         root = survey.getRootQuestion();
         assertThat(root.getType(), is("ROOT"));
         flowLogicImplementation.setCurrent(root, FlowLogic.FlowData.FlowUIType.DEFAULT);
@@ -388,7 +388,7 @@ public class FlowImplementationTest {
         FlowLogic.FlowData nextFlowData;
         ArrayList<Option> options;
 
-        survey = DataHelpers.getSurvey(this, "loop_options_flow.json");
+        survey = TestUtils.getSurvey(this, "loop_options_flow.json");
         root = survey.getRootQuestion();
         assertThat(root.getType(), is("ROOT"));
         flowLogicImplementation.setCurrent(root, FlowLogic.FlowData.FlowUIType.DEFAULT);
