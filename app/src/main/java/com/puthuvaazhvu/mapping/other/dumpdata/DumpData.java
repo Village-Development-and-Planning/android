@@ -22,6 +22,7 @@ import timber.log.Timber;
  * Created by muthuveerappans on 11/25/17.
  */
 
+@Deprecated
 public class DumpData {
     private static DumpData dumpData;
 
