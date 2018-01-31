@@ -18,7 +18,7 @@ import com.puthuvaazhvu.mapping.data.SurveyDataRepository;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
-import com.puthuvaazhvu.mapping.network.APIs;
+import com.puthuvaazhvu.mapping.network.APIUtils;
 import com.puthuvaazhvu.mapping.network.implementations.SingleSurveyAPI;
 import com.puthuvaazhvu.mapping.other.Config;
 import com.puthuvaazhvu.mapping.other.Constants;
@@ -103,7 +103,7 @@ public class MainActivity extends MenuActivity
         handler = new Handler(Looper.getMainLooper());
 
         GetFromFile getFromFile = GetFromFile.getInstance();
-        SingleSurveyAPI singleSurveyAPI = SingleSurveyAPI.getInstance(APIs.getAuth(sharedPreferences));
+        SingleSurveyAPI singleSurveyAPI = SingleSurveyAPI.getInstance(APIUtils.getAuth(sharedPreferences));
         String optionsJson = Utils.readFromAssetsFile(this, "options_fill.json");
 
         presenter = new MainPresenter(
@@ -111,7 +111,8 @@ public class MainActivity extends MenuActivity
                 SurveyDataRepository.getInstance(getFromFile, sharedPreferences, singleSurveyAPI, optionsJson),
                 handler,
                 SaveToFile.getInstance(),
-                GetFromFile.getInstance()
+                GetFromFile.getInstance(),
+                sharedPreferences
         );
 
         repeatingTask = new RepeatingTask(handler, new Runnable() {
@@ -325,7 +326,7 @@ public class MainActivity extends MenuActivity
     }
 
     public void updateCurrentQuestion(Question question, ArrayList<Option> response, Runnable runnable) {
-        presenter.updateCurrentQuestion(question, response, runnable);
+        presenter.updateCurrentQuestion(response, runnable);
     }
 
     public void getNextQuestion() {

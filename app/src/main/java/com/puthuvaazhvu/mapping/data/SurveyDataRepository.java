@@ -26,6 +26,7 @@ import timber.log.Timber;
  * Created by muthuveerappans on 11/23/17.
  */
 
+@Deprecated
 public class SurveyDataRepository extends DataRepository {
     private static SurveyDataRepository surveyDataRepository;
 
@@ -70,7 +71,8 @@ public class SurveyDataRepository extends DataRepository {
                 .map(new Function<Survey, Survey>() {
                     @Override
                     public Survey apply(@NonNull Survey survey) throws Exception {
-                        return fillWithDynamicOptions(survey, optionsFillJson);
+                        //return fillWithDynamicOptions(survey, optionsFillJson);
+                        return survey;
                     }
                 });
     }
@@ -90,7 +92,8 @@ public class SurveyDataRepository extends DataRepository {
                 .map(new Function<Survey, Survey>() {
                     @Override
                     public Survey apply(@NonNull Survey survey) throws Exception {
-                        return fillWithDynamicOptions(survey, optionsFillJson);
+                        //return fillWithDynamicOptions(survey, optionsFillJson);
+                        return survey;
                     }
                 });
     }
@@ -110,40 +113,41 @@ public class SurveyDataRepository extends DataRepository {
                 .map(new Function<Survey, Survey>() {
                     @Override
                     public Survey apply(@NonNull Survey survey) throws Exception {
-                        return fillWithDynamicOptions(survey, optionsFillJson);
+                        //return fillWithDynamicOptions(survey, optionsFillJson);
+                        return survey;
                     }
                 });
     }
 
-    private static Survey fillWithDynamicOptions(Survey survey, String optionsFillJson) throws Exception {
-        //String optionsFillJson = Utils.readFromAssetsFile(context, "options_fill.json");
-
-        if (optionsFillJson == null) {
-            Timber.e("Dynamic fill options could'nt be added as the options are null.");
-            throw new Exception("Dynamic fill options could'nt be added as the options are null.");
-        }
-
-        JsonParser jsonParser = new JsonParser();
-        JsonObject rootJson = jsonParser.parse(optionsFillJson).getAsJsonObject();
-
-        // iterate over the elements
-        for (Map.Entry<String, JsonElement> entry : rootJson.entrySet()) {
-            String fillTag = entry.getKey();
-            JsonArray optionsArray = entry.getValue().getAsJsonArray();
-
-            ArrayList<Option> options = new ArrayList<>();
-
-            for (JsonElement optionElement : optionsArray) {
-                options.add(new Option(optionElement.getAsJsonObject()));
-            }
-
-            boolean result = SurveyUtils.fillOptionsForQuestion(survey.getRootQuestion(), fillTag, options);
-
-            if (!result) {
-                Timber.e("Dynamic fill options could'nt be added at " + fillTag);
-            }
-        }
-
-        return survey;
-    }
+//    private static Survey fillWithDynamicOptions(Survey survey, String optionsFillJson) throws Exception {
+//        //String optionsFillJson = Utils.readFromAssetsFile(context, "options_fill.json");
+//
+//        if (optionsFillJson == null) {
+//            Timber.e("Dynamic fill options could'nt be added as the options are null.");
+//            throw new Exception("Dynamic fill options could'nt be added as the options are null.");
+//        }
+//
+//        JsonParser jsonParser = new JsonParser();
+//        JsonObject rootJson = jsonParser.parse(optionsFillJson).getAsJsonObject();
+//
+//        // iterate over the elements
+//        for (Map.Entry<String, JsonElement> entry : rootJson.entrySet()) {
+//            String fillTag = entry.getKey();
+//            JsonArray optionsArray = entry.getValue().getAsJsonArray();
+//
+//            ArrayList<Option> options = new ArrayList<>();
+//
+//            for (JsonElement optionElement : optionsArray) {
+//                options.add(new Option(optionElement.getAsJsonObject()));
+//            }
+//
+//            boolean result = SurveyUtils.fillOptionsForQuestion(survey.getRootQuestion(), fillTag, options);
+//
+//            if (!result) {
+//                Timber.e("Dynamic fill options could'nt be added at " + fillTag);
+//            }
+//        }
+//
+//        return survey;
+//    }
 }

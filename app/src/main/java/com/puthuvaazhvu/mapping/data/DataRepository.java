@@ -12,6 +12,7 @@ import io.reactivex.Single;
  * Created by muthuveerappans on 11/23/17.
  */
 
+@Deprecated
 public class DataRepository {
     protected final GetFromFile getFromFile;
     protected final SharedPreferences sharedPreferences;

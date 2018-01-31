@@ -1,18 +1,25 @@
 package com.puthuvaazhvu.mapping.views.flow_logic;
 
+import android.content.SharedPreferences;
 import android.support.annotation.VisibleForTesting;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
+import com.puthuvaazhvu.mapping.modals.Text;
 import com.puthuvaazhvu.mapping.modals.flow.AnswerFlow;
 import com.puthuvaazhvu.mapping.modals.flow.ChildFlow;
 import com.puthuvaazhvu.mapping.modals.flow.ExitFlow;
 import com.puthuvaazhvu.mapping.modals.flow.FlowPattern;
+import com.puthuvaazhvu.mapping.modals.flow.PostFlow;
 import com.puthuvaazhvu.mapping.modals.flow.PreFlow;
 import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
 import com.puthuvaazhvu.mapping.modals.utils.AnswerUtils;
+import com.puthuvaazhvu.mapping.modals.utils.AuthJsonUtils;
 import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
+import com.puthuvaazhvu.mapping.utils.SharedPreferenceUtils;
 import com.puthuvaazhvu.mapping.utils.Utils;
 
 import java.util.ArrayList;
@@ -37,7 +44,9 @@ public class FlowLogicImplementation extends FlowLogic {
         setCurrent(root, FlowData.FlowUIType.DEFAULT);
     }
 
-    public FlowLogicImplementation(Question root, String snapshotPath) {
+    public FlowLogicImplementation(
+            Question root,
+            String snapshotPath) {
         this();
         Question question = QuestionUtils.moveToQuestionUsingPath(snapshotPath, root);
 
@@ -82,7 +91,6 @@ public class FlowLogicImplementation extends FlowLogic {
 
     @Override
     public FlowLogic moveToIndexInChild(int index) {
-//        Answer latestAnswer = QuestionUtils.getLastAnswer(currentFlowData.question);
         Answer currentAnswer = currentFlowData.question.getCurrentAnswer();
 
         if (currentAnswer != null) {
@@ -382,9 +390,6 @@ public class FlowLogicImplementation extends FlowLogic {
 
     private static class SkipHelper {
         private static boolean shouldSkip(Question question) {
-//        return shouldSkipBasedOnAnswerScope(question) ||
-//                shouldSkipBasedOnSkipPattern(question) ||
-//                question.isFinished();
             return shouldSkipBasedOnSkipPattern(question);
         }
 

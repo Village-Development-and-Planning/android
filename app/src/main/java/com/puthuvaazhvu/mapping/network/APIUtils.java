@@ -9,7 +9,7 @@ import retrofit2.Retrofit;
  * Created by muthuveerappans on 10/30/17.
  */
 
-public class APIs {
+public class APIUtils {
     public static String BASE_URL = "https://ptracking.org/";
 
     public static String getAuth(SharedPreferences sharedPreferences) {

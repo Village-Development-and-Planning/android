@@ -18,14 +18,6 @@ public class PreFlow extends BaseObject implements Parcelable {
     private final String questionSkipRawNumber;
     private final ArrayList<String> optionSkip;
 
-    public static class Tag {
-        public static final String HABITATION_NAME = "HABITATION_NAME";
-        public static final String DISTRICT_NAME = "DISTRICT_NAME";
-        public static final String BLOCK_NAME = "BLOCK_NAME";
-        public static final String PANCHAYAT_NAME = "PANCHAYAT_NAME";
-        public static final String VILLAGE_NAME = "VILLAGE_NAME";
-    }
-
     public PreFlow(ArrayList<String> fill, String questionSkipRawNumber, ArrayList<String> optionSkip) {
         this.fill = fill;
         this.questionSkipRawNumber = questionSkipRawNumber;

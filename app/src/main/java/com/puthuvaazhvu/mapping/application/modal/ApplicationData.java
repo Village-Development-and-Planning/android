@@ -3,6 +3,7 @@ package com.puthuvaazhvu.mapping.application.modal;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 
@@ -10,6 +11,7 @@ import com.puthuvaazhvu.mapping.modals.Survey;
  * Created by muthuveerappans on 11/11/17.
  */
 
+// Todo: refactor this
 public class ApplicationData implements Parcelable {
     private static ApplicationData applicationData;
 
@@ -22,6 +24,7 @@ public class ApplicationData implements Parcelable {
 
     private Survey survey;
     private SurveySnapShot surveySnapShot;
+    private JsonObject authJson;
 
     private ApplicationData() {
         surveySnapShot = new SurveySnapShot();
@@ -62,6 +65,14 @@ public class ApplicationData implements Parcelable {
         surveySnapShot.surveyID = surveyID;
         surveySnapShot.pathToLastAnsweredQuestion = path;
         surveySnapShot.snapShotID = snapShotID;
+    }
+
+    public JsonObject getAuthJson() {
+        return authJson;
+    }
+
+    public void setAuthJson(JsonObject authJson) {
+        this.authJson = authJson;
     }
 
     @Override

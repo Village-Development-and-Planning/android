@@ -1,6 +1,6 @@
 package com.puthuvaazhvu.mapping.network.adapters;
 
-import com.puthuvaazhvu.mapping.network.APIs;
+import com.puthuvaazhvu.mapping.network.APIUtils;
 
 import java.io.IOException;
 import java.security.KeyManagementException;
@@ -42,7 +42,7 @@ public class NetworkAdapter {
     protected NetworkAdapter() {
         httpClient = new OkHttpClient.Builder();
         builder = new Retrofit.Builder()
-                .baseUrl(APIs.BASE_URL)
+                .baseUrl(APIUtils.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create());
     }
 

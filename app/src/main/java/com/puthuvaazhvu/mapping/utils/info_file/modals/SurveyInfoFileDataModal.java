@@ -30,6 +30,7 @@ import java.util.List;
 
  */
 
+@Deprecated
 public class SurveyInfoFileDataModal {
     private final int version;
     private List<DataModal> data;

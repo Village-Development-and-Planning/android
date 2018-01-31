@@ -10,6 +10,7 @@ import java.util.ArrayList;
  * Created by muthuveerappans on 11/11/17.
  */
 
+@Deprecated
 public class AnswerDataModal {
     private String id;
     private ArrayList<Snapshot> snapshots;

@@ -30,6 +30,7 @@ import timber.log.Timber;
  * Created by muthuveerappans on 10/19/17.
  */
 
+@Deprecated
 public class SaveToFile {
     public interface SaveToFileCallbacks {
         void onFileSaved();

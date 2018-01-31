@@ -12,6 +12,7 @@ public class Constants {
     public static String SURVEY_DATA_DIR = "surveys";
     public static String ANSWERS_DATA_DIR = "answers";
     public static String INFO_FILE_NAME = "info.json";
+    public static String AUTH_FILE_NAME = "auth.json";
 
     public static class Versions {
         public static int ANSWERS_INFO_VERSION = 1;

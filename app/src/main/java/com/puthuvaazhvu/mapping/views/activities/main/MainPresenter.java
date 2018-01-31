@@ -1,20 +1,30 @@
 package com.puthuvaazhvu.mapping.views.activities.main;
 
+import android.content.SharedPreferences;
 import android.os.Handler;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 
 import com.crashlytics.android.Crashlytics;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
+import com.puthuvaazhvu.mapping.application.MappingApplication;
 import com.puthuvaazhvu.mapping.data.SurveyDataRepository;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
+import com.puthuvaazhvu.mapping.modals.Text;
+import com.puthuvaazhvu.mapping.modals.flow.PostFlow;
+import com.puthuvaazhvu.mapping.modals.flow.PreFlow;
+import com.puthuvaazhvu.mapping.modals.utils.AuthJsonUtils;
 import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.other.dumpdata.DumpData;
 import com.puthuvaazhvu.mapping.utils.DataFileHelpers;
 import com.puthuvaazhvu.mapping.utils.Optional;
+import com.puthuvaazhvu.mapping.utils.SharedPreferenceUtils;
 import com.puthuvaazhvu.mapping.utils.info_file.AnswersInfoFile;
 import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
 import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
@@ -55,12 +65,15 @@ public class MainPresenter implements Contract.UserAction {
 
     private final AnswersInfoFile answersInfoFile;
 
+    private final SharedPreferences sharedPreferences;
+
     public MainPresenter(
             Contract.View activityView,
             SurveyDataRepository dataRepository,
             Handler uiHandler,
             SaveToFile saveToFile,
-            GetFromFile getFromFile
+            GetFromFile getFromFile,
+            SharedPreferences sharedPreferences
     ) {
         this.activityView = activityView;
         this.dataRepository = dataRepository;
@@ -68,6 +81,8 @@ public class MainPresenter implements Contract.UserAction {
         this.saveToFile = saveToFile;
         this.getFromFile = getFromFile;
         this.answersInfoFile = new AnswersInfoFile(getFromFile, saveToFile);
+
+        this.sharedPreferences = sharedPreferences;
     }
 
     @Override
@@ -181,21 +196,25 @@ public class MainPresenter implements Contract.UserAction {
     }
 
     @Override
-    public void updateCurrentQuestion(final Question question, final ArrayList<Option> response, final Runnable runnable) {
+    public void updateCurrentQuestion(final ArrayList<Option> response, final Runnable runnable) {
         if (flowLogic == null) {
             Timber.e(Constants.LOG_TAG, "The method is called too early? Call initData()/loadSurvey() first.");
             return;
         }
 
-        // this seems to be a little heavy process, so run in background thread.
-        // references does'nt matter as the process is not too big to leak memory.
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                flowLogic.update(response);
-                uiHandler.post(runnable);
+        flowLogic.update(response);
+
+        ArrayList<String> postFlow = flowLogic.getCurrent().question.getFlowPattern().getPostFlow();
+
+        if (postFlow != null && !postFlow.isEmpty()) {
+            boolean postFlowSuccess = postFlow(flowLogic.getCurrent().question);
+            if (!postFlowSuccess) {
+                activityView.onError(R.string.auth_error);
+                return;
             }
-        }).start();
+        }
+
+        uiHandler.post(runnable);
     }
 
     @Override
@@ -210,7 +229,11 @@ public class MainPresenter implements Contract.UserAction {
             return;
         }
 
-        showUI(flowLogic.getNext());
+        FlowLogic.FlowData data = flowLogic.getNext();
+
+        preFlow(data.question);
+
+        showUI(data);
     }
 
     @Override
@@ -278,6 +301,80 @@ public class MainPresenter implements Contract.UserAction {
         }
         ArrayList<Integer> indexes = QuestionUtils.getPathOfQuestion(question);
         return TextUtils.join(",", indexes);
+    }
+
+    private boolean postFlow(Question question) {
+        JsonObject authJson = MappingApplication.globalContext.getApplicationData().getAuthJson();
+
+        if (authJson == null) {
+            Timber.e("Auth json is null.");
+            return false;
+        }
+
+        ArrayList<String> postFlow = question.getFlowPattern().getPostFlow();
+
+        if (postFlow != null) {
+            if (postFlow.contains("SURVEYOR_CODE")) {
+                String inputCode = question.getCurrentAnswer().getOptions().get(0).getTextString();
+                JsonObject surveyorAuthJson = AuthJsonUtils.getAuthForSurveyCode(authJson, inputCode);
+
+                SharedPreferenceUtils.putSurveyID(sharedPreferences, inputCode);
+
+                return surveyorAuthJson != null;
+            }
+        }
+
+        return false;
+    }
+
+    private void preFlow(Question question) {
+        JsonObject authJson = MappingApplication.globalContext.getApplicationData().getAuthJson();
+
+        PreFlow preFlow = question.getFlowPattern().getPreFlow();
+        if (preFlow == null) return;
+
+        String surveyorID = SharedPreferenceUtils.getSurveyorID(sharedPreferences);
+
+        if (surveyorID == null) return;
+
+        JsonObject auth = AuthJsonUtils.getAuthForSurveyCode(authJson, surveyorID);
+
+        if (auth == null) return;
+
+        ArrayList<String> fill = preFlow.getFill();
+
+        ArrayList<Option> options = new ArrayList<>();
+
+        for (int i = 0; i < fill.size(); i++) {
+            JsonElement authFillElement = auth.get(fill.get(i));
+            if (authFillElement != null) {
+                if (authFillElement.isJsonArray()) {
+                    for (int j = 0; j < authFillElement.getAsJsonArray().size(); j++) {
+                        JsonElement e = authFillElement.getAsJsonArray().get(j);
+                        String value = e.getAsString();
+                        options.add(new Option(
+                                "",
+                                "",
+                                new Text("", value, value, ""),
+                                "",
+                                "" + j)
+                        );
+                    }
+                } else {
+                    String value = authFillElement.getAsString();
+                    options.add(new Option(
+                            "",
+                            "",
+                            new Text("", value, value, ""),
+                            "",
+                            "" + i)
+                    );
+                }
+            }
+        }
+
+        question.getOptionList().clear();
+        question.getOptionList().addAll(options);
     }
 
 }

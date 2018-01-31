@@ -21,6 +21,7 @@ import io.reactivex.functions.Function;
  * Created by muthuveerappans on 10/30/17.
  */
 
+@Deprecated
 public class SurveyInfoFile extends InfoFileBase {
     private final int version = Constants.Versions.SURVEY_INFO_VERSION;
 

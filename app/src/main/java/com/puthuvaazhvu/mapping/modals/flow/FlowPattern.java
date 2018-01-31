@@ -10,6 +10,7 @@ import com.puthuvaazhvu.mapping.modals.BaseObject;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  * Created by muthuveerappans on 9/26/17.
@@ -20,28 +21,15 @@ public class FlowPattern extends BaseObject implements Parcelable {
     private final QuestionFlow questionFlow;
     private final AnswerFlow answerFlow;
     private final ChildFlow childFlow;
-    private final PostFlow postFlow;
+    private final ArrayList<String> postFlow;
     private final ExitFlow exitFlow;
     private JsonObject jsonObject;
-
-    public FlowPattern(PreFlow preFlow
-            , QuestionFlow questionFlow
-            , AnswerFlow answerFlow
-            , ChildFlow childFlow
-            , PostFlow postFlow
-            , ExitFlow exitFlow) {
-        this.preFlow = preFlow;
-        this.questionFlow = questionFlow;
-        this.answerFlow = answerFlow;
-        this.childFlow = childFlow;
-        this.postFlow = postFlow;
-        this.exitFlow = exitFlow;
-    }
 
     public FlowPattern(JsonObject jsonObject) {
         this.jsonObject = jsonObject;
 
         JsonObject preJson = JsonHelper.getJsonObject(jsonObject, "pre");
+        JsonArray postJson = JsonHelper.getJsonArray(jsonObject, "post");
         JsonObject questionJson = JsonHelper.getJsonObject(jsonObject, "question");
         JsonObject answerJson = JsonHelper.getJsonObject(jsonObject, "answer");
         JsonObject childJson = JsonHelper.getJsonObject(jsonObject, "child");
@@ -52,8 +40,13 @@ public class FlowPattern extends BaseObject implements Parcelable {
             this.preFlow = new PreFlow(preJson);
         else this.preFlow = null;
 
-        // TODO: Do post flow
-        this.postFlow = null;
+//        if (postJson != null)
+//            this.postFlow = new PostFlow(preJson);
+//        else this.postFlow = null;
+
+        if (postJson != null)
+            postFlow = (JsonHelper.getStringArray(postJson));
+        else postFlow = null;
 
         if (questionJson != null)
             this.questionFlow = new QuestionFlow(questionJson);
@@ -88,7 +81,7 @@ public class FlowPattern extends BaseObject implements Parcelable {
         return childFlow;
     }
 
-    public PostFlow getPostFlow() {
+    public ArrayList<String> getPostFlow() {
         return postFlow;
     }
 
@@ -107,7 +100,7 @@ public class FlowPattern extends BaseObject implements Parcelable {
         dest.writeParcelable(this.questionFlow, flags);
         dest.writeParcelable(this.answerFlow, flags);
         dest.writeParcelable(this.childFlow, flags);
-        dest.writeParcelable(this.postFlow, flags);
+        dest.writeStringList(this.postFlow);
         dest.writeParcelable(this.exitFlow, flags);
     }
 
@@ -116,7 +109,7 @@ public class FlowPattern extends BaseObject implements Parcelable {
         this.questionFlow = in.readParcelable(QuestionFlow.class.getClassLoader());
         this.answerFlow = in.readParcelable(AnswerFlow.class.getClassLoader());
         this.childFlow = in.readParcelable(ChildFlow.class.getClassLoader());
-        this.postFlow = in.readParcelable(PostFlow.class.getClassLoader());
+        this.postFlow = in.createStringArrayList();
         this.exitFlow = in.readParcelable(ExitFlow.class.getClassLoader());
     }
 

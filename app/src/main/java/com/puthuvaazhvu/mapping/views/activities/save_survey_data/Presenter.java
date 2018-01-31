@@ -7,14 +7,13 @@ import android.os.Looper;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.SurveyInfo;
 import com.puthuvaazhvu.mapping.network.APIError;
-import com.puthuvaazhvu.mapping.network.APIs;
+import com.puthuvaazhvu.mapping.network.APIUtils;
 import com.puthuvaazhvu.mapping.network.implementations.ListSurveysAPI;
 import com.puthuvaazhvu.mapping.network.implementations.SingleSurveyAPI;
 import com.puthuvaazhvu.mapping.utils.DataFileHelpers;
 import com.puthuvaazhvu.mapping.utils.Optional;
 import com.puthuvaazhvu.mapping.utils.info_file.SurveyInfoFile;
 import com.puthuvaazhvu.mapping.utils.info_file.modals.DataModal;
-import com.puthuvaazhvu.mapping.utils.info_file.modals.SurveyInfoFileDataModal;
 import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
 import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
 
@@ -50,8 +49,8 @@ public class Presenter implements Contract.UserAction {
     public Presenter(SharedPreferences sharedPreferences, Contract.View view) {
         saveToFile = SaveToFile.getInstance();
 
-        surveysAPI = ListSurveysAPI.getInstance(APIs.getAuth(sharedPreferences));
-        singleSurveyAPI = SingleSurveyAPI.getInstance(APIs.getAuth(sharedPreferences));
+        surveysAPI = ListSurveysAPI.getInstance(APIUtils.getAuth(sharedPreferences));
+        singleSurveyAPI = SingleSurveyAPI.getInstance(APIUtils.getAuth(sharedPreferences));
 
         this.viewCallbacks = view;
 

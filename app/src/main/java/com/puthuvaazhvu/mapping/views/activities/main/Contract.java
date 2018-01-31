@@ -69,12 +69,7 @@ public interface Contract {
 
         void finishCurrent(Question question);
 
-        /**
-         * Helper to update the given question with the updated answer data.
-         *
-         * @param currentQuestion
-         */
-        void updateCurrentQuestion(Question currentQuestion, ArrayList<Option> response, Runnable runnable);
+        void updateCurrentQuestion(ArrayList<Option> response, Runnable runnable);
 
         /**
          * Set the current question for the pointer to point to. This will be shown in the UI.

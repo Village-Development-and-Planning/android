@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
  * Created by muthuveerappans on 10/30/17.
  */
 
+
+@Deprecated
 public class PrefsStorage {
     public static PrefsStorage prefsStorage;
 

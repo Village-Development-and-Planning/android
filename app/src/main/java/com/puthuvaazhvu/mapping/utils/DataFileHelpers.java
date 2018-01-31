@@ -31,6 +31,7 @@ import timber.log.Timber;
  * Created by muthuveerappans on 10/19/17.
  */
 
+@Deprecated
 public class DataFileHelpers {
 
 //    public static Single<Optional> dumpSurvey(

@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
 import com.puthuvaazhvu.mapping.views.activities.save_survey_data.SurveyInfoData;
 
+@Deprecated
 public class DataModal {
     private final String _id;
     private final String survey_name;

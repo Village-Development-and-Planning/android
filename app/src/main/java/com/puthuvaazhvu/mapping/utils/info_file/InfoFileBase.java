@@ -28,6 +28,7 @@ import io.reactivex.functions.Function;
  * Created by muthuveerappans on 10/31/17.
  */
 
+@Deprecated
 public abstract class InfoFileBase {
     protected final GetFromFile getFromFile;
     protected final SaveToFile saveToFile;

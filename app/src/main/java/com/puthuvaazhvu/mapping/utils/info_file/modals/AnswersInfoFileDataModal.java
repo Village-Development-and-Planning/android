@@ -36,6 +36,7 @@ import java.util.List;
 
  */
 
+@Deprecated
 public class AnswersInfoFileDataModal {
     private List<AnswerDataModal> answerDataModals;
     private final int version;

@@ -13,6 +13,7 @@ import io.reactivex.annotations.NonNull;
  * Created by muthuveerappans on 11/20/17.
  */
 
+@Deprecated
 public class DeleteFile {
 
     public static Single<Optional> deleteFileObservable(final File file) {

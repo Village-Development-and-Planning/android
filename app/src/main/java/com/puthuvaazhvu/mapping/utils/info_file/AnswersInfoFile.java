@@ -31,6 +31,7 @@ import io.reactivex.functions.Function;
  * Created by muthuveerappans on 10/31/17.
  */
 
+@Deprecated
 public class AnswersInfoFile extends InfoFileBase {
     private final int version = Constants.Versions.ANSWERS_INFO_VERSION;
 

@@ -12,12 +12,13 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.Retrofit;
 
 /**
  * Created by muthuveerappans on 10/30/17.
  */
 
-public class ListSurveysAPI extends BaseAPI {
+public class ListSurveysAPI {
     public static ListSurveysAPI surveysAPI;
     private final ListSurveysClient client;
 
@@ -36,7 +37,9 @@ public class ListSurveysAPI extends BaseAPI {
 
     private ListSurveysAPI(String authToken) {
         super();
-        client = getRetrofit(authToken).create(ListSurveysClient.class);
+        NetworkAdapter adapter = NetworkAdapter.getInstance();
+        Retrofit retrofit = adapter.getUnsafeRetrofit(authToken);
+        client = retrofit.create(ListSurveysClient.class);
     }
 
     public void getSurveysList(final ListSurveysAPICallbacks callbacks) {

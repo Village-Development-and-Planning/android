@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.modals.SurveyInfo;
 import com.puthuvaazhvu.mapping.network.APIError;
 import com.puthuvaazhvu.mapping.network.ErrorUtils;
+import com.puthuvaazhvu.mapping.network.adapters.NetworkAdapter;
 import com.puthuvaazhvu.mapping.network.client_interfaces.ListSurveysClient;
 import com.puthuvaazhvu.mapping.network.client_interfaces.SingleSurveyClient;
 
@@ -23,13 +24,14 @@ import io.reactivex.annotations.NonNull;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.Retrofit;
 import timber.log.Timber;
 
 /**
  * Created by muthuveerappans on 10/30/17.
  */
 
-public class SingleSurveyAPI extends BaseAPI {
+public class SingleSurveyAPI {
     public static SingleSurveyAPI singleSurveyAPI;
     private final SingleSurveyClient client;
 
@@ -48,7 +50,9 @@ public class SingleSurveyAPI extends BaseAPI {
 
     private SingleSurveyAPI(String authToken) {
         super();
-        client = getRetrofit(authToken).create(SingleSurveyClient.class);
+        NetworkAdapter adapter = NetworkAdapter.getInstance();
+        Retrofit retrofit = adapter.getUnsafeRetrofit(authToken);
+        client = retrofit.create(SingleSurveyClient.class);
     }
 
     public void getSurvey(String surveyID, final SingleSurveyAPICallbacks singleSurveyAPICallbacks) {

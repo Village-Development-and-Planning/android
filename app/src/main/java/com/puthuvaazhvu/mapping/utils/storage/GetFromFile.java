@@ -24,6 +24,7 @@ import timber.log.Timber;
  * Created by muthuveerappans on 10/30/17.
  */
 
+@Deprecated
 public class GetFromFile {
     public interface GetFromFilesCallbacks {
         void onFileContentsLoaded(String contents);

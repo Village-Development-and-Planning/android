@@ -31,19 +31,4 @@ public class SurveyUtils {
                     }
                 });
     }
-
-    public static boolean fillOptionsForQuestion(Question question, final String fillTag, ArrayList<Option> options) {
-        Question result = QuestionUtils.findQuestionInTreeWithPredicate(question,
-                new QuestionUtils.QuestionTreeSearchPredicate() {
-                    @Override
-                    public boolean evaluate(Question question) {
-                        return QuestionUtils.containsPreFlowTag(question, fillTag);
-                    }
-                });
-        if (result == null) {
-            return false;
-        }
-        result.setOptionList(options);
-        return true;
-    }
 }

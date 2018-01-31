@@ -21,7 +21,7 @@ import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.application.MappingApplication;
 import com.puthuvaazhvu.mapping.data.SurveyDataRepository;
 import com.puthuvaazhvu.mapping.modals.Survey;
-import com.puthuvaazhvu.mapping.network.APIs;
+import com.puthuvaazhvu.mapping.network.APIUtils;
 import com.puthuvaazhvu.mapping.network.implementations.SingleSurveyAPI;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.DataFileHelpers;
@@ -94,7 +94,7 @@ public class SurveyListActivity extends MenuActivity
         SurveyInfoFile surveyInfoFile = new SurveyInfoFile(GetFromFile.getInstance(), SaveToFile.getInstance());
         AnswersInfoFile answersInfoFile = new AnswersInfoFile(GetFromFile.getInstance(), SaveToFile.getInstance());
         GetFromFile getFromFile = GetFromFile.getInstance();
-        SingleSurveyAPI singleSurveyAPI = SingleSurveyAPI.getInstance(APIs.getAuth(sharedPreferences));
+        SingleSurveyAPI singleSurveyAPI = SingleSurveyAPI.getInstance(APIUtils.getAuth(sharedPreferences));
         String optionsJson = Utils.readFromAssetsFile(this, "options_fill.json");
         SurveyDataRepository surveyDataRepository = SurveyDataRepository.getInstance(getFromFile
                 , sharedPreferences, singleSurveyAPI, optionsJson);
