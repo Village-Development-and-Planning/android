@@ -48,11 +48,6 @@ public interface Contract {
 
         void setCurrent(Question question);
 
-        /**
-         * Get's the survey from the {@link com.puthuvaazhvu.mapping.data.SurveyDataRepository}
-         */
-        void loadSurvey(String surveyID);
-
         void showCurrent();
 
         /**
@@ -78,6 +73,6 @@ public interface Contract {
          */
         void moveToQuestionAt(int index);
 
-        void dumpSurveyToFile(boolean isSurveyOver, boolean isSnapshotIncomplete);
+        void dumpSurveyToFile(boolean isSurveyOver);
     }
 }

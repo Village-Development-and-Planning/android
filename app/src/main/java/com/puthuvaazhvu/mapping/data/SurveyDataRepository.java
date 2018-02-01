@@ -2,62 +2,76 @@ package com.puthuvaazhvu.mapping.data;
 
 import android.content.SharedPreferences;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Survey;
+import com.puthuvaazhvu.mapping.modals.SurveyAPIInfo;
 import com.puthuvaazhvu.mapping.modals.utils.SurveyUtils;
+import com.puthuvaazhvu.mapping.network.APIError;
+import com.puthuvaazhvu.mapping.network.APIUtils;
+import com.puthuvaazhvu.mapping.network.implementations.ListSurveysAPI;
 import com.puthuvaazhvu.mapping.network.implementations.SingleSurveyAPI;
-import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
+import com.puthuvaazhvu.mapping.utils.FileUtils;
+import com.puthuvaazhvu.mapping.utils.saving.AnswerIOUtils;
+import com.puthuvaazhvu.mapping.utils.saving.SurveyIOUtils;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Map;
+import java.util.List;
 
-import io.reactivex.Single;
-import io.reactivex.SingleSource;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.ObservableSource;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Function;
-import timber.log.Timber;
 
 /**
- * Created by muthuveerappans on 11/23/17.
+ * Created by muthuveerappans on 01/02/18.
  */
 
-@Deprecated
-public class SurveyDataRepository extends DataRepository {
+public class SurveyDataRepository {
     private static SurveyDataRepository surveyDataRepository;
+    private final SingleSurveyAPI singleSurveyAPI;
+    private final ListSurveysAPI listSurveysAPI;
+    private final AnswerIOUtils answerIOUtils;
+    private final SurveyIOUtils surveyIOUtils;
 
-    public static SurveyDataRepository getInstance(
-            GetFromFile getFromFile,
-            SharedPreferences sharedPreferences,
-            SingleSurveyAPI singleSurveyAPI,
-            String optionsFillJson
-    ) {
+    public static SurveyDataRepository getInstance(SharedPreferences sharedPreferences) {
         if (surveyDataRepository == null) {
-            surveyDataRepository = new SurveyDataRepository(getFromFile, sharedPreferences, singleSurveyAPI, optionsFillJson);
+            surveyDataRepository = new SurveyDataRepository(sharedPreferences);
         }
         return surveyDataRepository;
     }
 
-    private final SingleSurveyAPI singleSurveyAPI;
-    private final String optionsFillJson;
-
-    private SurveyDataRepository(
-            GetFromFile getFromFile,
-            SharedPreferences sharedPreferences,
-            SingleSurveyAPI singleSurveyAPI,
-            String optionsFillJson
-    ) {
-        super(getFromFile, sharedPreferences);
-
-        this.singleSurveyAPI = singleSurveyAPI;
-        this.optionsFillJson = optionsFillJson;
+    private SurveyDataRepository(SharedPreferences sharedPreferences) {
+        singleSurveyAPI = SingleSurveyAPI.getInstance(APIUtils.getAuth(sharedPreferences));
+        surveyIOUtils = SurveyIOUtils.getInstance();
+        listSurveysAPI = ListSurveysAPI.getInstance(APIUtils.getAuth(sharedPreferences));
+        answerIOUtils = AnswerIOUtils.getInstance();
     }
 
-    public Single<Survey> getSurveyFromAPI(String surveyID) {
+    public Observable<List<SurveyAPIInfo>> getSurveysFromAPI() {
+        return Observable.create(new ObservableOnSubscribe<List<SurveyAPIInfo>>() {
+            @Override
+            public void subscribe(final ObservableEmitter<List<SurveyAPIInfo>> emitter) throws Exception {
+                listSurveysAPI.getSurveysList(new ListSurveysAPI.ListSurveysAPICallbacks() {
+                    @Override
+                    public void onSurveysLoaded(List<SurveyAPIInfo> surveyInfoList) {
+                        emitter.onNext(surveyInfoList);
+                        emitter.onComplete();
+                    }
+
+                    @Override
+                    public void onErrorOccurred(APIError error) {
+                        emitter.onError(new Throwable(error.message()));
+                    }
+                });
+            }
+        });
+    }
+
+    public Observable<Survey> getSurveyFromAPI(String surveyID) {
         return singleSurveyAPI.getSurvey(surveyID)
                 .map(new Function<String, Survey>() {
                     @Override
@@ -67,87 +81,47 @@ public class SurveyDataRepository extends DataRepository {
 
                         return new Survey(surveyJsonObject);
                     }
-                })
-                .map(new Function<Survey, Survey>() {
-                    @Override
-                    public Survey apply(@NonNull Survey survey) throws Exception {
-                        //return fillWithDynamicOptions(survey, optionsFillJson);
-                        return survey;
-                    }
                 });
     }
 
-    public Single<Survey> getSurveyFromFileAndUpdateWithAnswers(File answerFile) {
+    public Observable<Survey> getSurveyFromFile(String id, String snapshotPath, String snapShotFileName) {
+        if (snapshotPath != null) {
 
-        return getFromFile.execute(answerFile)
-                .flatMap(new Function<String, SingleSource<? extends Survey>>() {
-                    @Override
-                    public SingleSource<? extends Survey> apply(@NonNull String surveyJsonString) throws Exception {
-                        JsonParser jsonParser = new JsonParser();
-                        JsonObject surveyJsonWithAnswers = jsonParser.parse(surveyJsonString).getAsJsonObject();
-                        // Survey survey = new Survey(surveyJsonWithAnswers);
-                        return SurveyUtils.getSurveyWithUpdatedAnswers(surveyJsonWithAnswers);
-                    }
-                })
-                .map(new Function<Survey, Survey>() {
-                    @Override
-                    public Survey apply(@NonNull Survey survey) throws Exception {
-                        //return fillWithDynamicOptions(survey, optionsFillJson);
-                        return survey;
-                    }
-                });
+            // get from answers dir
+            return FileUtils.
+                    readFromPath(answerIOUtils.getRelativePathToAnswersDir()
+                            + File.separator + snapShotFileName)
+                    .flatMap(new Function<String, ObservableSource<Survey>>() {
+                        @Override
+                        public ObservableSource<Survey> apply(String s) throws Exception {
+                            JsonParser jsonParser = new JsonParser();
+                            JsonElement jsonElement = jsonParser.parse(s);
+
+                            if (jsonElement != null)
+                                return SurveyUtils.getSurveyWithUpdatedAnswers(jsonElement.getAsJsonObject());
+                            else
+                                throw new IllegalArgumentException("Error parsing the survey json.");
+                        }
+                    });
+
+        } else {
+
+            // get from the survey dir
+            return FileUtils.
+                    readFromPath(surveyIOUtils.getRelativePathToSurveysDir() + File.separator + id)
+                    .map(new Function<String, Survey>() {
+                        @Override
+                        public Survey apply(String s) throws Exception {
+                            JsonParser jsonParser = new JsonParser();
+                            JsonElement jsonElement = jsonParser.parse(s);
+
+                            if (jsonElement != null)
+                                return new Survey(jsonElement.getAsJsonObject());
+                            else
+                                throw new IllegalArgumentException("Error parsing the survey json.");
+                        }
+                    });
+        }
     }
 
-    public Single<Survey> getSurveyFromFile(File file) {
-        return getDataFromFile(file)
-                .map(new Function<String, Survey>() {
-                         @Override
-                         public Survey apply(@NonNull String s) throws Exception {
-                             JsonParser parser = new JsonParser();
-                             JsonObject surveyJsonObject = parser.parse(s).getAsJsonObject();
-
-                             return new Survey(surveyJsonObject);
-                         }
-                     }
-                )
-                .map(new Function<Survey, Survey>() {
-                    @Override
-                    public Survey apply(@NonNull Survey survey) throws Exception {
-                        //return fillWithDynamicOptions(survey, optionsFillJson);
-                        return survey;
-                    }
-                });
-    }
-
-//    private static Survey fillWithDynamicOptions(Survey survey, String optionsFillJson) throws Exception {
-//        //String optionsFillJson = Utils.readFromAssetsFile(context, "options_fill.json");
-//
-//        if (optionsFillJson == null) {
-//            Timber.e("Dynamic fill options could'nt be added as the options are null.");
-//            throw new Exception("Dynamic fill options could'nt be added as the options are null.");
-//        }
-//
-//        JsonParser jsonParser = new JsonParser();
-//        JsonObject rootJson = jsonParser.parse(optionsFillJson).getAsJsonObject();
-//
-//        // iterate over the elements
-//        for (Map.Entry<String, JsonElement> entry : rootJson.entrySet()) {
-//            String fillTag = entry.getKey();
-//            JsonArray optionsArray = entry.getValue().getAsJsonArray();
-//
-//            ArrayList<Option> options = new ArrayList<>();
-//
-//            for (JsonElement optionElement : optionsArray) {
-//                options.add(new Option(optionElement.getAsJsonObject()));
-//            }
-//
-//            boolean result = SurveyUtils.fillOptionsForQuestion(survey.getRootQuestion(), fillTag, options);
-//
-//            if (!result) {
-//                Timber.e("Dynamic fill options could'nt be added at " + fillTag);
-//            }
-//        }
-//
-//        return survey;
-//    }
 }

@@ -2,13 +2,8 @@ package com.puthuvaazhvu.mapping.network.implementations;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.puthuvaazhvu.mapping.modals.SurveyInfo;
-import com.puthuvaazhvu.mapping.network.APIError;
 import com.puthuvaazhvu.mapping.network.adapters.NetworkAdapter;
 import com.puthuvaazhvu.mapping.network.client_interfaces.AuthClient;
-import com.puthuvaazhvu.mapping.network.client_interfaces.ListSurveysClient;
-
-import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;

@@ -28,7 +28,7 @@ import io.reactivex.functions.Function;
  */
 
 public class Survey extends BaseObject implements Parcelable {
-    private final String id;
+    private String id;
     private final String name;
     private final String description;
     private final Question rootQuestion;
@@ -57,19 +57,9 @@ public class Survey extends BaseObject implements Parcelable {
         }
     }
 
-//    public static Single<Survey> getSurveyWithUpdatedAnswers(final JsonObject surveyJson) {
-//        return Single.just(new Survey(surveyJson))
-//                .map(new Function<Survey, Survey>() {
-//                    @Override
-//                    public Survey apply(@NonNull Survey survey) throws Exception {
-//                        JsonObject questionJson = JsonHelper.getJsonObject(surveyJson, "question");
-//                        if (questionJson != null) {
-//                            Question.populateAnswersInternal(survey.getRootQuestion(), questionJson);
-//                        }
-//                        return survey;
-//                    }
-//                });
-//    }
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getId() {
         return id;

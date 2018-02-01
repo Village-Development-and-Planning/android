@@ -8,6 +8,7 @@ import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.views.fragments.options.CheckBoxOptionsAsListUI;
 import com.puthuvaazhvu.mapping.views.fragments.options.DummyOptionsWithValidDataUI;
 import com.puthuvaazhvu.mapping.views.fragments.options.GPSOptionsUI;
+import com.puthuvaazhvu.mapping.views.fragments.options.InfoOptionsUI;
 import com.puthuvaazhvu.mapping.views.fragments.options.InputOptionsUI;
 import com.puthuvaazhvu.mapping.views.fragments.options.RadioButtonOptionsAsListUI;
 import com.puthuvaazhvu.mapping.views.fragments.options.modals.CheckableOptionsAsListUIData;
@@ -46,5 +47,9 @@ public class OptionsUIFactory {
 
     public DummyOptionsWithValidDataUI createDummyOptionsUI() {
         return new DummyOptionsWithValidDataUI(frame, context, QuestionUtils.getTextString(question), question);
+    }
+
+    public InfoOptionsUI createInfoOptionsUI() {
+        return new InfoOptionsUI(frame, context, question);
     }
 }

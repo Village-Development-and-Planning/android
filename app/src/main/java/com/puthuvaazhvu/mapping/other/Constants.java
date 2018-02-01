@@ -6,7 +6,7 @@ package com.puthuvaazhvu.mapping.other;
 
 public class Constants {
     public static String LOG_TAG = "mapping.logs";
-    public static Language APP_LANGUAGE = Language.ENGLISH;
+    public static Language APP_LANGUAGE = Language.TAMIL;
     public static String DATA_DIR = "com.puthuvaazhvu.mapping.data";
     public static String PREFS = "com.puthuvaazhvu.mapping.prefs";
     public static String SURVEY_DATA_DIR = "surveys";

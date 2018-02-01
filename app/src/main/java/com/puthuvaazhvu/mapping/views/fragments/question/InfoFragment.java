@@ -15,7 +15,6 @@ import com.puthuvaazhvu.mapping.views.fragments.options.factory.OptionsUIFactory
  * Created by muthuveerappans on 10/10/17.
  */
 
-//Todo:
 public class InfoFragment extends SingleQuestionFragmentBase implements View.OnClickListener {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

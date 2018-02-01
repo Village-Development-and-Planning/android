@@ -1,6 +1,6 @@
 package com.puthuvaazhvu.mapping.network.implementations;
 
-import com.puthuvaazhvu.mapping.modals.SurveyInfo;
+import com.puthuvaazhvu.mapping.modals.SurveyAPIInfo;
 import com.puthuvaazhvu.mapping.network.APIError;
 import com.puthuvaazhvu.mapping.network.ErrorUtils;
 import com.puthuvaazhvu.mapping.network.adapters.NetworkAdapter;
@@ -23,7 +23,7 @@ public class ListSurveysAPI {
     private final ListSurveysClient client;
 
     public interface ListSurveysAPICallbacks {
-        void onSurveysLoaded(List<SurveyInfo> surveyInfoList);
+        void onSurveysLoaded(List<SurveyAPIInfo> surveyInfoList);
 
         void onErrorOccurred(APIError error);
     }
@@ -44,19 +44,19 @@ public class ListSurveysAPI {
 
     public void getSurveysList(final ListSurveysAPICallbacks callbacks) {
 
-        Call<List<SurveyInfo>> call = client.getSurveyList();
+        Call<List<SurveyAPIInfo>> call = client.getSurveyList();
 
-        call.enqueue(new Callback<List<SurveyInfo>>() {
+        call.enqueue(new Callback<List<SurveyAPIInfo>>() {
             @Override
-            public void onResponse(Call<List<SurveyInfo>> call, Response<List<SurveyInfo>> response) {
+            public void onResponse(Call<List<SurveyAPIInfo>> call, Response<List<SurveyAPIInfo>> response) {
                 if (response.isSuccessful()) {
 
-                    List<SurveyInfo> surveyInfoList = response.body();
+                    List<SurveyAPIInfo> surveyInfoList = response.body();
 
-                    List<SurveyInfo> result = new ArrayList<>();
+                    List<SurveyAPIInfo> result = new ArrayList<>();
 
                     // filter for disabled surveys
-                    for (SurveyInfo surveyInfo : surveyInfoList) {
+                    for (SurveyAPIInfo surveyInfo : surveyInfoList) {
                         if (surveyInfo.isEnabled()) {
                             result.add(surveyInfo);
                         }
@@ -69,7 +69,7 @@ public class ListSurveysAPI {
             }
 
             @Override
-            public void onFailure(Call<List<SurveyInfo>> call, Throwable t) {
+            public void onFailure(Call<List<SurveyAPIInfo>> call, Throwable t) {
                 callbacks.onErrorOccurred(ErrorUtils.parseError(t));
             }
         });

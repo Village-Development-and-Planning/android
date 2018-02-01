@@ -2,32 +2,24 @@ package com.puthuvaazhvu.mapping.views.activities.main;
 
 import android.content.SharedPreferences;
 import android.os.Handler;
-import android.support.annotation.VisibleForTesting;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.application.MappingApplication;
-import com.puthuvaazhvu.mapping.data.SurveyDataRepository;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.modals.Text;
-import com.puthuvaazhvu.mapping.modals.flow.PostFlow;
 import com.puthuvaazhvu.mapping.modals.flow.PreFlow;
 import com.puthuvaazhvu.mapping.modals.utils.AuthJsonUtils;
 import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.other.Constants;
-import com.puthuvaazhvu.mapping.other.dumpdata.DumpData;
-import com.puthuvaazhvu.mapping.utils.DataFileHelpers;
-import com.puthuvaazhvu.mapping.utils.Optional;
 import com.puthuvaazhvu.mapping.utils.SharedPreferenceUtils;
-import com.puthuvaazhvu.mapping.utils.info_file.AnswersInfoFile;
-import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
-import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
+import com.puthuvaazhvu.mapping.utils.saving.AnswerIOUtils;
+import com.puthuvaazhvu.mapping.utils.saving.modals.AnswersInfo;
 import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogic;
 import com.puthuvaazhvu.mapping.views.fragments.question.ConformationQuestionFragment;
 import com.puthuvaazhvu.mapping.views.fragments.question.GPSQuestionFragment;
@@ -37,11 +29,9 @@ import com.puthuvaazhvu.mapping.views.fragments.question.MessageQuestionFragment
 import com.puthuvaazhvu.mapping.views.fragments.question.ShownTogetherFragment;
 import com.puthuvaazhvu.mapping.views.fragments.question.SingleQuestionFragment;
 
-import java.io.File;
 import java.util.ArrayList;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
@@ -52,7 +42,6 @@ import timber.log.Timber;
 
 public class MainPresenter implements Contract.UserAction {
     private final Contract.View activityView;
-    private final SurveyDataRepository dataRepository;
 
     private FlowLogic flowLogic;
 
@@ -60,29 +49,29 @@ public class MainPresenter implements Contract.UserAction {
 
     private final Handler uiHandler;
 
-    private final SaveToFile saveToFile;
-    private final GetFromFile getFromFile;
-
-    private final AnswersInfoFile answersInfoFile;
+//    private final SaveToFile saveToFile;
+//    private final GetFromFile getFromFile;
+//
+//    private final AnswersInfoFile answersInfoFile;
 
     private final SharedPreferences sharedPreferences;
 
+    private AnswerIOUtils saveAnswerUtils;
+
     public MainPresenter(
             Contract.View activityView,
-            SurveyDataRepository dataRepository,
             Handler uiHandler,
-            SaveToFile saveToFile,
-            GetFromFile getFromFile,
             SharedPreferences sharedPreferences
     ) {
         this.activityView = activityView;
-        this.dataRepository = dataRepository;
         this.uiHandler = uiHandler;
-        this.saveToFile = saveToFile;
-        this.getFromFile = getFromFile;
-        this.answersInfoFile = new AnswersInfoFile(getFromFile, saveToFile);
+//        this.saveToFile = saveToFile;
+//        this.getFromFile = getFromFile;
+//        this.answersInfoFile = new AnswersInfoFile(getFromFile, saveToFile);
 
         this.sharedPreferences = sharedPreferences;
+
+        this.saveAnswerUtils = AnswerIOUtils.getInstance();
     }
 
     @Override
@@ -100,29 +89,29 @@ public class MainPresenter implements Contract.UserAction {
         flowLogic.setCurrent(question, FlowLogic.FlowData.FlowUIType.DEFAULT);
     }
 
-    @Override
-    public void loadSurvey(final String surveyID) {
-
-        activityView.showLoading(R.string.loading);
-
-        File file = DataFileHelpers.getSurveyDataFile(surveyID, true);
-
-        if (file != null && file.exists()) {
-            dataRepository.getSurveyFromFile(file)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Consumer<Survey>() {
-                        @Override
-                        public void accept(@NonNull Survey survey) throws Exception {
-                            activityView.hideLoading();
-                            activityView.onSurveyLoaded(survey);
-                        }
-                    });
-        } else {
-            activityView.hideLoading();
-            activityView.onError(R.string.file_not_exist);
-        }
-    }
+//    @Override
+//    public void loadSurvey(final String surveyID) {
+//
+//        activityView.showLoading(R.string.loading);
+//
+//        File file = DataFileHelpers.getSurveyDataFile(surveyID, true);
+//
+//        if (file != null && file.exists()) {
+//            dataRepository.getSurveyData(file)
+//                    .subscribeOn(Schedulers.io())
+//                    .observeOn(AndroidSchedulers.mainThread())
+//                    .subscribe(new Consumer<Survey>() {
+//                        @Override
+//                        public void accept(@NonNull Survey survey) throws Exception {
+//                            activityView.hideLoading();
+//                            activityView.onSurveyLoaded(survey);
+//                        }
+//                    });
+//        } else {
+//            activityView.hideLoading();
+//            activityView.onError(R.string.file_not_exist);
+//        }
+//    }
 
     @Override
     public void initData(Survey survey, FlowLogic flowLogic) {
@@ -155,44 +144,66 @@ public class MainPresenter implements Contract.UserAction {
     }
 
     @Override
-    public void dumpSurveyToFile(final boolean isSurveyDone, boolean isSnapshotIncomplete) {
+    public void dumpSurveyToFile(final boolean isSurveyDone) {
 
         activityView.showLoading(R.string.survey_file_saving_msg);
-
-        DumpData.getInstance().dumpSurvey(
-                survey,
-                "" + System.currentTimeMillis(),
-                getPathOfCurrentQuestion(),
-                isSnapshotIncomplete,
-                isSurveyDone
-        )
+        saveAnswerUtils.saveAnswer(survey, flowLogic.getCurrent().question, isSurveyDone)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<Optional>() {
-                               @Override
-                               public void accept(@NonNull Optional optional) throws Exception {
-                                   activityView.onSurveySaved(survey);
-                                   activityView.hideLoading();
-                                   activityView.showMessage(R.string.save_successful);
+                .subscribe(new Consumer<AnswersInfo>() {
+                    @Override
+                    public void accept(AnswersInfo answersInfo) throws Exception {
+                        activityView.onSurveySaved(survey);
+                        activityView.hideLoading();
+                        activityView.showMessage(R.string.save_successful);
 
-                                   if (isSurveyDone) {
-                                       activityView.openListOfSurveysActivity();
-                                   }
-                               }
-                           },
-                        new Consumer<Throwable>() {
-                            @Override
-                            public void accept(@NonNull Throwable throwable) throws Exception {
-                                String errorMessage = "Error while saving file: " + throwable.getMessage();
-                                Timber.e(errorMessage);
-                                activityView.hideLoading();
-                                activityView.onError(R.string.error_saving_survey);
-
-                                // send report to fabric.io
-                                Crashlytics.logException(new Exception(errorMessage));
-                            }
+                        if (isSurveyDone) {
+                            activityView.openListOfSurveysActivity();
                         }
-                );
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        String errorMessage = "Error while saving file: " + throwable.getMessage();
+                        Timber.e(errorMessage);
+                        activityView.hideLoading();
+                        activityView.onError(R.string.error_saving_survey);
+                    }
+                });
+//        DumpData.getInstance().dumpSurvey(
+//                survey,
+//                "" + System.currentTimeMillis(),
+//                getPathOfCurrentQuestion(),
+//                isSnapshotIncomplete,
+//                isSurveyDone
+//        )
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(new Consumer<Optional>() {
+//                               @Override
+//                               public void accept(@NonNull Optional optional) throws Exception {
+//                                   activityView.onSurveySaved(survey);
+//                                   activityView.hideLoading();
+//                                   activityView.showMessage(R.string.save_successful);
+//
+//                                   if (isSurveyDone) {
+//                                       activityView.openListOfSurveysActivity();
+//                                   }
+//                               }
+//                           },
+//                        new Consumer<Throwable>() {
+//                            @Override
+//                            public void accept(@NonNull Throwable throwable) throws Exception {
+//                                String errorMessage = "Error while saving file: " + throwable.getMessage();
+//                                Timber.e(errorMessage);
+//                                activityView.hideLoading();
+//                                activityView.onError(R.string.error_saving_survey);
+//
+//                                // send report to fabric.io
+//                                Crashlytics.logException(new Exception(errorMessage));
+//                            }
+//                        }
+//                );
     }
 
     @Override
@@ -231,7 +242,8 @@ public class MainPresenter implements Contract.UserAction {
 
         FlowLogic.FlowData data = flowLogic.getNext();
 
-        preFlow(data.question);
+        if (data.question != null)
+            preFlow(data.question);
 
         showUI(data);
     }
@@ -262,6 +274,7 @@ public class MainPresenter implements Contract.UserAction {
     }
 
     private void showSingleQuestionUI(Question question) {
+
         Fragment fragment = null;
         String tag = "";
         // check and show UI accordingly
@@ -328,6 +341,8 @@ public class MainPresenter implements Contract.UserAction {
     }
 
     private void preFlow(Question question) {
+        if (question == null) return;
+
         JsonObject authJson = MappingApplication.globalContext.getApplicationData().getAuthJson();
 
         PreFlow preFlow = question.getFlowPattern().getPreFlow();

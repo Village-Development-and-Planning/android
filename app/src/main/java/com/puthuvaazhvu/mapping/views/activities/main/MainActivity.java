@@ -14,7 +14,6 @@ import android.view.View;
 import com.google.gson.JsonParser;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.application.MappingApplication;
-import com.puthuvaazhvu.mapping.data.SurveyDataRepository;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
@@ -24,9 +23,6 @@ import com.puthuvaazhvu.mapping.other.Config;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.other.RepeatingTask;
 import com.puthuvaazhvu.mapping.utils.Utils;
-import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
-import com.puthuvaazhvu.mapping.utils.storage.PrefsStorage;
-import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
 import com.puthuvaazhvu.mapping.views.activities.MenuActivity;
 import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListActivity;
 import com.puthuvaazhvu.mapping.views.dialogs.ProgressDialog;
@@ -72,8 +68,6 @@ public class MainActivity extends MenuActivity
 
     private ProgressDialog progressDialog;
 
-    private PrefsStorage prefsStorage;
-
     private boolean defaultBackPressed = false;
 
     private RepeatingTask repeatingTask;
@@ -98,20 +92,12 @@ public class MainActivity extends MenuActivity
         stackFragmentManagerReceiver = new StackFragmentManagerReceiver(getSupportFragmentManager(), R.id.container);
 
         SharedPreferences sharedPreferences = getSharedPreferences(Constants.PREFS, MODE_PRIVATE);
-        prefsStorage = PrefsStorage.getInstance(sharedPreferences);
 
         handler = new Handler(Looper.getMainLooper());
 
-        GetFromFile getFromFile = GetFromFile.getInstance();
-        SingleSurveyAPI singleSurveyAPI = SingleSurveyAPI.getInstance(APIUtils.getAuth(sharedPreferences));
-        String optionsJson = Utils.readFromAssetsFile(this, "options_fill.json");
-
         presenter = new MainPresenter(
                 this,
-                SurveyDataRepository.getInstance(getFromFile, sharedPreferences, singleSurveyAPI, optionsJson),
                 handler,
-                SaveToFile.getInstance(),
-                GetFromFile.getInstance(),
                 sharedPreferences
         );
 
@@ -120,7 +106,7 @@ public class MainActivity extends MenuActivity
             public void run() {
                 if (dumpSurveyRepeatingTask) {
                     Timber.i("Automatic saving done.");
-                    presenter.dumpSurveyToFile(false, true);
+                    presenter.dumpSurveyToFile(false);
                 }
             }
         }, REPEATING_TASK_INTERVAL, true);
@@ -146,7 +132,7 @@ public class MainActivity extends MenuActivity
         switch (item.getItemId()) {
             case R.id.save:
                 Timber.i("save menu clicked");
-                presenter.dumpSurveyToFile(false, true);
+                presenter.dumpSurveyToFile(false);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -172,17 +158,15 @@ public class MainActivity extends MenuActivity
 
         Question root = survey.getRootQuestion();
 
-        if (MappingApplication.globalContext.getApplicationData().getSnapshotPath() != null) {
-            flowLogic = new FlowLogicImplementation(
-                    root,
-                    MappingApplication.globalContext.getApplicationData().getSnapshotPath()
-            );
-            presenter.initData(survey, flowLogic);
-            presenter.showCurrent();
-        } else {
-            flowLogic = new FlowLogicImplementation(root);
-            presenter.initData(survey, flowLogic);
+        flowLogic = new FlowLogicImplementation(root,
+                MappingApplication.globalContext.getApplicationData().getSurveySnapShotPath());
+        presenter.initData(survey, flowLogic);
+
+        if (MappingApplication.globalContext.getApplicationData().getSurveySnapShotPath() == null) {
+            // root question
             presenter.getNext();
+        } else {
+            presenter.showCurrent();
         }
     }
 
@@ -251,7 +235,7 @@ public class MainActivity extends MenuActivity
             Utils.showMessageToast("Survey is over", this);
             findViewById(R.id.container).setVisibility(View.GONE);
         } else
-            presenter.dumpSurveyToFile(true, false);
+            presenter.dumpSurveyToFile(true);
     }
 
     @Override
@@ -299,7 +283,7 @@ public class MainActivity extends MenuActivity
         handler.post(new Runnable() {
             @Override
             public void run() {
-                if (progressDialog.isVisible())
+                if (progressDialog.isVisible() || progressDialog.isAdded())
                     progressDialog.dismiss();
             }
         });

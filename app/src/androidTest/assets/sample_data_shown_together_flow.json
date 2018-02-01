@@ -1,0 +1,737 @@
+{
+  "_id": "59eadef25b146a66ce5aff0e",
+  "name": "mapping_csv",
+  "description": "mapping_csv",
+  "question": {
+    "type": "ROOT",
+    "options": [],
+    "children": [
+      {
+        "position": "7.2",
+        "question": {
+          "options": [],
+          "children": [
+            {
+              "position": "1",
+              "question": {
+                "options": [],
+                "children": [],
+                "text": {
+                  "english": "How many are smart phones?",
+                  "tamil": "????? ?????? ???????? ????????"
+                },
+                "type": "INPUT",
+                "tags": "NUMBER",
+                "number": "2.7.2.1",
+                "flow": {
+                  "_tags": {
+                    "NUMBER": "NUMBER"
+                  },
+                  "pre": {
+                    "fill": [],
+                    "skipUnless": {
+                      "question": "2.7.1.8",
+                      "option": "1"
+                    }
+                  },
+                  "question": {
+                    "ui": "INPUT",
+                    "validation": "[0-9]+"
+                  },
+                  "answer": {
+                    "scope": "once"
+                  },
+                  "child": {
+                    "strategy": "cascade"
+                  },
+                  "post": [],
+                  "exit": {
+                    "strategy": "parent"
+                  }
+                }
+              }
+            }
+          ],
+          "text": {
+            "english": "How many mobile phones?",
+            "tamil": "?????? ????????? ??????"
+          },
+          "type": "INPUT",
+          "tags": "NUMBER",
+          "number": "2.7.2",
+          "flow": {
+            "_tags": {
+              "NUMBER": "NUMBER"
+            },
+            "pre": {
+              "fill": [],
+              "skipUnless": {
+                "question": "2.7.1.8",
+                "option": "1"
+              }
+            },
+            "question": {
+              "ui": "INPUT",
+              "validation": "[0-9]+"
+            },
+            "answer": {
+              "scope": "once"
+            },
+            "child": {
+              "strategy": "cascade"
+            },
+            "post": [],
+            "exit": {
+              "strategy": "parent"
+            }
+          }
+        }
+      },
+      {
+        "position": "7.3",
+        "question": {
+          "options": [],
+          "children": [
+            {
+              "position": "1",
+              "question": {
+                "options": [
+                  {
+                    "position": "1",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "Yes",
+                        "tamil": "???  "
+                      }
+                    }
+                  },
+                  {
+                    "position": "0",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "No",
+                        "tamil": "?????"
+                      }
+                    }
+                  }
+                ],
+                "children": [],
+                "text": {
+                  "english": "Land",
+                  "tamil": "?????"
+                },
+                "type": "SINGLE_CHOICE",
+                "tags": "",
+                "number": "2.7.3.1",
+                "flow": {
+                  "pre": {
+                    "fill": []
+                  },
+                  "question": {
+                    "ui": "SINGLE_CHOICE",
+                    "validation": null
+                  },
+                  "answer": {
+                    "scope": "once"
+                  },
+                  "child": {
+                    "strategy": "cascade"
+                  },
+                  "post": [],
+                  "exit": {
+                    "strategy": "parent"
+                  }
+                }
+              }
+            },
+            {
+              "position": "2",
+              "question": {
+                "options": [
+                  {
+                    "position": "1",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "Yes",
+                        "tamil": "???  "
+                      }
+                    }
+                  },
+                  {
+                    "position": "0",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "No",
+                        "tamil": "?????"
+                      }
+                    }
+                  }
+                ],
+                "children": [],
+                "text": {
+                  "english": "House",
+                  "tamil": "????"
+                },
+                "type": "SINGLE_CHOICE",
+                "tags": "",
+                "number": "2.7.3.2",
+                "flow": {
+                  "pre": {
+                    "fill": []
+                  },
+                  "question": {
+                    "ui": "SINGLE_CHOICE",
+                    "validation": null
+                  },
+                  "answer": {
+                    "scope": "once"
+                  },
+                  "child": {
+                    "strategy": "cascade"
+                  },
+                  "post": [],
+                  "exit": {
+                    "strategy": "parent"
+                  }
+                }
+              }
+            },
+            {
+              "position": "3",
+              "question": {
+                "options": [
+                  {
+                    "position": "1",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "Yes",
+                        "tamil": "???  "
+                      }
+                    }
+                  },
+                  {
+                    "position": "0",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "No",
+                        "tamil": "?????"
+                      }
+                    }
+                  }
+                ],
+                "children": [],
+                "text": {
+                  "english": "Livestock (Cows/Goats)",
+                  "tamil": "?????????? (???????? ??????)"
+                },
+                "type": "SINGLE_CHOICE",
+                "tags": "",
+                "number": "2.7.3.3",
+                "flow": {
+                  "pre": {
+                    "fill": []
+                  },
+                  "question": {
+                    "ui": "SINGLE_CHOICE",
+                    "validation": null
+                  },
+                  "answer": {
+                    "scope": "once"
+                  },
+                  "child": {
+                    "strategy": "cascade"
+                  },
+                  "post": [],
+                  "exit": {
+                    "strategy": "parent"
+                  }
+                }
+              }
+            },
+            {
+              "position": "4",
+              "question": {
+                "options": [
+                  {
+                    "position": "1",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "Yes",
+                        "tamil": "???  "
+                      }
+                    }
+                  },
+                  {
+                    "position": "0",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "No",
+                        "tamil": "?????"
+                      }
+                    }
+                  }
+                ],
+                "children": [],
+                "text": {
+                  "english": "Poultry",
+                  "tamil": "???????"
+                },
+                "type": "SINGLE_CHOICE",
+                "tags": "",
+                "number": "2.7.3.4",
+                "flow": {
+                  "pre": {
+                    "fill": []
+                  },
+                  "question": {
+                    "ui": "SINGLE_CHOICE",
+                    "validation": null
+                  },
+                  "answer": {
+                    "scope": "once"
+                  },
+                  "child": {
+                    "strategy": "cascade"
+                  },
+                  "post": [],
+                  "exit": {
+                    "strategy": "parent"
+                  }
+                }
+              }
+            },
+            {
+              "position": "5",
+              "question": {
+                "options": [
+                  {
+                    "position": "1",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "Yes",
+                        "tamil": "???  "
+                      }
+                    }
+                  },
+                  {
+                    "position": "0",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "No",
+                        "tamil": "?????"
+                      }
+                    }
+                  }
+                ],
+                "children": [],
+                "text": {
+                  "english": "TV",
+                  "tamil": "??????????????????"
+                },
+                "type": "SINGLE_CHOICE",
+                "tags": "",
+                "number": "2.7.3.5",
+                "flow": {
+                  "pre": {
+                    "fill": []
+                  },
+                  "question": {
+                    "ui": "SINGLE_CHOICE",
+                    "validation": null
+                  },
+                  "answer": {
+                    "scope": "once"
+                  },
+                  "child": {
+                    "strategy": "cascade"
+                  },
+                  "post": [],
+                  "exit": {
+                    "strategy": "parent"
+                  }
+                }
+              }
+            },
+            {
+              "position": "6",
+              "question": {
+                "options": [
+                  {
+                    "position": "1",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "Yes",
+                        "tamil": "???  "
+                      }
+                    }
+                  },
+                  {
+                    "position": "0",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "No",
+                        "tamil": "?????"
+                      }
+                    }
+                  }
+                ],
+                "children": [],
+                "text": {
+                  "english": "Vehicles (Cycle, Bike, Car)",
+                  "tamil": "????????? (???????? ???? ????)"
+                },
+                "type": "SINGLE_CHOICE",
+                "tags": "",
+                "number": "2.7.3.6",
+                "flow": {
+                  "pre": {
+                    "fill": []
+                  },
+                  "question": {
+                    "ui": "SINGLE_CHOICE",
+                    "validation": null
+                  },
+                  "answer": {
+                    "scope": "once"
+                  },
+                  "child": {
+                    "strategy": "cascade"
+                  },
+                  "post": [],
+                  "exit": {
+                    "strategy": "parent"
+                  }
+                }
+              }
+            },
+            {
+              "position": "7",
+              "question": {
+                "options": [
+                  {
+                    "position": "1",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "Yes",
+                        "tamil": "???  "
+                      }
+                    }
+                  },
+                  {
+                    "position": "0",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "No",
+                        "tamil": "?????"
+                      }
+                    }
+                  }
+                ],
+                "children": [],
+                "text": {
+                  "english": "Electrical appliances (Fridge, laptop etc.)",
+                  "tamil": "??????? ????????? (???????????? ????;?? ?????????? ??????? ??)"
+                },
+                "type": "SINGLE_CHOICE",
+                "tags": "",
+                "number": "2.7.3.7",
+                "flow": {
+                  "pre": {
+                    "fill": []
+                  },
+                  "question": {
+                    "ui": "SINGLE_CHOICE",
+                    "validation": null
+                  },
+                  "answer": {
+                    "scope": "once"
+                  },
+                  "child": {
+                    "strategy": "cascade"
+                  },
+                  "post": [],
+                  "exit": {
+                    "strategy": "parent"
+                  }
+                }
+              }
+            },
+            {
+              "position": "8",
+              "question": {
+                "options": [
+                  {
+                    "position": "1",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "Yes",
+                        "tamil": "???  "
+                      }
+                    }
+                  },
+                  {
+                    "position": "0",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "No",
+                        "tamil": "?????"
+                      }
+                    }
+                  }
+                ],
+                "children": [],
+                "text": {
+                  "english": "Mobile Phone",
+                  "tamil": "??????"
+                },
+                "type": "SINGLE_CHOICE",
+                "tags": "",
+                "number": "2.7.3.8",
+                "flow": {
+                  "pre": {
+                    "fill": []
+                  },
+                  "question": {
+                    "ui": "SINGLE_CHOICE",
+                    "validation": null
+                  },
+                  "answer": {
+                    "scope": "once"
+                  },
+                  "child": {
+                    "strategy": "cascade"
+                  },
+                  "post": [],
+                  "exit": {
+                    "strategy": "parent"
+                  }
+                }
+              }
+            },
+            {
+              "position": "9",
+              "question": {
+                "options": [
+                  {
+                    "position": "1",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "Yes",
+                        "tamil": "???  "
+                      }
+                    }
+                  },
+                  {
+                    "position": "0",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "No",
+                        "tamil": "?????"
+                      }
+                    }
+                  }
+                ],
+                "children": [],
+                "text": {
+                  "english": "Extended or repaired the house this year",
+                  "tamil": "???? ??????? ???????? ??????????? ?????? ???????? ???? ???????????"
+                },
+                "type": "SINGLE_CHOICE",
+                "tags": "",
+                "number": "2.7.3.9",
+                "flow": {
+                  "pre": {
+                    "fill": []
+                  },
+                  "question": {
+                    "ui": "SINGLE_CHOICE",
+                    "validation": null
+                  },
+                  "answer": {
+                    "scope": "once"
+                  },
+                  "child": {
+                    "strategy": "cascade"
+                  },
+                  "post": [],
+                  "exit": {
+                    "strategy": "parent"
+                  }
+                }
+              }
+            },
+            {
+              "position": "10",
+              "question": {
+                "options": [
+                  {
+                    "position": "1",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "Yes",
+                        "tamil": "???  "
+                      }
+                    }
+                  },
+                  {
+                    "position": "0",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "No",
+                        "tamil": "?????"
+                      }
+                    }
+                  }
+                ],
+                "children": [],
+                "text": {
+                  "english": "Cart or agriculture equipment",
+                  "tamil": "????????? ?????????????? ????? ?????? ???? ?????????? ???????"
+                },
+                "type": "SINGLE_CHOICE",
+                "tags": "",
+                "number": "2.7.3.10",
+                "flow": {
+                  "pre": {
+                    "fill": []
+                  },
+                  "question": {
+                    "ui": "SINGLE_CHOICE",
+                    "validation": null
+                  },
+                  "answer": {
+                    "scope": "once"
+                  },
+                  "child": {
+                    "strategy": "cascade"
+                  },
+                  "post": [],
+                  "exit": {
+                    "strategy": "parent"
+                  }
+                }
+              }
+            },
+            {
+              "position": "11",
+              "question": {
+                "options": [
+                  {
+                    "position": "1",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "Yes",
+                        "tamil": "???  "
+                      }
+                    }
+                  },
+                  {
+                    "position": "0",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "No",
+                        "tamil": "?????"
+                      }
+                    }
+                  }
+                ],
+                "children": [],
+                "text": {
+                  "english": "Tractor",
+                  "tamil": "?????????"
+                },
+                "type": "SINGLE_CHOICE",
+                "tags": "",
+                "number": "2.7.3.11",
+                "flow": {
+                  "pre": {
+                    "fill": []
+                  },
+                  "question": {
+                    "ui": "SINGLE_CHOICE",
+                    "validation": null
+                  },
+                  "answer": {
+                    "scope": "once"
+                  },
+                  "child": {
+                    "strategy": "cascade"
+                  },
+                  "post": [],
+                  "exit": {
+                    "strategy": "parent"
+                  }
+                }
+              }
+            }
+          ],
+          "text": {
+            "english": "Do you have any of these assets now? ",
+            "tamil": "???????? ??????????? ????????? ???????"
+          },
+          "type": "MESSAGE",
+          "tags": "SHOWN_TOGETHER",
+          "number": "2.7.3",
+          "flow": {
+            "_tags": {
+              "SHOWN_TOGETHER": "SHOWN_TOGETHER"
+            },
+            "pre": {
+              "fill": []
+            },
+            "question": {
+              "ui": "MESSAGE",
+              "validation": null
+            },
+            "answer": {
+              "scope": "once"
+            },
+            "child": {
+              "strategy": "together"
+            },
+            "post": [],
+            "exit": {
+              "strategy": "parent"
+            }
+          }
+        }
+      }
+    ],
+    "flow": {
+      "child": {
+        "strategy": "cascade"
+      },
+      "question": {
+        "ui": "NONE",
+        "validation": null
+      },
+      "exit": {
+        "strategy": "END"
+      }
+    }
+  },
+  "__v": 0,
+  "modifiedAt": "2017-10-21T05:45:22.128Z"
+}

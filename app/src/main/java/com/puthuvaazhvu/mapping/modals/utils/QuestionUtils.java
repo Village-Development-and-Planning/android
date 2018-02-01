@@ -352,7 +352,8 @@ public class QuestionUtils {
         JsonObject questionJson = new JsonObject();
         jsonObject.add("question", questionJson);
 
-        questionJson.add("flow", node.getFlowPattern().getAsJson());
+        if (node.getFlowPattern() != null)
+            questionJson.add("flow", node.getFlowPattern().getAsJson());
 
         questionJson.addProperty("id", "");
         //jsonObject.addProperty("position", node.getPosition());

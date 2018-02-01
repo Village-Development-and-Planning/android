@@ -23,6 +23,17 @@ import timber.log.Timber;
 
 public class FileUtils {
 
+    public static boolean deleteFile(String filePath) {
+        if (fileExists(filePath)) {
+            return deleteFile(new File(getRootDirectory() + File.separator + filePath));
+        }
+        return false;
+    }
+
+    public static boolean deleteFile(final File file) {
+        return file.delete();
+    }
+
     public static boolean fileExists(final String pathFromRoot) {
         File rootDirectory = getRootDirectory();
         if (rootDirectory == null) {
@@ -90,7 +101,7 @@ public class FileUtils {
         });
     }
 
-    public static Observable<File> saveToFile(final String pathFromRoot, final String data) {
+    public static Observable<File> saveToFileFromPath(final String pathFromRoot, final String data) {
         return Observable.create(new ObservableOnSubscribe<File>() {
             @Override
             public void subscribe(ObservableEmitter<File> e) throws Exception {

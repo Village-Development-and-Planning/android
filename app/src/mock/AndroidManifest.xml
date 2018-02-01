@@ -19,7 +19,7 @@
 
         <activity android:name=".views.activities.main.MainActivity" />
 
-        <activity android:name=".views.activities.save_survey_data.SurveyDataDumpActivity" />
+        <activity android:name=".views.activities.dump_survey_activity.SurveyDataDumpActivity" />
 
         <activity android:name=".views.activities.survey_list.SurveyListActivity" />
 

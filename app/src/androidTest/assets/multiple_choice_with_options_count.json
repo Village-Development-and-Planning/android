@@ -1,0 +1,198 @@
+{
+  "position": "10.6",
+  "question": {
+    "options": [
+      {
+        "position": "1",
+        "option": {
+          "type": "GENERIC",
+          "text": {
+            "english": "Water ",
+            "tamil": "???????"
+          }
+        }
+      },
+      {
+        "position": "2",
+        "option": {
+          "type": "GENERIC",
+          "text": {
+            "english": "Health ",
+            "tamil": "?????????"
+          }
+        }
+      },
+      {
+        "position": "3",
+        "option": {
+          "type": "GENERIC",
+          "text": {
+            "english": "Education ",
+            "tamil": "?????"
+          }
+        }
+      },
+      {
+        "position": "4",
+        "option": {
+          "type": "GENERIC",
+          "text": {
+            "english": "Drainage",
+            "tamil": "??????? "
+          }
+        }
+      },
+      {
+        "position": "5",
+        "option": {
+          "type": "GENERIC",
+          "text": {
+            "english": "Cleanliness",
+            "tamil": "??????"
+          }
+        }
+      },
+      {
+        "position": "6",
+        "option": {
+          "type": "GENERIC",
+          "text": {
+            "english": "Roads ",
+            "tamil": "????"
+          }
+        }
+      },
+      {
+        "position": "7",
+        "option": {
+          "type": "GENERIC",
+          "text": {
+            "english": "Mosquitoes",
+            "tamil": "?????????? ???????? ?????????"
+          }
+        }
+      },
+      {
+        "position": "8",
+        "option": {
+          "type": "GENERIC",
+          "text": {
+            "english": "Transport ",
+            "tamil": "????????????"
+          }
+        }
+      },
+      {
+        "position": "9",
+        "option": {
+          "type": "GENERIC",
+          "text": {
+            "english": "Street lights",
+            "tamil": "???????????"
+          }
+        }
+      },
+      {
+        "position": "10",
+        "option": {
+          "type": "GENERIC",
+          "text": {
+            "english": "Electricity ",
+            "tamil": "?????????"
+          }
+        }
+      },
+      {
+        "position": "11",
+        "option": {
+          "type": "GENERIC",
+          "text": {
+            "english": "Employment ",
+            "tamil": "????????????"
+          }
+        }
+      },
+      {
+        "position": "12",
+        "option": {
+          "type": "GENERIC",
+          "text": {
+            "english": "Irrigation ",
+            "tamil": "???? ??????"
+          }
+        }
+      },
+      {
+        "position": "13",
+        "option": {
+          "type": "GENERIC",
+          "text": {
+            "english": "Liquor ",
+            "tamil": "???"
+          }
+        }
+      },
+      {
+        "position": "14",
+        "option": {
+          "type": "GENERIC",
+          "text": {
+            "english": "Housing ",
+            "tamil": "?????? ????"
+          }
+        }
+      },
+      {
+        "position": "15",
+        "option": {
+          "type": "GENERIC",
+          "text": {
+            "english": "Safety",
+            "tamil": "??????????"
+          }
+        }
+      },
+      {
+        "position": "16",
+        "option": {
+          "type": "GENERIC",
+          "text": {
+            "english": "Other",
+            "tamil": "??????"
+          }
+        }
+      }
+    ],
+    "children": [],
+    "text": {
+      "english": "What are the three most important issues that the village faces currently? ",
+      "tamil": "??????????? ??????? ??????? ??? ?????????? ?????? ??????????? ?????"
+    },
+    "type": "MULTIPLE_CHOICE",
+    "tags": "OPTIONS_COUNT_3",
+    "number": "2.10.6",
+    "flow": {
+      "_tags": {
+        "OPTIONS_COUNT_3": "OPTIONS_COUNT_"
+      },
+      "pre": {
+        "fill": []
+      },
+      "question": {
+        "ui": "MULTIPLE_CHOICE",
+        "validation": null,
+        "optionsLimit": 3
+      },
+      "answer": {
+        "scope": "once"
+      },
+      "child": {
+        "strategy": "cascade"
+      },
+      "post": [],
+      "exit": {
+        "strategy": "parent"
+      }
+    }
+  }
+}

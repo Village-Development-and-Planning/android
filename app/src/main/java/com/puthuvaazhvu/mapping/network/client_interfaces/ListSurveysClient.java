@@ -1,7 +1,6 @@
 package com.puthuvaazhvu.mapping.network.client_interfaces;
 
-import com.google.gson.JsonElement;
-import com.puthuvaazhvu.mapping.modals.SurveyInfo;
+import com.puthuvaazhvu.mapping.modals.SurveyAPIInfo;
 
 import java.util.List;
 
@@ -14,5 +13,5 @@ import retrofit2.http.GET;
 
 public interface ListSurveysClient {
     @GET("/cms/surveys")
-    Call<List<SurveyInfo>> getSurveyList();
+    Call<List<SurveyAPIInfo>> getSurveyList();
 }

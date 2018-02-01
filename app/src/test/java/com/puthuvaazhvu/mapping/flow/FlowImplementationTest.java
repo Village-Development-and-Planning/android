@@ -1,6 +1,6 @@
 package com.puthuvaazhvu.mapping.flow;
 
-import com.puthuvaazhvu.mapping.helpers.TestUtils;
+import com.puthuvaazhvu.mapping.TestUtils;
 import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;

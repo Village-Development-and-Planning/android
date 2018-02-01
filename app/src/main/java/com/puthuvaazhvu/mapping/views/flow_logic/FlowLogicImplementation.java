@@ -48,11 +48,11 @@ public class FlowLogicImplementation extends FlowLogic {
             Question root,
             String snapshotPath) {
         this();
-        Question question = QuestionUtils.moveToQuestionUsingPath(snapshotPath, root);
 
-        if (question == null) {
+        if (snapshotPath == null) {
             setCurrent(root, FlowData.FlowUIType.DEFAULT);
         } else {
+            Question question = QuestionUtils.moveToQuestionUsingPath(snapshotPath, root);
             // answer for the parent question would have been already added in the pre question construction flow.
             Answer parentAnswer = question.getParentAnswer();
             Question parent = parentAnswer.getQuestionReference();

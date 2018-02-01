@@ -8,6 +8,10 @@ import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
 import java.util.ArrayList;
 
+
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Single;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.Function;
@@ -18,17 +22,18 @@ import io.reactivex.functions.Function;
 
 public class SurveyUtils {
 
-    public static Single<Survey> getSurveyWithUpdatedAnswers(final JsonObject surveyJson) {
-        return Single.just(new Survey(surveyJson))
-                .map(new Function<Survey, Survey>() {
-                    @Override
-                    public Survey apply(@NonNull Survey survey) throws Exception {
-                        JsonObject questionJson = JsonHelper.getJsonObject(surveyJson, "question");
-                        if (questionJson != null) {
-                            QuestionUtils.populateAnswersFromJson(survey.getRootQuestion(), questionJson);
-                        }
-                        return survey;
-                    }
-                });
+    public static Observable<Survey> getSurveyWithUpdatedAnswers(final JsonObject surveyJson) {
+        return Observable.create(new ObservableOnSubscribe<Survey>() {
+            @Override
+            public void subscribe(ObservableEmitter<Survey> e) throws Exception {
+                Survey survey = new Survey(surveyJson);
+                JsonObject questionJson = JsonHelper.getJsonObject(surveyJson, "question");
+                if (questionJson != null) {
+                    QuestionUtils.populateAnswersFromJson(survey.getRootQuestion(), questionJson);
+                }
+                e.onNext(survey);
+                e.onComplete();
+            }
+        });
     }
 }

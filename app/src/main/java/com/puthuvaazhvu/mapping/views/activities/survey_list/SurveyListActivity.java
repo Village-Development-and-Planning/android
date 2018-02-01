@@ -19,24 +19,14 @@ import android.widget.TextView;
 
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.application.MappingApplication;
-import com.puthuvaazhvu.mapping.data.SurveyDataRepository;
 import com.puthuvaazhvu.mapping.modals.Survey;
-import com.puthuvaazhvu.mapping.network.APIUtils;
-import com.puthuvaazhvu.mapping.network.implementations.SingleSurveyAPI;
 import com.puthuvaazhvu.mapping.other.Constants;
-import com.puthuvaazhvu.mapping.utils.DataFileHelpers;
 import com.puthuvaazhvu.mapping.utils.Utils;
-import com.puthuvaazhvu.mapping.utils.info_file.AnswersInfoFile;
-import com.puthuvaazhvu.mapping.utils.info_file.SurveyInfoFile;
-import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
-import com.puthuvaazhvu.mapping.utils.storage.PrefsStorage;
-import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
 import com.puthuvaazhvu.mapping.views.activities.MenuActivity;
 import com.puthuvaazhvu.mapping.views.activities.main.MainActivity;
-import com.puthuvaazhvu.mapping.views.activities.save_survey_data.*;
+import com.puthuvaazhvu.mapping.views.activities.dump_survey_activity.*;
 import com.puthuvaazhvu.mapping.views.dialogs.ProgressDialog;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,8 +49,6 @@ public class SurveyListActivity extends MenuActivity
 
     private List<SurveyListData> surveyListData;
 
-    private PrefsStorage prefsStorage;
-
     Handler handler;
 
     @Override
@@ -70,7 +58,6 @@ public class SurveyListActivity extends MenuActivity
         handler = new Handler();
 
         SharedPreferences sharedPreferences = getSharedPreferences(Constants.PREFS, MODE_PRIVATE);
-        prefsStorage = PrefsStorage.getInstance(sharedPreferences);
 
         surveyListData = new ArrayList<>();
 
@@ -91,17 +78,8 @@ public class SurveyListActivity extends MenuActivity
         adapter = new ListAdapter();
         recyclerView.setAdapter(adapter);
 
-        SurveyInfoFile surveyInfoFile = new SurveyInfoFile(GetFromFile.getInstance(), SaveToFile.getInstance());
-        AnswersInfoFile answersInfoFile = new AnswersInfoFile(GetFromFile.getInstance(), SaveToFile.getInstance());
-        GetFromFile getFromFile = GetFromFile.getInstance();
-        SingleSurveyAPI singleSurveyAPI = SingleSurveyAPI.getInstance(APIUtils.getAuth(sharedPreferences));
-        String optionsJson = Utils.readFromAssetsFile(this, "options_fill.json");
-        SurveyDataRepository surveyDataRepository = SurveyDataRepository.getInstance(getFromFile
-                , sharedPreferences, singleSurveyAPI, optionsJson);
 
-        presenter = new SurveyListPresenter(surveyInfoFile, answersInfoFile, surveyDataRepository, this);
-
-        //fetchListOfSurveys();
+        presenter = new SurveyListPresenter(this, sharedPreferences);
     }
 
     @Override
@@ -109,6 +87,8 @@ public class SurveyListActivity extends MenuActivity
         super.onResume();
 
         fetchListOfSurveys();
+
+        resumed = true;
     }
 
     @Override
@@ -125,38 +105,20 @@ public class SurveyListActivity extends MenuActivity
                 if (surveyListData == null) {
                     Utils.showMessageToast("Select a valid survey", this);
                 } else {
-
-                    if (surveyListData.getStatus() == SurveyListData.STATUS.ONGOING) {
-                        showSurveyOngoingDialog(surveyListData.getSurveySnapshot(), surveyListData.getName());
-                    } else if (surveyListData.getStatus() == SurveyListData.STATUS.COMPLETED) {
-                        showSurveyDoneDialog(surveyListData.getSurveySnapshot(), surveyListData.getId());
-                    } else {
-                        File file = DataFileHelpers.getSurveyFromSurveyDir(surveyListData.getId());
-                        presenter.getSurveyFromFile(file, null);
-                    }
-
-//                    // set the survey as the current survey
-//                    String surveyID = surveyListData.getId();
-//                    Timber.i("Selected survey : " + surveyID);
-//
-//                    prefsStorage.saveLatestSurveyID(surveyID);
-//
-//                    openMainSurveyActivity();
-
+                    showAlertDialog();
                 }
                 break;
         }
     }
 
-    public void showSurveyDoneDialog(final SurveyListData.SurveySnapShot snapshot, final String surveyID) {
+    public void showAlertDialog() {
         AlertDialog alertDialog = Utils.createAlertDialog(
                 this,
                 getString(R.string.survey_start_again_msg),
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        File file = DataFileHelpers.getSurveyFromSurveyDir(surveyID);
-                        presenter.getSurveyFromFile(file, null);
+                        presenter.getSurveyData(adapter.getSelectedData());
                     }
                 },
                 new DialogInterface.OnClickListener() {
@@ -168,26 +130,6 @@ public class SurveyListActivity extends MenuActivity
         );
 
         alertDialog.show();
-    }
-
-    public void showSurveyOngoingDialog(final SurveyListData.SurveySnapShot snapshot, final String surveyName) {
-        Utils.createAlertDialog(
-                this,
-                String.format(getString(R.string.survey_ongoing_dialog_message), surveyName),
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        File file = DataFileHelpers.getSurveyFromAnswersDir(snapshot.getSnapshotID());
-                        presenter.getSurveyFromFile(file, snapshot);
-                    }
-                },
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                }
-        ).show();
     }
 
     private void openMainSurveyActivity() {
@@ -214,14 +156,15 @@ public class SurveyListActivity extends MenuActivity
     }
 
     @Override
-    public void onSurveyLoaded(Survey survey, SurveyListData.SurveySnapShot snapshot) {
+    public void onSurveyLoaded(Survey survey) {
         Timber.i("Survey loaded : " + survey.getId());
 
-        if (snapshot != null)
-            MappingApplication.globalContext.getApplicationData()
-                    .setSurvey(survey, snapshot.getSnapshotID(), snapshot.getPath());
-        else
-            MappingApplication.globalContext.getApplicationData().setSurvey(survey, null, null);
+        MappingApplication.globalContext.getApplicationData()
+                .setSurvey(survey);
+
+        MappingApplication.globalContext.getApplicationData()
+                .setSurveySnapShotPath(adapter.getSelectedData() != null
+                        ? adapter.getSelectedData().getSnapshotPath() : null);
 
         openMainSurveyActivity();
     }
@@ -242,8 +185,14 @@ public class SurveyListActivity extends MenuActivity
 
     @Override
     public void hideLoading() {
-        if (progressDialog.isVisible())
+        if (progressDialog.isVisible() || progressDialog.isAdded())
             progressDialog.dismiss();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        resumed = false;
     }
 
     @Override
@@ -296,15 +245,14 @@ public class SurveyListActivity extends MenuActivity
 
             onBind = true;
             // do all the view updating here
-            holder.populateViews(data.getId(), data.getName(), data.isChecked());
-
-            if (data.getStatus() == SurveyListData.STATUS.ONGOING) {
-                holder.setRowBackgroundColor(R.color.orange_light);
-            } else if (data.getStatus() == SurveyListData.STATUS.COMPLETED) {
-                holder.setRowBackgroundColor(R.color.green_light);
-            } else {
-                holder.setRowBackgroundColor(R.color.white);
-            }
+            holder.populateViews(
+                    data.getId(),
+                    data.getName(),
+                    data.isChecked(),
+                    !data.isOngoing(),
+                    data.isOngoing() ? R.color.orange_light : R.color.white,
+                    data.getCount()
+            );
 
             onBind = false;
         }
@@ -329,6 +277,7 @@ public class SurveyListActivity extends MenuActivity
         private final TextView textView;
         private final TextView name_txt;
         private final View content_holder;
+        private TextView id_txt;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -337,6 +286,7 @@ public class SurveyListActivity extends MenuActivity
             textView = itemView.findViewById(R.id.id_txt);
             name_txt = itemView.findViewById(R.id.name_txt);
             content_holder = itemView.findViewById(R.id.content_holder);
+            id_txt = itemView.findViewById(R.id.badge_txt);
         }
 
         public void setRowBackgroundColor(int color) {
@@ -351,10 +301,19 @@ public class SurveyListActivity extends MenuActivity
             radio_button.setChecked(isChecked);
         }
 
-        public void populateViews(String id, String name, boolean isChecked) {
+        public void populateViews(String id,
+                                  String name,
+                                  boolean isChecked,
+                                  boolean shouldShowCount,
+                                  int color,
+                                  int count) {
             textView.setText(id);
             name_txt.setText(name);
             radio_button.setChecked(isChecked);
+            id_txt.setText("" + count);
+            setRowBackgroundColor(color);
+
+            if (!shouldShowCount) id_txt.setVisibility(View.INVISIBLE);
         }
     }
 }

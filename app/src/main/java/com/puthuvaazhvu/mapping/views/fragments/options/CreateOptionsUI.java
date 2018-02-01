@@ -34,7 +34,7 @@ public class CreateOptionsUI {
             case SINGLE_CHOICE:
                 return optionsUIFactory.createRadioButtonOptionsAsListUI();
             case INFO:
-                return optionsUIFactory.createDummyOptionsUI(); // Todo: change this
+                return optionsUIFactory.createInfoOptionsUI();
             case CONFIRMATION:
             case DUMMY:
             case MESSAGE:

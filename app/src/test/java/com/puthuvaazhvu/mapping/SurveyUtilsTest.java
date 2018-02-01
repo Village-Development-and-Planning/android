@@ -2,7 +2,6 @@ package com.puthuvaazhvu.mapping;
 
 import android.content.Context;
 
-import com.puthuvaazhvu.mapping.helpers.TestUtils;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.modals.utils.SurveyUtils;
 
@@ -13,7 +12,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import io.reactivex.Single;
+import io.reactivex.Observable;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -42,8 +41,8 @@ public class SurveyUtilsTest {
 
     @Test
     public void test_updateWithAnswers() {
-        Single<Survey> surveySingle = SurveyUtils.getSurveyWithUpdatedAnswers(TestUtils.getAnswersJson(this));
-        Survey survey = surveySingle.blockingGet();
+        Observable<Survey> surveySingle = SurveyUtils.getSurveyWithUpdatedAnswers(TestUtils.getAnswersJson(this));
+        Survey survey = surveySingle.blockingFirst();
 
         assertThat(survey.getRootQuestion().getAnswers().size(), is(1));
     }

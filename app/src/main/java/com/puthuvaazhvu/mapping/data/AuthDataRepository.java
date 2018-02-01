@@ -70,7 +70,7 @@ public class AuthDataRepository {
                     @Override
                     public ObservableSource<JsonObject> apply(JsonObject jsonObject) throws Exception {
                         // save the auth data to a file
-                        return FileUtils.saveToFile(getPath(), jsonObject.toString())
+                        return FileUtils.saveToFileFromPath(getPath(), jsonObject.toString())
                                 .flatMap(new Function<File, ObservableSource<JsonObject>>() {
                                     @Override
                                     public ObservableSource<JsonObject> apply(File file) throws Exception {

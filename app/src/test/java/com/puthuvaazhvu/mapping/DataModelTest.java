@@ -2,7 +2,6 @@ package com.puthuvaazhvu.mapping;
 
 import android.content.Context;
 
-import com.puthuvaazhvu.mapping.helpers.TestUtils;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 

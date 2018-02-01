@@ -8,6 +8,7 @@ import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Text;
+import com.puthuvaazhvu.mapping.views.fragments.ListOptionsUI;
 import com.puthuvaazhvu.mapping.views.fragments.options.modals.CheckableOptionsAsListUIData;
 
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ import java.util.ArrayList;
  * Created by muthuveerappans on 1/9/18.
  */
 
-public abstract class CheckableOptionsUI extends OptionsUI {
+public abstract class CheckableOptionsUI extends ListOptionsUI {
     public final CheckableOptionsAsListUIData checkableOptionsAsListUIData;
     protected boolean shouldScroll;
 
@@ -51,10 +52,5 @@ public abstract class CheckableOptionsUI extends OptionsUI {
             ));
         }
         return options;
-    }
-
-    @Override
-    public View createView() {
-        return inflateView(R.layout.options_list);
     }
 }

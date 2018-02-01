@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -16,25 +15,19 @@ import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.application.MappingApplication;
 import com.puthuvaazhvu.mapping.data.AuthDataRepository;
 import com.puthuvaazhvu.mapping.other.Constants;
-import com.puthuvaazhvu.mapping.utils.DataFileHelpers;
-import com.puthuvaazhvu.mapping.utils.Optional;
+import com.puthuvaazhvu.mapping.utils.FileUtils;
 import com.puthuvaazhvu.mapping.utils.Utils;
-import com.puthuvaazhvu.mapping.utils.info_file.AnswersInfoFile;
-import com.puthuvaazhvu.mapping.utils.info_file.SurveyInfoFile;
-import com.puthuvaazhvu.mapping.utils.info_file.modals.AnswersInfoFileDataModal;
-import com.puthuvaazhvu.mapping.utils.info_file.modals.SurveyInfoFileDataModal;
-import com.puthuvaazhvu.mapping.utils.storage.DeleteFile;
-import com.puthuvaazhvu.mapping.utils.storage.GetFromFile;
-import com.puthuvaazhvu.mapping.utils.storage.SaveToFile;
+import com.puthuvaazhvu.mapping.utils.saving.AnswerIOUtils;
+import com.puthuvaazhvu.mapping.utils.saving.SurveyIOUtils;
+import com.puthuvaazhvu.mapping.utils.saving.modals.AnswersInfo;
+import com.puthuvaazhvu.mapping.utils.saving.modals.SurveyInfo;
 import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListActivity;
 
 import io.reactivex.Observable;
-import io.reactivex.Scheduler;
-import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
@@ -43,8 +36,6 @@ import timber.log.Timber;
  */
 
 public class SplashActivity extends BaseActivity {
-    GetFromFile getFromFile;
-    SaveToFile saveToFile;
     ProgressBar progressBar;
     TextView infoTxt;
 
@@ -52,9 +43,6 @@ public class SplashActivity extends BaseActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-
-        getFromFile = GetFromFile.getInstance();
-        saveToFile = SaveToFile.getInstance();
 
         setContentView(R.layout.splash_screen);
 
@@ -74,6 +62,8 @@ public class SplashActivity extends BaseActivity {
                     }
                 },
                 null);
+
+        retryDialog.setCancelable(false);
     }
 
     @Override
@@ -93,11 +83,11 @@ public class SplashActivity extends BaseActivity {
         AuthDataRepository authDataRepository = AuthDataRepository.getInstance(sharedPreferences);
 
         Observable.zip(
-                checkInfoFiles().toObservable(),
+                checkInfoFiles(),
                 authDataRepository.getAuthData(Utils.isNetworkAvailable(this)),
-                new BiFunction<Optional, JsonObject, Boolean>() {
+                new BiFunction<Boolean, JsonObject, Boolean>() {
                     @Override
-                    public Boolean apply(Optional optional, JsonObject jsonObject) throws Exception {
+                    public Boolean apply(Boolean optional, JsonObject jsonObject) throws Exception {
                         MappingApplication.globalContext.getApplicationData().setAuthJson(jsonObject);
                         return true;
                     }
@@ -123,33 +113,39 @@ public class SplashActivity extends BaseActivity {
                 });
     }
 
-    //Todo: refactor this.
-    private Single<Optional> checkInfoFiles() {
-        SurveyInfoFile surveyInfoFile = new SurveyInfoFile(getFromFile, saveToFile);
-        AnswersInfoFile answersInfoFile = new AnswersInfoFile(getFromFile, saveToFile);
+    private Observable<Boolean> checkInfoFiles() {
+        final SurveyIOUtils surveyIOUtils = SurveyIOUtils.getInstance();
+        final AnswerIOUtils answerIOUtils = AnswerIOUtils.getInstance();
 
-        return Single.zip(
-                surveyInfoFile.getInfoJsonParsed(),
-                answersInfoFile.getInfoJsonParsed(),
-                new BiFunction<SurveyInfoFileDataModal, AnswersInfoFileDataModal, Optional>() {
+        return Observable.zip(
+                surveyIOUtils.readSurveysInfoFile()
+                .onErrorReturn(new Function<Throwable, SurveyInfo>() {
                     @Override
-                    public Optional apply(@NonNull SurveyInfoFileDataModal surveyInfoFileDataModal
-                            , @NonNull AnswersInfoFileDataModal answersInfoFileDataModal) throws Exception {
-
-                        int version = surveyInfoFileDataModal.getVersion();
-                        if (version != Constants.Versions.SURVEY_INFO_VERSION) {
-                            boolean result = DeleteFile.deleteFile(DataFileHelpers.getSurveyInfoFile(true));
-                            Timber.i("status of delete survey info file " + result);
-                        }
-
-                        version = answersInfoFileDataModal.getVersion();
-                        if (version != Constants.Versions.ANSWERS_INFO_VERSION) {
-                            boolean result = DeleteFile.deleteFile(DataFileHelpers.getAnswersInfoFile(true));
-                            Timber.i("status of delete answers info file " + result);
-                        }
-
-                        return new Optional<>(null);
+                    public SurveyInfo apply(Throwable throwable) throws Exception {
+                        return new SurveyInfo();
                     }
-                });
+                }),
+                answerIOUtils.readAnswerInfoFile()
+                .onErrorReturn(new Function<Throwable, AnswersInfo>() {
+                    @Override
+                    public AnswersInfo apply(Throwable throwable) throws Exception {
+                        return new AnswersInfo();
+                    }
+                }),
+                new BiFunction<SurveyInfo, AnswersInfo, Boolean>() {
+                    @Override
+                    public Boolean apply(SurveyInfo surveyInfo, AnswersInfo answersInfo) throws Exception {
+                        if (surveyInfo.getVersion() != Constants.Versions.SURVEY_INFO_VERSION) {
+                            boolean result = FileUtils.deleteFile(surveyIOUtils.getRelativePathToSurveysInfoFile());
+                            Timber.i("Deleted status of surveys info file " + result);
+                        }
+                        if (answersInfo.getVersion() != Constants.Versions.ANSWERS_INFO_VERSION) {
+                            boolean result = FileUtils.deleteFile(answerIOUtils.getRelativePathToAnswersInfoFile());
+                            Timber.i("Deleted status of answers info file " + result);
+                        }
+                        return true;
+                    }
+                }
+        );
     }
 }

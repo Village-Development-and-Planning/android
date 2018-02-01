@@ -1,25 +1,23 @@
 package com.puthuvaazhvu.mapping.views.activities.survey_list;
 
+import android.content.SharedPreferences;
+
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.data.SurveyDataRepository;
 import com.puthuvaazhvu.mapping.modals.Survey;
-import com.puthuvaazhvu.mapping.other.Constants;
-import com.puthuvaazhvu.mapping.utils.info_file.AnswersInfoFile;
-import com.puthuvaazhvu.mapping.utils.info_file.SurveyInfoFile;
-import com.puthuvaazhvu.mapping.utils.info_file.modals.AnswerDataModal;
-import com.puthuvaazhvu.mapping.utils.info_file.modals.AnswersInfoFileDataModal;
-import com.puthuvaazhvu.mapping.utils.info_file.modals.DataModal;
-import com.puthuvaazhvu.mapping.utils.info_file.modals.SurveyInfoFileDataModal;
+import com.puthuvaazhvu.mapping.utils.saving.AnswerIOUtils;
+import com.puthuvaazhvu.mapping.utils.saving.SurveyIOUtils;
+import com.puthuvaazhvu.mapping.utils.saving.modals.AnswersInfo;
+import com.puthuvaazhvu.mapping.utils.saving.modals.SurveyInfo;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
-import io.reactivex.Single;
+import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
@@ -28,112 +26,120 @@ import timber.log.Timber;
  */
 
 public class SurveyListPresenter implements Contract.UserAction {
-    private final SurveyInfoFile surveyInfoFile;
-    private final AnswersInfoFile answersInfoFile;
     private final Contract.View callback;
-    private final SurveyDataRepository dataRepository;
+    private AnswerIOUtils answerIOUtils;
+    private SurveyIOUtils surveyIOUtils;
+    private SurveyDataRepository surveyDataRepository;
 
     public SurveyListPresenter(
-            SurveyInfoFile surveyInfoFile,
-            AnswersInfoFile answersInfoFile,
-            SurveyDataRepository dataRepository,
-            Contract.View callback
+            Contract.View callback,
+            SharedPreferences sharedPreferences
     ) {
-        this.surveyInfoFile = surveyInfoFile;
-        this.answersInfoFile = answersInfoFile;
         this.callback = callback;
-        this.dataRepository = dataRepository;
+        this.answerIOUtils = AnswerIOUtils.getInstance();
+        this.surveyIOUtils = SurveyIOUtils.getInstance();
+        this.surveyDataRepository = SurveyDataRepository.getInstance(sharedPreferences);
     }
 
     @Override
-    public void getSurveyFromFile(final File file, final SurveyListData.SurveySnapShot snapshot) {
+    public void getSurveyData(SurveyListData surveyListData) {
         callback.showLoading(R.string.loading);
 
-        Single<Survey> surveySingle;
-
-        if (file.getAbsolutePath().contains(Constants.ANSWERS_DATA_DIR)) {
-            surveySingle = dataRepository.getSurveyFromFileAndUpdateWithAnswers(file);
-        } else {
-            surveySingle = dataRepository.getSurveyFromFile(file);
-        }
-
-        surveySingle
+        surveyDataRepository.getSurveyFromFile(
+                surveyListData.getId(),
+                surveyListData.getSnapshotPath(),
+                surveyListData.getSnapShotFileName()
+        )
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Consumer<Survey>() {
                     @Override
-                    public void accept(@NonNull Survey survey) throws Exception {
+                    public void accept(Survey survey) throws Exception {
                         callback.hideLoading();
-                        callback.onSurveyLoaded(survey, snapshot);
+                        callback.onSurveyLoaded(survey);
                     }
                 }, new Consumer<Throwable>() {
                     @Override
-                    public void accept(@NonNull Throwable throwable) throws Exception {
+                    public void accept(Throwable throwable) throws Exception {
                         Timber.e("Error while fetching survey from file " + throwable.getMessage());
                         callback.hideLoading();
                         callback.onError(R.string.err_no_data);
                     }
                 });
+
     }
+
 
     @Override
     public void fetchListOfSurveys() {
 
-        Single.zip(
-                surveyInfoFile.getInfoJsonParsed(),
-                answersInfoFile.getInfoJsonParsed(),
-                new BiFunction<SurveyInfoFileDataModal, AnswersInfoFileDataModal, ArrayList<SurveyListData>>() {
+        callback.showLoading(R.string.loading);
+
+        Observable.zip(
+                answerIOUtils.readAnswerInfoFile()
+                        // http://reactivex.io/documentation/operators/catch.html
+                        .onErrorReturn(new Function<Throwable, AnswersInfo>() {
+                            @Override
+                            public AnswersInfo apply(Throwable throwable) throws Exception {
+                                return new AnswersInfo();
+                            }
+                        }),
+                surveyIOUtils.readSurveysInfoFile()
+                        .onErrorReturn(new Function<Throwable, SurveyInfo>() {
+                            @Override
+                            public SurveyInfo apply(Throwable throwable) throws Exception {
+                                return new SurveyInfo();
+                            }
+                        }),
+                new BiFunction<AnswersInfo, SurveyInfo, ArrayList<SurveyListData>>() {
                     @Override
-                    public ArrayList<SurveyListData> apply(
-                            @NonNull SurveyInfoFileDataModal surveyInfoFileDataModal,
-                            @NonNull AnswersInfoFileDataModal answersInfoFileDataModal) throws Exception {
+                    public ArrayList<SurveyListData> apply(AnswersInfo answersInfo, SurveyInfo surveyInfo)
+                            throws Exception {
 
-                        ArrayList<SurveyListData> resultArrayList = new ArrayList<>();
-                        List<DataModal> surveyInfoFileDataList = surveyInfoFileDataModal.getSurveyData();
+                        ArrayList<SurveyListData> surveyListData = new ArrayList<>();
 
-                        for (DataModal dm : surveyInfoFileDataList) {
+                        for (SurveyInfo.Survey s : surveyInfo.getSurveys()) {
+                            Survey survey = surveyIOUtils.readSurvey(s.getSurveyID()).blockingFirst();
 
-                            AnswerDataModal answersDataModal = answersInfoFileDataModal.find(dm.getId());
-                            SurveyListData surveyListData;
+                            SurveyListData sld = new SurveyListData(survey.getId(), survey.getName());
 
-                            if (answersDataModal != null && answersDataModal.getLatestSnapShot() != null) {
+                            if (answersInfo.isSurveyPresent(survey.getId())) {
+                                AnswersInfo.Survey snapshots = answersInfo.getSurvey(survey.getId());
 
-                                surveyListData = new SurveyListData(
-                                        dm.getId(),
-                                        dm.getSurveyName(),
-                                        false,
-                                        SurveyListData.SurveySnapShot.adapter(answersDataModal.getLatestSnapShot()),
-                                        answersDataModal.getLatestSnapShot().isIncomplete() ? SurveyListData.STATUS.ONGOING
-                                                : SurveyListData.STATUS.COMPLETED
-                                );
+                                int completedCount = snapshots.getCountOfCompletedSnapShots();
 
-                            } else {
+                                sld.setCount(completedCount);
+                                sld.setOngoing(snapshots.isSurveyOngoing());
 
-                                surveyListData = new SurveyListData(
-                                        dm.getId(),
-                                        dm.getSurveyName(),
-                                        false
-                                );
+                                if (snapshots.isSurveyOngoing()) {
+                                    AnswersInfo.Snapshot snapshot = snapshots.getLatestLoggedSnapshot();
+                                    sld.setSnapshotPath(snapshot.getPathToLastQuestion());
+                                    sld.setSnapShotFileName(snapshot.getSnapshotFileName());
+                                }
                             }
 
-                            resultArrayList.add(surveyListData);
+                            surveyListData.add(sld);
                         }
 
-                        return resultArrayList;
+                        return surveyListData;
                     }
                 })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Consumer<ArrayList<SurveyListData>>() {
                     @Override
-                    public void accept(@NonNull ArrayList<SurveyListData> surveyListDataList) throws Exception {
-                        callback.onSurveysFetched(surveyListDataList);
+                    public void accept(ArrayList<SurveyListData> surveyListData) throws Exception {
+                        callback.hideLoading();
+                        callback.onSurveysFetched(surveyListData);
                     }
                 }, new Consumer<Throwable>() {
                     @Override
-                    public void accept(@NonNull Throwable throwable) throws Exception {
+                    public void accept(Throwable throwable) throws Exception {
+                        callback.hideLoading();
+                        Timber.e(throwable.getMessage());
                         callback.onError(R.string.err_no_data);
                     }
                 });
+
     }
 }

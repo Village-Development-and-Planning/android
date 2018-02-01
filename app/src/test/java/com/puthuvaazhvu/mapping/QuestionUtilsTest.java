@@ -1,12 +1,10 @@
 package com.puthuvaazhvu.mapping;
 
 import com.google.gson.JsonObject;
-import com.puthuvaazhvu.mapping.helpers.TestUtils;
 import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
-import com.puthuvaazhvu.mapping.modals.flow.PreFlow;
 import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.modals.utils.SurveyUtils;
 
@@ -14,8 +12,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-
-import io.reactivex.Single;
 
 import static junit.framework.Assert.assertNotSame;
 import static junit.framework.Assert.assertSame;
@@ -46,8 +42,8 @@ public class QuestionUtilsTest {
 
     @Test
     public void test_findQuestion_rawNumber() {
-        Single<Survey> surveySingle = SurveyUtils.getSurveyWithUpdatedAnswers(TestUtils.getAnswersJson(this));
-        Survey survey = surveySingle.blockingGet();
+        io.reactivex.Observable<Survey> surveySingle = SurveyUtils.getSurveyWithUpdatedAnswers(TestUtils.getAnswersJson(this));
+        Survey survey = surveySingle.blockingFirst();
 
         assertThat(survey.getRootQuestion().getAnswers().size(), is(1));
 
