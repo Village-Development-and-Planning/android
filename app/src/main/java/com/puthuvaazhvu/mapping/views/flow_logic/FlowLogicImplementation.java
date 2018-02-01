@@ -134,6 +134,12 @@ public class FlowLogicImplementation extends FlowLogic {
         long startTime = System.currentTimeMillis();
 
         if (QuestionUtils.isLoopQuestion(question)) {
+
+            if (question.getAnswers().size() < question.getOptionList().size()) {
+                for (int i = 0; i < question.getOptionList().size(); i++)
+                    addAnswer(QuestionUtils.generateQuestionWithDummyOptions(), question);
+            }
+
             // dummy answers should have been already added so just update with the current data
             for (int i = 0; i < question.getOptionList().size(); i++) {
                 if (question.getOptionList().get(i).getPosition().equals(response.get(0).getPosition())) {
@@ -211,11 +217,7 @@ public class FlowLogicImplementation extends FlowLogic {
 
         } while (nextFlowData.question == null);
 
-        if (QuestionUtils.isLoopQuestion(nextFlowData.question)) {
-            for (int i = 0; i < nextFlowData.question.getOptionList().size(); i++)
-                addAnswer(QuestionUtils.generateQuestionWithDummyOptions(), nextFlowData.question);
-        } else
-            addAnswer(QuestionUtils.generateQuestionWithDummyOptions(), nextFlowData.question);
+        addAnswer(QuestionUtils.generateQuestionWithDummyOptions(), nextFlowData.question);
 
         setCurrent(nextFlowData.question, nextFlowData.flowType);
 
