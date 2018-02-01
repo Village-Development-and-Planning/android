@@ -177,7 +177,7 @@ public class SurveyListActivity extends MenuActivity
     @Override
     public void showLoading(int msgID) {
         if (progressDialog.isVisible() || progressDialog.isAdded()) {
-            progressDialog.dismiss();
+            return;
         }
         progressDialog.setTextView(getString(msgID));
         progressDialog.show(getSupportFragmentManager(), "progress_dialog");
