@@ -141,7 +141,7 @@ public class SurveyListActivity extends MenuActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1) {
             if (resultCode == Activity.RESULT_CANCELED) {
-                fetchListOfSurveys();
+                //fetchListOfSurveys();
             }
         }
     }
@@ -315,5 +315,9 @@ public class SurveyListActivity extends MenuActivity
 
             if (!shouldShowCount) id_txt.setVisibility(View.INVISIBLE);
         }
+    }
+
+    private void throwTestException() {
+        throw new RuntimeException("This is a test.");
     }
 }

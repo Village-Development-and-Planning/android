@@ -7,9 +7,11 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.application.MappingApplication;
@@ -119,19 +121,19 @@ public class SplashActivity extends BaseActivity {
 
         return Observable.zip(
                 surveyIOUtils.readSurveysInfoFile()
-                .onErrorReturn(new Function<Throwable, SurveyInfo>() {
-                    @Override
-                    public SurveyInfo apply(Throwable throwable) throws Exception {
-                        return new SurveyInfo();
-                    }
-                }),
+                        .onErrorReturn(new Function<Throwable, SurveyInfo>() {
+                            @Override
+                            public SurveyInfo apply(Throwable throwable) throws Exception {
+                                return new SurveyInfo();
+                            }
+                        }),
                 answerIOUtils.readAnswerInfoFile()
-                .onErrorReturn(new Function<Throwable, AnswersInfo>() {
-                    @Override
-                    public AnswersInfo apply(Throwable throwable) throws Exception {
-                        return new AnswersInfo();
-                    }
-                }),
+                        .onErrorReturn(new Function<Throwable, AnswersInfo>() {
+                            @Override
+                            public AnswersInfo apply(Throwable throwable) throws Exception {
+                                return new AnswersInfo();
+                            }
+                        }),
                 new BiFunction<SurveyInfo, AnswersInfo, Boolean>() {
                     @Override
                     public Boolean apply(SurveyInfo surveyInfo, AnswersInfo answersInfo) throws Exception {

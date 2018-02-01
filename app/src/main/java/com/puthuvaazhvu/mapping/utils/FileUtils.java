@@ -119,8 +119,8 @@ public class FileUtils {
                 dirPathBuilder.append(rootDirectory.getAbsolutePath());
 
                 for (int i = 0; i < fileElements.length - 1; i++) {
-                    dirPathBuilder.append(File.separator);
                     dirPathBuilder.append(fileElements[i]);
+                    dirPathBuilder.append(File.separator);
                 }
 
                 String dirPath = dirPathBuilder.toString();
