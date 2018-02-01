@@ -122,6 +122,14 @@ public class MainActivity extends MenuActivity
             presenter.initData(survey, flowLogic);
             presenter.getNext();
         } else {
+
+            if (savedInstanceState != null) {
+                String snapshot = dataFragment.getSnapshot();
+                if (snapshot != null) {
+                    MappingApplication.globalContext.getApplicationData().setSurveySnapShotPath(snapshot);
+                }
+            }
+
             onSurveyLoaded(MappingApplication.globalContext.getApplicationData().getSurvey());
         }
 
@@ -192,12 +200,10 @@ public class MainActivity extends MenuActivity
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        String snapshot = dataFragment.getSnapshot();
-        if (snapshot != null) {
-            flowLogic = new FlowLogicImplementation(presenter.getSurvey().getRootQuestion(), dataFragment.getSnapshot());
-            presenter.initData(presenter.getSurvey(), flowLogic);
-            presenter.showCurrent();
-        }
+//        String snapshot = dataFragment.getSnapshot();
+//        if (snapshot != null) {
+//            MappingApplication.globalContext.getApplicationData().setSurveySnapShotPath(snapshot);
+//        }
     }
 
     @Override
