@@ -29,7 +29,8 @@
     <string name="save_successful">Save successful</string>
 
     <!--errors-->
-    <string name="auth_error">Surveyor code not valid</string>
+    <string name="auth_error">Authentication error.</string>
+    <string name="survey_code_invalid">Surveyor code not valid</string>
     <string name="invalid_ui">Invalid UI provided</string>
     <string name="err_no_data">Cannot get the required survey</string>
     <string name="question_iteration_error">Cannot proceed</string>

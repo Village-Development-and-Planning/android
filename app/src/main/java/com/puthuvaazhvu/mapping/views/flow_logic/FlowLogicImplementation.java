@@ -336,14 +336,20 @@ public class FlowLogicImplementation extends FlowLogic {
 
     @VisibleForTesting
     public void addAnswer(ArrayList<Option> response, Question question) {
+        Answer answer = new Answer(response, question, System.currentTimeMillis());
+
+        if (QuestionUtils.isLoopQuestion(question)) {
+            setAnswerToQuestionBasedOnType(question, answer);
+            return;
+        }
+
         // for loop options the multiple dummy answers are added so should consider checking latest dummy.
-        if (QuestionUtils.isCurrentAnswerDummy(question) && !QuestionUtils.isLoopQuestion(question))
+        if (QuestionUtils.isCurrentAnswerDummy(question))
             return; // return if the latest answer is dummy
 
         if (SkipHelper.shouldSkipBasedOnAnswerScope(question))
             return;
 
-        Answer answer = new Answer(response, question, System.currentTimeMillis());
         setAnswerToQuestionBasedOnType(question, answer);
         question.setCurrentAnswer(answer);
 
@@ -375,9 +381,12 @@ public class FlowLogicImplementation extends FlowLogic {
 
         if (answerFlow.getMode() == AnswerFlow.Modes.OPTION) {
 
-            if (question.getAnswers().size() < question.getOptionList().size()) {
-                question.addAnswer(answer);
-            }
+            if (question.getAnswers().size() == question.getOptionList().size())
+                return;
+
+            question.addAnswer(answer);
+
+            Timber.i("Dummy answer created info :\n" + answer.toString());
 
         } else if (answerFlow.getMode() == AnswerFlow.Modes.ONCE) {
             if (question.getAnswers().size() > 0)

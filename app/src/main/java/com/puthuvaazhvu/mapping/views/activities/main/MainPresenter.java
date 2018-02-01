@@ -220,7 +220,7 @@ public class MainPresenter implements Contract.UserAction {
         if (postFlow != null && !postFlow.isEmpty()) {
             boolean postFlowSuccess = postFlow(flowLogic.getCurrent().question);
             if (!postFlowSuccess) {
-                activityView.onError(R.string.auth_error);
+                activityView.onError(R.string.survey_code_invalid);
                 return;
             }
         }
@@ -345,6 +345,13 @@ public class MainPresenter implements Contract.UserAction {
 
         JsonObject authJson = MappingApplication.globalContext.getApplicationData().getAuthJson();
 
+        if (authJson == null) {
+            // authentication error
+            activityView.onError(R.string.auth_error);
+            activityView.openListOfSurveysActivity();
+            return;
+        }
+
         PreFlow preFlow = question.getFlowPattern().getPreFlow();
         if (preFlow == null) return;
 
@@ -357,6 +364,8 @@ public class MainPresenter implements Contract.UserAction {
         if (auth == null) return;
 
         ArrayList<String> fill = preFlow.getFill();
+
+        if (fill == null || fill.isEmpty()) return;
 
         ArrayList<Option> options = new ArrayList<>();
 
