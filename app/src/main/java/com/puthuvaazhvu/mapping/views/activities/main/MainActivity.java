@@ -8,6 +8,7 @@ import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -17,6 +18,7 @@ import com.puthuvaazhvu.mapping.application.MappingApplication;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
+import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.network.APIUtils;
 import com.puthuvaazhvu.mapping.network.implementations.SingleSurveyAPI;
 import com.puthuvaazhvu.mapping.other.Config;
@@ -184,15 +186,16 @@ public class MainActivity extends MenuActivity
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        dataFragment.setCurrentQuestion(presenter.getCurrent());
+        dataFragment.setSnapshot(TextUtils.join(",", QuestionUtils.getPathOfQuestion(presenter.getCurrent())));
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        Question question = dataFragment.getCurrentQuestion();
-        if (question != null) {
-            presenter.setCurrent(question);
+        String snapshot = dataFragment.getSnapshot();
+        if (snapshot != null) {
+            flowLogic = new FlowLogicImplementation(presenter.getSurvey().getRootQuestion(), dataFragment.getSnapshot());
+            presenter.initData(presenter.getSurvey(), flowLogic);
             presenter.showCurrent();
         }
     }

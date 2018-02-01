@@ -14,6 +14,7 @@ import com.puthuvaazhvu.mapping.modals.Question;
 
 public class DataFragment extends Fragment {
     private Question currentQuestion;
+    private String snapshot;
 
     public static DataFragment getInstance(FragmentManager fm) {
         DataFragment dataFragment = (DataFragment) fm.findFragmentByTag("data_fragment");
@@ -33,11 +34,11 @@ public class DataFragment extends Fragment {
         setRetainInstance(true);
     }
 
-    public Question getCurrentQuestion() {
-        return currentQuestion;
+    public String getSnapshot() {
+        return snapshot;
     }
 
-    public void setCurrentQuestion(Question currentQuestion) {
-        this.currentQuestion = currentQuestion;
+    public void setSnapshot(String snapshot) {
+        this.snapshot = snapshot;
     }
 }
