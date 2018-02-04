@@ -19,8 +19,6 @@ import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
-import com.puthuvaazhvu.mapping.network.APIUtils;
-import com.puthuvaazhvu.mapping.network.implementations.SingleSurveyAPI;
 import com.puthuvaazhvu.mapping.other.Config;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.other.RepeatingTask;
@@ -114,7 +112,7 @@ public class MainActivity extends MenuActivity
         }, REPEATING_TASK_INTERVAL, true);
 
         if (DEBUG) {
-            String dataString = Utils.readFromAssetsFile(this, "question_with_image.json");
+            String dataString = Utils.readFromAssetsFile(this, "shown_together_question.json");
             JsonParser jsonParser = new JsonParser();
             Survey survey = new Survey(jsonParser.parse(dataString).getAsJsonObject());
             Question root = survey.getRootQuestion();

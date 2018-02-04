@@ -70,6 +70,10 @@ public abstract class OptionsUI {
             frame.addView(view);
     }
 
+    public void onNextPressed() {
+
+    }
+
     protected void showErrorDialog(String title
             , String message
             , String positiveButtonTitle

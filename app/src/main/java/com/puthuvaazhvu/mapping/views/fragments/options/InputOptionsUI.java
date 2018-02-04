@@ -4,6 +4,7 @@ import android.content.Context;
 import android.text.InputType;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 import com.google.gson.JsonArray;
@@ -55,6 +56,12 @@ public class InputOptionsUI extends OptionsUI {
     }
 
     @Override
+    public void onNextPressed() {
+        super.onNextPressed();
+        dismissKeyboard();
+    }
+
+    @Override
     public ArrayList<Option> response() {
         ArrayList<Option> options = new ArrayList<>();
         String input = editText.getText().toString();
@@ -63,5 +70,11 @@ public class InputOptionsUI extends OptionsUI {
         }
         options.add(new Option("", "INPUT", new Text("", input, input, ""), "", ""));
         return options;
+    }
+
+    private void dismissKeyboard() {
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null)
+            imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
     }
 }

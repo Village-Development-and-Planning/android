@@ -47,6 +47,7 @@ public class SingleQuestionFragment extends SingleQuestionFragmentBase implement
             getSingleQuestionFragmentCommunication().onError(Utils.getErrorMessage(R.string.options_not_entered_err, getContext()));
         } else {
             getSingleQuestionFragmentCommunication().onNextPressedFromSingleQuestion(getQuestion(), options);
+            optionsUI.onNextPressed();
         }
     }
 

@@ -23,7 +23,7 @@ import java.util.ArrayList;
  */
 
 public class CheckBoxOptionsAsListUI extends CheckableOptionsUI {
-    private RecyclerView recyclerView;
+    //private RecyclerView recyclerView;
 
     public CheckBoxOptionsAsListUI(
             ViewGroup frame,
@@ -45,7 +45,7 @@ public class CheckBoxOptionsAsListUI extends CheckableOptionsUI {
     @Override
     public View createView() {
         View view = super.createView();
-        recyclerView = view.findViewById(R.id.options_recycler_view);
+        //recyclerView = view.findViewById(R.id.options_recycler_view);
 
         RecyclerView.LayoutManager layoutManager;
         if (shouldScroll) {

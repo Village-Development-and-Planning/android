@@ -1,14 +1,11 @@
 package com.puthuvaazhvu.mapping.views.fragments.options;
 
 import android.content.Context;
-import android.view.View;
 import android.view.ViewGroup;
 
-import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Text;
-import com.puthuvaazhvu.mapping.views.fragments.ListOptionsUI;
 import com.puthuvaazhvu.mapping.views.fragments.options.modals.CheckableOptionsAsListUIData;
 
 import java.util.ArrayList;

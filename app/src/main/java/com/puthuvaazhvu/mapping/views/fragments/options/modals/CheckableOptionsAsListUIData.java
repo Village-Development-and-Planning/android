@@ -9,6 +9,7 @@ import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.flow.FlowPattern;
 import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
+import com.puthuvaazhvu.mapping.modals.utils.AnswerUtils;
 import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 
 import java.util.ArrayList;
@@ -103,7 +104,8 @@ public class CheckableOptionsAsListUIData extends OptionsUIData implements Parce
             for (SingleDataOption singleDataOption : singleDataOptionArrayList) {
                 singleDataOption.setShouldShowBackgroundColor(true);
                 for (Answer answer : question.getAnswers()) {
-                    if (answer.getOptions().get(0).getPosition().equals(singleDataOption.getPosition())) {
+                    if (answer.getOptions().get(0).getPosition().equals(singleDataOption.getPosition()) &&
+                            !AnswerUtils.isAnswerDummy(answer)) {
                         singleDataOption.setBackgroundColor(R.color.green_light);
                     }
                 }
@@ -195,6 +197,7 @@ public class CheckableOptionsAsListUIData extends OptionsUIData implements Parce
             dest.writeInt(this.backgroundColor);
             dest.writeString(this.imageData);
             dest.writeByte(this.isSelected ? (byte) 1 : (byte) 0);
+
         }
 
         protected SingleDataOption(Parcel in) {

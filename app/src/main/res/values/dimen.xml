@@ -3,4 +3,5 @@
     <dimen name="tag_question_card_side_length">150dp</dimen>
     <dimen name="button_width">140dp</dimen>
     <dimen name="button_height">70dp</dimen>
+    <dimen name="options_list_row_margin">-6dp</dimen>
 </resources>

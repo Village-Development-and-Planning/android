@@ -7,11 +7,9 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.application.MappingApplication;

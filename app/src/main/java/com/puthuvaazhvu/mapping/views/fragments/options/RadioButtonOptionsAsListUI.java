@@ -10,6 +10,7 @@ import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.views.custom_components.ChildLinearLayoutManager;
+import com.puthuvaazhvu.mapping.views.custom_components.RecyclerViewMargin;
 import com.puthuvaazhvu.mapping.views.fragments.options.adapters.CheckableOptionsAsListAdapter;
 import com.puthuvaazhvu.mapping.views.fragments.options.adapters.RadioButtonAdapter;
 import com.puthuvaazhvu.mapping.views.fragments.options.modals.CheckableOptionsAsListUIData;
@@ -21,7 +22,7 @@ import java.util.ArrayList;
  */
 
 public class RadioButtonOptionsAsListUI extends CheckableOptionsUI {
-    private RecyclerView recyclerView;
+    //private RecyclerView recyclerView;
 
     public RadioButtonOptionsAsListUI(
             ViewGroup frame,
@@ -43,7 +44,7 @@ public class RadioButtonOptionsAsListUI extends CheckableOptionsUI {
     @Override
     public View createView() {
         View view = super.createView();
-        recyclerView = view.findViewById(R.id.options_recycler_view);
+        //recyclerView = view.findViewById(R.id.options_recycler_view);
 
         RecyclerView.LayoutManager layoutManager;
         if (shouldScroll) {

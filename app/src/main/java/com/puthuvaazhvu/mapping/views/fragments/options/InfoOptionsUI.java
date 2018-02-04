@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
-import com.puthuvaazhvu.mapping.views.fragments.ListOptionsUI;
 import com.puthuvaazhvu.mapping.views.fragments.options.adapters.ListAdapter;
 
 import java.util.ArrayList;

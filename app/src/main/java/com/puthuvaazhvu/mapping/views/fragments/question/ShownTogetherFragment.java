@@ -17,7 +17,9 @@ import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Text;
+import com.puthuvaazhvu.mapping.modals.utils.AnswerUtils;
 import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
+import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.custom_components.LinearLayoutRecyclerView;
 import com.puthuvaazhvu.mapping.views.fragments.options.CreateOptionsUI;
 import com.puthuvaazhvu.mapping.views.fragments.options.OptionsUI;
@@ -95,6 +97,12 @@ public class ShownTogetherFragment extends QuestionDataFragment {
     @Override
     public void onNextButtonPressed(View view) {
         updateAnswersInQuestionTreeWithReadAnswers();
+
+        if (!checkIfAllQuestionAreAnswered()) {
+            Utils.showMessageToast(R.string.options_not_entered_err, getContext());
+            return;
+        }
+
         showTogetherQuestionCommunication.onNextPressedFromShownTogetherQuestion(getQuestion());
     }
 
@@ -108,6 +116,14 @@ public class ShownTogetherFragment extends QuestionDataFragment {
                 //question.getLatestAnswer().setOptions(optionsUI.response());
             }
         }
+    }
+
+    private boolean checkIfAllQuestionAreAnswered() {
+        for (Question child : getQuestion().getCurrentAnswer().getChildren()) {
+            if (child.getAnswers().isEmpty()) return false;
+        }
+
+        return true;
     }
 
     private class ShownTogetherAdapter extends RecyclerView.Adapter<ShownTogetherVH> {

@@ -169,21 +169,32 @@ public class FlowLogicImplementation extends FlowLogic {
     @Override
     public FlowData getPrevious() {
         // first remove the last question
-        FlowData lastFlowData = backStack.removeLatest();
-        if (lastFlowData == null) {
+        FlowData removedFlowData = backStack.removeLatest();
+        if (removedFlowData == null) {
             return currentFlowData;
         } else {
 
-            Answer removedQuestionParentAnswer = lastFlowData.question.getParentAnswer();
+            Answer removedQuestionParentAnswer = removedFlowData.question.getParentAnswer();
 
-            if (!backStack.isQuestionRepeatedInBackStack(lastFlowData))
+            // remove the current question current answer
+            removedFlowData.question.getAnswers().remove(removedFlowData.question.getCurrentAnswer());
+
+            Timber.i("Question popped " + removedFlowData.question.getRawNumber());
+            Timber.i("Answer count after popping question " + removedFlowData.question.getAnswers().size());
+
+            // decrement the next child index of the current(to be visible) question
+            if (!backStack.isQuestionRepeatedInBackStack(removedFlowData))
                 removedQuestionParentAnswer.decrementChildIndex();
 
             FlowData prevFlowData = backStack.getLatest();
 
+            // reset the visible children index of the next(to be visible) question.
+            prevFlowData.question.getCurrentAnswer().setNextVisibleChildIndex(0);
+
             setCurrent(prevFlowData.question, prevFlowData.flowType);
 
             Timber.i("Showing question " + prevFlowData.question.getRawNumber());
+            Timber.i("Answer count " + removedFlowData.question.getAnswers().size());
             Timber.i("next child question index " + removedQuestionParentAnswer.getNextVisibleChildIndex());
             Timber.i("Question child count " + removedQuestionParentAnswer.getChildren().size());
 

@@ -59,7 +59,7 @@ public class BaseActivity extends AppCompatActivity {
         switch (requestCode) {
             case Constants.PermissionRequestCodes.STORAGE_PERMISSION_REQUEST_CODE:
 
-                if (grantResults.length == 2
+                if (grantResults.length == 3
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED
                         && grantResults[1] == PackageManager.PERMISSION_GRANTED
                         && grantResults[2] == PackageManager.PERMISSION_GRANTED) {
