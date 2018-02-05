@@ -12,6 +12,7 @@ import java.io.Serializable;
 
 public class ExitFlow extends BaseObject implements Parcelable {
     private final Modes mode;
+    private boolean incrementBubble;
 
     @Override
     public JsonElement getAsJson() {
@@ -28,6 +29,7 @@ public class ExitFlow extends BaseObject implements Parcelable {
 
     public ExitFlow(JsonObject jsonObject) {
         String mode = JsonHelper.getString(jsonObject, "strategy");
+        incrementBubble = JsonHelper.getBoolean(jsonObject, "incrementBubble");
         this.mode = parseModes(mode);
     }
 
@@ -52,6 +54,9 @@ public class ExitFlow extends BaseObject implements Parcelable {
         }
     }
 
+    public boolean isIncrementBubble() {
+        return incrementBubble;
+    }
 
     @Override
     public int describeContents() {

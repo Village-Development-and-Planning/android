@@ -47,6 +47,7 @@ public class Question extends BaseObject implements Parcelable {
     private Answer currentAnswer;
     private Question parent;
     private boolean isFinished = false; // you can set to true for the question to skip
+    private int bubbleAnswersCount;
 
     private final Lock lock = new ReentrantLock();
 
@@ -127,6 +128,14 @@ public class Question extends BaseObject implements Parcelable {
         } finally {
             lock.unlock();
         }
+    }
+
+    public int getBubbleAnswersCount() {
+        return bubbleAnswersCount;
+    }
+
+    public void setBubbleAnswersCount(int bubbleAnswersCount) {
+        this.bubbleAnswersCount = bubbleAnswersCount;
     }
 
     public Answer getCurrentAnswer() {

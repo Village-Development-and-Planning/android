@@ -112,7 +112,7 @@ public class MainActivity extends MenuActivity
         }, REPEATING_TASK_INTERVAL, true);
 
         if (DEBUG) {
-            String dataString = Utils.readFromAssetsFile(this, "shown_together_question.json");
+            String dataString = Utils.readFromAssetsFile(this, "mapping.json");
             JsonParser jsonParser = new JsonParser();
             Survey survey = new Survey(jsonParser.parse(dataString).getAsJsonObject());
             Question root = survey.getRootQuestion();

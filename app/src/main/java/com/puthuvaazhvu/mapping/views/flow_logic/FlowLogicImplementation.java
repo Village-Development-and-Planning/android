@@ -251,6 +251,10 @@ public class FlowLogicImplementation extends FlowLogic {
 
         ExitFlow exitFlow = question.getFlowPattern().getExitFlow();
 
+        if (exitFlow.isIncrementBubble() && !AnswerUtils.containsOption("0", question.getCurrentAnswer())) {
+            question.setBubbleAnswersCount(question.getBubbleAnswersCount() + 1);
+        }
+
         if (exitFlow.getMode() == ExitFlow.Modes.END || question.isRoot()) {
             flowData.flowType = FlowData.FlowUIType.END;
             return flowData;

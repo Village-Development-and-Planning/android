@@ -5,5 +5,5 @@ package com.puthuvaazhvu.mapping.other;
  */
 
 public class Config {
-    public static boolean DEBUG = false;
+    public static boolean DEBUG = true;
 }

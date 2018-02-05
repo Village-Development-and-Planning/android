@@ -118,12 +118,12 @@ public class GridQuestionsFragment extends QuestionDataFragment {
             Question child = children.get(position);
 
             // remove dummy answers in count
-            int count = child.getAnswers().size();
-            for (Answer answer : child.getAnswers()) {
-                if (AnswerUtils.isAnswerDummy(answer)) count--;
-            }
+//            int count = child.getAnswers().size();
+//            for (Answer answer : child.getAnswers()) {
+//                if (AnswerUtils.isAnswerDummy(answer)) count--;
+//            }
 
-
+            int count = child.getBubbleAnswersCount();
             holder.populateViews(QuestionUtils.getTextString(child), count);
         }
 
