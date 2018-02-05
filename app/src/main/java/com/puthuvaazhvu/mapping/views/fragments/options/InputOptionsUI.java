@@ -13,10 +13,14 @@ import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Text;
+import com.puthuvaazhvu.mapping.modals.flow.FlowPattern;
+import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.views.fragments.options.modals.OptionsUIData;
 
 import java.util.ArrayList;
+
+import timber.log.Timber;
 
 /**
  * Created by muthuveerappans on 1/9/18.
@@ -65,7 +69,7 @@ public class InputOptionsUI extends OptionsUI {
     public ArrayList<Option> response() {
         ArrayList<Option> options = new ArrayList<>();
         String input = editText.getText().toString();
-        if (input.isEmpty()) {
+        if (input.isEmpty() || !checkDigitCountValidation(input) || !checkValidation(input)) {
             return null;
         }
         options.add(new Option("", "INPUT", new Text("", input, input, ""), "", ""));
@@ -76,5 +80,46 @@ public class InputOptionsUI extends OptionsUI {
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm != null)
             imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
+    }
+
+    // if true no problem
+    private boolean checkValidation(String input) {
+        FlowPattern flowPattern = question.getFlowPattern();
+
+        if (flowPattern == null) return true;
+
+        QuestionFlow questionFlow = flowPattern.getQuestionFlow();
+
+        if (questionFlow == null) return true;
+
+        int limit = questionFlow.getValidationLimit();
+
+        if (limit == -1) return true;
+
+        try {
+            int value = Integer.valueOf(input);
+            return value <= limit;
+        } catch (NumberFormatException e) {
+            Timber.e(e);
+        }
+
+        return true;
+    }
+
+    // if true no problem
+    private boolean checkDigitCountValidation(String input) {
+        FlowPattern flowPattern = question.getFlowPattern();
+
+        if (flowPattern == null) return true;
+
+        QuestionFlow questionFlow = flowPattern.getQuestionFlow();
+
+        if (questionFlow == null) return true;
+
+        int limit = questionFlow.getValidationDigitsLimit();
+
+        if (limit == -1) return true;
+
+        return limit == input.length();
     }
 }

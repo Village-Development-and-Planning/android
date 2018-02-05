@@ -16,6 +16,8 @@ public class QuestionFlow extends BaseObject implements Parcelable {
     private boolean back = true;
     private int optionsLimit;
     private boolean showImage;
+    private int validationDigitsLimit;
+    private int validationLimit;
 
     @Override
     public JsonElement getAsJson() {
@@ -49,6 +51,10 @@ public class QuestionFlow extends BaseObject implements Parcelable {
         optionsLimit = JsonHelper.getInt(jsonObject, "optionsLimit");
 
         showImage = JsonHelper.getBoolean(jsonObject, "showImage");
+
+        validationLimit = JsonHelper.getInt(jsonObject, "validationLimit");
+
+        validationDigitsLimit = JsonHelper.getInt(jsonObject, "validationDigitsLimit");
     }
 
     public static UI parseUI(String ui) {
@@ -117,6 +123,14 @@ public class QuestionFlow extends BaseObject implements Parcelable {
 
     public void setBack(boolean back) {
         this.back = back;
+    }
+
+    public int getValidationDigitsLimit() {
+        return validationDigitsLimit;
+    }
+
+    public int getValidationLimit() {
+        return validationLimit;
     }
 
     @Override
