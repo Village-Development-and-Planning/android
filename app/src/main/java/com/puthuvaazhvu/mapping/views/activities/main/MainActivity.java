@@ -363,7 +363,7 @@ public class MainActivity extends MenuActivity
     @Override
     public void onNextPressedFromGrid(Question question) {
         presenter.finishCurrent(question);
-        presenter.getNext();
+        //presenter.getNext();
     }
 
     @Override
@@ -413,7 +413,7 @@ public class MainActivity extends MenuActivity
             @Override
             public void run() {
                 presenter.finishCurrent(question);
-                presenter.getNext();
+                //presenter.getNext();
             }
         });
     }
@@ -426,7 +426,7 @@ public class MainActivity extends MenuActivity
     @Override
     public void onNextPressedFromShownTogetherQuestion(Question question) {
         presenter.finishCurrent(question);
-        presenter.getNext();
+        //presenter.getNext();
     }
 
     @Override

@@ -18,7 +18,7 @@ public class Answer extends BaseObject implements Parcelable {
     private final ArrayList<Question> children;
     private Question questionReference;
     private long timeStamp;
-    private int nextVisibleChildIndex;
+    //private int nextVisibleChildIndex;
 
     public Answer(ArrayList<Option> options, Question questionReference, long timeStamp) {
         this(options, questionReference);
@@ -45,26 +45,26 @@ public class Answer extends BaseObject implements Parcelable {
         this.questionReference = questionReference;
     }
 
-    public void setNextVisibleChildIndex(int currentChildIndex) {
-        this.nextVisibleChildIndex = currentChildIndex;
-    }
-
-    public boolean isVisibleChildIndexOutOfBounds(int index) {
-        return index < 0 || index >= children.size();
-    }
-
-    public void nextVisibleChildIndex() {
-        nextVisibleChildIndex++;
-    }
-
-    public void decrementChildIndex() {
-        nextVisibleChildIndex--;
-    }
-
-
-    public int getNextVisibleChildIndex() {
-        return nextVisibleChildIndex;
-    }
+//    public void setNextVisibleChildIndex(int currentChildIndex) {
+//        this.nextVisibleChildIndex = currentChildIndex;
+//    }
+//
+//    public boolean isVisibleChildIndexOutOfBounds(int index) {
+//        return index < 0 || index >= children.size();
+//    }
+//
+//    public void nextVisibleChildIndex() {
+//        nextVisibleChildIndex++;
+//    }
+//
+//    public void decrementChildIndex() {
+//        nextVisibleChildIndex--;
+//    }
+//
+//
+//    public int getNextVisibleChildIndex() {
+//        return nextVisibleChildIndex;
+//    }
 
 //    public static boolean isAnswerDummy(Answer answer) {
 //        return answer.getOptions().size() > 0 && answer.getOptions().get(0).getId().equals("DUMMY");

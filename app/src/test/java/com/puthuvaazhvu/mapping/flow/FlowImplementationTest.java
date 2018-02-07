@@ -123,9 +123,9 @@ public class FlowImplementationTest {
         assertThat(question.getRawNumber(), is("1.2"));
         flowLogicImplementation.setCurrent(question, FlowLogic.FlowData.FlowUIType.DEFAULT);
 
-        flowLogicImplementation.finishCurrent();
+        FlowLogic.FlowData nextFlowData = flowLogicImplementation.finishCurrent();
 
-        assertSame(flowLogicImplementation.getCurrent().question, question.getParentAnswer().getQuestionReference());
+        assertThat(nextFlowData.question.getRawNumber(), is("1.3"));
     }
 
     @Test
@@ -281,12 +281,12 @@ public class FlowImplementationTest {
 
         flowLogicImplementation.setCurrent(root, FlowLogic.FlowData.FlowUIType.DEFAULT);
 
-        FlowLogic.FlowData flowData = flowLogicImplementation.childFlow(root);
+        FlowLogic.FlowData flowData = flowLogicImplementation.childFlow(root, 0);
         nextQuestion = flowData.question;
         assertThat(nextQuestion.getRawNumber(), is("2.1.7"));
         assertThat(flowData.flowType, is(FlowLogic.FlowData.FlowUIType.DEFAULT));
 
-        flowData = flowLogicImplementation.childFlow(nextQuestion);
+        flowData = flowLogicImplementation.childFlow(nextQuestion, 0);
         nextQuestion = flowData.question;
         assertThat(nextQuestion.getRawNumber(), is("2.1.7"));
         assertThat(flowData.flowType, is(FlowLogic.FlowData.FlowUIType.GRID));
@@ -298,7 +298,7 @@ public class FlowImplementationTest {
         root.addAnswer(answer);
         assertThat(root.getType(), is("ROOT"));
         flowLogicImplementation = new FlowLogicImplementation();
-        nextQuestion = flowLogicImplementation.childFlow(root).question;
+        nextQuestion = flowLogicImplementation.childFlow(root, 0).question;
         assertThat(nextQuestion.getRawNumber(), is("1.1"));
     }
 
@@ -338,8 +338,8 @@ public class FlowImplementationTest {
         assertThat(nextFlowData.question.getRawNumber(), is("2.1.7"));
         assertThat(nextFlowData.flowType, is(FlowLogic.FlowData.FlowUIType.GRID));
 
-        flowLogicImplementation.finishCurrent();
-        nextFlowData = flowLogicImplementation.getNext();
+        nextFlowData = flowLogicImplementation.finishCurrent();
+        //nextFlowData = flowLogicImplementation.getNext();
         assertThat(nextFlowData.question.getRawNumber(), is("1.1"));
         assertThat(nextFlowData.flowType, is(FlowLogic.FlowData.FlowUIType.DEFAULT));
     }

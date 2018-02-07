@@ -54,17 +54,17 @@ public class FlowLogicImplementation extends FlowLogic {
         } else {
             Question question = QuestionUtils.moveToQuestionUsingPath(snapshotPath, root);
             // answer for the parent question would have been already added in the pre question construction flow.
-            Answer parentAnswer = question.getParentAnswer();
-            Question parent = parentAnswer.getQuestionReference();
+//            Answer parentAnswer = question.getParentAnswer();
+//            Question parent = parentAnswer.getQuestionReference();
+//
+//            // change the visible child index position
+//            int index = QuestionUtils.getIndexOfChild(parent, question);
 
-            // change the visible child index position
-            int index = QuestionUtils.getIndexOfChild(parent, question);
-
-            if (index >= 0) {
-                parentAnswer.setNextVisibleChildIndex(index + 1);
-            } else {
-                parentAnswer.setNextVisibleChildIndex(0);
-            }
+//            if (index >= 0) {
+//                parentAnswer.setNextVisibleChildIndex(index + 1);
+//            } else {
+//                parentAnswer.setNextVisibleChildIndex(0);
+//            }
 
             setCurrent(question, FlowData.FlowUIType.DEFAULT);
         }
@@ -82,11 +82,13 @@ public class FlowLogicImplementation extends FlowLogic {
     }
 
     @Override
-    public FlowLogic finishCurrent() {
+    public FlowData finishCurrent() {
+        //currentFlowData.question.setFinished(true);
         Question parent = currentFlowData.question.getParentAnswer().getQuestionReference();
-        setCurrent(parent, FlowData.FlowUIType.DEFAULT);
+        int indexOfNextQuestion = QuestionUtils.getIndexOfChild(parent, currentFlowData.question) + 1;
+        //setCurrent(parent, FlowData.FlowUIType.DEFAULT);
 
-        return this;
+        return getNext(parent, indexOfNextQuestion);
     }
 
     @Override
@@ -147,7 +149,7 @@ public class FlowLogicImplementation extends FlowLogic {
                     Answer current = question.getAnswers().get(i);
                     current.setOptions(response);
                     current.setTimeStamp(startTime);
-                    current.setNextVisibleChildIndex(0);
+                    //current.setNextVisibleChildIndex(0);
                     question.setCurrentAnswer(current);
 
                     Timber.i("Answer updated info :\n" + question.getAnswers().get(i).toString());
@@ -183,19 +185,19 @@ public class FlowLogicImplementation extends FlowLogic {
             Timber.i("Answer count after popping question " + removedFlowData.question.getAnswers().size());
 
             // decrement the next child index of the current(to be visible) question
-            if (!backStack.isQuestionRepeatedInBackStack(removedFlowData))
-                removedQuestionParentAnswer.decrementChildIndex();
+//            if (!backStack.isQuestionRepeatedInBackStack(removedFlowData))
+//                removedQuestionParentAnswer.decrementChildIndex();
 
             FlowData prevFlowData = backStack.getLatest();
 
             // reset the visible children index of the next(to be visible) question.
-            prevFlowData.question.getCurrentAnswer().setNextVisibleChildIndex(0);
+            //prevFlowData.question.getCurrentAnswer().setNextVisibleChildIndex(0);
 
             setCurrent(prevFlowData.question, prevFlowData.flowType);
 
             Timber.i("Showing question " + prevFlowData.question.getRawNumber());
             Timber.i("Answer count " + removedFlowData.question.getAnswers().size());
-            Timber.i("next child question index " + removedQuestionParentAnswer.getNextVisibleChildIndex());
+            // Timber.i("next child question index " + removedQuestionParentAnswer.getNextVisibleChildIndex());
             Timber.i("Question child count " + removedQuestionParentAnswer.getChildren().size());
 
             return prevFlowData;
@@ -205,37 +207,46 @@ public class FlowLogicImplementation extends FlowLogic {
     // gets the next question and updates the child visible index in the parent.
     @Override
     public FlowData getNext() {
+        return getNext(currentFlowData.question, 0);
+    }
+
+    // gets the next question from the question and index
+    private FlowData getNext(Question question, int indexToChild) {
 
         FlowData nextFlowData;
-        Question current = currentFlowData.question;
-
         do {
 
-            nextFlowData = childFlow(current);
+            nextFlowData = childFlow(question, indexToChild);
+
+            // reset the index to child
+            indexToChild = 0;
 
             // if next question is null check for the exit flow in that question
             if (nextFlowData.question == null) {
-                FlowData exitFlowData = exitFlow(current);
-                current = exitFlowData.question;
+                FlowData exitFlowData = exitFlow(question);
                 if (exitFlowData.flowType == FlowData.FlowUIType.END) {
                     nextFlowData = exitFlowData;
                     return nextFlowData;
+                } else if (exitFlowData.flowType == FlowData.FlowUIType.LOOP) {
+                    nextFlowData = exitFlowData;
                 } else {
-                    if (exitFlowData.flowType == FlowData.FlowUIType.LOOP)
-                        nextFlowData = exitFlowData;
+                    indexToChild = QuestionUtils.getIndexOfChild(exitFlowData.question, question);
+                    indexToChild += 1;
                 }
+
+                question = exitFlowData.question;
             }
 
         } while (nextFlowData.question == null);
 
         addAnswer(QuestionUtils.generateQuestionWithDummyOptions(), nextFlowData.question);
 
-        setCurrent(nextFlowData.question, nextFlowData.flowType);
-
         QuestionFlow questionFlow = nextFlowData.question.getFlowPattern().getQuestionFlow();
         if (questionFlow != null && questionFlow.getUiMode() == QuestionFlow.UI.NONE) {
-            return getNext();
+            return getNext(nextFlowData.question, 0);
         }
+
+        setCurrent(nextFlowData.question, nextFlowData.flowType);
 
         // add to back stack
         addEntryToBackStack(nextFlowData);
@@ -277,7 +288,7 @@ public class FlowLogicImplementation extends FlowLogic {
 
                 // finish the current question
                 //question.setFinished(true);
-                finishCurrent();
+                // finishCurrent();
             } else {
                 flowData.question = question;
                 flowData.flowType = FlowData.FlowUIType.LOOP;
@@ -290,7 +301,7 @@ public class FlowLogicImplementation extends FlowLogic {
     }
 
     @VisibleForTesting
-    public FlowData childFlow(Question question) {
+    public FlowData childFlow(Question question, int indexToChild) {
         FlowData flowData = new FlowData();
         flowData.question = null;
         flowData.flowType = FlowData.FlowUIType.DEFAULT;
@@ -320,9 +331,15 @@ public class FlowLogicImplementation extends FlowLogic {
             Answer currentAnswer = question.getCurrentAnswer();
 
             Question q = null;
-            for (int i = currentAnswer.getNextVisibleChildIndex(); i < currentAnswer.getChildren().size(); i++) {
+
+            int index = 0;
+            if (indexToChild > 0) {
+                index = indexToChild;
+            }
+
+            for (int i = index /*currentAnswer.getNextVisibleChildIndex()*/; i < currentAnswer.getChildren().size(); i++) {
                 Question child = currentAnswer.getChildren().get(i);
-                currentAnswer.nextVisibleChildIndex();
+                //currentAnswer.nextVisibleChildIndex();
                 if (SkipHelper.shouldSkip(child)) {
                     continue;
                 }
@@ -416,7 +433,7 @@ public class FlowLogicImplementation extends FlowLogic {
 
     private static class SkipHelper {
         private static boolean shouldSkip(Question question) {
-            return shouldSkipBasedOnSkipPattern(question);
+            return question.isFinished() || shouldSkipBasedOnSkipPattern(question);
         }
 
         private static boolean shouldSkipBasedOnSkipPattern(Question question) {

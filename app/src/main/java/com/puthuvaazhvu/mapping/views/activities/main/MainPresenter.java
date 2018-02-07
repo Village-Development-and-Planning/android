@@ -127,7 +127,7 @@ public class MainPresenter implements Contract.UserAction {
             return;
         }
 
-        flowLogic.finishCurrent();
+        showUI(flowLogic.finishCurrent());
     }
 
     @Override
