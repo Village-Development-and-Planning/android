@@ -99,11 +99,14 @@ public class RadioButtonAdapter extends CheckableOptionsAsListAdapter {
             radio_button.setText(text);
             radio_button.setChecked(isChecked);
 
-            if (color != -1) {
-                layout.setBackgroundColor(context.getResources().getColor(color));
-            } else {
-                layout.setBackgroundColor(context.getResources().getColor(R.color.white));
-            }
+//            if (color != -1) {
+//                layout.setBackgroundColor(context.getResources().getColor(color));
+//            } else {
+//                layout.setBackgroundColor(context.getResources().getColor(R.color.white));
+//            }
+
+            layout.setBackgroundColor(context.getResources().getColor(R.color.white));
+
         }
 
         public void setImageFromBytes(byte[] imageByteArray) {

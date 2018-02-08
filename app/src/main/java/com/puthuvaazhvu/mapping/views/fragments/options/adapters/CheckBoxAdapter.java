@@ -95,11 +95,14 @@ public class CheckBoxAdapter extends CheckableOptionsAsListAdapter {
             check_box.setText(text);
             check_box.setChecked(isChecked);
 
-            if (color != -1) {
-                layout.setBackgroundColor(context.getResources().getColor(color));
-            } else {
-                layout.setBackgroundColor(context.getResources().getColor(R.color.white));
-            }
+//            if (color != -1) {
+//                layout.setBackgroundColor(context.getResources().getColor(color));
+//            } else {
+//                layout.setBackgroundColor(context.getResources().getColor(R.color.white));
+//            }
+
+            layout.setBackgroundColor(context.getResources().getColor(R.color.white));
+
         }
 
         public void setImageBitmap(Bitmap bitmap) {
