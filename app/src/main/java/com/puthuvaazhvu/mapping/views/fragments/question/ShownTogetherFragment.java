@@ -96,9 +96,9 @@ public class ShownTogetherFragment extends QuestionDataFragment {
 
     @Override
     public void onNextButtonPressed(View view) {
-        updateAnswersInQuestionTreeWithReadAnswers();
+        //updateAnswersInQuestionTreeWithReadAnswers();
 
-        if (!checkIfAllQuestionAreAnswered()) {
+        if (!updateAnswersInQuestionTreeWithReadAnswers()) {
             Utils.showMessageToast(R.string.options_not_entered_err, getContext());
             return;
         }
@@ -106,7 +106,7 @@ public class ShownTogetherFragment extends QuestionDataFragment {
         showTogetherQuestionCommunication.onNextPressedFromShownTogetherQuestion(getQuestion());
     }
 
-    private void updateAnswersInQuestionTreeWithReadAnswers() {
+    private boolean updateAnswersInQuestionTreeWithReadAnswers() {
         for (Question question : dataList) {
             OptionsUI optionsUI = optionsUiObjects.get(question.getRawNumber());
             if (optionsUI != null && optionsUI.response() != null) {
@@ -119,20 +119,24 @@ public class ShownTogetherFragment extends QuestionDataFragment {
 
                 baseQuestionFragmentCommunication.getFlowLogic().setCurrent(question);
                 baseQuestionFragmentCommunication.getFlowLogic().update(optionsUI.response());
+            } else {
+                return false;
             }
         }
 
         // reset to the parent question for seamless flow.
         baseQuestionFragmentCommunication.getFlowLogic().setCurrent(getQuestion());
-    }
-
-    private boolean checkIfAllQuestionAreAnswered() {
-        for (Question child : getQuestion().getCurrentAnswer().getChildren()) {
-            if (child.getAnswers().isEmpty()) return false;
-        }
 
         return true;
     }
+
+//    private boolean checkIfAllQuestionAreAnswered() {
+//        for (Question child : getQuestion().getCurrentAnswer().getChildren()) {
+//            if (child.getAnswers().isEmpty()) return false;
+//        }
+//
+//        return true;
+//    }
 
     private class ShownTogetherAdapter extends RecyclerView.Adapter<ShownTogetherVH> {
 
