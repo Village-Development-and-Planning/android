@@ -1,5 +1,8 @@
 package com.puthuvaazhvu.mapping.views.flow_logic;
 
+import android.support.v4.app.Fragment;
+
+import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 
@@ -10,20 +13,27 @@ import java.util.ArrayList;
  */
 
 public abstract class FlowLogic {
-    protected FlowData currentFlowData;
+    JsonObject authJson;
 
     public FlowLogic() {
-        currentFlowData = new FlowData();
     }
 
-    public abstract void setCurrent(Question question, FlowData.FlowUIType flowUIType);
+    public JsonObject getAuthJson() {
+        return authJson;
+    }
+
+    public void setAuthJson(JsonObject authJson) {
+        this.authJson = authJson;
+    }
+
+    public abstract void setCurrent(Question question);
 
     /**
      * Gets the current question
      *
      * @return - The currently pointed question
      */
-    public abstract FlowData getCurrent();
+    public abstract Question getCurrent();
 
     /**
      * Finishes the current question and moves to the next one
@@ -38,7 +48,7 @@ public abstract class FlowLogic {
      * @param index
      * @return Instance of {@link FlowLogic}
      */
-    public abstract FlowLogic moveToIndexInChild(int index);
+    public abstract FlowData moveToIndexInChild(int index);
 
     /**
      * Updates the current question with the answer
@@ -46,9 +56,7 @@ public abstract class FlowLogic {
      * @param response The data that contains the answer
      * @return Instance of {@link FlowLogic}
      */
-    public abstract FlowLogic update(ArrayList<Option> response);
-
-    public abstract FlowLogic update(ArrayList<Option> response, Question question);
+    public abstract boolean update(ArrayList<Option> response);
 
     /**
      * Get's the next question
@@ -60,23 +68,32 @@ public abstract class FlowLogic {
 
     public abstract FlowData getPrevious();
 
-    public FlowData getCurrentFlowData() {
-        return currentFlowData;
-    }
-
     public static class FlowData {
-        public enum FlowUIType {
-            GRID, TOGETHER, DEFAULT, END, LOOP
+        private Fragment fragment;
+        private Question question;
+
+        public Fragment getFragment() {
+            return fragment;
         }
 
-        public FlowUIType flowType = FlowUIType.DEFAULT;
-        public Question question;
+        public void setFragment(Fragment fragment) {
+            this.fragment = fragment;
+        }
 
-        protected FlowData copy() {
+        public Question getQuestion() {
+            return question;
+        }
+
+        public void setQuestion(Question question) {
+            this.question = question;
+        }
+
+        public FlowData copy() {
             FlowData flowData = new FlowData();
-            flowData.flowType = this.flowType;
+            flowData.fragment = this.fragment;
             flowData.question = this.question;
             return flowData;
         }
+
     }
 }

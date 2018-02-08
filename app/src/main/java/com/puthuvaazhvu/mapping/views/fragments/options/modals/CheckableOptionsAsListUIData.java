@@ -98,7 +98,7 @@ public class CheckableOptionsAsListUIData extends OptionsUIData implements Parce
             singleDataOptionArrayList.add(s);
         }
 
-        if (QuestionUtils.isLoopQuestion(question)) {
+        if (QuestionUtils.isLoopOptionsQuestion(question)) {
             // show the background color
 
             for (SingleDataOption singleDataOption : singleDataOptionArrayList) {

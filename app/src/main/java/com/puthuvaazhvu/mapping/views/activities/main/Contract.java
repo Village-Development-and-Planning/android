@@ -46,10 +46,6 @@ public interface Contract {
 
         Question getCurrent();
 
-        void setCurrent(Question question);
-
-        void showCurrent();
-
         /**
          * Get's the next question to be shown in the UI
          */

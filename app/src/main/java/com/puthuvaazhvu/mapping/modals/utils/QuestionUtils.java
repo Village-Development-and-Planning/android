@@ -9,6 +9,7 @@ import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Text;
 import com.puthuvaazhvu.mapping.modals.flow.AnswerFlow;
+import com.puthuvaazhvu.mapping.modals.flow.ChildFlow;
 import com.puthuvaazhvu.mapping.modals.flow.ExitFlow;
 import com.puthuvaazhvu.mapping.modals.flow.FlowPattern;
 import com.puthuvaazhvu.mapping.modals.flow.PreFlow;
@@ -282,7 +283,23 @@ public class QuestionUtils {
         return count;
     }
 
-    public static boolean isLoopQuestion(Question question) {
+    public static boolean isGridSelectQuestion(Question question) {
+        ChildFlow childFlow = question.getFlowPattern().getChildFlow();
+        ChildFlow.Modes childFlowMode = childFlow.getMode();
+        ChildFlow.UI childFlowUI = childFlow.getUiToBeShown();
+
+        return childFlowUI == ChildFlow.UI.GRID && childFlowMode == ChildFlow.Modes.SELECT;
+    }
+
+    public static boolean isShownTogetherQuestion(Question question) {
+        ChildFlow childFlow = question.getFlowPattern().getChildFlow();
+        ChildFlow.Modes childFlowMode = childFlow.getMode();
+        ChildFlow.UI childFlowUI = childFlow.getUiToBeShown();
+
+        return childFlowMode == ChildFlow.Modes.TOGETHER;
+    }
+
+    public static boolean isLoopOptionsQuestion(Question question) {
         FlowPattern flowPattern = question.getFlowPattern();
 
         if (flowPattern == null) return false;
@@ -318,6 +335,8 @@ public class QuestionUtils {
     }
 
     public static int getIndexOfChild(Question parent, Question child) {
+        if (parent == child) return -1;
+
         for (int i = 0; i < parent.getChildren().size(); i++) {
             if (parent.getChildren().get(i).getRawNumber().equals(child.getRawNumber())) return i;
         }

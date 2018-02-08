@@ -78,6 +78,8 @@ public class MainActivity extends MenuActivity
 
     private DataFragment dataFragment;
 
+    SharedPreferences sharedPreferences;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,7 +93,7 @@ public class MainActivity extends MenuActivity
         stackFragmentManagerInvoker = new StackFragmentManagerInvoker();
         stackFragmentManagerReceiver = new StackFragmentManagerReceiver(getSupportFragmentManager(), R.id.container);
 
-        SharedPreferences sharedPreferences = getSharedPreferences(Constants.PREFS, MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences(Constants.PREFS, MODE_PRIVATE);
 
         handler = new Handler(Looper.getMainLooper());
 
@@ -116,7 +118,7 @@ public class MainActivity extends MenuActivity
             JsonParser jsonParser = new JsonParser();
             Survey survey = new Survey(jsonParser.parse(dataString).getAsJsonObject());
             Question root = survey.getRootQuestion();
-            flowLogic = new FlowLogicImplementation(root);
+            flowLogic = new FlowLogicImplementation(root, sharedPreferences);
             presenter.initData(survey, flowLogic);
             presenter.getNext();
         } else {
@@ -166,16 +168,16 @@ public class MainActivity extends MenuActivity
 
         Question root = survey.getRootQuestion();
 
-        flowLogic = new FlowLogicImplementation(root,
-                MappingApplication.globalContext.getApplicationData().getSurveySnapShotPath());
+        flowLogic = new FlowLogicImplementation(
+                root,
+                MappingApplication.globalContext.getApplicationData().getSurveySnapShotPath(),
+                sharedPreferences
+        );
+        flowLogic.setAuthJson(MappingApplication.globalContext.getApplicationData().getAuthJson());
+
         presenter.initData(survey, flowLogic);
 
-        if (MappingApplication.globalContext.getApplicationData().getSurveySnapShotPath() == null) {
-            // root question
-            presenter.getNext();
-        } else {
-            presenter.showCurrent();
-        }
+        presenter.getNext();
     }
 
     @Override

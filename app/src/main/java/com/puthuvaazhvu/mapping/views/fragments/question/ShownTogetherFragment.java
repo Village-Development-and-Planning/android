@@ -110,12 +110,20 @@ public class ShownTogetherFragment extends QuestionDataFragment {
         for (Question question : dataList) {
             OptionsUI optionsUI = optionsUiObjects.get(question.getRawNumber());
             if (optionsUI != null && optionsUI.response() != null) {
-//                Answer answer = new Answer(optionsUI.response(), question);
-//                question.setAnswerAt(answer);
-                baseQuestionFragmentCommunication.getFlowLogic().update(optionsUI.response(), question);
-                //question.getLatestAnswer().setOptions(optionsUI.response());
+                if (question.getAnswers().isEmpty()) {
+                    // add dummy answer if empty
+                    question.addAnswer(
+                            new Answer(QuestionUtils.generateQuestionWithDummyOptions(), question)
+                    );
+                }
+
+                baseQuestionFragmentCommunication.getFlowLogic().setCurrent(question);
+                baseQuestionFragmentCommunication.getFlowLogic().update(optionsUI.response());
             }
         }
+
+        // reset to the parent question for seamless flow.
+        baseQuestionFragmentCommunication.getFlowLogic().setCurrent(getQuestion());
     }
 
     private boolean checkIfAllQuestionAreAnswered() {
