@@ -88,10 +88,10 @@ public class FlowImplementationTest {
 
         flowLogic.update(options);
 
-        assertThat(flowLogic.getCurrent().getAnswers().size(), is(1));
-//        assertThat(QuestionUtils.getLastAnswer(flowLogic.getCurrent().question)
+        assertThat(flowLogic.getCurrent().getQuestion().getAnswers().size(), is(1));
+//        assertThat(QuestionUtils.getLastAnswer(flowLogic.getCurrent().getQuestion().question)
 //                .getOptions().get(0).getType(), is("TEST_DATA"));
-        assertThat(flowLogic.getCurrent().getCurrentAnswer()
+        assertThat(flowLogic.getCurrent().getQuestion().getCurrentAnswer()
                 .getOptions().get(0).getType(), is("TEST_DATA"));
 
         survey = TestUtils.getSurvey(this, "survey_data_test_unit.json");
@@ -189,7 +189,7 @@ public class FlowImplementationTest {
 
         // normal flow
         flowLogicImplementation.getNext();
-        assertThat(flowLogicImplementation.getCurrent().getRawNumber(), is("1.1"));
+        assertThat(flowLogicImplementation.getCurrent().getQuestion().getRawNumber(), is("1.1"));
 
         // test shown together
         survey = TestUtils.getSurvey(this, "shown_together_question.json");
@@ -212,7 +212,7 @@ public class FlowImplementationTest {
         assertThat(nextQuestion.getAnswers().size(), is(1));
 
         flowLogicImplementation.moveToIndexInChild(0);
-        assertThat(flowLogicImplementation.getCurrent().getRawNumber(), is("2.1.7.3"));
+        assertThat(flowLogicImplementation.getCurrent().getQuestion().getRawNumber(), is("2.1.7.3"));
 
         // test skip pattern
         survey = TestUtils.getSurvey(this, "multiple_options_skip.json");
@@ -236,7 +236,7 @@ public class FlowImplementationTest {
         );
 
         flowLogicImplementation.update(options);
-        assertThat(flowLogicImplementation.getCurrent().getAnswers().size(), is(1));
+        assertThat(flowLogicImplementation.getCurrent().getQuestion().getAnswers().size(), is(1));
 
         nextQuestion = flowLogicImplementation.getNext().getQuestion();
         assertThat(nextQuestion.getRawNumber(), is("2.1.6.5.1"));
@@ -262,7 +262,7 @@ public class FlowImplementationTest {
         );
 
         flowLogicImplementation.update(options);
-        assertThat(flowLogicImplementation.getCurrent().getAnswers().size(), is(1));
+        assertThat(flowLogicImplementation.getCurrent().getQuestion().getAnswers().size(), is(1));
 
         FlowLogic.FlowData flowData = flowLogicImplementation.getNext();
         assertThat(flowData, is(nullValue()));
@@ -280,8 +280,8 @@ public class FlowImplementationTest {
         FlowLogicImplementation flowLogicImplementation = new FlowLogicImplementation(root, sharedPrefs);
         flowLogicImplementation.moveToIndexInChild(13);
 
-        assertThat(flowLogicImplementation.getCurrent().getRawNumber(), is("2"));
-        assertThat(flowLogicImplementation.getCurrent().getAnswers().size(), is(1));
+        assertThat(flowLogicImplementation.getCurrent().getQuestion().getRawNumber(), is("2"));
+        assertThat(flowLogicImplementation.getCurrent().getQuestion().getAnswers().size(), is(1));
     }
 
     @Test
@@ -345,7 +345,7 @@ public class FlowImplementationTest {
         nextQuestion = flowLogicImplementation.getNext().getQuestion();
         assertThat(nextQuestion.getRawNumber(), is("2.1.7"));
 
-        assertThat(flowLogicImplementation.getCurrent().getRawNumber(), is("2.1.7"));
+        assertThat(flowLogicImplementation.getCurrent().getQuestion().getRawNumber(), is("2.1.7"));
 
         flowLogicImplementation.moveToIndexInChild(18);
         options = new ArrayList<>();
@@ -358,12 +358,12 @@ public class FlowImplementationTest {
         );
         flowLogicImplementation.update(options);
 
-        assertThat(flowLogicImplementation.getCurrent().getRawNumber(), is("2.1.7.21"));
+        assertThat(flowLogicImplementation.getCurrent().getQuestion().getRawNumber(), is("2.1.7.21"));
 
         nextQuestion = flowLogicImplementation.getNext().getQuestion();
         assertThat(nextQuestion.getRawNumber(), is("2.1.7"));
 
-        assertThat(flowLogicImplementation.getCurrent().getRawNumber(), is("2.1.7"));
+        assertThat(flowLogicImplementation.getCurrent().getQuestion().getRawNumber(), is("2.1.7"));
 
         nextQuestion = flowLogicImplementation.finishCurrent().getQuestion();
         //nextFlowData = flowLogicImplementation.getNext();

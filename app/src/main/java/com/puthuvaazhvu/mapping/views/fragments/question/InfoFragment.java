@@ -32,8 +32,8 @@ public class InfoFragment extends SingleQuestionFragmentBase implements View.OnC
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        question_text = view.findViewById(R.id.question_text);
-        question_text.setText(QuestionUtils.getTextString(getQuestion()));
+//        question_text = view.findViewById(R.id.question_text);
+//        question_text.setText(QuestionUtils.getTextString(getQuestion()));
     }
 
     @Override

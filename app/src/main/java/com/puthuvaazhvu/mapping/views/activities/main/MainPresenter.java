@@ -75,7 +75,7 @@ public class MainPresenter implements Contract.UserAction {
 
     @Override
     public Question getCurrent() {
-        return flowLogic.getCurrent();
+        return flowLogic.getCurrent().getQuestion();
     }
 
     @Override
@@ -109,7 +109,7 @@ public class MainPresenter implements Contract.UserAction {
     public void dumpSurveyToFile(final boolean isSurveyDone) {
 
         activityView.showLoading(R.string.survey_file_saving_msg);
-        saveAnswerUtils.saveAnswer(survey, flowLogic.getCurrent(), isSurveyDone)
+        saveAnswerUtils.saveAnswer(survey, flowLogic.getCurrent().getQuestion(), isSurveyDone)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<AnswersInfo>() {

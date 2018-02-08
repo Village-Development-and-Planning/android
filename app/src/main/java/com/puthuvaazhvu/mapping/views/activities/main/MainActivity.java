@@ -151,10 +151,10 @@ public class MainActivity extends MenuActivity
 
     @Override
     public void onBackPressed() {
-        if (defaultBackPressed)
-            super.onBackPressed();
-        else
-            presenter.getPrevious();
+//        if (defaultBackPressed)
+//            super.onBackPressed();
+//        else
+//            presenter.getPrevious();
     }
 
     @Override
@@ -170,14 +170,28 @@ public class MainActivity extends MenuActivity
 
         flowLogic = new FlowLogicImplementation(
                 root,
-                MappingApplication.globalContext.getApplicationData().getSurveySnapShotPath(),
                 sharedPreferences
         );
         flowLogic.setAuthJson(MappingApplication.globalContext.getApplicationData().getAuthJson());
 
         presenter.initData(survey, flowLogic);
 
-        presenter.getNext();
+        String snapShotPath = MappingApplication.globalContext.getApplicationData().getSurveySnapShotPath();
+
+        if (snapShotPath == null)
+            presenter.getNext();
+        else {
+            // from saved state
+            // move to the current question and update the UI.
+
+            Question question = QuestionUtils.moveToQuestionUsingPath(snapShotPath, root);
+
+            // if the answers are from snapshot set this to the current question
+            flowLogic.setCurrent(question);
+
+            FlowLogic.FlowData flowData = flowLogic.getCurrent();
+            loadQuestionUI(flowData.getFragment(), flowData.getQuestion().getRawNumber());
+        }
     }
 
     @Override
@@ -322,10 +336,6 @@ public class MainActivity extends MenuActivity
         presenter.updateCurrentQuestion(response, runnable);
     }
 
-    public void getNextQuestion() {
-        presenter.getNext();
-    }
-
     public void replaceFragmentCommand(Fragment fragment, String tag) {
         stackFragmentManagerInvoker.addCommand(new FragmentReplaceCommand(stackFragmentManagerReceiver, tag, fragment));
     }
@@ -389,7 +399,7 @@ public class MainActivity extends MenuActivity
         updateCurrentQuestion(question, response, new Runnable() {
             @Override
             public void run() {
-                getNextQuestion();
+                presenter.getNext();
             }
         });
     }

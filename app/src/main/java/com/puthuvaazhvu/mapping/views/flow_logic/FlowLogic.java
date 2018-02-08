@@ -33,7 +33,7 @@ public abstract class FlowLogic {
      *
      * @return - The currently pointed question
      */
-    public abstract Question getCurrent();
+    public abstract FlowData getCurrent();
 
     /**
      * Finishes the current question and moves to the next one

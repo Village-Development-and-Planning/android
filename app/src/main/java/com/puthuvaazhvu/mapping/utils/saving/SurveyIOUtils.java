@@ -75,7 +75,16 @@ public class SurveyIOUtils extends IOUtilsBase {
                                             s.setSurveyName(survey.getName());
                                             s.setTimeStamp(System.currentTimeMillis());
 
-                                            surveyInfo.getSurveys().add(s);
+                                            boolean shouldAddSurvey = true;
+                                            for (SurveyInfo.Survey currentSurvey : surveyInfo.getSurveys()) {
+                                                if (currentSurvey.getSurveyID().equals(s.getSurveyID())) {
+                                                    // survey already present
+                                                    shouldAddSurvey = false;
+                                                }
+                                            }
+
+                                            if (shouldAddSurvey)
+                                                surveyInfo.getSurveys().add(s);
 
                                             return surveyInfo;
                                         }

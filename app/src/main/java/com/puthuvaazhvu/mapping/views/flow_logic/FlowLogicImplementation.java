@@ -55,21 +55,21 @@ public class FlowLogicImplementation extends FlowLogic {
         this.sharedPreferences = sharedPreferences;
     }
 
-    public FlowLogicImplementation(
-            Question root,
-            String snapshotPath,
-            SharedPreferences sharedPreferences) {
-        this();
-
-        this.sharedPreferences = sharedPreferences;
-
-        if (snapshotPath == null) {
-            setCurrent(root);
-        } else {
-            Question question = QuestionUtils.moveToQuestionUsingPath(snapshotPath, root);
-            setCurrent(question);
-        }
-    }
+//    public FlowLogicImplementation(
+//            Question root,
+//            String snapshotPath,
+//            SharedPreferences sharedPreferences) {
+//        this();
+//
+//        this.sharedPreferences = sharedPreferences;
+//
+//        if (snapshotPath == null) {
+//            setCurrent(root);
+//        } else {
+//            Question question = QuestionUtils.moveToQuestionUsingPath(snapshotPath, root);
+//            setCurrent(question);
+//        }
+//    }
 
     @Override
     public void setCurrent(Question question) {
@@ -77,8 +77,11 @@ public class FlowLogicImplementation extends FlowLogic {
     }
 
     @Override
-    public Question getCurrent() {
-        return currentQuestion;
+    public FlowData getCurrent() {
+        FlowData flowData = new FlowData();
+        flowData.setFragment(getFragment(currentQuestion));
+        flowData.setQuestion(currentQuestion);
+        return flowData;
     }
 
     @Override
@@ -172,36 +175,37 @@ public class FlowLogicImplementation extends FlowLogic {
     }
 
     private FlowData _getNext(Question question, int startingChildIndex) {
-
-        preFlow(question);
+        FlowData flowData = null;
 
         // special case for grid
         if (QuestionUtils.isGridSelectQuestion(question)) {
-            FlowData flowData = new FlowData();
+            flowData = new FlowData();
             flowData.setFragment(new GridQuestionsFragment());
             flowData.setQuestion(question);
-            return flowData;
+        } else {
+            Question nextQuestion = getNextQuestion(question, startingChildIndex);
+
+            if (nextQuestion != null) {
+                // if loop question, update logic will handle the addition of answers
+                if (!QuestionUtils.isLoopOptionsQuestion(nextQuestion))
+                    addAnswer(QuestionUtils.generateQuestionWithDummyOptions(), nextQuestion);
+
+                setCurrent(nextQuestion);
+
+                flowData = new FlowData();
+                flowData.setFragment(getFragment(nextQuestion));
+                flowData.setQuestion(nextQuestion);
+
+                backStack.addQuestionToStack(flowData);
+            }
         }
 
-        Question nextQuestion = getNextQuestion(question, startingChildIndex);
-
-        if (nextQuestion != null) {
-            // if loop question, update logic will handle the addition of answers
-            if (!QuestionUtils.isLoopOptionsQuestion(nextQuestion))
-                addAnswer(QuestionUtils.generateQuestionWithDummyOptions(), nextQuestion);
-
-            setCurrent(nextQuestion);
-
-            FlowData flowData = new FlowData();
-            flowData.setFragment(getFragment(nextQuestion));
-            flowData.setQuestion(nextQuestion);
-
-            backStack.addQuestionToStack(flowData);
-
-            return flowData;
+        // execute the pre flow after the next question is found
+        if (flowData != null) {
+            preFlow(flowData.getQuestion());
         }
 
-        return null;
+        return flowData;
     }
 
     private Question getNextQuestion(Question question, int startingChildIndex) {
