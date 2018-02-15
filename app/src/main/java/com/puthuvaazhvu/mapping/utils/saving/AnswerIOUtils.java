@@ -20,6 +20,7 @@ import java.util.Iterator;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.functions.Function;
+import timber.log.Timber;
 
 /**
  * Created by muthuveerappans on 31/01/18.
@@ -166,6 +167,7 @@ public class AnswerIOUtils extends IOUtilsBase {
                                     && !snapshot.isComplete()) {
                                 // delete the file
                                 boolean result = FileUtils.deleteFile(new File(snapshot.getPathToFile()));
+                                Timber.i("Successfully deleted snapshot file " + snapshot.getSnapshotFileName());
                                 if (result) {
                                     // remove the entry in info.json
                                     iterator.remove();
