@@ -14,6 +14,7 @@ import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.application.MappingApplication;
 import com.puthuvaazhvu.mapping.data.AuthDataRepository;
+import com.puthuvaazhvu.mapping.other.Config;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.FileUtils;
 import com.puthuvaazhvu.mapping.utils.Utils;
@@ -135,12 +136,12 @@ public class SplashActivity extends BaseActivity {
                 new BiFunction<SurveyInfo, AnswersInfo, Boolean>() {
                     @Override
                     public Boolean apply(SurveyInfo surveyInfo, AnswersInfo answersInfo) throws Exception {
-                        if (surveyInfo.getVersion() != Constants.Versions.SURVEY_INFO_VERSION) {
-                            boolean result = FileUtils.deleteFile(surveyIOUtils.getRelativePathToSurveysInfoFile());
+                        if (surveyInfo.getVersion() != Config.Versions.SURVEY_INFO_VERSION) {
+                            boolean result = surveyIOUtils.deleteInfoFile();
                             Timber.i("Deleted status of surveys info file " + result);
                         }
-                        if (answersInfo.getVersion() != Constants.Versions.ANSWERS_INFO_VERSION) {
-                            boolean result = FileUtils.deleteFile(answerIOUtils.getRelativePathToAnswersInfoFile());
+                        if (answersInfo.getVersion() != Config.Versions.ANSWERS_INFO_VERSION) {
+                            boolean result = answerIOUtils.deleteInfoFile();
                             Timber.i("Deleted status of answers info file " + result);
                         }
                         return true;

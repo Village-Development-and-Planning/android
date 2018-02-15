@@ -8,16 +8,16 @@ import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
+import com.puthuvaazhvu.mapping.other.Config;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.FileUtils;
 import com.puthuvaazhvu.mapping.utils.saving.modals.AnswersInfo;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.ObservableSource;
 import io.reactivex.functions.Function;
 
@@ -38,7 +38,7 @@ public class AnswerIOUtils extends IOUtilsBase {
     private AnswerIOUtils() {
     }
 
-    public Observable<AnswersInfo> saveAnswer(
+    public Observable<AnswersInfo> saveAnswerToFile(
             final Survey survey,
             final Question currentQuestion,
             final boolean isSurveyDone
@@ -47,91 +47,39 @@ public class AnswerIOUtils extends IOUtilsBase {
                 .flatMap(new Function<String, ObservableSource<File>>() {
                              @Override
                              public ObservableSource<File> apply(String s) throws Exception {
-                                 String pathToFile = getRelativePathToAnswersDir() + File.separator
+
+                                 String rootDir = getRelativePathToAnswersDir();
+
+                                 if (isSurveyDone)
+                                     rootDir = getRelativePathToCompletedAnswersDir();
+
+                                 String pathToFile = rootDir + File.separator
                                          + (survey.getId() + "_" + System.currentTimeMillis());
+
                                  return FileUtils.saveToFileFromPath(pathToFile, s);
                              }
                          }
                 ).flatMap(new Function<File, ObservableSource<AnswersInfo>>() {
                     @Override
                     public ObservableSource<AnswersInfo> apply(File file) throws Exception {
-                        return updateInfoForAnswers(
+                        return addSnapShotToInfo(
                                 survey.getId(),
                                 file.getName(),
                                 TextUtils.join(",", QuestionUtils.getPathOfQuestion(currentQuestion)),
-                                isSurveyDone
+                                isSurveyDone,
+                                file.getAbsolutePath()
                         );
                     }
                 });
     }
 
-    private Observable<AnswersInfo> updateInfoForAnswers(
-            final String surveyID,
-            final String snapshotFileName,
-            final String snapshotPath,
-            final boolean isSurveyDone) {
-
-        return Observable.just(getRelativePathToAnswersInfoFile())
-                .flatMap(new Function<String, ObservableSource<AnswersInfo>>() {
+    public Observable<AnswersInfo> saveInfo(AnswersInfo answersInfo) {
+        return FileUtils.saveToFileFromPath(getRelativePathToAnswersInfoFile()
+                , answersInfo.toJsonString())
+                .flatMap(new Function<File, ObservableSource<AnswersInfo>>() {
                     @Override
-                    public ObservableSource<AnswersInfo> apply(String path) throws Exception {
-
-                        if (FileUtils.fileExists(path)) {
-                            return readAnswerInfoFile();
-                        } else {
-
-                            // create a dummy json and return
-
-                            return Observable.create(new ObservableOnSubscribe<AnswersInfo>() {
-                                @Override
-                                public void subscribe(ObservableEmitter<AnswersInfo> e) throws Exception {
-                                    JsonObject jsonObject = new JsonObject();
-                                    jsonObject.addProperty("version", Constants.Versions.ANSWERS_INFO_VERSION);
-                                    JsonArray surveysArrayDummy = new JsonArray();
-                                    jsonObject.add("surveys", surveysArrayDummy);
-
-                                    AnswersInfo answersInfo = parseAnswerInfo(jsonObject);
-
-                                    e.onNext(answersInfo);
-                                    e.onComplete();
-                                }
-                            });
-                        }
-                    }
-                })
-                .flatMap(new Function<AnswersInfo, ObservableSource<AnswersInfo>>() {
-                    @Override
-                    public ObservableSource<AnswersInfo> apply(AnswersInfo answersInfo) throws Exception {
-                        AnswersInfo.Snapshot snapshot = new AnswersInfo.Snapshot();
-                        snapshot.setComplete(isSurveyDone);
-                        snapshot.setSnapshotFileName(snapshotFileName);
-                        snapshot.setPathToLastQuestion(snapshotPath);
-                        snapshot.setTimestamp(System.currentTimeMillis());
-
-                        if (answersInfo.isSurveyPresent(surveyID)) {
-                            // add the snapshot to the existing survey
-                            answersInfo.getSurvey(surveyID).getSnapshots().add(snapshot);
-                        } else {
-                            AnswersInfo.Survey survey = new AnswersInfo.Survey();
-                            survey.setSurveyID(surveyID);
-
-                            ArrayList<AnswersInfo.Snapshot> snapshots = new ArrayList<>();
-                            snapshots.add(snapshot);
-
-                            survey.setSnapshots(snapshots);
-
-                            // create a new survey
-                            answersInfo.getSurveys().add(survey);
-                        }
-
-                        return FileUtils.saveToFileFromPath(getRelativePathToAnswersInfoFile()
-                                , answersInfo.toJsonString())
-                                .flatMap(new Function<File, ObservableSource<AnswersInfo>>() {
-                                    @Override
-                                    public ObservableSource<AnswersInfo> apply(File file) throws Exception {
-                                        return readAnswerInfoFile();
-                                    }
-                                });
+                    public ObservableSource<AnswersInfo> apply(File file) throws Exception {
+                        return readAnswerInfoFile();
                     }
                 });
     }
@@ -146,15 +94,118 @@ public class AnswerIOUtils extends IOUtilsBase {
                 });
     }
 
-    public String getRelativePathToAnswersInfoFile() {
+    public Observable<String> getAnswerFromFile(String snapShotFileName) {
+        return FileUtils.readFromPath(answerIOUtils.getRelativePathToAnswersDir()
+                + File.separator + snapShotFileName);
+    }
+
+    public boolean deleteInfoFile() {
+        return FileUtils.deleteFile(getRelativePathToAnswersInfoFile());
+    }
+
+    public boolean deleteCompletedAnswer(String fileName) {
+        return FileUtils.deleteFile(getRelativePathToCompletedAnswersDir() + File.separator + fileName);
+    }
+
+    public boolean deleteCompletedAnswer(File file) {
+        return FileUtils.deleteFile(file);
+    }
+
+    private Observable<AnswersInfo> addSnapShotToInfo(
+            final String surveyID,
+            final String snapshotFileName,
+            final String snapshotPath,
+            final boolean isSurveyDone,
+            final String pathToFile) {
+
+        return readAnswerInfoFile()
+                .onErrorReturnItem(createEmptyInfo())
+                .map(new Function<AnswersInfo, AnswersInfo>() {
+                    @Override
+                    public AnswersInfo apply(AnswersInfo answersInfo) throws Exception {
+                        AnswersInfo.Snapshot snapshot = new AnswersInfo.Snapshot();
+                        snapshot.setComplete(isSurveyDone);
+                        snapshot.setSnapshotFileName(snapshotFileName);
+                        snapshot.setPathToLastQuestion(snapshotPath);
+                        snapshot.setPathToFile(pathToFile);
+                        snapshot.setTimestamp(System.currentTimeMillis());
+
+                        if (answersInfo.isSurveyPresent(surveyID)) {
+                            // add the snapshot to the existing survey
+                            answersInfo.getSurvey(surveyID).getSnapshots().add(snapshot);
+                        } else {
+                            // create a new survey
+                            AnswersInfo.Survey survey = new AnswersInfo.Survey();
+                            survey.setSurveyID(surveyID);
+
+                            ArrayList<AnswersInfo.Snapshot> snapshots = new ArrayList<>();
+                            snapshots.add(snapshot);
+
+                            survey.setSnapshots(snapshots);
+
+                            answersInfo.getSurveys().add(survey);
+                        }
+                        return answersInfo;
+                    }
+                })
+                // delete the previous snapshots of this answer
+                .map(new Function<AnswersInfo, AnswersInfo>() {
+                    @Override
+                    public AnswersInfo apply(AnswersInfo answersInfo) throws Exception {
+                        AnswersInfo.Survey survey =
+                                answersInfo.getSurvey(surveyID);
+
+                        if (survey == null) return answersInfo;
+
+                        Iterator<AnswersInfo.Snapshot> iterator = survey.getSnapshots().iterator();
+
+                        while (iterator.hasNext()) {
+                            AnswersInfo.Snapshot snapshot = iterator.next();
+
+                            if (!snapshot.getSnapshotFileName().equals(snapshotFileName)
+                                    && !snapshot.isComplete()) {
+                                // delete the file
+                                boolean result = FileUtils.deleteFile(new File(snapshot.getPathToFile()));
+                                if (result) {
+                                    // remove the entry in info.json
+                                    iterator.remove();
+                                }
+                            }
+                        }
+
+                        return answersInfo;
+                    }
+                })
+                .flatMap(new Function<AnswersInfo, ObservableSource<AnswersInfo>>() {
+                    @Override
+                    public ObservableSource<AnswersInfo> apply(AnswersInfo answersInfo) throws Exception {
+                        return saveInfo(answersInfo);
+                    }
+                });
+    }
+
+    private String getRelativePathToAnswersInfoFile() {
         return getRelativePathToAnswersDir() + File.separator + Constants.INFO_FILE_NAME;
     }
 
-    public String getRelativePathToAnswersDir() {
+    private String getRelativePathToCompletedAnswersDir() {
+        return getRelativePathToAnswersDir() + File.separator + Constants.COMPLETED_ANSWERS_DATA_DIR;
+    }
+
+    private String getRelativePathToAnswersDir() {
         return File.separator + Constants.ANSWERS_DATA_DIR;
     }
 
-    public AnswersInfo parseAnswerInfo(JsonObject jsonObject) {
+    private AnswersInfo createEmptyInfo() {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("version", Config.Versions.ANSWERS_INFO_VERSION);
+        JsonArray surveysArrayDummy = new JsonArray();
+        jsonObject.add("surveys", surveysArrayDummy);
+
+        return parseAnswerInfo(jsonObject);
+    }
+
+    private AnswersInfo parseAnswerInfo(JsonObject jsonObject) {
         Gson gson = new Gson();
         return gson.fromJson(jsonObject, AnswersInfo.class);
     }

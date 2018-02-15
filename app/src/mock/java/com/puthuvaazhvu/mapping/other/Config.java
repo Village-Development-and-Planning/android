@@ -6,4 +6,9 @@ package com.puthuvaazhvu.mapping.other;
 
 public class Config {
     public static boolean DEBUG = false;
+
+    public static class Versions {
+        public static int ANSWERS_INFO_VERSION = 1;
+        public static int SURVEY_INFO_VERSION = 1;
+    }
 }

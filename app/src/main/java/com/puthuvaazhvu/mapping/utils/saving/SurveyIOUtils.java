@@ -6,6 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.puthuvaazhvu.mapping.modals.Survey;
+import com.puthuvaazhvu.mapping.other.Config;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.FileUtils;
 import com.puthuvaazhvu.mapping.utils.saving.modals.AnswersInfo;
@@ -34,6 +35,15 @@ public class SurveyIOUtils extends IOUtilsBase {
     }
 
     private SurveyIOUtils() {
+    }
+
+    public Observable<String> getSurveyFromFile(String surveyID) {
+        return FileUtils.
+                readFromPath(surveyIOUtils.getRelativePathToSurveysDir() + File.separator + surveyID);
+    }
+
+    public boolean deleteInfoFile() {
+        return FileUtils.deleteFile(getRelativePathToSurveysInfoFile());
     }
 
     public Observable<SurveyInfo> saveSurvey(final String surveyString) {
@@ -95,7 +105,7 @@ public class SurveyIOUtils extends IOUtilsBase {
                                 @Override
                                 public void subscribe(ObservableEmitter<SurveyInfo> e) throws Exception {
                                     JsonObject jsonObject = new JsonObject();
-                                    jsonObject.addProperty("version", Constants.Versions.SURVEY_INFO_VERSION);
+                                    jsonObject.addProperty("version", Config.Versions.SURVEY_INFO_VERSION);
                                     JsonArray surveysArrayDummy = new JsonArray();
                                     jsonObject.add("surveys", surveysArrayDummy);
 
@@ -153,15 +163,15 @@ public class SurveyIOUtils extends IOUtilsBase {
                 });
     }
 
-    public String getRelativePathToSurveysInfoFile() {
+    private String getRelativePathToSurveysInfoFile() {
         return getRelativePathToSurveysDir() + File.separator + Constants.INFO_FILE_NAME;
     }
 
-    public String getRelativePathToSurveysDir() {
+    private String getRelativePathToSurveysDir() {
         return File.separator + Constants.SURVEY_DATA_DIR;
     }
 
-    public SurveyInfo parseSurveyInfo(JsonObject jsonObject) {
+    private SurveyInfo parseSurveyInfo(JsonObject jsonObject) {
         Gson gson = new Gson();
         return gson.fromJson(jsonObject, SurveyInfo.class);
     }

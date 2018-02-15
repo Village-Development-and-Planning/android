@@ -2,34 +2,15 @@ package com.puthuvaazhvu.mapping.views.activities.main;
 
 import android.content.SharedPreferences;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
-import android.text.TextUtils;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
-import com.puthuvaazhvu.mapping.application.MappingApplication;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
-import com.puthuvaazhvu.mapping.modals.Text;
-import com.puthuvaazhvu.mapping.modals.flow.ChildFlow;
-import com.puthuvaazhvu.mapping.modals.flow.PreFlow;
-import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
-import com.puthuvaazhvu.mapping.modals.utils.AuthJsonUtils;
-import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.other.Constants;
-import com.puthuvaazhvu.mapping.utils.SharedPreferenceUtils;
 import com.puthuvaazhvu.mapping.utils.saving.AnswerIOUtils;
 import com.puthuvaazhvu.mapping.utils.saving.modals.AnswersInfo;
 import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogic;
-import com.puthuvaazhvu.mapping.views.fragments.question.ConformationQuestionFragment;
-import com.puthuvaazhvu.mapping.views.fragments.question.GPSQuestionFragment;
-import com.puthuvaazhvu.mapping.views.fragments.question.GridQuestionsFragment;
-import com.puthuvaazhvu.mapping.views.fragments.question.InfoFragment;
-import com.puthuvaazhvu.mapping.views.fragments.question.MessageQuestionFragment;
-import com.puthuvaazhvu.mapping.views.fragments.question.ShownTogetherFragment;
-import com.puthuvaazhvu.mapping.views.fragments.question.SingleQuestionFragment;
 
 import java.util.ArrayList;
 
@@ -109,7 +90,7 @@ public class MainPresenter implements Contract.UserAction {
     public void dumpSurveyToFile(final boolean isSurveyDone) {
 
         activityView.showLoading(R.string.survey_file_saving_msg);
-        saveAnswerUtils.saveAnswer(survey, flowLogic.getCurrent().getQuestion(), isSurveyDone)
+        saveAnswerUtils.saveAnswerToFile(survey, flowLogic.getCurrent().getQuestion(), isSurveyDone)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<AnswersInfo>() {

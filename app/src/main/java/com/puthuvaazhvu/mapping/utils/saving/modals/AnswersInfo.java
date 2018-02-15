@@ -108,6 +108,19 @@ public class AnswersInfo {
         private String pathToLastQuestion;
         private boolean isComplete;
         private long timestamp;
+        private String pathToFile;
+
+        public static String getSurveyID(String snapshotFileName) {
+            return snapshotFileName.split("_")[0];
+        }
+
+        public String getPathToFile() {
+            return pathToFile;
+        }
+
+        public void setPathToFile(String pathToFile) {
+            this.pathToFile = pathToFile;
+        }
 
         public String getSnapshotFileName() {
             return snapshotFileName;

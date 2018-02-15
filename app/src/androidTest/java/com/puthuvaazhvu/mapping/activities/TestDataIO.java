@@ -55,7 +55,7 @@ public class TestDataIO {
                 .getAnswers().get(0).getChildren().get(0);
         assertThat(question.getRawNumber(), is("2.0"));
 
-        AnswersInfo answersInfo = answerIOUtils.saveAnswer(survey, question, false).blockingFirst();
+        AnswersInfo answersInfo = answerIOUtils.saveAnswerToFile(survey, question, false).blockingFirst();
 
         assertThat(answersInfo.getSurveys().size(), is(greaterThan(0)));
         assertThat(answersInfo.getVersion(), is(Constants.Versions.ANSWERS_INFO_VERSION));
