@@ -1,29 +1,13 @@
-package com.puthuvaazhvu.mapping.utils.saving.modals;
-
-import com.google.gson.Gson;
-import com.google.gson.annotations.Expose;
+package com.puthuvaazhvu.mapping.filestorage.modals;
 
 import java.util.ArrayList;
 
-/**
- * Created by muthuveerappans on 31/01/18.
- */
+public class SurveysInfo {
 
-public class SurveyInfo {
-    private int version;
     private ArrayList<Survey> surveys;
-    private transient Gson gson = new Gson();
 
-    public SurveyInfo() {
+    public SurveysInfo() {
         surveys = new ArrayList<>();
-    }
-
-    public int getVersion() {
-        return version;
-    }
-
-    public void setVersion(int version) {
-        this.version = version;
     }
 
     public ArrayList<Survey> getSurveys() {
@@ -32,10 +16,6 @@ public class SurveyInfo {
 
     public void setSurveys(ArrayList<Survey> surveys) {
         this.surveys = surveys;
-    }
-
-    public String getAsJsonString() {
-        return gson.toJson(this);
     }
 
     public Survey getSurvey(String id) {
@@ -50,7 +30,16 @@ public class SurveyInfo {
     public static class Survey {
         private String surveyID;
         private String surveyName;
+        private String filename;
         private long timeStamp;
+
+        public String getFilename() {
+            return filename;
+        }
+
+        public void setFilename(String filename) {
+            this.filename = filename;
+        }
 
         public String getSurveyID() {
             return surveyID;

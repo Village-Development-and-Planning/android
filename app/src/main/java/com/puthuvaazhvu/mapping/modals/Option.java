@@ -27,6 +27,7 @@ public class Option extends BaseObject implements Parcelable {
     private final String modifiedAt;
     private final String position;
     private String imageData;
+    private String value;
 
     public Option(String id, String type, Text text, String modifiedAt, String position) {
         this.id = id;
@@ -96,6 +97,14 @@ public class Option extends BaseObject implements Parcelable {
         }
     }
 
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
     public String getImageData() {
         return imageData;
     }
@@ -151,6 +160,10 @@ public class Option extends BaseObject implements Parcelable {
         jsonObject.addProperty("type", type);
         jsonObject.addProperty("position", position);
         jsonObject.addProperty("modifiedAt", modifiedAt);
+
+        if (value != null) {
+            jsonObject.addProperty("value", value);
+        }
 
         if (text != null)
             jsonObject.add("text", text.getAsJson());

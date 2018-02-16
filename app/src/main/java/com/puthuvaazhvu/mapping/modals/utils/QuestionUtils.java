@@ -375,7 +375,6 @@ public class QuestionUtils {
             questionJson.add("flow", node.getFlowPattern().getAsJson());
 
         questionJson.addProperty("id", "");
-        //jsonObject.addProperty("position", node.getPosition());
 
         if (node.getText() != null)
             questionJson.add("text", node.getText().getAsJson());

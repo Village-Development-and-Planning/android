@@ -382,7 +382,7 @@ public class FlowLogicImplementation extends FlowLogic {
                 Answer answer = question.getAnswers().get(i);
                 if (response.get(0).getPosition().equals(answer.getOptions().get(0).getPosition())) {
                     answer.setOptions(response);
-                    answer.setTimeStamp(startTime);
+                    answer.setExitTimestamp(startTime);
                     question.setCurrentAnswer(answer);
 
                     shouldAddAnswer = false;
@@ -406,7 +406,7 @@ public class FlowLogicImplementation extends FlowLogic {
 
         Answer answer = question.getCurrentAnswer();
         answer.setOptions(response);
-        answer.setTimeStamp(startTime);
+        answer.setExitTimestamp(startTime);
 
         Timber.i("Answer updated info :\n" + answer.toString());
 

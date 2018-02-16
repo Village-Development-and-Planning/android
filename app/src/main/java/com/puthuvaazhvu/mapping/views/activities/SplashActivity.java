@@ -16,12 +16,10 @@ import com.puthuvaazhvu.mapping.application.MappingApplication;
 import com.puthuvaazhvu.mapping.data.AuthDataRepository;
 import com.puthuvaazhvu.mapping.other.Config;
 import com.puthuvaazhvu.mapping.other.Constants;
-import com.puthuvaazhvu.mapping.utils.FileUtils;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.utils.saving.AnswerIOUtils;
 import com.puthuvaazhvu.mapping.utils.saving.SurveyIOUtils;
-import com.puthuvaazhvu.mapping.utils.saving.modals.AnswersInfo;
-import com.puthuvaazhvu.mapping.utils.saving.modals.SurveyInfo;
+import com.puthuvaazhvu.mapping.utils.saving.modals.SnapshotsInfo;
 import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListActivity;
 
 import io.reactivex.Observable;
@@ -127,20 +125,20 @@ public class SplashActivity extends BaseActivity {
                             }
                         }),
                 answerIOUtils.readAnswerInfoFile()
-                        .onErrorReturn(new Function<Throwable, AnswersInfo>() {
+                        .onErrorReturn(new Function<Throwable, SnapshotsInfo>() {
                             @Override
-                            public AnswersInfo apply(Throwable throwable) throws Exception {
-                                return new AnswersInfo();
+                            public SnapshotsInfo apply(Throwable throwable) throws Exception {
+                                return new SnapshotsInfo();
                             }
                         }),
-                new BiFunction<SurveyInfo, AnswersInfo, Boolean>() {
+                new BiFunction<SurveyInfo, SnapshotsInfo, Boolean>() {
                     @Override
-                    public Boolean apply(SurveyInfo surveyInfo, AnswersInfo answersInfo) throws Exception {
+                    public Boolean apply(SurveyInfo surveyInfo, SnapshotsInfo snapshotsInfo) throws Exception {
                         if (surveyInfo.getVersion() != Config.Versions.SURVEY_INFO_VERSION) {
                             boolean result = surveyIOUtils.deleteInfoFile();
                             Timber.i("Deleted status of surveys info file " + result);
                         }
-                        if (answersInfo.getVersion() != Config.Versions.ANSWERS_INFO_VERSION) {
+                        if (snapshotsInfo.getVersion() != Config.Versions.ANSWERS_INFO_VERSION) {
                             boolean result = answerIOUtils.deleteInfoFile();
                             Timber.i("Deleted status of answers info file " + result);
                         }

@@ -1,7 +1,4 @@
-package com.puthuvaazhvu.mapping.utils.saving.modals;
-
-import com.google.gson.Gson;
-import com.google.gson.annotations.Expose;
+package com.puthuvaazhvu.mapping.filestorage.modals;
 
 import java.util.ArrayList;
 
@@ -9,26 +6,15 @@ import java.util.ArrayList;
  * Created by muthuveerappans on 31/01/18.
  */
 
-public class AnswersInfo {
-    private int version;
+public class SnapshotsInfo {
     private ArrayList<Survey> surveys;
 
-    private transient Gson gson = new Gson();
-
-    public AnswersInfo() {
+    public SnapshotsInfo() {
         surveys = new ArrayList<>();
-    }
-
-    public int getVersion() {
-        return version;
     }
 
     public ArrayList<Survey> getSurveys() {
         return surveys;
-    }
-
-    public void setVersion(int version) {
-        this.version = version;
     }
 
     public void setSurveys(ArrayList<Survey> surveys) {
@@ -37,6 +23,10 @@ public class AnswersInfo {
 
     public boolean isSurveyPresent(String surveyID) {
         return getSurvey(surveyID) != null;
+    }
+
+    public Survey getSurveyFromFileName(String snapshotFileName) {
+        return getSurvey(snapshotFileName.split("_")[0]);
     }
 
     public Survey getSurvey(String surveyID) {
@@ -48,14 +38,31 @@ public class AnswersInfo {
         return null;
     }
 
-    public String toJsonString() {
-        return gson.toJson(this);
+    public void addSnapshot(Snapshot snapshot) {
+        Survey s = getSurvey(snapshot.getSurveyID());
+        if (s == null) {
+            // survey not present
+            Survey survey = new Survey();
+            survey.addSnapshot(snapshot);
+        } else {
+            s.getSnapshots().add(snapshot);
+        }
     }
 
     public static class Survey {
         private String surveyID;
         private String surveyName;
-        private ArrayList<Snapshot> snapshots;
+        private ArrayList<Snapshot> snapshots = new ArrayList<>();
+
+        public void addSnapshot(Snapshot snapshot) {
+            for (Snapshot s : snapshots) {
+                if (s.getSnapshotFileName().equals(snapshot.getSnapshotFileName())) {
+                    s.copy(snapshot);
+                    return;
+                }
+            }
+            snapshots.add(snapshot);
+        }
 
         public String getSurveyID() {
             return surveyID;
@@ -81,18 +88,6 @@ public class AnswersInfo {
             this.snapshots = snapshots;
         }
 
-        public int getCountOfCompletedSnapShots() {
-            int count = 0;
-            for (Snapshot snapshot : snapshots) {
-                if (snapshot.isComplete()) count += 1;
-            }
-            return count;
-        }
-
-        public boolean isSurveyOngoing() {
-            return !getLatestLoggedSnapshot().isComplete();
-        }
-
         public Snapshot getLatestLoggedSnapshot() {
             Snapshot snapshot = snapshots.get(0);
             for (Snapshot s : snapshots) {
@@ -106,20 +101,16 @@ public class AnswersInfo {
     public static class Snapshot {
         private String snapshotFileName;
         private String pathToLastQuestion;
-        private boolean isComplete;
         private long timestamp;
-        private String pathToFile;
 
-        public static String getSurveyID(String snapshotFileName) {
+        public void copy(Snapshot other) {
+            this.snapshotFileName = other.snapshotFileName;
+            this.pathToLastQuestion = other.pathToLastQuestion;
+            this.timestamp = other.timestamp;
+        }
+
+        public String getSurveyID() {
             return snapshotFileName.split("_")[0];
-        }
-
-        public String getPathToFile() {
-            return pathToFile;
-        }
-
-        public void setPathToFile(String pathToFile) {
-            this.pathToFile = pathToFile;
         }
 
         public String getSnapshotFileName() {
@@ -128,10 +119,6 @@ public class AnswersInfo {
 
         public String getPathToLastQuestion() {
             return pathToLastQuestion;
-        }
-
-        public boolean isComplete() {
-            return isComplete;
         }
 
         public long getTimestamp() {
@@ -144,10 +131,6 @@ public class AnswersInfo {
 
         public void setPathToLastQuestion(String pathToLastQuestion) {
             this.pathToLastQuestion = pathToLastQuestion;
-        }
-
-        public void setComplete(boolean complete) {
-            this.isComplete = complete;
         }
 
         public void setTimestamp(long timestamp) {

@@ -17,12 +17,12 @@ public class Answer extends BaseObject implements Parcelable {
     private final ArrayList<Option> options;
     private final ArrayList<Question> children;
     private Question questionReference;
-    private long timeStamp;
-    //private int nextVisibleChildIndex;
+    private long startTimeStamp;
+    private long exitTimestamp;
 
-    public Answer(ArrayList<Option> options, Question questionReference, long timeStamp) {
+    public Answer(ArrayList<Option> options, Question questionReference, long startTimeStamp) {
         this(options, questionReference);
-        this.timeStamp = timeStamp;
+        this.startTimeStamp = startTimeStamp;
     }
 
     public Answer(ArrayList<Option> options, Question questionReference) {
@@ -39,36 +39,21 @@ public class Answer extends BaseObject implements Parcelable {
         for (int i = 0; i < children.size(); i++) {
             children.get(i).setParentAnswer(this);
         }
+
+        this.startTimeStamp = System.currentTimeMillis();
     }
 
     public void setQuestionReference(Question questionReference) {
         this.questionReference = questionReference;
     }
 
-//    public void setNextVisibleChildIndex(int currentChildIndex) {
-//        this.nextVisibleChildIndex = currentChildIndex;
-//    }
-//
-//    public boolean isVisibleChildIndexOutOfBounds(int index) {
-//        return index < 0 || index >= children.size();
-//    }
-//
-//    public void nextVisibleChildIndex() {
-//        nextVisibleChildIndex++;
-//    }
-//
-//    public void decrementChildIndex() {
-//        nextVisibleChildIndex--;
-//    }
-//
-//
-//    public int getNextVisibleChildIndex() {
-//        return nextVisibleChildIndex;
-//    }
+    public long getStartTimeStamp() {
+        return startTimeStamp;
+    }
 
-//    public static boolean isAnswerDummy(Answer answer) {
-//        return answer.getOptions().size() > 0 && answer.getOptions().get(0).getId().equals("DUMMY");
-//    }
+    public long getExitTimestamp() {
+        return exitTimestamp;
+    }
 
     @Override
     public int describeContents() {
@@ -84,8 +69,12 @@ public class Answer extends BaseObject implements Parcelable {
         options.addAll(otherOptions);
     }
 
-    public void setTimeStamp(long timeStamp) {
-        this.timeStamp = timeStamp;
+    public void setExitTimestamp(long exitTimestamp) {
+        this.exitTimestamp = exitTimestamp;
+    }
+
+    public void setStartTimeStamp(long timeStamp) {
+        this.startTimeStamp = timeStamp;
     }
 
     public ArrayList<Question> getChildren() {
@@ -100,13 +89,11 @@ public class Answer extends BaseObject implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeTypedList(this.options);
         dest.writeTypedList(this.children);
-        //dest.writeParcelable(this.questionReference, flags);
     }
 
     protected Answer(Parcel in) {
         this.options = in.createTypedArrayList(Option.CREATOR);
         this.children = in.createTypedArrayList(Question.CREATOR);
-        //this.questionReference = in.readParcelable(Question.class.getClassLoader());
     }
 
     public static final Creator<Answer> CREATOR = new Creator<Answer>() {

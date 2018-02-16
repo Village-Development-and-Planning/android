@@ -8,12 +8,8 @@ import com.puthuvaazhvu.mapping.modals.SurveyAPIInfo;
 import com.puthuvaazhvu.mapping.network.APIUtils;
 import com.puthuvaazhvu.mapping.network.implementations.SingleSurveyAPI;
 import com.puthuvaazhvu.mapping.utils.saving.SurveyIOUtils;
-import com.puthuvaazhvu.mapping.utils.saving.modals.SurveyInfo;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import io.reactivex.Observable;

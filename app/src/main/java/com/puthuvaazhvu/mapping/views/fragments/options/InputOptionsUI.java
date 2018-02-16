@@ -72,7 +72,16 @@ public class InputOptionsUI extends OptionsUI {
         if (input.isEmpty() || !checkDigitCountValidation(input) || !checkValidation(input)) {
             return null;
         }
-        options.add(new Option("", "INPUT", new Text("", input, input, ""), "", ""));
+
+        Option option = new Option(
+                "",
+                "INPUT",
+                new Text("", input, input, ""),
+                "",
+                "INPUT"
+        );
+        option.setValue(input);
+        options.add(option);
         return options;
     }
 

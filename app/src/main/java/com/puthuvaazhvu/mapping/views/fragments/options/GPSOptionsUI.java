@@ -108,7 +108,15 @@ public class GPSOptionsUI extends OptionsUI
         ArrayList<Option> options = new ArrayList<>();
 
         String loc = lastLocation.getLatitude() + "," + lastLocation.getLongitude();
-        options.add(new Option("", "GPS", new Text("", loc, loc, ""), "", ""));
+        Option option = new Option(
+                "",
+                "GPS",
+                new Text("", loc, loc, ""),
+                "",
+                "GPS"
+        );
+        option.setValue(loc);
+        options.add(option);
 
         return options;
     }

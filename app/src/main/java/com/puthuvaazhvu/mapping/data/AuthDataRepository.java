@@ -9,7 +9,6 @@ import com.google.gson.JsonParser;
 import com.puthuvaazhvu.mapping.network.APIUtils;
 import com.puthuvaazhvu.mapping.network.implementations.AuthAPI;
 import com.puthuvaazhvu.mapping.other.Constants;
-import com.puthuvaazhvu.mapping.utils.FileUtils;
 
 import java.io.File;
 

@@ -9,7 +9,7 @@ import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.saving.AnswerIOUtils;
-import com.puthuvaazhvu.mapping.utils.saving.modals.AnswersInfo;
+import com.puthuvaazhvu.mapping.utils.saving.modals.SnapshotsInfo;
 import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogic;
 
 import java.util.ArrayList;
@@ -93,9 +93,9 @@ public class MainPresenter implements Contract.UserAction {
         saveAnswerUtils.saveAnswerToFile(survey, flowLogic.getCurrent().getQuestion(), isSurveyDone)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<AnswersInfo>() {
+                .subscribe(new Consumer<SnapshotsInfo>() {
                     @Override
-                    public void accept(AnswersInfo answersInfo) throws Exception {
+                    public void accept(SnapshotsInfo snapshotsInfo) throws Exception {
                         activityView.onSurveySaved(survey);
                         activityView.hideLoading();
                         activityView.showMessage(R.string.save_successful);

@@ -12,11 +12,9 @@ import com.puthuvaazhvu.mapping.network.APIError;
 import com.puthuvaazhvu.mapping.network.APIUtils;
 import com.puthuvaazhvu.mapping.network.implementations.ListSurveysAPI;
 import com.puthuvaazhvu.mapping.network.implementations.SingleSurveyAPI;
-import com.puthuvaazhvu.mapping.utils.FileUtils;
 import com.puthuvaazhvu.mapping.utils.saving.AnswerIOUtils;
 import com.puthuvaazhvu.mapping.utils.saving.SurveyIOUtils;
 
-import java.io.File;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -86,7 +84,6 @@ public class SurveyDataRepository {
 
     public Observable<Survey> getSurveyFromFile(String id, String snapshotPath, String snapShotFileName) {
         if (snapshotPath != null) {
-
             // get from answers dir
             return answerIOUtils.getAnswerFromFile(snapShotFileName)
                     .flatMap(new Function<String, ObservableSource<Survey>>() {

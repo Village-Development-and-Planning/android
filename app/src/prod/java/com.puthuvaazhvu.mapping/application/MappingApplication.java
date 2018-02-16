@@ -10,7 +10,6 @@ import com.crashlytics.android.Crashlytics;
 import com.puthuvaazhvu.mapping.BuildConfig;
 import com.puthuvaazhvu.mapping.application.modal.ApplicationData;
 import com.puthuvaazhvu.mapping.other.Constants;
-import com.puthuvaazhvu.mapping.utils.FileUtils;
 import com.puthuvaazhvu.mapping.utils.Utils;
 
 import java.io.File;

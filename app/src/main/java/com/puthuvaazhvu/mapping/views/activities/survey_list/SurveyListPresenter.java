@@ -7,14 +7,12 @@ import com.puthuvaazhvu.mapping.data.SurveyDataRepository;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.utils.saving.AnswerIOUtils;
 import com.puthuvaazhvu.mapping.utils.saving.SurveyIOUtils;
-import com.puthuvaazhvu.mapping.utils.saving.modals.AnswersInfo;
-import com.puthuvaazhvu.mapping.utils.saving.modals.SurveyInfo;
+import com.puthuvaazhvu.mapping.utils.saving.modals.SnapshotsInfo;
 
 import java.util.ArrayList;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
@@ -78,10 +76,10 @@ public class SurveyListPresenter implements Contract.UserAction {
         Observable.zip(
                 answerIOUtils.readAnswerInfoFile()
                         // http://reactivex.io/documentation/operators/catch.html
-                        .onErrorReturn(new Function<Throwable, AnswersInfo>() {
+                        .onErrorReturn(new Function<Throwable, SnapshotsInfo>() {
                             @Override
-                            public AnswersInfo apply(Throwable throwable) throws Exception {
-                                return new AnswersInfo();
+                            public SnapshotsInfo apply(Throwable throwable) throws Exception {
+                                return new SnapshotsInfo();
                             }
                         }),
                 surveyIOUtils.readSurveysInfoFile()
@@ -91,9 +89,9 @@ public class SurveyListPresenter implements Contract.UserAction {
                                 return new SurveyInfo();
                             }
                         }),
-                new BiFunction<AnswersInfo, SurveyInfo, ArrayList<SurveyListData>>() {
+                new BiFunction<SnapshotsInfo, SurveyInfo, ArrayList<SurveyListData>>() {
                     @Override
-                    public ArrayList<SurveyListData> apply(AnswersInfo answersInfo, SurveyInfo surveyInfo)
+                    public ArrayList<SurveyListData> apply(SnapshotsInfo snapshotsInfo, SurveyInfo surveyInfo)
                             throws Exception {
 
                         ArrayList<SurveyListData> surveyListData = new ArrayList<>();
@@ -103,8 +101,8 @@ public class SurveyListPresenter implements Contract.UserAction {
 
                             SurveyListData sld = new SurveyListData(survey.getId(), survey.getName());
 
-                            if (answersInfo.isSurveyPresent(survey.getId())) {
-                                AnswersInfo.Survey snapshots = answersInfo.getSurvey(survey.getId());
+                            if (snapshotsInfo.isSurveyPresent(survey.getId())) {
+                                SnapshotsInfo.Survey snapshots = snapshotsInfo.getSurvey(survey.getId());
 
                                 int completedCount = snapshots.getCountOfCompletedSnapShots();
 
@@ -112,7 +110,7 @@ public class SurveyListPresenter implements Contract.UserAction {
                                 sld.setOngoing(snapshots.isSurveyOngoing());
 
                                 if (snapshots.isSurveyOngoing()) {
-                                    AnswersInfo.Snapshot snapshot = snapshots.getLatestLoggedSnapshot();
+                                    SnapshotsInfo.Snapshot snapshot = snapshots.getLatestLoggedSnapshot();
                                     sld.setSnapshotPath(snapshot.getPathToLastQuestion());
                                     sld.setSnapShotFileName(snapshot.getSnapshotFileName());
                                 }

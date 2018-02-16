@@ -9,7 +9,6 @@ import android.os.Environment;
 import com.crashlytics.android.Crashlytics;
 import com.puthuvaazhvu.mapping.BuildConfig;
 import com.puthuvaazhvu.mapping.other.Constants;
-import com.puthuvaazhvu.mapping.utils.FileUtils;
 
 import java.io.File;
 import java.io.FileWriter;
