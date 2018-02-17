@@ -84,7 +84,7 @@ public class SurveyDataRepository {
 
     public Observable<Survey> getSurveyFromFile(String id, String snapshotPath, String snapShotFileName) {
         if (snapshotPath != null) {
-            // get from answers dir
+            // read from answers dir
             return answerIOUtils.getAnswerFromFile(snapShotFileName)
                     .flatMap(new Function<String, ObservableSource<Survey>>() {
                         @Override
@@ -101,7 +101,7 @@ public class SurveyDataRepository {
 
         } else {
 
-            // get from the survey dir
+            // read from the survey dir
             return surveyIOUtils.getSurveyFromFile(id)
                     .map(new Function<String, Survey>() {
                         @Override

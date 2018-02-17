@@ -10,6 +10,8 @@ public class Constants {
     public static String DATA_DIR = "com.puthuvaazhvu.mapping.data";
     public static String PREFS = "com.puthuvaazhvu.mapping.prefs";
     public static String SNAPSHOTS_DIR = "snapshots";
+    public static String SURVEY_DIR = "surveys";
+    public static String ANSWER_DIR = "answers";
     public static String AUTH_FILE_NAME = "auth.json";
     public static String DATA_INFO_FILE = "datainfo.json";
 

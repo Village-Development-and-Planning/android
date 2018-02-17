@@ -1,6 +1,7 @@
 package com.puthuvaazhvu.mapping.filestorage.modals;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class SurveysInfo {
 
@@ -25,6 +26,17 @@ public class SurveysInfo {
             }
         }
         return null;
+    }
+
+    public boolean removeSurvey(String fileName) {
+        Iterator<Survey> surveyIterator = surveys.iterator();
+        while (surveyIterator.hasNext()) {
+            if (surveyIterator.next().getFilename().equals(fileName)) {
+                surveyIterator.remove();
+                return true;
+            }
+        }
+        return false;
     }
 
     public static class Survey {

@@ -81,13 +81,13 @@ public class MappingApplication extends Application {
         FileWriter writer = null;
         try {
 
-            // For Android 4.0 and earlier, you will get all app's log output, so filter it to
+            // For Android 4.0 and earlier, you will read all app's log output, so filter it to
             // mostly limit it to your app's output.  In later versions, the filtering isn't needed.
             String cmd = (Build.VERSION.SDK_INT <= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) ?
                     "logcat -d -v time MyApp:v dalvikvm:v System.err:v *:s" :
                     "logcat -d -v time";
 
-            // get input stream
+            // read input stream
             Process process = Runtime.getRuntime().exec(cmd);
             reader = new InputStreamReader(process.getInputStream());
 

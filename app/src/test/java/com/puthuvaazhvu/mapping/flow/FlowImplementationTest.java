@@ -90,7 +90,7 @@ public class FlowImplementationTest {
 
         assertThat(flowLogic.getCurrent().getQuestion().getAnswers().size(), is(1));
 //        assertThat(QuestionUtils.getLastAnswer(flowLogic.getCurrent().getQuestion().question)
-//                .getOptions().get(0).getType(), is("TEST_DATA"));
+//                .getOptions().read(0).getType(), is("TEST_DATA"));
         assertThat(flowLogic.getCurrent().getQuestion().getCurrentAnswer()
                 .getOptions().get(0).getType(), is("TEST_DATA"));
 

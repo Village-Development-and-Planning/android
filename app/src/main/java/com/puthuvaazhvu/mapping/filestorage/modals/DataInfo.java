@@ -14,6 +14,9 @@ public class DataInfo {
 
     public DataInfo() {
         version = Config.Versions.DATA_INFO_VERSION;
+        surveysInfo = new SurveysInfo();
+        snapshotsInfo = new SnapshotsInfo();
+        answersInfo = new SurveysInfo();
     }
 
     public int getVersion() {

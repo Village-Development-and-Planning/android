@@ -133,7 +133,7 @@ public class QuestionUtils {
 
                 }
 
-                // create the answer object
+                // save the answer object
                 Answer answer = new Answer(options, node);
                 node.addAnswer(answer);
 

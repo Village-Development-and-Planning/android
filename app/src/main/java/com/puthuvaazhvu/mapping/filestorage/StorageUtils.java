@@ -10,6 +10,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -71,6 +73,28 @@ public final class StorageUtils {
         });
     }
 
+    public static Observable<File> saveContentsToFile(final File file, final String contents) {
+        return Observable.create(new ObservableOnSubscribe<File>() {
+            @Override
+            public void subscribe(ObservableEmitter<File> e) throws Exception {
+                if (!file.exists()) {
+                    String message = "The file " + file.getAbsolutePath() + " doesn't exits";
+                    Timber.e(message);
+                    e.onError(new Throwable(message));
+                    return;
+                }
+
+                PrintWriter out = new PrintWriter(file);
+                out.println(contents);
+
+                out.close();
+
+                e.onNext(file);
+                e.onComplete();
+            }
+        });
+    }
+
     public static Observable<byte[]> readFromFile(final File file) {
         return Observable.create(new ObservableOnSubscribe<byte[]>() {
             @Override
@@ -103,7 +127,7 @@ public final class StorageUtils {
             if (result) {
                 Timber.i("Survey data dir created successfully. " + dir.getAbsolutePath());
             } else {
-                Timber.i("Failed to create Survey data dir. " + dir.getAbsolutePath());
+                Timber.i("Failed to save Survey data dir. " + dir.getAbsolutePath());
                 return null;
             }
             return dir;
