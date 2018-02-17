@@ -31,7 +31,10 @@ public abstract class StorageIO<T> {
     }
 
     public Observable<File> save(T contents) {
-        File file = createFile(getAbsolutePath());
+        File file = new File(getAbsolutePath());
+
+        if (!file.exists())
+            file = createFile(getAbsolutePath());
 
         if (file == null || !isPathAValidFile(getAbsolutePath()) || !isExternalStorageWritable())
             return Observable.error(new Throwable("File " + getAbsolutePath() + " cannot be read."));

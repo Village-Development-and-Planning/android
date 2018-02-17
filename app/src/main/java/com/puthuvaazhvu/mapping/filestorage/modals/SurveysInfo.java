@@ -1,9 +1,10 @@
 package com.puthuvaazhvu.mapping.filestorage.modals;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class SurveysInfo {
+public class SurveysInfo implements Serializable {
 
     private ArrayList<Survey> surveys;
 
@@ -13,6 +14,18 @@ public class SurveysInfo {
 
     public ArrayList<Survey> getSurveys() {
         return surveys;
+    }
+
+
+    public void addSurvey(Survey survey) {
+        Iterator<Survey> surveyIterator = surveys.iterator();
+        while (surveyIterator.hasNext()) {
+            if (surveyIterator.next().getSurveyID().equals(survey.getSurveyID())) {
+                surveyIterator.remove();
+            }
+        }
+
+        surveys.add(survey);
     }
 
     public void setSurveys(ArrayList<Survey> surveys) {
@@ -28,16 +41,6 @@ public class SurveysInfo {
         return null;
     }
 
-    public int getCount(String id) {
-        int count = 0;
-        for (Survey survey : surveys) {
-            if (survey.getSurveyID().equals(id)) {
-                count++;
-            }
-        }
-        return count;
-    }
-
     public boolean removeSurvey(String id) {
         Iterator<Survey> surveyIterator = surveys.iterator();
         while (surveyIterator.hasNext()) {
@@ -49,7 +52,7 @@ public class SurveysInfo {
         return false;
     }
 
-    public static class Survey {
+    public static class Survey implements Serializable {
         private String surveyID;
         private String surveyName;
         private String filename;

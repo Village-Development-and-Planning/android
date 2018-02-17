@@ -8,7 +8,6 @@ import com.puthuvaazhvu.mapping.other.Constants;
 import java.io.File;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
 import io.reactivex.functions.Function;
 
 import static com.puthuvaazhvu.mapping.filestorage.StorageUtils.root;
@@ -67,7 +66,7 @@ public class SurveyIO extends StorageIO<Survey> {
                                         survey.setSurveyName(surveyName);
                                         survey.setTimeStamp(System.currentTimeMillis());
 
-                                        dataInfo.getSurveysInfo().getSurveys().add(survey);
+                                        dataInfo.getSurveysInfo().addSurvey(survey);
 
                                         dataInfoIO.save(dataInfo).blockingFirst();
 
@@ -113,6 +112,6 @@ public class SurveyIO extends StorageIO<Survey> {
     }
 
     private String filename() {
-        return surveyID + ".json";
+        return surveyID + ".bytes";
     }
 }

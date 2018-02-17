@@ -33,17 +33,17 @@ public class DataInfoIO extends StorageIO<DataInfo> {
     @Override
     public Observable<File> save(final File file, DataInfo contents) {
         return StorageUtils.serialize(contents)
-                .flatMap(new Function<byte[], ObservableSource<File>>() {
+                .map(new Function<byte[], File>() {
                     @Override
-                    public ObservableSource<File> apply(byte[] bytes) throws Exception {
-                        return StorageUtils.saveContentsToFile(file, bytes);
+                    public File apply(byte[] bytes) throws Exception {
+                        return StorageUtils.saveContentsToFile(file, bytes).blockingFirst();
                     }
                 });
     }
 
     @Override
     public String getAbsolutePath() {
-        return root().getAbsolutePath() + "/" + Constants.DATA_DIR + "/" + Constants.DATA_INFO_FILE;
+        return root().getAbsolutePath() + "/" + Constants.DATA_DIR + "/" + Constants.DATA_INFO_FILE + ".bytes";
     }
 
 }

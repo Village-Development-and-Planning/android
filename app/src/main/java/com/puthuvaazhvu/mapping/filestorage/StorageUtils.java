@@ -31,8 +31,12 @@ public final class StorageUtils {
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 ObjectOutputStream os = new ObjectOutputStream(out);
                 os.writeObject(obj);
+
                 e.onNext(out.toByteArray());
                 e.onComplete();
+
+                os.close();
+                out.close();
             }
         });
     }
@@ -43,8 +47,12 @@ public final class StorageUtils {
             public void subscribe(ObservableEmitter<Object> e) throws Exception {
                 ByteArrayInputStream in = new ByteArrayInputStream(data);
                 ObjectInputStream is = new ObjectInputStream(in);
+
                 e.onNext(is.readObject());
                 e.onComplete();
+
+                in.close();
+                is.close();
             }
         });
     }
@@ -154,11 +162,19 @@ public final class StorageUtils {
         try {
             boolean result = false;
 
-            File outFile = new File(absolutePathToFile);
-            result = outFile.getParentFile().mkdirs();
+            String dirs = absolutePathToFile.substring(0, absolutePathToFile.lastIndexOf("/"));
 
-            if (result)
+            File outFile = new File(dirs);
+            if (outFile.exists()) {
+                result = true;
+            } else {
+                result = outFile.mkdirs();
+            }
+
+            if (result) {
+                outFile = new File(absolutePathToFile);
                 result = outFile.createNewFile();
+            }
 
             if (!result) {
                 Timber.e("Error creating the file " + absolutePathToFile);
@@ -174,7 +190,8 @@ public final class StorageUtils {
 
     public static boolean isPathAValidFile(String absolutePath) {
         File file = new File(absolutePath);
-        return file.exists();
+        boolean result = file.exists();
+        return result;
     }
 
     public static File root() {

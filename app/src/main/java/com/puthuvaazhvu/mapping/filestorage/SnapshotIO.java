@@ -23,17 +23,23 @@ public class SnapshotIO extends StorageIO<Survey> {
     private final DataInfoIO dataInfoIO;
     private final String savePath;
     private final String snapshotID;
+    private final String surveyID;
+    private final String surveyName;
 
-    public SnapshotIO(String savePath, String snapshotID) {
+    public SnapshotIO(String savePath, String snapshotID, String surveyID, String surveyName) {
         dataInfoIO = new DataInfoIO();
         this.savePath = savePath;
         this.snapshotID = snapshotID;
+        this.surveyID = surveyID;
+        this.surveyName = surveyName;
     }
 
     public SnapshotIO(String snapshotID) {
         this.dataInfoIO = new DataInfoIO();
         this.snapshotID = snapshotID;
         this.savePath = "";
+        this.surveyID = "";
+        this.surveyName = "";
     }
 
     @Override
@@ -52,8 +58,8 @@ public class SnapshotIO extends StorageIO<Survey> {
         if (!file.exists())
             return Observable.error(new Throwable("File " + file.getAbsolutePath() + " is not present."));
 
-        if (savePath == null || savePath.isEmpty())
-            return Observable.error(new Throwable("Snapshot path is empty."));
+        if (savePath == null || savePath.isEmpty() || surveyID.isEmpty() || surveyName.isEmpty())
+            return Observable.error(new Throwable("Please provide valid details for saving the snapshot."));
 
         // serialize and save to file
         return StorageUtils.serialize(contents)
@@ -73,21 +79,29 @@ public class SnapshotIO extends StorageIO<Survey> {
                         snapshot.setTimestamp(System.currentTimeMillis());
                         snapshot.setSnapshotID(snapshotID);
 
-                        dataInfo.getSnapshotsInfo().addSnapshot(snapshot);
-
                         SnapshotsInfo.Survey survey =
                                 dataInfo.getSnapshotsInfo()
-                                        .getSurvey(snapshot.getSurveyID());
+                                        .getSurvey(surveyID);
 
                         // delete old snapshots of the found survey
-                        for (SnapshotsInfo.Snapshot s : survey.getSnapshots()) {
-                            if (!s.getSnapshotID().equals(snapshotID)) {
+                        if (survey != null) {
+                            Iterator<SnapshotsInfo.Snapshot> snapshotIterator = survey.getSnapshots().iterator();
+                            while (snapshotIterator.hasNext()) {
                                 // delete the file
-                                boolean result = delete().blockingFirst();
+                                SnapshotsInfo.Snapshot s = snapshotIterator.next();
+                                SnapshotIO snapshotIO = new SnapshotIO(s.getSnapshotID());
+                                boolean result = snapshotIO.delete().blockingFirst();
                                 Timber.i("Deleted snapshot file "
                                         + snapshot.getSnapshotID() + " status " + result);
                             }
+
+                            // update the datainfo file
+                            dataInfo = dataInfoIO.read().blockingFirst();
                         }
+
+                        dataInfo.getSnapshotsInfo().addSnapshot(snapshot, surveyID, surveyName);
+
+                        dataInfoIO.save(dataInfo).blockingFirst();
 
                         return f;
                     }
@@ -130,6 +144,6 @@ public class SnapshotIO extends StorageIO<Survey> {
     }
 
     private String filename() {
-        return snapshotID + ".json";
+        return snapshotID + ".bytes";
     }
 }

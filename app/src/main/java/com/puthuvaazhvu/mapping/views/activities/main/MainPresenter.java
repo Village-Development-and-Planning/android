@@ -116,7 +116,10 @@ public class MainPresenter implements Contract.UserAction {
         SnapshotIO snapshotIO
                 = new SnapshotIO(
                 TextUtils.join(",", QuestionUtils.getPathOfQuestion(flowLogic.getCurrent().getQuestion())),
-                snapshotID);
+                snapshotID,
+                survey.getId(),
+                survey.getName()
+        );
 
         snapshotIO.save(survey)
                 .subscribeOn(Schedulers.io())

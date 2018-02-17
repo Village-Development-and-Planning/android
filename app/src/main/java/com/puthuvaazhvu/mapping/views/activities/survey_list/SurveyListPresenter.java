@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.data.SurveyDataRepository;
 import com.puthuvaazhvu.mapping.filestorage.DataInfoIO;
+import com.puthuvaazhvu.mapping.filestorage.modals.AnswerInfo;
 import com.puthuvaazhvu.mapping.filestorage.modals.DataInfo;
 import com.puthuvaazhvu.mapping.filestorage.modals.SnapshotsInfo;
 import com.puthuvaazhvu.mapping.filestorage.modals.SurveysInfo;
@@ -14,9 +15,7 @@ import com.puthuvaazhvu.mapping.utils.Utils;
 
 import java.util.ArrayList;
 
-import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
@@ -83,14 +82,14 @@ public class SurveyListPresenter implements Contract.UserAction {
                     public ArrayList<SurveyListData> apply(DataInfo dataInfo) throws Exception {
                         ArrayList<SurveyListData> data = new ArrayList<>();
 
-                        SurveysInfo answersInfo = dataInfo.getAnswersInfo();
+                        AnswerInfo answersInfo = dataInfo.getAnswersInfo();
                         SnapshotsInfo snapshotsInfo = dataInfo.getSnapshotsInfo();
                         SurveysInfo surveysInfo = dataInfo.getSurveysInfo();
 
                         for (SurveysInfo.Survey survey : surveysInfo.getSurveys()) {
 
                             // calculate answers count
-                            int answersCount = answersInfo.getCount(survey.getSurveyID());
+                            int answersCount = answersInfo.getAnswersCount(survey.getSurveyID());
                             String snapshotPath = null;
 
                             SnapshotsInfo.Survey s = snapshotsInfo.getSurvey(survey.getSurveyID());

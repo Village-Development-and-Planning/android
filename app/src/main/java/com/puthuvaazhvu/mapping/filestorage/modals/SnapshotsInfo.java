@@ -1,12 +1,14 @@
 package com.puthuvaazhvu.mapping.filestorage.modals;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * Created by muthuveerappans on 31/01/18.
  */
 
-public class SnapshotsInfo {
+public class SnapshotsInfo implements Serializable {
     private ArrayList<Survey> surveys;
 
     public SnapshotsInfo() {
@@ -38,18 +40,27 @@ public class SnapshotsInfo {
         return null;
     }
 
-    public void addSnapshot(Snapshot snapshot) {
-        Survey s = getSurvey(snapshot.getSurveyID());
+    public void addSnapshot(Snapshot snapshot, String surveyID, String surveyName) {
+        Survey s = getSurvey(surveyID);
         if (s == null) {
             // survey not present
             Survey survey = new Survey();
+            survey.setSurveyName(surveyName);
+            survey.setSurveyID(surveyID);
             survey.addSnapshot(snapshot);
+            surveys.add(survey);
         } else {
+            Iterator<Snapshot> snapshotIterator = s.getSnapshots().iterator();
+            while (snapshotIterator.hasNext()) {
+                // remove any matching snapshot ID
+                if (snapshotIterator.next().getSnapshotID().equals(snapshot.getSnapshotID()))
+                    snapshotIterator.remove();
+            }
             s.getSnapshots().add(snapshot);
         }
     }
 
-    public static class Survey {
+    public static class Survey implements Serializable {
         private String surveyID;
         private String surveyName;
         private ArrayList<Snapshot> snapshots = new ArrayList<>();
@@ -98,7 +109,7 @@ public class SnapshotsInfo {
         }
     }
 
-    public static class Snapshot {
+    public static class Snapshot implements Serializable {
         private String snapshotID;
         private String pathToLastQuestion;
         private long timestamp;
@@ -107,10 +118,6 @@ public class SnapshotsInfo {
             this.snapshotID = other.snapshotID;
             this.pathToLastQuestion = other.pathToLastQuestion;
             this.timestamp = other.timestamp;
-        }
-
-        public String getSurveyID() {
-            return snapshotID.split("_")[0];
         }
 
         public String getSnapshotID() {

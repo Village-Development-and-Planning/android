@@ -2,9 +2,11 @@ package com.puthuvaazhvu.mapping.filestorage;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.puthuvaazhvu.mapping.filestorage.modals.AnswerInfo;
 import com.puthuvaazhvu.mapping.filestorage.modals.DataInfo;
 import com.puthuvaazhvu.mapping.filestorage.modals.SnapshotsInfo;
 import com.puthuvaazhvu.mapping.filestorage.modals.SurveysInfo;
+import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.other.Constants;
 
@@ -12,7 +14,6 @@ import java.io.File;
 import java.util.Iterator;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
 import io.reactivex.functions.Function;
 
 import static com.puthuvaazhvu.mapping.filestorage.StorageUtils.root;
@@ -24,14 +25,14 @@ import static com.puthuvaazhvu.mapping.filestorage.StorageUtils.root;
 public class AnswerIO extends StorageIO<Survey> {
     private final DataInfoIO dataInfoIO;
 
-    private final String surveyID, surveyName, answerID;
+    private final String surveyName, answerID, surveyID;
 
     public AnswerIO(String surveyID, String surveyName, String answerID) {
         dataInfoIO = new DataInfoIO();
 
-        this.surveyID = surveyID;
         this.surveyName = surveyName;
         this.answerID = answerID;
+        this.surveyID = surveyID;
     }
 
     @Override
@@ -60,18 +61,18 @@ public class AnswerIO extends StorageIO<Survey> {
                                 .onErrorReturnItem(new DataInfo())
                                 .blockingFirst();
 
-                        SurveysInfo.Survey survey = new SurveysInfo.Survey();
-                        survey.setFilename(filename());
-                        survey.setSurveyID(surveyID);
-                        survey.setSurveyName(surveyName);
-                        survey.setTimeStamp(System.currentTimeMillis());
+                        AnswerInfo.Answer answer = new AnswerInfo.Answer();
+                        answer.setSurveyID(surveyID);
+                        answer.setSurveyName(surveyName);
+                        answer.setTimeStamp(System.currentTimeMillis());
+                        answer.setAnswerID(answerID);
 
-                        dataInfo.getAnswersInfo().getSurveys().add(survey);
+                        dataInfo.getAnswersInfo().getAnswers().add(answer);
 
                         // remove all the snapshots of the particular surveyID
 
                         SnapshotsInfo.Survey s
-                                = dataInfo.getSnapshotsInfo().getSurvey(surveyID);
+                                = dataInfo.getSnapshotsInfo().getSurvey(answerID);
 
                         if (s != null) {
                             Iterator<SnapshotsInfo.Snapshot> snapshotIterator
@@ -85,8 +86,9 @@ public class AnswerIO extends StorageIO<Survey> {
                                 snapshotIterator.remove();
                             }
 
-                            dataInfoIO.save(dataInfo).blockingFirst();
                         }
+
+                        dataInfoIO.save(dataInfo).blockingFirst();
 
                         return f;
                     }
@@ -104,7 +106,7 @@ public class AnswerIO extends StorageIO<Survey> {
 
                         DataInfo dataInfo = dataInfoIO.read().blockingFirst();
 
-                        boolean result = dataInfo.getAnswersInfo().removeSurvey(filename());
+                        boolean result = dataInfo.getAnswersInfo().removeAnswer(answerID);
 
                         if (!result)
                             throw new Exception("Error deleting file " + filename());

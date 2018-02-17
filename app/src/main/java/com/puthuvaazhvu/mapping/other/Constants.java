@@ -13,7 +13,7 @@ public class Constants {
     public static String SURVEY_DIR = "surveys";
     public static String ANSWER_DIR = "answers";
     public static String AUTH_FILE_NAME = "auth.json";
-    public static String DATA_INFO_FILE = "datainfo.json";
+    public static String DATA_INFO_FILE = "datainfo";
     public static String LOG_DIR = "logs";
 
     public static class PermissionRequestCodes {

@@ -2,21 +2,23 @@ package com.puthuvaazhvu.mapping.filestorage.modals;
 
 import com.puthuvaazhvu.mapping.other.Config;
 
+import java.io.Serializable;
+
 /**
  * Created by muthuveerappans on 16/02/18.
  */
 
-public class DataInfo {
+public class DataInfo implements Serializable {
     private int version;
     private SurveysInfo surveysInfo;
     private SnapshotsInfo snapshotsInfo;
-    private SurveysInfo answersInfo;
+    private AnswerInfo answersInfo;
 
     public DataInfo() {
         version = Config.Versions.DATA_INFO_VERSION;
         surveysInfo = new SurveysInfo();
         snapshotsInfo = new SnapshotsInfo();
-        answersInfo = new SurveysInfo();
+        answersInfo = new AnswerInfo();
     }
 
     public int getVersion() {
@@ -43,11 +45,11 @@ public class DataInfo {
         this.snapshotsInfo = snapshotsInfo;
     }
 
-    public SurveysInfo getAnswersInfo() {
+    public AnswerInfo getAnswersInfo() {
         return answersInfo;
     }
 
-    public void setAnswersInfo(SurveysInfo answersInfo) {
+    public void setAnswersInfo(AnswerInfo answersInfo) {
         this.answersInfo = answersInfo;
     }
 }
