@@ -30,19 +30,19 @@ public class SnapshotIO extends StorageIO<Survey> {
         this.snapshotID = snapshotID;
     }
 
+    public SnapshotIO(String snapshotID) {
+        this.dataInfoIO = new DataInfoIO();
+        this.snapshotID = snapshotID;
+        this.savePath = "";
+    }
+
     @Override
     public Observable<Survey> read(File file) {
         return StorageUtils.readFromFile(file)
-                .flatMap(new Function<byte[], ObservableSource<Survey>>() {
+                .map(new Function<byte[], Survey>() {
                     @Override
-                    public ObservableSource<Survey> apply(byte[] bytes) throws Exception {
-                        return StorageUtils.deserialize(bytes)
-                                .map(new Function<Object, Survey>() {
-                                    @Override
-                                    public Survey apply(Object o) throws Exception {
-                                        return (Survey) o;
-                                    }
-                                });
+                    public Survey apply(byte[] bytes) throws Exception {
+                        return (Survey) StorageUtils.deserialize(bytes).blockingFirst();
                     }
                 });
     }
@@ -52,34 +52,26 @@ public class SnapshotIO extends StorageIO<Survey> {
         if (!file.exists())
             return Observable.error(new Throwable("File " + file.getAbsolutePath() + " is not present."));
 
+        if (savePath == null || savePath.isEmpty())
+            return Observable.error(new Throwable("Snapshot path is empty."));
+
         // serialize and save to file
         return StorageUtils.serialize(contents)
-                .flatMap(new Function<byte[], ObservableSource<File>>() {
+                .map(new Function<byte[], File>() {
                     @Override
-                    public ObservableSource<File> apply(byte[] bytes) throws Exception {
-                        return StorageUtils.saveContentsToFile(file, bytes);
-                    }
-                })
-                // read the datainfo.json
-                .flatMap(new Function<File, ObservableSource<DataInfo>>() {
-                    @Override
-                    public ObservableSource<DataInfo> apply(File file) throws Exception {
+                    public File apply(byte[] bytes) throws Exception {
+                        File f = StorageUtils.saveContentsToFile(file, bytes).blockingFirst();
+
                         if (!file.exists())
                             throw new Exception("File " + file.getAbsolutePath() + " is not present.");
 
-                        return dataInfoIO.read()
-                                .onErrorReturnItem(new DataInfo());
-                    }
-                })
-                // update the datainfo.json file
-                .map(new Function<DataInfo, File>() {
-                    @Override
-                    public File apply(DataInfo dataInfo) throws Exception {
+                        DataInfo dataInfo = dataInfoIO.read()
+                                .onErrorReturnItem(new DataInfo()).blockingFirst();
 
                         SnapshotsInfo.Snapshot snapshot = new SnapshotsInfo.Snapshot();
                         snapshot.setPathToLastQuestion(savePath);
                         snapshot.setTimestamp(System.currentTimeMillis());
-                        snapshot.setSnapshotFileName(filename());
+                        snapshot.setSnapshotID(snapshotID);
 
                         dataInfo.getSnapshotsInfo().addSnapshot(snapshot);
 
@@ -89,22 +81,17 @@ public class SnapshotIO extends StorageIO<Survey> {
 
                         // delete old snapshots of the found survey
                         for (SnapshotsInfo.Snapshot s : survey.getSnapshots()) {
-                            if (!s.getSnapshotFileName().equals(filename())) {
+                            if (!s.getSnapshotID().equals(snapshotID)) {
                                 // delete the file
                                 boolean result = delete().blockingFirst();
                                 Timber.i("Deleted snapshot file "
-                                        + snapshot.getSnapshotFileName() + " status " + result);
+                                        + snapshot.getSnapshotID() + " status " + result);
                             }
                         }
 
-                        return file;
+                        return f;
                     }
                 });
-    }
-
-    @Override
-    public Observable<File> update(Survey contents) {
-        throw new IllegalArgumentException("Update operation is not permitted.");
     }
 
     @Override
@@ -118,19 +105,19 @@ public class SnapshotIO extends StorageIO<Survey> {
                         // remove snapshot from datainfo.json
                         DataInfo dataInfo = dataInfoIO.read().blockingFirst();
                         SnapshotsInfo.Survey survey =
-                                dataInfo.getSnapshotsInfo().getSurveyFromFileName(filename());
+                                dataInfo.getSnapshotsInfo().getSurveyFromFileName(snapshotID);
 
                         if (survey != null) {
                             Iterator<SnapshotsInfo.Snapshot> snapshotIterator = survey.getSnapshots().iterator();
                             while (snapshotIterator.hasNext()) {
                                 SnapshotsInfo.Snapshot snapshot = snapshotIterator.next();
-                                if (snapshot.getSnapshotFileName().equals(filename()))
+                                if (snapshot.getSnapshotID().equals(snapshotID))
                                     snapshotIterator.remove();
                             }
                         }
 
                         // save the new changes to datainfo.json
-                        dataInfoIO.update(dataInfo).blockingFirst();
+                        dataInfoIO.save(dataInfo).blockingFirst();
 
                         return true;
                     }

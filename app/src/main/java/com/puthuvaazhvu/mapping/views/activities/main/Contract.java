@@ -69,6 +69,8 @@ public interface Contract {
          */
         void moveToQuestionAt(int index);
 
-        void dumpSurveyToFile(boolean isSurveyOver);
+        void dumpAnswer();
+
+        void dumpSnapshot();
     }
 }

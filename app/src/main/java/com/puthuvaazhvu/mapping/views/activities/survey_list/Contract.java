@@ -23,7 +23,7 @@ public interface Contract {
     }
 
     interface UserAction {
-        void fetchListOfSurveys();
+        void fetchSurveys();
 
         void getSurveyData(SurveyListData surveyListData);
     }

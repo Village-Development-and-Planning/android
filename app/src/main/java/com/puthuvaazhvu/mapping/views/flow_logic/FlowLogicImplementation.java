@@ -87,6 +87,9 @@ public class FlowLogicImplementation extends FlowLogic {
     @Override
     public FlowData finishCurrent() {
         Question parent = currentQuestion.getParentAnswer().getQuestionReference();
+
+        currentQuestion.getCurrentAnswer().setExitTimestamp(System.currentTimeMillis());
+
         if (parent == null) return null;
         int indexOfNextQuestion = QuestionUtils.getIndexOfChild(parent, currentQuestion) + 1;
         return _getNext(parent, indexOfNextQuestion);
@@ -352,6 +355,8 @@ public class FlowLogicImplementation extends FlowLogic {
         }
 
         if (exitFlow.getMode() == ExitFlow.Modes.END || question.isRoot()) {
+            backStack.clear();
+            question.getCurrentAnswer().setExitTimestamp(System.currentTimeMillis());
             return null;
         } else if (exitFlow.getMode() == ExitFlow.Modes.LOOP) {
 
@@ -365,6 +370,8 @@ public class FlowLogicImplementation extends FlowLogic {
                 }
             }
         }
+
+        question.getCurrentAnswer().setExitTimestamp(System.currentTimeMillis());
 
         return question.getParentAnswer().getQuestionReference();
     }
@@ -382,7 +389,6 @@ public class FlowLogicImplementation extends FlowLogic {
                 Answer answer = question.getAnswers().get(i);
                 if (response.get(0).getPosition().equals(answer.getOptions().get(0).getPosition())) {
                     answer.setOptions(response);
-                    answer.setExitTimestamp(startTime);
                     question.setCurrentAnswer(answer);
 
                     shouldAddAnswer = false;
@@ -406,7 +412,6 @@ public class FlowLogicImplementation extends FlowLogic {
 
         Answer answer = question.getCurrentAnswer();
         answer.setOptions(response);
-        answer.setExitTimestamp(startTime);
 
         Timber.i("Answer updated info :\n" + answer.toString());
 
@@ -618,6 +623,10 @@ public class FlowLogicImplementation extends FlowLogic {
             }
 
             return null;
+        }
+
+        public void clear() {
+            questionStack.clear();
         }
     }
 }

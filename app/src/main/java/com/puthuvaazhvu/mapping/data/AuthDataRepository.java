@@ -1,14 +1,17 @@
 package com.puthuvaazhvu.mapping.data;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
+import com.puthuvaazhvu.mapping.filestorage.AuthIO;
 import com.puthuvaazhvu.mapping.network.APIUtils;
 import com.puthuvaazhvu.mapping.network.implementations.AuthAPI;
 import com.puthuvaazhvu.mapping.other.Constants;
+import com.puthuvaazhvu.mapping.utils.Utils;
 
 import java.io.File;
 
@@ -21,66 +24,37 @@ import timber.log.Timber;
  * Created by muthuveerappans on 31/01/18.
  */
 
-public class AuthDataRepository {
-    private static AuthDataRepository authDataRepository;
+public class AuthDataRepository extends DataRepository<JsonObject> {
     private final AuthAPI authAPI;
+    private final AuthIO authIO;
 
-    public static AuthDataRepository getInstance(SharedPreferences sharedPreferences) {
-        if (authDataRepository == null) {
-            authDataRepository = new AuthDataRepository(sharedPreferences);
-        }
-        return authDataRepository;
-    }
-
-    private AuthDataRepository(SharedPreferences sharedPreferences) {
+    public AuthDataRepository(SharedPreferences sharedPreferences, Context context) {
+        super(context);
         authAPI = AuthAPI.getInstance(APIUtils.getAuth(sharedPreferences));
+        authIO = new AuthIO();
     }
 
-    public Observable<JsonObject> getAuthData(boolean forceFromNetwork) {
-        if (forceFromNetwork) return getAuthDataFromNetworkAndSave();
-
-        if (FileUtils.fileExists(getPath())) {
-            return readFromFile();
+    @Override
+    public Observable<JsonObject> get(boolean forceNetwork) {
+        if (forceNetwork || !new File(authIO.getAbsolutePath()).exists()) {
+            if (Utils.isNetworkAvailable(context))
+                return getFromNetwork();
+            else return Observable.error(new Throwable("No internet available"));
         } else {
-            return getAuthDataFromNetworkAndSave();
+            return authIO.read();
         }
     }
 
-    private Observable<JsonObject> readFromFile() {
-        return FileUtils.readFromPath(getPath())
-                .map(new Function<String, JsonObject>() {
-                    @Override
-                    public JsonObject apply(String s) throws Exception {
-                        try {
-                            JsonParser jsonParser = new JsonParser();
-                            JsonElement jsonElement = jsonParser.parse(s);
-                            return jsonElement.getAsJsonObject();
-                        } catch (JsonParseException e) {
-                            Timber.e(e);
-                            throw new Exception(e);
-                        }
-                    }
-                });
-    }
-
-    private Observable<JsonObject> getAuthDataFromNetworkAndSave() {
+    private Observable<JsonObject> getFromNetwork() {
         return authAPI.getAuthData()
-                .flatMap(new Function<JsonObject, ObservableSource<JsonObject>>() {
+                .map(new Function<JsonObject, JsonObject>() {
                     @Override
-                    public ObservableSource<JsonObject> apply(JsonObject jsonObject) throws Exception {
-                        // save the auth data to a file
-                        return FileUtils.saveToFileFromPath(getPath(), jsonObject.toString())
-                                .flatMap(new Function<File, ObservableSource<JsonObject>>() {
-                                    @Override
-                                    public ObservableSource<JsonObject> apply(File file) throws Exception {
-                                        return readFromFile();
-                                    }
-                                });
+                    public JsonObject apply(JsonObject jsonObject) throws Exception {
+                        File file = authIO.save(jsonObject).blockingFirst();
+                        if (!file.exists())
+                            throw new IllegalArgumentException("Auth not saved.");
+                        return jsonObject;
                     }
                 });
-    }
-
-    private String getPath() {
-        return File.separator + Constants.AUTH_FILE_NAME;
     }
 }

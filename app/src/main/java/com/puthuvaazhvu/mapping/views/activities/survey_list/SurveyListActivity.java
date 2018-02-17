@@ -141,13 +141,13 @@ public class SurveyListActivity extends MenuActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1) {
             if (resultCode == Activity.RESULT_CANCELED) {
-                //fetchListOfSurveys();
+                //fetchSurveys();
             }
         }
     }
 
     private void fetchListOfSurveys() {
-        presenter.fetchListOfSurveys();
+        presenter.fetchSurveys();
     }
 
     private void startDumpSurveyActivity() {

@@ -9,6 +9,9 @@ import com.puthuvaazhvu.mapping.network.client_interfaces.ListSurveysClient;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -40,6 +43,26 @@ public class ListSurveysAPI {
         NetworkAdapter adapter = NetworkAdapter.getInstance();
         Retrofit retrofit = adapter.getUnsafeRetrofit(authToken);
         client = retrofit.create(ListSurveysClient.class);
+    }
+
+    public Observable<List<SurveyAPIInfo>> getSurveysList() {
+        return Observable.create(new ObservableOnSubscribe<List<SurveyAPIInfo>>() {
+            @Override
+            public void subscribe(final ObservableEmitter<List<SurveyAPIInfo>> emitter) throws Exception {
+                getSurveysList(new ListSurveysAPI.ListSurveysAPICallbacks() {
+                    @Override
+                    public void onSurveysLoaded(List<SurveyAPIInfo> surveyInfoList) {
+                        emitter.onNext(surveyInfoList);
+                        emitter.onComplete();
+                    }
+
+                    @Override
+                    public void onErrorOccurred(APIError error) {
+                        emitter.onError(new Throwable(error.message()));
+                    }
+                });
+            }
+        });
     }
 
     public void getSurveysList(final ListSurveysAPICallbacks callbacks) {

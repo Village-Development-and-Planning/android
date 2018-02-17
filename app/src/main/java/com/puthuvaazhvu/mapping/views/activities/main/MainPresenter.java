@@ -2,16 +2,19 @@ package com.puthuvaazhvu.mapping.views.activities.main;
 
 import android.content.SharedPreferences;
 import android.os.Handler;
+import android.text.TextUtils;
 
 import com.puthuvaazhvu.mapping.R;
+import com.puthuvaazhvu.mapping.filestorage.AnswerIO;
+import com.puthuvaazhvu.mapping.filestorage.SnapshotIO;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
+import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.other.Constants;
-import com.puthuvaazhvu.mapping.utils.saving.AnswerIOUtils;
-import com.puthuvaazhvu.mapping.utils.saving.modals.SnapshotsInfo;
 import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogic;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -34,8 +37,6 @@ public class MainPresenter implements Contract.UserAction {
 
     private final SharedPreferences sharedPreferences;
 
-    private AnswerIOUtils saveAnswerUtils;
-
     public MainPresenter(
             Contract.View activityView,
             Handler uiHandler,
@@ -45,8 +46,6 @@ public class MainPresenter implements Contract.UserAction {
         this.uiHandler = uiHandler;
 
         this.sharedPreferences = sharedPreferences;
-
-        this.saveAnswerUtils = AnswerIOUtils.getInstance();
     }
 
     @Override
@@ -87,22 +86,48 @@ public class MainPresenter implements Contract.UserAction {
     }
 
     @Override
-    public void dumpSurveyToFile(final boolean isSurveyDone) {
-
-        activityView.showLoading(R.string.survey_file_saving_msg);
-        saveAnswerUtils.saveAnswerToFile(survey, flowLogic.getCurrent().getQuestion(), isSurveyDone)
+    public void dumpAnswer() {
+        String answerID = survey.getId() + "_" + System.currentTimeMillis();
+        AnswerIO answerIO = new AnswerIO(survey.getId(), survey.getName(), answerID);
+        answerIO.save(survey)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<SnapshotsInfo>() {
+                .subscribe(new Consumer<File>() {
                     @Override
-                    public void accept(SnapshotsInfo snapshotsInfo) throws Exception {
+                    public void accept(File file) throws Exception {
                         activityView.onSurveySaved(survey);
                         activityView.hideLoading();
                         activityView.showMessage(R.string.save_successful);
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        String errorMessage = "Error while saving file: " + throwable.getMessage();
+                        Timber.e(errorMessage);
+                        activityView.hideLoading();
+                        activityView.onError(R.string.error_saving_survey);
+                    }
+                });
+    }
 
-                        if (isSurveyDone) {
-                            activityView.openListOfSurveysActivity();
-                        }
+    @Override
+    public void dumpSnapshot() {
+        String snapshotID = survey.getId() + "_" + System.currentTimeMillis();
+        SnapshotIO snapshotIO
+                = new SnapshotIO(
+                TextUtils.join(",", QuestionUtils.getPathOfQuestion(flowLogic.getCurrent().getQuestion())),
+                snapshotID);
+
+        snapshotIO.save(survey)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<File>() {
+                    @Override
+                    public void accept(File file) throws Exception {
+                        activityView.onSurveySaved(survey);
+                        activityView.hideLoading();
+                        activityView.showMessage(R.string.save_successful);
+                        activityView.openListOfSurveysActivity();
                     }
                 }, new Consumer<Throwable>() {
                     @Override

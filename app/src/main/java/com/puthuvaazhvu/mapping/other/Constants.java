@@ -14,6 +14,7 @@ public class Constants {
     public static String ANSWER_DIR = "answers";
     public static String AUTH_FILE_NAME = "auth.json";
     public static String DATA_INFO_FILE = "datainfo.json";
+    public static String LOG_DIR = "logs";
 
     public static class PermissionRequestCodes {
         public static final int REQUEST_GPS_CODE = 1;

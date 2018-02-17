@@ -108,7 +108,7 @@ public class MainActivity extends MenuActivity
             public void run() {
                 if (dumpSurveyRepeatingTask) {
                     Timber.i("Automatic saving done.");
-                    presenter.dumpSurveyToFile(false);
+                    presenter.dumpSnapshot();
                 }
             }
         }, REPEATING_TASK_INTERVAL, true);
@@ -142,7 +142,7 @@ public class MainActivity extends MenuActivity
         switch (item.getItemId()) {
             case R.id.save:
                 Timber.i("save menu clicked");
-                presenter.dumpSurveyToFile(false);
+                presenter.dumpSnapshot();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -258,7 +258,7 @@ public class MainActivity extends MenuActivity
             Utils.showMessageToast("Survey is over", this);
             findViewById(R.id.container).setVisibility(View.GONE);
         } else
-            presenter.dumpSurveyToFile(true);
+            presenter.dumpAnswer();
     }
 
     @Override

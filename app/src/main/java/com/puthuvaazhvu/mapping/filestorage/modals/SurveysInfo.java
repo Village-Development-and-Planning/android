@@ -28,10 +28,20 @@ public class SurveysInfo {
         return null;
     }
 
-    public boolean removeSurvey(String fileName) {
+    public int getCount(String id) {
+        int count = 0;
+        for (Survey survey : surveys) {
+            if (survey.getSurveyID().equals(id)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public boolean removeSurvey(String id) {
         Iterator<Survey> surveyIterator = surveys.iterator();
         while (surveyIterator.hasNext()) {
-            if (surveyIterator.next().getFilename().equals(fileName)) {
+            if (surveyIterator.next().getSurveyID().equals(id)) {
                 surveyIterator.remove();
                 return true;
             }

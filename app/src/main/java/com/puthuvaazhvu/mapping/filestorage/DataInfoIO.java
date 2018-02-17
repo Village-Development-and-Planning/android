@@ -22,16 +22,10 @@ public class DataInfoIO extends StorageIO<DataInfo> {
     @Override
     public Observable<DataInfo> read(File file) {
         return StorageUtils.readFromFile(file)
-                .flatMap(new Function<byte[], ObservableSource<DataInfo>>() {
+                .map(new Function<byte[], DataInfo>() {
                     @Override
-                    public ObservableSource<DataInfo> apply(byte[] bytes) throws Exception {
-                        return StorageUtils.deserialize(bytes)
-                                .map(new Function<Object, DataInfo>() {
-                                    @Override
-                                    public DataInfo apply(Object o) throws Exception {
-                                        return (DataInfo) o;
-                                    }
-                                });
+                    public DataInfo apply(byte[] bytes) throws Exception {
+                        return (DataInfo) StorageUtils.deserialize(bytes).blockingFirst();
                     }
                 });
     }

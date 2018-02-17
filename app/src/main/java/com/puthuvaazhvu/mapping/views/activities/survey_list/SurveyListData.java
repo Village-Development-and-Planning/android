@@ -15,7 +15,6 @@ public class SurveyListData {
     private int count;
     private boolean isOngoing;
     private String snapshotPath; // will be null if the survey is new
-    private String snapShotFileName;
 
     public SurveyListData(String id, String name) {
         this.id = id;
@@ -29,12 +28,12 @@ public class SurveyListData {
         this.isOngoing = isOngoing;
     }
 
-    public String getSnapShotFileName() {
-        return snapShotFileName;
-    }
-
-    public void setSnapShotFileName(String snapShotFileName) {
-        this.snapShotFileName = snapShotFileName;
+    public SurveyListData(String id, String name, int count, boolean isOngoing, String snapshotPath) {
+        this.id = id;
+        this.name = name;
+        this.count = count;
+        this.isOngoing = isOngoing;
+        this.snapshotPath = snapshotPath;
     }
 
     public String getSnapshotPath() {

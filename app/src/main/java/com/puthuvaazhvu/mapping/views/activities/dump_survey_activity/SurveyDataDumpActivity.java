@@ -75,7 +75,7 @@ public class SurveyDataDumpActivity extends MenuActivity
             } else {
 
                 // proceed with saving all the surveys
-                presenter.saveSurveyInfoToFile(surveyInfoArrayList);
+                presenter.save(surveyInfoArrayList);
             }
         }
     }

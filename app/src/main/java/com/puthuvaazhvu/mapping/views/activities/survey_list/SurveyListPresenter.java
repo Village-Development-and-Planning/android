@@ -1,13 +1,16 @@
 package com.puthuvaazhvu.mapping.views.activities.survey_list;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.data.SurveyDataRepository;
+import com.puthuvaazhvu.mapping.filestorage.DataInfoIO;
+import com.puthuvaazhvu.mapping.filestorage.modals.DataInfo;
+import com.puthuvaazhvu.mapping.filestorage.modals.SnapshotsInfo;
+import com.puthuvaazhvu.mapping.filestorage.modals.SurveysInfo;
 import com.puthuvaazhvu.mapping.modals.Survey;
-import com.puthuvaazhvu.mapping.utils.saving.AnswerIOUtils;
-import com.puthuvaazhvu.mapping.utils.saving.SurveyIOUtils;
-import com.puthuvaazhvu.mapping.utils.saving.modals.SnapshotsInfo;
+import com.puthuvaazhvu.mapping.utils.Utils;
 
 import java.util.ArrayList;
 
@@ -25,29 +28,31 @@ import timber.log.Timber;
 
 public class SurveyListPresenter implements Contract.UserAction {
     private final Contract.View callback;
-    private AnswerIOUtils answerIOUtils;
-    private SurveyIOUtils surveyIOUtils;
-    private SurveyDataRepository surveyDataRepository;
+    private SharedPreferences sharedPreferences;
+    private Context context;
+    private DataInfoIO dataInfoIO;
 
     public SurveyListPresenter(
             Contract.View callback,
             SharedPreferences sharedPreferences
     ) {
         this.callback = callback;
-        this.answerIOUtils = AnswerIOUtils.getInstance();
-        this.surveyIOUtils = SurveyIOUtils.getInstance();
-        this.surveyDataRepository = SurveyDataRepository.getInstance(sharedPreferences);
+        this.sharedPreferences = sharedPreferences;
+        this.context = (Context) callback;
+        dataInfoIO = new DataInfoIO();
     }
 
     @Override
     public void getSurveyData(SurveyListData surveyListData) {
         callback.showLoading(R.string.loading);
 
-        surveyDataRepository.getSurveyFromFile(
-                surveyListData.getId(),
-                surveyListData.getSnapshotPath(),
-                surveyListData.getSnapShotFileName()
-        )
+        SurveyDataRepository surveyDataRepository = new SurveyDataRepository(
+                sharedPreferences,
+                context,
+                surveyListData.getId()
+        );
+
+        surveyDataRepository.get(Utils.isNetworkAvailable(context))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Consumer<Survey>() {
@@ -69,57 +74,43 @@ public class SurveyListPresenter implements Contract.UserAction {
 
 
     @Override
-    public void fetchListOfSurveys() {
-
+    public void fetchSurveys() {
         callback.showLoading(R.string.loading);
 
-        Observable.zip(
-                answerIOUtils.readAnswerInfoFile()
-                        // http://reactivex.io/documentation/operators/catch.html
-                        .onErrorReturn(new Function<Throwable, SnapshotsInfo>() {
-                            @Override
-                            public SnapshotsInfo apply(Throwable throwable) throws Exception {
-                                return new SnapshotsInfo();
-                            }
-                        }),
-                surveyIOUtils.readSurveysInfoFile()
-                        .onErrorReturn(new Function<Throwable, SurveyInfo>() {
-                            @Override
-                            public SurveyInfo apply(Throwable throwable) throws Exception {
-                                return new SurveyInfo();
-                            }
-                        }),
-                new BiFunction<SnapshotsInfo, SurveyInfo, ArrayList<SurveyListData>>() {
+        dataInfoIO.read()
+                .map(new Function<DataInfo, ArrayList<SurveyListData>>() {
                     @Override
-                    public ArrayList<SurveyListData> apply(SnapshotsInfo snapshotsInfo, SurveyInfo surveyInfo)
-                            throws Exception {
+                    public ArrayList<SurveyListData> apply(DataInfo dataInfo) throws Exception {
+                        ArrayList<SurveyListData> data = new ArrayList<>();
 
-                        ArrayList<SurveyListData> surveyListData = new ArrayList<>();
+                        SurveysInfo answersInfo = dataInfo.getAnswersInfo();
+                        SnapshotsInfo snapshotsInfo = dataInfo.getSnapshotsInfo();
+                        SurveysInfo surveysInfo = dataInfo.getSurveysInfo();
 
-                        for (SurveyInfo.Survey s : surveyInfo.getSurveys()) {
-                            Survey survey = surveyIOUtils.readSurvey(s.getSurveyID()).blockingFirst();
+                        for (SurveysInfo.Survey survey : surveysInfo.getSurveys()) {
 
-                            SurveyListData sld = new SurveyListData(survey.getId(), survey.getName());
+                            // calculate answers count
+                            int answersCount = answersInfo.getCount(survey.getSurveyID());
+                            String snapshotPath = null;
 
-                            if (snapshotsInfo.isSurveyPresent(survey.getId())) {
-                                SnapshotsInfo.Survey snapshots = snapshotsInfo.getSurvey(survey.getId());
-
-                                int completedCount = snapshots.getCountOfCompletedSnapShots();
-
-                                sld.setCount(completedCount);
-                                sld.setOngoing(snapshots.isSurveyOngoing());
-
-                                if (snapshots.isSurveyOngoing()) {
-                                    SnapshotsInfo.Snapshot snapshot = snapshots.getLatestLoggedSnapshot();
-                                    sld.setSnapshotPath(snapshot.getPathToLastQuestion());
-                                    sld.setSnapShotFileName(snapshot.getSnapshotFileName());
-                                }
+                            SnapshotsInfo.Survey s = snapshotsInfo.getSurvey(survey.getSurveyID());
+                            if (s != null) {
+                                SnapshotsInfo.Snapshot snapshot = s.getLatestLoggedSnapshot();
+                                snapshotPath = snapshot.getPathToLastQuestion();
                             }
 
-                            surveyListData.add(sld);
+                            SurveyListData surveyListData = new SurveyListData(
+                                    survey.getSurveyID(),
+                                    survey.getSurveyName(),
+                                    answersCount,
+                                    snapshotPath != null,
+                                    snapshotPath
+                            );
+
+                            data.add(surveyListData);
                         }
 
-                        return surveyListData;
+                        return data;
                     }
                 })
                 .observeOn(AndroidSchedulers.mainThread())
@@ -138,6 +129,5 @@ public class SurveyListPresenter implements Contract.UserAction {
                         callback.onError(R.string.err_no_data);
                     }
                 });
-
     }
 }

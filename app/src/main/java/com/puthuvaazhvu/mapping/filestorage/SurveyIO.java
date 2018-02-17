@@ -27,19 +27,19 @@ public class SurveyIO extends StorageIO<Survey> {
         this.surveyName = surveyName;
     }
 
+    public SurveyIO(String surveyID) {
+        dataInfoIO = new DataInfoIO();
+        this.surveyID = surveyID;
+        this.surveyName = "";
+    }
+
     @Override
     public Observable<Survey> read(File file) {
         return StorageUtils.readFromFile(file)
-                .flatMap(new Function<byte[], ObservableSource<Survey>>() {
+                .map(new Function<byte[], Survey>() {
                     @Override
-                    public ObservableSource<Survey> apply(byte[] bytes) throws Exception {
-                        return StorageUtils.deserialize(bytes)
-                                .map(new Function<Object, Survey>() {
-                                    @Override
-                                    public Survey apply(Object o) throws Exception {
-                                        return (Survey) o;
-                                    }
-                                });
+                    public Survey apply(byte[] bytes) throws Exception {
+                        return (Survey) StorageUtils.deserialize(bytes).blockingFirst();
                     }
                 });
     }
@@ -47,20 +47,16 @@ public class SurveyIO extends StorageIO<Survey> {
     @Override
     public Observable<File> save(final File file, Survey contents) {
         return StorageUtils.serialize(contents)
-                .flatMap(new Function<byte[], ObservableSource<File>>() {
+                .map(new Function<byte[], File>() {
                     @Override
-                    public ObservableSource<File> apply(byte[] bytes) throws Exception {
-                        return StorageUtils.saveContentsToFile(file, bytes);
-                    }
-                })
-                .flatMap(new Function<File, ObservableSource<File>>() {
-                    @Override
-                    public ObservableSource<File> apply(final File file) throws Exception {
-                        if (!file.exists())
+                    public File apply(byte[] bytes) throws Exception {
+                        File f = StorageUtils.saveContentsToFile(file, bytes).blockingFirst();
+
+                        if (!f.exists())
                             throw new Exception("File " + file.getAbsolutePath() + " is not present.");
 
                         // read and update the datainfo.json file
-                        return dataInfoIO.read()
+                        dataInfoIO.read()
                                 .onErrorReturnItem(new DataInfo())
                                 .map(new Function<DataInfo, File>() {
                                     @Override
@@ -73,9 +69,14 @@ public class SurveyIO extends StorageIO<Survey> {
 
                                         dataInfo.getSurveysInfo().getSurveys().add(survey);
 
+                                        dataInfoIO.save(dataInfo).blockingFirst();
+
                                         return file;
                                     }
-                                });
+                                })
+                                .blockingFirst();
+
+                        return f;
                     }
                 });
     }
@@ -83,9 +84,9 @@ public class SurveyIO extends StorageIO<Survey> {
     @Override
     public Observable<Boolean> delete() {
         return super.delete()
-                .flatMap(new Function<Boolean, ObservableSource<Boolean>>() {
+                .map(new Function<Boolean, Boolean>() {
                     @Override
-                    public ObservableSource<Boolean> apply(Boolean deletionStatus) throws Exception {
+                    public Boolean apply(Boolean deletionStatus) throws Exception {
                         if (!deletionStatus)
                             throw new Exception("Failed to delete the file " + filename());
 
@@ -93,9 +94,15 @@ public class SurveyIO extends StorageIO<Survey> {
                                 .map(new Function<DataInfo, Boolean>() {
                                     @Override
                                     public Boolean apply(DataInfo dataInfo) throws Exception {
-                                        return dataInfo.getSurveysInfo().removeSurvey(filename());
+                                        boolean result = dataInfo.getSurveysInfo().removeSurvey(surveyID);
+                                        if (!result)
+                                            throw new Exception("Error deleting file " + filename());
+
+                                        dataInfoIO.save(dataInfo).blockingFirst();
+
+                                        return true;
                                     }
-                                });
+                                }).blockingFirst();
                     }
                 });
     }

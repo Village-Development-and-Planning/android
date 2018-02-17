@@ -1,12 +1,15 @@
 package com.puthuvaazhvu.mapping.filestorage;
 
-import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.puthuvaazhvu.mapping.filestorage.modals.DataInfo;
+import com.puthuvaazhvu.mapping.filestorage.modals.SnapshotsInfo;
 import com.puthuvaazhvu.mapping.filestorage.modals.SurveysInfo;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.other.Constants;
 
 import java.io.File;
+import java.util.Iterator;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
@@ -20,10 +23,12 @@ import static com.puthuvaazhvu.mapping.filestorage.StorageUtils.root;
 
 public class AnswerIO extends StorageIO<Survey> {
     private final DataInfoIO dataInfoIO;
+
     private final String surveyID, surveyName, answerID;
 
     public AnswerIO(String surveyID, String surveyName, String answerID) {
         dataInfoIO = new DataInfoIO();
+
         this.surveyID = surveyID;
         this.surveyName = surveyName;
         this.answerID = answerID;
@@ -32,16 +37,13 @@ public class AnswerIO extends StorageIO<Survey> {
     @Override
     public Observable<Survey> read(File file) {
         return StorageUtils.readFromFile(file)
-                .flatMap(new Function<byte[], ObservableSource<Survey>>() {
+                .map(new Function<byte[], Survey>() {
                     @Override
-                    public ObservableSource<Survey> apply(byte[] bytes) throws Exception {
-                        return StorageUtils.deserialize(bytes)
-                                .map(new Function<Object, Survey>() {
-                                    @Override
-                                    public Survey apply(Object o) throws Exception {
-                                        return (Survey) o;
-                                    }
-                                });
+                    public Survey apply(byte[] bytes) throws Exception {
+                        String s = new String(bytes);
+                        JsonParser jsonParser = new JsonParser();
+                        JsonElement element = jsonParser.parse(s);
+                        return new Survey(element.getAsJsonObject());
                     }
                 });
     }
@@ -49,31 +51,44 @@ public class AnswerIO extends StorageIO<Survey> {
     @Override
     public Observable<File> save(final File file, Survey survey) {
         return Observable.just(survey.getAsJson().toString())
-                .flatMap(new Function<String, ObservableSource<File>>() {
+                .map(new Function<String, File>() {
                     @Override
-                    public ObservableSource<File> apply(String s) throws Exception {
-                        return StorageUtils.saveContentsToFile(file, s);
-                    }
-                })
-                .flatMap(new Function<File, ObservableSource<File>>() {
-                    @Override
-                    public ObservableSource<File> apply(final File file) throws Exception {
-                        return dataInfoIO.read()
+                    public File apply(String c) throws Exception {
+                        File f = StorageUtils.saveContentsToFile(file, c).blockingFirst();
+
+                        DataInfo dataInfo = dataInfoIO.read()
                                 .onErrorReturnItem(new DataInfo())
-                                .map(new Function<DataInfo, File>() {
-                                    @Override
-                                    public File apply(DataInfo dataInfo) throws Exception {
-                                        SurveysInfo.Survey survey = new SurveysInfo.Survey();
-                                        survey.setFilename(filename());
-                                        survey.setSurveyID(surveyID);
-                                        survey.setSurveyName(surveyName);
-                                        survey.setTimeStamp(System.currentTimeMillis());
+                                .blockingFirst();
 
-                                        dataInfo.getAnswersInfo().getSurveys().add(survey);
+                        SurveysInfo.Survey survey = new SurveysInfo.Survey();
+                        survey.setFilename(filename());
+                        survey.setSurveyID(surveyID);
+                        survey.setSurveyName(surveyName);
+                        survey.setTimeStamp(System.currentTimeMillis());
 
-                                        return file;
-                                    }
-                                });
+                        dataInfo.getAnswersInfo().getSurveys().add(survey);
+
+                        // remove all the snapshots of the particular surveyID
+
+                        SnapshotsInfo.Survey s
+                                = dataInfo.getSnapshotsInfo().getSurvey(surveyID);
+
+                        if (s != null) {
+                            Iterator<SnapshotsInfo.Snapshot> snapshotIterator
+                                    = s.getSnapshots().iterator();
+
+                            while (snapshotIterator.hasNext()) {
+                                SnapshotsInfo.Snapshot snapshot = snapshotIterator.next();
+                                SnapshotIO snapshotIO = new SnapshotIO(snapshot
+                                        .getSnapshotID());
+                                snapshotIO.delete().blockingFirst();
+                                snapshotIterator.remove();
+                            }
+
+                            dataInfoIO.save(dataInfo).blockingFirst();
+                        }
+
+                        return f;
                     }
                 });
     }
@@ -81,19 +96,22 @@ public class AnswerIO extends StorageIO<Survey> {
     @Override
     public Observable<Boolean> delete() {
         return super.delete()
-                .flatMap(new Function<Boolean, ObservableSource<Boolean>>() {
+                .map(new Function<Boolean, Boolean>() {
                     @Override
-                    public ObservableSource<Boolean> apply(Boolean deletionStatus) throws Exception {
+                    public Boolean apply(Boolean deletionStatus) throws Exception {
                         if (!deletionStatus)
                             throw new Exception("Failed to delete the file " + filename());
 
-                        return dataInfoIO.read()
-                                .map(new Function<DataInfo, Boolean>() {
-                                    @Override
-                                    public Boolean apply(DataInfo dataInfo) throws Exception {
-                                        return dataInfo.getAnswersInfo().removeSurvey(filename());
-                                    }
-                                });
+                        DataInfo dataInfo = dataInfoIO.read().blockingFirst();
+
+                        boolean result = dataInfo.getAnswersInfo().removeSurvey(filename());
+
+                        if (!result)
+                            throw new Exception("Error deleting file " + filename());
+
+                        dataInfoIO.save(dataInfo).blockingFirst();
+
+                        return true;
                     }
                 });
     }

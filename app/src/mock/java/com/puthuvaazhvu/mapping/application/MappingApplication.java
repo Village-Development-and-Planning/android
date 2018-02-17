@@ -8,7 +8,9 @@ import android.os.Environment;
 
 import com.crashlytics.android.Crashlytics;
 import com.puthuvaazhvu.mapping.BuildConfig;
+import com.puthuvaazhvu.mapping.filestorage.LogIO;
 import com.puthuvaazhvu.mapping.other.Constants;
+import com.puthuvaazhvu.mapping.utils.Utils;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -65,60 +67,31 @@ public class MappingApplication extends Application {
         if (!model.startsWith(Build.MANUFACTURER))
             model = Build.MANUFACTURER + " " + model;
 
-        String path = Environment.getExternalStorageDirectory() + "/" + Constants.DATA_DIR + "/logs";
-        File logDir = FileUtils.createDirectory(path);
+        // For Android 4.0 and earlier, you will read all app's log output, so filter it to
+        // mostly limit it to your app's output.  In later versions, the filtering isn't needed.
+        String cmd = (Build.VERSION.SDK_INT <= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) ?
+                "logcat -d -v time MyApp:v dalvikvm:v System.err:v *:s" :
+                "logcat -d -v time";
 
-        String fileName = "log_" + System.currentTimeMillis() + ".txt";
-        File logFile = null;
-        if (logDir != null) {
-            logFile = FileUtils.createFile(logDir, fileName);
-        }
-
-        if (logFile == null) return;
-
-        // Extract to file.
-        InputStreamReader reader = null;
-        FileWriter writer = null;
         try {
-
-            // For Android 4.0 and earlier, you will read all app's log output, so filter it to
-            // mostly limit it to your app's output.  In later versions, the filtering isn't needed.
-            String cmd = (Build.VERSION.SDK_INT <= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) ?
-                    "logcat -d -v time MyApp:v dalvikvm:v System.err:v *:s" :
-                    "logcat -d -v time";
-
             // read input stream
             Process process = Runtime.getRuntime().exec(cmd);
-            reader = new InputStreamReader(process.getInputStream());
 
-            // write output stream
-            writer = new FileWriter(logFile);
-            writer.write("Android version: " + Build.VERSION.SDK_INT + "\n");
-            writer.write("Device: " + model + "\n");
-            writer.write("App version: " + (info == null ? "(null)" : info.versionCode) + "\n");
+            StringBuilder stringBuilder = new StringBuilder();
 
-            char[] buffer = new char[10000];
-            do {
-                int n = reader.read(buffer, 0, buffer.length);
-                if (n == -1)
-                    break;
-                writer.write(buffer, 0, n);
-            } while (true);
+            stringBuilder.append("Android version: " + Build.VERSION.SDK_INT + "\n");
+            stringBuilder.append("Device: " + model + "\n");
+            stringBuilder.append("App version: " + (info == null ? "(null)" : info.versionCode) + "\n");
 
-            reader.close();
-            writer.close();
+            stringBuilder.append(Utils.readFromInputStream(process.getInputStream()));
+
+            LogIO logIO = new LogIO("" + System.currentTimeMillis());
+            logIO.save(stringBuilder.toString()).blockingFirst();
+
         } catch (IOException e) {
-            if (writer != null)
-                try {
-                    writer.close();
-                } catch (IOException e1) {
-                }
-            if (reader != null)
-                try {
-                    reader.close();
-                } catch (IOException e1) {
-                }
+            Timber.e(e);
         }
+
     }
 
 }

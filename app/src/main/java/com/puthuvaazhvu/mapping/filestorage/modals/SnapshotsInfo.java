@@ -56,7 +56,7 @@ public class SnapshotsInfo {
 
         public void addSnapshot(Snapshot snapshot) {
             for (Snapshot s : snapshots) {
-                if (s.getSnapshotFileName().equals(snapshot.getSnapshotFileName())) {
+                if (s.getSnapshotID().equals(snapshot.getSnapshotID())) {
                     s.copy(snapshot);
                     return;
                 }
@@ -99,22 +99,22 @@ public class SnapshotsInfo {
     }
 
     public static class Snapshot {
-        private String snapshotFileName;
+        private String snapshotID;
         private String pathToLastQuestion;
         private long timestamp;
 
         public void copy(Snapshot other) {
-            this.snapshotFileName = other.snapshotFileName;
+            this.snapshotID = other.snapshotID;
             this.pathToLastQuestion = other.pathToLastQuestion;
             this.timestamp = other.timestamp;
         }
 
         public String getSurveyID() {
-            return snapshotFileName.split("_")[0];
+            return snapshotID.split("_")[0];
         }
 
-        public String getSnapshotFileName() {
-            return snapshotFileName;
+        public String getSnapshotID() {
+            return snapshotID;
         }
 
         public String getPathToLastQuestion() {
@@ -125,8 +125,8 @@ public class SnapshotsInfo {
             return timestamp;
         }
 
-        public void setSnapshotFileName(String snapshotFileName) {
-            this.snapshotFileName = snapshotFileName;
+        public void setSnapshotID(String snapshotID) {
+            this.snapshotID = snapshotID;
         }
 
         public void setPathToLastQuestion(String pathToLastQuestion) {

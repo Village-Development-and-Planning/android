@@ -14,12 +14,11 @@ import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.application.MappingApplication;
 import com.puthuvaazhvu.mapping.data.AuthDataRepository;
+import com.puthuvaazhvu.mapping.filestorage.DataInfoIO;
+import com.puthuvaazhvu.mapping.filestorage.modals.DataInfo;
 import com.puthuvaazhvu.mapping.other.Config;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.Utils;
-import com.puthuvaazhvu.mapping.utils.saving.AnswerIOUtils;
-import com.puthuvaazhvu.mapping.utils.saving.SurveyIOUtils;
-import com.puthuvaazhvu.mapping.utils.saving.modals.SnapshotsInfo;
 import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListActivity;
 
 import io.reactivex.Observable;
@@ -57,7 +56,7 @@ public class SplashActivity extends BaseActivity {
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        initThings();
+                        init();
                     }
                 },
                 null);
@@ -69,7 +68,7 @@ public class SplashActivity extends BaseActivity {
     protected void onPermissionsGranted() {
         super.onPermissionsGranted();
 
-        initThings();
+        init();
     }
 
     private void openSurveyListActivity() {
@@ -77,26 +76,33 @@ public class SplashActivity extends BaseActivity {
         startActivity(intent);
     }
 
-    private void initThings() {
+    private void init() {
         SharedPreferences sharedPreferences = getSharedPreferences(Constants.PREFS, MODE_PRIVATE);
-        AuthDataRepository authDataRepository = AuthDataRepository.getInstance(sharedPreferences);
+        AuthDataRepository authDataRepository = new AuthDataRepository(sharedPreferences, this);
+        final DataInfoIO dataInfoIO = new DataInfoIO();
 
         Observable.zip(
-                checkInfoFiles(),
-                authDataRepository.getAuthData(Utils.isNetworkAvailable(this)),
-                new BiFunction<Boolean, JsonObject, Boolean>() {
+                authDataRepository.get(Utils.isNetworkAvailable(this)),
+                dataInfoIO.read(),
+                new BiFunction<JsonObject, DataInfo, Object>() {
                     @Override
-                    public Boolean apply(Boolean optional, JsonObject jsonObject) throws Exception {
+                    public Object apply(JsonObject jsonObject, DataInfo dataInfo) throws Exception {
+                        // set the auth to the global context
                         MappingApplication.globalContext.getApplicationData().setAuthJson(jsonObject);
-                        return true;
+
+                        // check datainfo.json file version
+                        if (dataInfo.getVersion() != Config.Versions.DATA_INFO_VERSION) {
+                            dataInfoIO.delete().blockingFirst();
+                        }
+                        return new Object();
                     }
                 }
         )
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<Boolean>() {
+                .subscribe(new Consumer<Object>() {
                     @Override
-                    public void accept(Boolean o) throws Exception {
+                    public void accept(Object o) throws Exception {
                         progressBar.setVisibility(View.INVISIBLE);
                         infoTxt.setText("DONE");
                         openSurveyListActivity();
@@ -110,41 +116,5 @@ public class SplashActivity extends BaseActivity {
                         }
                     }
                 });
-    }
-
-    private Observable<Boolean> checkInfoFiles() {
-        final SurveyIOUtils surveyIOUtils = SurveyIOUtils.getInstance();
-        final AnswerIOUtils answerIOUtils = AnswerIOUtils.getInstance();
-
-        return Observable.zip(
-                surveyIOUtils.readSurveysInfoFile()
-                        .onErrorReturn(new Function<Throwable, SurveyInfo>() {
-                            @Override
-                            public SurveyInfo apply(Throwable throwable) throws Exception {
-                                return new SurveyInfo();
-                            }
-                        }),
-                answerIOUtils.readAnswerInfoFile()
-                        .onErrorReturn(new Function<Throwable, SnapshotsInfo>() {
-                            @Override
-                            public SnapshotsInfo apply(Throwable throwable) throws Exception {
-                                return new SnapshotsInfo();
-                            }
-                        }),
-                new BiFunction<SurveyInfo, SnapshotsInfo, Boolean>() {
-                    @Override
-                    public Boolean apply(SurveyInfo surveyInfo, SnapshotsInfo snapshotsInfo) throws Exception {
-                        if (surveyInfo.getVersion() != Config.Versions.SURVEY_INFO_VERSION) {
-                            boolean result = surveyIOUtils.deleteInfoFile();
-                            Timber.i("Deleted status of surveys info file " + result);
-                        }
-                        if (snapshotsInfo.getVersion() != Config.Versions.ANSWERS_INFO_VERSION) {
-                            boolean result = answerIOUtils.deleteInfoFile();
-                            Timber.i("Deleted status of answers info file " + result);
-                        }
-                        return true;
-                    }
-                }
-        );
     }
 }
