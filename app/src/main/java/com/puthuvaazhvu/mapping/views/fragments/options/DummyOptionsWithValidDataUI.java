@@ -33,6 +33,6 @@ public class DummyOptionsWithValidDataUI extends OptionsUI {
 
     @Override
     public ArrayList<Option> response() {
-        return QuestionUtils.generateQuestionWithDummyAndValidOptions();
+        return new ArrayList<>();
     }
 }

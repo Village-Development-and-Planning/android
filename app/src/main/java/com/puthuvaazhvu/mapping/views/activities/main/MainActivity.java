@@ -12,12 +12,15 @@ import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.application.MappingApplication;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
+import com.puthuvaazhvu.mapping.modals.deserialization.SurveyDeserialization;
 import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.other.Config;
 import com.puthuvaazhvu.mapping.other.Constants;
@@ -34,7 +37,6 @@ import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces
 import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.QuestionDataFragmentCommunication;
 import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.ShowTogetherQuestionCommunication;
 import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.SingleQuestionFragmentCommunication;
-import com.puthuvaazhvu.mapping.views.fragments.summary.SummaryFragment;
 import com.puthuvaazhvu.mapping.views.managers.StackFragmentManagerInvoker;
 import com.puthuvaazhvu.mapping.views.managers.commands.FragmentPopCommand;
 import com.puthuvaazhvu.mapping.views.managers.commands.FragmentPushCommand;
@@ -114,10 +116,16 @@ public class MainActivity extends MenuActivity
         }, REPEATING_TASK_INTERVAL, true);
 
         if (DEBUG) {
+            final GsonBuilder gsonBuilder = new GsonBuilder();
+            gsonBuilder.registerTypeAdapter(Survey.class, new SurveyDeserialization());
+            gsonBuilder.setPrettyPrinting();
+
+            final Gson gson = gsonBuilder.create();
+
             String dataString = Utils.readFromAssetsFile(this, "shown_together_question.json");
             JsonParser jsonParser = new JsonParser();
-            Survey survey = new Survey(jsonParser.parse(dataString).getAsJsonObject());
-            Question root = survey.getRootQuestion();
+            Survey survey = gson.fromJson(jsonParser.parse(dataString).getAsJsonObject(), Survey.class);
+            Question root = survey.getQuestion();
             flowLogic = new FlowLogicImplementation(root, sharedPreferences);
             presenter.initData(survey, flowLogic);
             presenter.getNext();
@@ -160,13 +168,13 @@ public class MainActivity extends MenuActivity
     @Override
     public void onSurveyLoaded(Survey survey) {
 
-        if (survey == null || survey.getRootQuestion() == null) {
+        if (survey == null || survey.getQuestion() == null) {
             onError(R.string.invalid_data);
             defaultBackPressed = true;
             return;
         }
 
-        Question root = survey.getRootQuestion();
+        Question root = survey.getQuestion();
 
         flowLogic = new FlowLogicImplementation(
                 root,
@@ -190,7 +198,7 @@ public class MainActivity extends MenuActivity
             flowLogic.setCurrent(question);
 
             FlowLogic.FlowData flowData = flowLogic.getCurrent();
-            loadQuestionUI(flowData.getFragment(), flowData.getQuestion().getRawNumber());
+            loadQuestionUI(flowData.getFragment(), flowData.getQuestion().getNumber());
         }
     }
 
@@ -233,9 +241,7 @@ public class MainActivity extends MenuActivity
 
     @Override
     public void shouldShowSummary(Survey survey) {
-        SummaryFragment summaryFragment = SummaryFragment.getInstance(survey);
-        replaceFragmentCommand(summaryFragment, "summary_fragment");
-        executePendingCommands();
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override

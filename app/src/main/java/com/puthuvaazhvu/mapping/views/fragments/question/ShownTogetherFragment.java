@@ -3,29 +3,22 @@ package com.puthuvaazhvu.mapping.views.fragments.question;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.Answer;
-import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
-import com.puthuvaazhvu.mapping.modals.Text;
-import com.puthuvaazhvu.mapping.modals.utils.AnswerUtils;
 import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.custom_components.LinearLayoutRecyclerView;
 import com.puthuvaazhvu.mapping.views.fragments.options.CreateOptionsUI;
 import com.puthuvaazhvu.mapping.views.fragments.options.OptionsUI;
-import com.puthuvaazhvu.mapping.views.fragments.options.factory.OptionsUIFactory;
 import com.puthuvaazhvu.mapping.views.fragments.options.factory.OptionsUIFactoryWithNonScrollableCheckableUI;
-import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.GridQuestionFragmentCommunication;
 import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.ShowTogetherQuestionCommunication;
 
 import java.util.ArrayList;
@@ -60,11 +53,8 @@ public class ShownTogetherFragment extends QuestionDataFragment {
         super.onCreate(savedInstanceState);
         dataList = new ArrayList<>();
         dataList.addAll(getQuestion().getCurrentAnswer().getChildren());
-//        dataList.addAll(QuestionUtils.getLastAnswer(getQuestion()).getChildren());
-        // add a valid answer to avoid locking in the same question
-        getQuestion().getCurrentAnswer().setOptions(QuestionUtils.generateQuestionWithDummyAndValidOptions());
-//        QuestionUtils.getLastAnswer(getQuestion()).setOptions(QuestionUtils.generateQuestionWithDummyAndValidOptions());
-        //addDummyAnswersToQuestionTree(dataList, getQuestion());
+        // add a valid dummy answer to avoid locking in the same question
+        getQuestion().getCurrentAnswer().setDummyButValid(true);
         shownTogetherAdapter = new ShownTogetherAdapter();
         optionsUiObjects = new HashMap<>();
     }
@@ -82,8 +72,8 @@ public class ShownTogetherFragment extends QuestionDataFragment {
         together_question_container = view.findViewById(R.id.together_question_container);
         together_question_container.setAdapter(shownTogetherAdapter);
 
-        String questionText = QuestionUtils.getTextString(getQuestion());
-        String rawNumber = getQuestion().getRawNumber();
+        String questionText = getQuestion().getTextString();
+        String rawNumber = getQuestion().getNumber();
 
         String text = rawNumber + ". " + questionText;
         getQuestionText().setText(text);
@@ -108,12 +98,12 @@ public class ShownTogetherFragment extends QuestionDataFragment {
 
     private boolean updateAnswersInQuestionTreeWithReadAnswers() {
         for (Question question : dataList) {
-            OptionsUI optionsUI = optionsUiObjects.get(question.getRawNumber());
+            OptionsUI optionsUI = optionsUiObjects.get(question.getNumber());
             if (optionsUI != null && optionsUI.response() != null) {
                 if (question.getAnswers().isEmpty()) {
                     // add dummy answer if empty
                     question.addAnswer(
-                            new Answer(QuestionUtils.generateQuestionWithDummyOptions(), question)
+                            Answer.createDummyAnswer()
                     );
                 }
 
@@ -176,9 +166,9 @@ public class ShownTogetherFragment extends QuestionDataFragment {
                     .createOptionsUI(new OptionsUIFactoryWithNonScrollableCheckableUI(question, childOptionsContainer));
             optionsUI.attachToRoot();
 
-            optionsUiObjects.put(question.getRawNumber(), optionsUI);
+            optionsUiObjects.put(question.getNumber(), optionsUI);
 
-            questionTextView.setText(QuestionUtils.getTextString(question));
+            questionTextView.setText(question.getTextString());
         }
     }
 }

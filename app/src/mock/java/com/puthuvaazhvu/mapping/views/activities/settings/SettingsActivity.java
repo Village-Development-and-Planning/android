@@ -15,8 +15,6 @@ import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.activities.MenuActivity;
 import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListActivity;
 import com.puthuvaazhvu.mapping.views.dialogs.ProgressDialog;
-import com.puthuvaazhvu.mapping.views.testing.MultipleChoiceQuestionFragmentTesting;
-import com.puthuvaazhvu.mapping.views.testing.ShownTogetherQuestionFragmentActivity;
 
 /**
  * Created by muthuveerappans on 11/1/17.
@@ -68,22 +66,11 @@ public class SettingsActivity extends MenuActivity implements View.OnClickListen
                 showListOfSurveyActivity();
                 break;
             case R.id.message_fragment_test:
-                startMultipleChoiceOptionsLimitTesting();
                 break;
             case R.id.dump_survey:
                 // dumpSurvey();
                 break;
         }
-    }
-
-    private void startMultipleChoiceOptionsLimitTesting() {
-        Intent intent = new Intent(this, MultipleChoiceQuestionFragmentTesting.class);
-        startActivity(intent);
-    }
-
-    private void startTestingFragmentActivity() {
-        Intent intent = new Intent(this, ShownTogetherQuestionFragmentActivity.class);
-        startActivity(intent);
     }
 
     private void showLoading() {

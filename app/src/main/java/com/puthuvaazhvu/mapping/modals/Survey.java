@@ -3,58 +3,29 @@ package com.puthuvaazhvu.mapping.modals;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
-import com.puthuvaazhvu.mapping.utils.JsonHelper;
-import com.puthuvaazhvu.mapping.utils.Optional;
-
-import java.io.Serializable;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.List;
-
-import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
-import io.reactivex.SingleObserver;
-import io.reactivex.SingleOnSubscribe;
-import io.reactivex.SingleSource;
-import io.reactivex.annotations.NonNull;
-import io.reactivex.functions.Function;
-
 /**
  * Created by muthuveerappans on 8/24/17.
  */
 
-public class Survey extends BaseObject implements Parcelable {
+public class Survey extends BaseObject {
     private String id;
-    private final String name;
-    private final String description;
-    private final Question rootQuestion;
-    private final String modifiedAt;
+    private String name;
+    private String description;
+    private Question question;
+    private String modifiedAt;
+    private boolean enabled;
 
-    public Survey(String id, String name, String description, Question rootQuestion, String modifiedAt) {
+    public Survey(String id, String name, String description, Question question, String modifiedAt, boolean enabled) {
         this.id = id;
         this.name = name;
-        this.rootQuestion = rootQuestion;
-        this.modifiedAt = modifiedAt;
         this.description = description;
+        this.question = question;
+        this.modifiedAt = modifiedAt;
+        this.enabled = enabled;
     }
 
-    public Survey(JsonObject json) {
-        id = JsonHelper.getString(json, "_id");
-        name = JsonHelper.getString(json, "name");
-        modifiedAt = JsonHelper.getString(json, "modifiedAt");
-        description = JsonHelper.getString(json, "description");
-
-        JsonObject questionsJson = JsonHelper.getJsonObject(json, "question");
-
-        if (questionsJson != null) {
-            rootQuestion = QuestionUtils.populateQuestionFromJson(null, json);
-        } else {
-            rootQuestion = null;
-        }
+    public boolean isEnabled() {
+        return enabled;
     }
 
     public void setId(String id) {
@@ -69,8 +40,8 @@ public class Survey extends BaseObject implements Parcelable {
         return name;
     }
 
-    public Question getRootQuestion() {
-        return rootQuestion;
+    public Question getQuestion() {
+        return question;
     }
 
     public String getModifiedAt() {
@@ -80,52 +51,4 @@ public class Survey extends BaseObject implements Parcelable {
     public String getDescription() {
         return description;
     }
-
-    @Override
-    public JsonElement getAsJson() {
-        JsonObject jsonObject = new JsonObject();
-
-        jsonObject.addProperty("_id", id);
-        jsonObject.addProperty("version", 1);
-        jsonObject.addProperty("name", name);
-        jsonObject.addProperty("description", description);
-        jsonObject.add("question", rootQuestion.getAsJson().getAsJsonObject().get("question").getAsJsonObject());
-
-        return jsonObject;
-    }
-
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.id);
-        dest.writeString(this.name);
-        dest.writeString(this.description);
-        dest.writeParcelable(this.rootQuestion, flags);
-        dest.writeString(this.modifiedAt);
-    }
-
-    protected Survey(Parcel in) {
-        this.id = in.readString();
-        this.name = in.readString();
-        this.description = in.readString();
-        this.rootQuestion = in.readParcelable(Question.class.getClassLoader());
-        this.modifiedAt = in.readString();
-    }
-
-    public static final Creator<Survey> CREATOR = new Creator<Survey>() {
-        @Override
-        public Survey createFromParcel(Parcel source) {
-            return new Survey(source);
-        }
-
-        @Override
-        public Survey[] newArray(int size) {
-            return new Survey[size];
-        }
-    };
 }

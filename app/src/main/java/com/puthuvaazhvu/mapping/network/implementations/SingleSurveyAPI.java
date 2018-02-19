@@ -1,7 +1,11 @@
 package com.puthuvaazhvu.mapping.network.implementations;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.puthuvaazhvu.mapping.modals.Survey;
+import com.puthuvaazhvu.mapping.modals.deserialization.SurveyDeserialization;
 import com.puthuvaazhvu.mapping.network.APIError;
 import com.puthuvaazhvu.mapping.network.ErrorUtils;
 import com.puthuvaazhvu.mapping.network.adapters.NetworkAdapter;
@@ -21,12 +25,7 @@ import retrofit2.Retrofit;
 public class SingleSurveyAPI {
     public static SingleSurveyAPI singleSurveyAPI;
     private final SingleSurveyClient client;
-
-    public interface SingleSurveyAPICallbacks {
-        void onSurveyLoaded(String surveyJson);
-
-        void onErrorOccurred(APIError error);
-    }
+    private Gson gson = new Gson();
 
     public static SingleSurveyAPI getInstance(String authToken) {
         if (singleSurveyAPI == null) {
@@ -40,17 +39,24 @@ public class SingleSurveyAPI {
         NetworkAdapter adapter = NetworkAdapter.getInstance();
         Retrofit retrofit = adapter.getUnsafeRetrofit(authToken);
         client = retrofit.create(SingleSurveyClient.class);
+
+        final GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(Survey.class, new SurveyDeserialization());
+
+        final Gson gson = gsonBuilder.create();
     }
 
-    public Observable<String> getSurvey(final String surveyID) {
-        return Observable.create(new ObservableOnSubscribe<String>() {
+    public Observable<Survey> getSurvey(final String surveyID) {
+        return Observable.create(new ObservableOnSubscribe<Survey>() {
             @Override
-            public void subscribe(ObservableEmitter<String> emitter) throws Exception {
+            public void subscribe(ObservableEmitter<Survey> emitter) throws Exception {
                 Call<JsonElement> call = client.getSurvey(surveyID);
                 Response<JsonElement> response = call.execute();
 
                 if (response.isSuccessful()) {
-                    emitter.onNext(getSurveyFromResponse(response));
+                    JsonElement jsonElement = response.body();
+                    JsonObject jsonObject = jsonElement.getAsJsonObject();
+                    emitter.onNext(gson.fromJson(jsonObject, Survey.class));
                     emitter.onComplete();
                 } else {
                     APIError apiError = ErrorUtils.parseError(response);
@@ -58,11 +64,5 @@ public class SingleSurveyAPI {
                 }
             }
         });
-    }
-
-    private String getSurveyFromResponse(Response<JsonElement> response) {
-        JsonElement jsonElement = response.body();
-        JsonObject jsonObject = jsonElement.getAsJsonObject();
-        return jsonObject.toString();
     }
 }

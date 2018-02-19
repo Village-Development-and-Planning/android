@@ -183,7 +183,7 @@ public class MainPresenter implements Contract.UserAction {
             activityView.onSurveyEnd();
             return;
         }
-        activityView.loadQuestionUI(flowData.getFragment(), flowData.getQuestion().getRawNumber());
+        activityView.loadQuestionUI(flowData.getFragment(), flowData.getQuestion().getNumber());
     }
 
 }

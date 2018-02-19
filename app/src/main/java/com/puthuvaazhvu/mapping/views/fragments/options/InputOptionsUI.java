@@ -10,11 +10,10 @@ import android.widget.EditText;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
+import com.puthuvaazhvu.mapping.modals.FlowPattern;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Text;
-import com.puthuvaazhvu.mapping.modals.flow.FlowPattern;
-import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.views.fragments.options.modals.OptionsUIData;
 
@@ -74,10 +73,8 @@ public class InputOptionsUI extends OptionsUI {
         }
 
         Option option = new Option(
-                "",
                 "INPUT",
-                new Text("", input, input, ""),
-                "",
+                new Text(input, input),
                 "INPUT"
         );
         option.setValue(input);
@@ -97,7 +94,7 @@ public class InputOptionsUI extends OptionsUI {
 
         if (flowPattern == null) return true;
 
-        QuestionFlow questionFlow = flowPattern.getQuestionFlow();
+        FlowPattern.QuestionFlow questionFlow = flowPattern.getQuestionFlow();
 
         if (questionFlow == null) return true;
 
@@ -121,7 +118,7 @@ public class InputOptionsUI extends OptionsUI {
 
         if (flowPattern == null) return true;
 
-        QuestionFlow questionFlow = flowPattern.getQuestionFlow();
+        FlowPattern.QuestionFlow questionFlow = flowPattern.getQuestionFlow();
 
         if (questionFlow == null) return true;
 

@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.View;
 
-import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
@@ -23,8 +22,8 @@ public class SingleQuestionFragment extends SingleQuestionFragmentBase implement
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        String questionText = QuestionUtils.getTextString(getQuestion());
-        String rawNumber = getQuestion().getRawNumber();
+        String questionText = getQuestion().getTextString();
+        String rawNumber = getQuestion().getNumber();
 
         String text = rawNumber + ". " + questionText;
         getQuestionText().setText(text);

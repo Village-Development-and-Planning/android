@@ -13,10 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.puthuvaazhvu.mapping.R;
-import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Question;
-import com.puthuvaazhvu.mapping.modals.flow.FlowPattern;
-import com.puthuvaazhvu.mapping.modals.utils.AnswerUtils;
 import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.utils.RecyclerItemClickListener;
 import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.GridQuestionFragmentCommunication;
@@ -85,10 +82,8 @@ public class GridQuestionsFragment extends QuestionDataFragment {
         }));
 
         // add a valid answer to avoid locking in the same question
-        getQuestion().getCurrentAnswer().setOptions(QuestionUtils.generateQuestionWithDummyAndValidOptions());
-//        QuestionUtils.getLastAnswer(getQuestion()).setOptions(QuestionUtils.generateQuestionWithDummyAndValidOptions());
+        getQuestion().getCurrentAnswer().setDummyButValid(true);
 
-//        children = QuestionUtils.getLastAnswer(getQuestion()).getChildren();
         children = getQuestion().getCurrentAnswer().getChildren();
 
         questionsAdapter = new QuestionsAdapter();
@@ -117,14 +112,8 @@ public class GridQuestionsFragment extends QuestionDataFragment {
         public void onBindViewHolder(QVH holder, int position) {
             Question child = children.get(position);
 
-            // remove dummy answers in count
-//            int count = child.getAnswers().size();
-//            for (Answer answer : child.getAnswers()) {
-//                if (AnswerUtils.isAnswerDummy(answer)) count--;
-//            }
-
             int count = child.getBubbleAnswersCount();
-            holder.populateViews(QuestionUtils.getTextString(child), count);
+            holder.populateViews(child.getTextString(), count);
         }
 
         @Override

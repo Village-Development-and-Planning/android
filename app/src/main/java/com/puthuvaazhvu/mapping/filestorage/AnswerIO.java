@@ -37,16 +37,7 @@ public class AnswerIO extends StorageIO<Survey> {
 
     @Override
     public Observable<Survey> read(File file) {
-        return StorageUtils.readFromFile(file)
-                .map(new Function<byte[], Survey>() {
-                    @Override
-                    public Survey apply(byte[] bytes) throws Exception {
-                        String s = new String(bytes);
-                        JsonParser jsonParser = new JsonParser();
-                        JsonElement element = jsonParser.parse(s);
-                        return new Survey(element.getAsJsonObject());
-                    }
-                });
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override

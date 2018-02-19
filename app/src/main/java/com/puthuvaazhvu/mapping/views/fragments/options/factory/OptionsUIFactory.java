@@ -46,7 +46,7 @@ public class OptionsUIFactory {
     }
 
     public DummyOptionsWithValidDataUI createDummyOptionsUI() {
-        return new DummyOptionsWithValidDataUI(frame, context, QuestionUtils.getTextString(question), question);
+        return new DummyOptionsWithValidDataUI(frame, context, question.getTextString(), question);
     }
 
     public InfoOptionsUI createInfoOptionsUI() {

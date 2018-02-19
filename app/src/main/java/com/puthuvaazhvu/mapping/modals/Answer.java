@@ -1,8 +1,5 @@
 package com.puthuvaazhvu.mapping.modals;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -13,29 +10,59 @@ import java.util.ArrayList;
  * Created by muthuveerappans on 9/26/17.
  */
 
-public class Answer extends BaseObject implements Parcelable {
-    private final ArrayList<Option> options;
-    private final ArrayList<Question> children;
-    private Question questionReference;
+public class Answer extends BaseObject {
+    private ArrayList<Option> loggedOptions;
+    private ArrayList<Question> children;
+    private Question parentQuestion;
     private long startTimeStamp;
     private long exitTimestamp;
+    private boolean isDummy;
+    private boolean isDummyButValid;
 
-    public Answer(ArrayList<Option> options, Question questionReference, long startTimeStamp) {
-        this(options, questionReference);
+    public static Answer createDummyAnswer() {
+        Answer answer = new Answer();
+        answer.setDummy(true);
+        return answer;
+    }
+
+    public static Answer createDummyValidAnswer() {
+        Answer answer = new Answer();
+        answer.setDummyButValid(true);
+        return answer;
+    }
+
+    private Answer() {
+    }
+
+    public Answer(ArrayList<Option> options, Question parentQuestion, long startTimeStamp) {
+        this(options, parentQuestion);
         this.startTimeStamp = startTimeStamp;
     }
 
-    public Answer(ArrayList<Option> options, Question questionReference) {
-        this.options = options;
-        this.questionReference = questionReference;
+    public Answer(ArrayList<Option> options, Question parentQuestion) {
+        this.loggedOptions = options;
+        this.parentQuestion = parentQuestion;
 
         this.children = new ArrayList<>();
 
-        if (questionReference != null) {
-            Question questionReferenceCopy = questionReference.copy();
-            this.children.addAll(questionReferenceCopy.getChildren());
+        if (parentQuestion != null) {
+            // copy all the immediate children
+            for (Question c : parentQuestion.getChildren()) {
+                Question q = new Question(
+                        c.getPosition(),
+                        c.getText(),
+                        c.getType(),
+                        c.getOptions(),
+                        c.getTags(),
+                        c.getNumber(),
+                        c.getChildren(),
+                        c.getFlowPattern()
+                );
+                this.children.add(q);
+            }
         }
 
+        // set the parent answer of the children
         for (int i = 0; i < children.size(); i++) {
             children.get(i).setParentAnswer(this);
         }
@@ -43,8 +70,33 @@ public class Answer extends BaseObject implements Parcelable {
         this.startTimeStamp = System.currentTimeMillis();
     }
 
-    public void setQuestionReference(Question questionReference) {
-        this.questionReference = questionReference;
+    public boolean isDummyButValid() {
+        return isDummyButValid;
+    }
+
+    public void setDummyButValid(boolean dummyButValid) {
+        isDummyButValid = dummyButValid;
+    }
+
+    public void setParentQuestion(Question parentQuestion) {
+        this.parentQuestion = parentQuestion;
+    }
+
+    public boolean isDummy() {
+        return isDummy;
+    }
+
+    public void setDummy(boolean dummy) {
+        isDummy = dummy;
+    }
+
+    public ArrayList<Option> getLoggedOptions() {
+        return loggedOptions;
+    }
+
+    public void setLoggedOptions(ArrayList<Option> loggedOptions) {
+        this.loggedOptions.clear();
+        this.loggedOptions.addAll(loggedOptions);
     }
 
     public long getStartTimeStamp() {
@@ -55,18 +107,8 @@ public class Answer extends BaseObject implements Parcelable {
         return exitTimestamp;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
     public ArrayList<Option> getOptions() {
-        return options;
-    }
-
-    public void setOptions(ArrayList<Option> otherOptions) {
-        options.clear();
-        options.addAll(otherOptions);
+        return loggedOptions;
     }
 
     public void setExitTimestamp(long exitTimestamp) {
@@ -81,55 +123,15 @@ public class Answer extends BaseObject implements Parcelable {
         return children;
     }
 
-    public Question getQuestionReference() {
-        return questionReference;
+    public Question getParentQuestion() {
+        return parentQuestion;
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeTypedList(this.options);
-        dest.writeTypedList(this.children);
-    }
-
-    protected Answer(Parcel in) {
-        this.options = in.createTypedArrayList(Option.CREATOR);
-        this.children = in.createTypedArrayList(Question.CREATOR);
-    }
-
-    public static final Creator<Answer> CREATOR = new Creator<Answer>() {
-        @Override
-        public Answer createFromParcel(Parcel source) {
-            return new Answer(source);
+    public boolean containsOption(String position) {
+        for (Option option : getOptions()) {
+            if (option.getPosition().equals(position)) return true;
         }
-
-        @Override
-        public Answer[] newArray(int size) {
-            return new Answer[size];
-        }
-    };
-
-    @Override
-    public JsonElement getAsJson() {
-        JsonObject jsonObject = new JsonObject();
-
-        JsonArray loggedOptionsArray = new JsonArray();
-
-        if (options != null) {
-            for (Option option : options) {
-                loggedOptionsArray.add(option.getAsJson());
-            }
-        }
-
-        JsonArray childrenArray = new JsonArray();
-
-        for (Question c : children) {
-            childrenArray.add(c.getAsJson());
-        }
-
-        jsonObject.add("logged_options", loggedOptionsArray);
-        jsonObject.add("children", childrenArray);
-
-        return jsonObject;
+        return false;
     }
 
     @Override
@@ -138,26 +140,18 @@ public class Answer extends BaseObject implements Parcelable {
 
         string += "hashcode : " + Integer.toHexString(System.identityHashCode(this));
 
-        string += "\nOptions count: " + (options == null ? 0 : options.size());
+        string += "\nOptions count: " + (loggedOptions == null ? 0 : loggedOptions.size());
         string += "\nChildren [";
 
         for (Question c : children) {
-            string += c.getRawNumber();
+            string += c.getNumber();
             string += ", ";
         }
 
         string += "]";
 
-        string += "\nReference question :" + questionReference.getRawNumber();
+        string += "\nReference question :" + parentQuestion.getNumber();
 
         return string;
-    }
-
-    @Override
-    public Answer copy() {
-        return new Answer(
-                options,
-                questionReference
-        );
     }
 }

@@ -109,10 +109,8 @@ public class GPSOptionsUI extends OptionsUI
 
         String loc = lastLocation.getLatitude() + "," + lastLocation.getLongitude();
         Option option = new Option(
-                "",
                 "GPS",
-                new Text("", loc, loc, ""),
-                "",
+                new Text(loc, loc),
                 "GPS"
         );
         option.setValue(loc);

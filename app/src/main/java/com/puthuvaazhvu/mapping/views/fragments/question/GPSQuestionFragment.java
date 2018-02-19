@@ -166,7 +166,9 @@ public class GPSQuestionFragment extends SingleQuestionFragmentBase {
     }
 
     protected ArrayList<Option> getCurrentAnswerOptions() {
-        if (QuestionUtils.isCurrentAnswerDummy(getQuestion())) return null;
+        if (getQuestion().getCurrentAnswer() != null
+                && getQuestion().getCurrentAnswer().isDummy())
+            return null;
 
         Answer answer = getQuestion().getCurrentAnswer();
         if (answer != null) {
@@ -188,7 +190,11 @@ public class GPSQuestionFragment extends SingleQuestionFragmentBase {
         ArrayList<Option> options = new ArrayList<>();
 
         String loc = lastLocation.getLatitude() + "," + lastLocation.getLongitude();
-        options.add(new Option("", "GPS", new Text("", loc, loc, ""), "", ""));
+        options.add(new Option(
+                "GPS",
+                new Text(loc, loc),
+                "GPS")
+        );
 
         return options;
     }

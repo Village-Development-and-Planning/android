@@ -6,7 +6,6 @@ import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
-import com.puthuvaazhvu.mapping.modals.utils.SurveyUtils;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -35,8 +34,8 @@ public class QuestionUtilsTest {
 
     @Test
     public void test_getQuestionRawNumberPrefix() {
-        Question question = survey.getRootQuestion().getChildren().get(1).getChildren().get(1).getChildren().get(6);
-        assertThat(question.getRawNumber(), is("2.1.7"));
+        Question question = survey.getQuestion().getChildren().get(1).getChildren().get(1).getChildren().get(6);
+        assertThat(question.getNumber(), is("2.1.7"));
         assertThat(QuestionUtils.getQuestionParentNumber(question), is("2.1"));
     }
 
@@ -45,27 +44,27 @@ public class QuestionUtilsTest {
         io.reactivex.Observable<Survey> surveySingle = SurveyUtils.getSurveyWithUpdatedAnswers(TestUtils.getAnswersJson(this));
         Survey survey = surveySingle.blockingFirst();
 
-        assertThat(survey.getRootQuestion().getAnswers().size(), is(1));
+        assertThat(survey.getQuestion().getAnswers().size(), is(1));
 
-        Question question = survey.getRootQuestion().getAnswers()
+        Question question = survey.getQuestion().getAnswers()
                 .get(0).getChildren().get(1).getAnswers().get(0).getChildren().get(1)
                 .getAnswers().get(0).getChildren().get(0);
 
-        assertThat(question.getRawNumber(), is("2.1.1"));
+        assertThat(question.getNumber(), is("2.1.1"));
 
         Question found = QuestionUtils.findQuestionFrom(question, "2", true);
 
-        assertThat(found.getRawNumber(), is("2"));
+        assertThat(found.getNumber(), is("2"));
 
-        question = survey.getRootQuestion().getAnswers()
+        question = survey.getQuestion().getAnswers()
                 .get(0).getChildren().get(1).getAnswers().get(0).getChildren().get(1)
                 .getAnswers().get(0).getChildren().get(1);
 
-        assertThat(question.getRawNumber(), is("2.1.2"));
+        assertThat(question.getNumber(), is("2.1.2"));
 
         found = QuestionUtils.findQuestionFrom(question, "2.1", true);
 
-        assertThat(found.getRawNumber(), is("2.1"));
+        assertThat(found.getNumber(), is("2.1"));
     }
 
     @Test
@@ -73,22 +72,22 @@ public class QuestionUtilsTest {
         Survey survey = TestUtils.getSurvey(this, "answers_data_1.json");
         JsonObject questionJson =
                 TestUtils.getJson(this, "answers_data_1.json").get("question").getAsJsonObject();
-        QuestionUtils.populateAnswersFromJson(survey.getRootQuestion(), questionJson);
+        QuestionUtils.populateAnswersFromJson(survey.getQuestion(), questionJson);
 
         assertThat(survey.getId(), is("5a08957bad04f82a15a0e974"));
-        assertThat(survey.getRootQuestion().getAnswers().size(), is(1));
+        assertThat(survey.getQuestion().getAnswers().size(), is(1));
 
-        Question question = survey.getRootQuestion().getAnswers().get(0)
+        Question question = survey.getQuestion().getAnswers().get(0)
                 .getChildren().get(1).getAnswers().get(1).getChildren().get(1).getAnswers().get(0)
                 .getChildren().get(0);
 
-        assertThat(question.getRawNumber(), is("2.1.1"));
+        assertThat(question.getNumber(), is("2.1.1"));
 
         ArrayList<Integer> path = QuestionUtils.getPathOfQuestion(question);
         assertThat(path.toString(), is("[0, 0, 1, 1, 1, 0, 0]"));
 
-        Question q = QuestionUtils.moveToQuestionUsingPath("0,0,1,1,1,0,0", survey.getRootQuestion());
-        assertThat(q.getRawNumber(), is("2.1.1"));
+        Question q = QuestionUtils.moveToQuestionUsingPath("0,0,1,1,1,0,0", survey.getQuestion());
+        assertThat(q.getNumber(), is("2.1.1"));
     }
 
     @Test
@@ -98,7 +97,7 @@ public class QuestionUtilsTest {
         JsonObject answers = TestUtils.getAnswersJson(this);
         JsonObject questionWithAnswersJson = answers.get("question").getAsJsonObject();
 
-        Question rootNode = survey.getRootQuestion();
+        Question rootNode = survey.getQuestion();
 
         assertThat(rootNode.getType(), is("ROOT"));
         assertThat(questionWithAnswersJson.get("type").getAsString(), is("ROOT"));
@@ -113,9 +112,9 @@ public class QuestionUtilsTest {
 
     @Test
     public void test_toJson_method() {
-        Question question = survey.getRootQuestion().getChildren().get(1);
+        Question question = survey.getQuestion().getChildren().get(1);
 
-        assertThat(question.getRawNumber(), is("2"));
+        assertThat(question.getNumber(), is("2"));
 
         ArrayList<Option> mockOptions = new ArrayList<>();
         mockOptions.add(new Option("1", null, null, null, "0"));
@@ -131,7 +130,7 @@ public class QuestionUtilsTest {
 
         assertNotSame(child.getAnswers(), question.getChildren().get(1).getAnswers());
 
-        assertThat(child.getRawNumber(), is("2.1"));
+        assertThat(child.getNumber(), is("2.1"));
 
         assertNotSame(child, question.getChildren().get(1));
 

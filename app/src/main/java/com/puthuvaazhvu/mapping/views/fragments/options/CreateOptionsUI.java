@@ -3,8 +3,8 @@ package com.puthuvaazhvu.mapping.views.fragments.options;
 import android.content.Context;
 import android.view.ViewGroup;
 
+import com.puthuvaazhvu.mapping.modals.FlowPattern;
 import com.puthuvaazhvu.mapping.modals.Question;
-import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
 import com.puthuvaazhvu.mapping.views.fragments.options.factory.OptionsUIFactory;
 import com.puthuvaazhvu.mapping.views.fragments.options.modals.CheckableOptionsAsListUIData;
 import com.puthuvaazhvu.mapping.views.fragments.options.modals.OptionsUIData;
@@ -23,7 +23,7 @@ public class CreateOptionsUI {
     }
 
     public OptionsUI createOptionsUI(OptionsUIFactory optionsUIFactory) {
-        QuestionFlow.UI ui = question.getFlowPattern().getQuestionFlow().getUiMode();
+        FlowPattern.QuestionFlow.UI ui = question.getFlowPattern().getQuestionFlow().getUiMode();
         switch (ui) {
             case GPS:
                 return optionsUIFactory.createGpsOptionUI();

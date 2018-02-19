@@ -9,8 +9,6 @@ import java.io.Serializable;
  */
 
 public abstract class BaseObject implements Serializable {
-    public abstract JsonElement getAsJson();
-
     public BaseObject copy() {
         return this;
     }

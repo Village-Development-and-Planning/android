@@ -1,5 +1,6 @@
 package com.puthuvaazhvu.mapping.modals;
 
+import android.graphics.Path;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -20,73 +21,33 @@ import java.util.ArrayList;
  * Created by muthuveerappans on 8/24/17.
  */
 
-public class Option extends BaseObject implements Parcelable {
-    private String id;
-    private final String type;
-    private final Text text;
-    private final String modifiedAt;
-    private final String position;
+public class Option extends BaseObject {
+    private String type;
+    private Text text;
+    private String position;
     private String imageData;
     private String value;
 
-    public Option(String id, String type, Text text, String modifiedAt, String position) {
-        this.id = id;
+    public Option(Option other) {
+        this.type = other.type;
+        this.text = other.text;
+        this.position = other.position;
+        this.imageData = other.imageData;
+        this.value = other.value;
+    }
+
+    public Option(String type, Text text, String position) {
         this.type = type;
         this.text = text;
-        this.modifiedAt = modifiedAt;
         this.position = position;
     }
 
-    public Option(String id, String type, Text text, String modifiedAt, String position, String imageData) {
-        this.id = id;
+    public Option(String type, Text text, String position, String imageData) {
         this.type = type;
         this.text = text;
-        this.modifiedAt = modifiedAt;
         this.position = position;
         this.imageData = imageData;
     }
-
-    public Option(JsonObject json) {
-        position = JsonHelper.getString(json, "position");
-
-        JsonObject optionJson = JsonHelper.getJsonObject(json, "option");
-        if (optionJson == null) {
-            optionJson = json;
-        }
-        id = JsonHelper.getString(optionJson, "_id");
-        if (id == null) id = "";
-        type = JsonHelper.getString(optionJson, "type");
-        modifiedAt = JsonHelper.getString(optionJson, "modifiedAt");
-
-        JsonObject textJson = JsonHelper.getJsonObject(optionJson, "text");
-
-        JsonObject imageDataJson = JsonHelper.getJsonObject(optionJson, "image");
-        if (imageDataJson != null) {
-            imageData = JsonHelper.getString(imageDataJson, "data");
-        }
-
-        text = new Text(textJson);
-    }
-
-    protected Option(Parcel in) {
-        id = in.readString();
-        type = in.readString();
-        text = in.readParcelable(Text.class.getClassLoader());
-        modifiedAt = in.readString();
-        position = in.readString();
-    }
-
-    public static final Creator<Option> CREATOR = new Creator<Option>() {
-        @Override
-        public Option createFromParcel(Parcel in) {
-            return new Option(in);
-        }
-
-        @Override
-        public Option[] newArray(int size) {
-            return new Option[size];
-        }
-    };
 
     public String getTextString() {
         switch (Constants.APP_LANGUAGE) {
@@ -109,10 +70,6 @@ public class Option extends BaseObject implements Parcelable {
         return imageData;
     }
 
-    public String getId() {
-        return id;
-    }
-
     public String getType() {
         return type;
     }
@@ -121,58 +78,7 @@ public class Option extends BaseObject implements Parcelable {
         return text;
     }
 
-    public String getModifiedAt() {
-        return modifiedAt;
-    }
-
     public String getPosition() {
         return position;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(id);
-        parcel.writeString(type);
-        parcel.writeParcelable(text, i);
-        parcel.writeString(modifiedAt);
-        parcel.writeString(position);
-        parcel.writeString(imageData);
-    }
-
-    public static ArrayList<Option> getOptions(JsonArray optionsJsonArray) {
-        ArrayList<Option> optionList = new ArrayList<>();
-        for (JsonElement e : optionsJsonArray) {
-            optionList.add(new Option(e.getAsJsonObject()));
-        }
-        return optionList;
-    }
-
-    @Override
-    public JsonElement getAsJson() {
-        JsonObject jsonObject = new JsonObject();
-
-        jsonObject.addProperty("id", id);
-        jsonObject.addProperty("type", type);
-        jsonObject.addProperty("position", position);
-        jsonObject.addProperty("modifiedAt", modifiedAt);
-
-        if (value != null) {
-            jsonObject.addProperty("value", value);
-        }
-
-        if (text != null)
-            jsonObject.add("text", text.getAsJson());
-
-        return jsonObject;
-    }
-
-    @Override
-    public Option copy() {
-        return new Option(id, type, text.copy(), modifiedAt, position, imageData);
     }
 }

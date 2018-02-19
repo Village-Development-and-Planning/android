@@ -7,13 +7,10 @@ import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
-import com.puthuvaazhvu.mapping.modals.utils.SurveyUtils;
 import com.puthuvaazhvu.mapping.utils.Utils;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-
-import io.reactivex.Single;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;

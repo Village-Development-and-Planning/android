@@ -40,43 +40,43 @@ public class DataModelTest {
     public void testSurveyModel() {
         Survey survey = TestUtils.getSurvey(this);
 
-        Question root = survey.getRootQuestion();
+        Question root = survey.getQuestion();
 
         assertThat(root.getParent(), is(nullValue()));
 
         Question surveyorCodeQuestion = root.getChildren().get(0);
-        assertThat(surveyorCodeQuestion.getRawNumber(), is("1"));
+        assertThat(surveyorCodeQuestion.getNumber(), is("1"));
         assertThat(surveyorCodeQuestion.getChildren().size(), is(4));
 
         Question habitationQuestion = root.getChildren().get(1);
-        assertThat(habitationQuestion.getRawNumber(), is("2"));
+        assertThat(habitationQuestion.getNumber(), is("2"));
         assertThat(habitationQuestion.getChildren().size(), is(3));
 
         Question roadQuestion = habitationQuestion.getChildren().get(1);
-        assertThat(roadQuestion.getRawNumber(), is("2.1"));
-        assertThat(roadQuestion.getParent().getRawNumber(), is("2"));
+        assertThat(roadQuestion.getNumber(), is("2.1"));
+        assertThat(roadQuestion.getParent().getNumber(), is("2"));
         assertThat(roadQuestion.getChildren().size(), is(7));
 
         Question squareQuestion = habitationQuestion.getChildren().get(2);
-        assertThat(squareQuestion.getRawNumber(), is("2.2"));
-        assertThat(squareQuestion.getParent().getRawNumber(), is("2"));
+        assertThat(squareQuestion.getNumber(), is("2.2"));
+        assertThat(squareQuestion.getParent().getNumber(), is("2"));
         assertThat(squareQuestion.getChildren().size(), is(2));
 
-        assertThat(squareQuestion.getChildren().get(1).getChildren().get(1).getChildren().get(0).getRawNumber(), is("2.2.3.1"));
+        assertThat(squareQuestion.getChildren().get(1).getChildren().get(1).getChildren().get(0).getNumber(), is("2.2.3.1"));
         assertThat(squareQuestion
                         .getChildren().get(1)
                         .getChildren().get(1)
                         .getChildren().get(0)
                         .getParent()
                         .getParent()
-                        .getParent().getRawNumber()
+                        .getParent().getNumber()
                 , is("2.2"));
 
         // pre flow test
         Question facilitiesInRoadQuestion = roadQuestion.getChildren().get(6);
-        assertThat(facilitiesInRoadQuestion.getRawNumber(), is("2.1.7"));
+        assertThat(facilitiesInRoadQuestion.getNumber(), is("2.1.7"));
         assertThat(facilitiesInRoadQuestion.getChildren()
-                .get(1).getChildren().get(0).getFlowPattern().getPreFlow().getQuestionSkipRawNumber(), is("2.1.7.4"));
+                .get(1).getChildren().get(0).getFlowPattern().getPreFlow().getQuestionNumber(), is("2.1.7.4"));
 
     }
 }

@@ -37,7 +37,7 @@ public class InfoOptionsUI extends ListOptionsUI {
 
         recyclerView.setLayoutManager(layoutManager);
 
-        listAdapter = new ListAdapter(question.getOptionList());
+        listAdapter = new ListAdapter(question.getOptions());
         recyclerView.setAdapter(listAdapter);
 
         return view;
@@ -46,8 +46,8 @@ public class InfoOptionsUI extends ListOptionsUI {
     @Override
     public ArrayList<Option> response() {
         ArrayList<Option> response = new ArrayList<>();
-        for (Option option : question.getOptionList()) {
-            response.add(option.copy());
+        for (Option option : question.getOptions()) {
+            response.add(new Option(option));
         }
         return response;
     }

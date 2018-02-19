@@ -7,16 +7,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.application.MappingApplication;
 import com.puthuvaazhvu.mapping.modals.Answer;
+import com.puthuvaazhvu.mapping.modals.FlowPattern;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Text;
-import com.puthuvaazhvu.mapping.modals.flow.AnswerFlow;
-import com.puthuvaazhvu.mapping.modals.flow.ExitFlow;
-import com.puthuvaazhvu.mapping.modals.flow.FlowPattern;
-import com.puthuvaazhvu.mapping.modals.flow.PreFlow;
-import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
-import com.puthuvaazhvu.mapping.modals.utils.AnswerUtils;
-import com.puthuvaazhvu.mapping.modals.utils.AuthJsonUtils;
+import com.puthuvaazhvu.mapping.auth.AuthUtils;
 import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.utils.SharedPreferenceUtils;
 import com.puthuvaazhvu.mapping.utils.Utils;
@@ -55,22 +50,6 @@ public class FlowLogicImplementation extends FlowLogic {
         this.sharedPreferences = sharedPreferences;
     }
 
-//    public FlowLogicImplementation(
-//            Question root,
-//            String snapshotPath,
-//            SharedPreferences sharedPreferences) {
-//        this();
-//
-//        this.sharedPreferences = sharedPreferences;
-//
-//        if (snapshotPath == null) {
-//            setCurrent(root);
-//        } else {
-//            Question question = QuestionUtils.moveToQuestionUsingPath(snapshotPath, root);
-//            setCurrent(question);
-//        }
-//    }
-
     @Override
     public void setCurrent(Question question) {
         this.currentQuestion = question;
@@ -86,7 +65,7 @@ public class FlowLogicImplementation extends FlowLogic {
 
     @Override
     public FlowData finishCurrent() {
-        Question parent = currentQuestion.getParentAnswer().getQuestionReference();
+        Question parent = currentQuestion.getParentAnswer().getParentQuestion();
 
         currentQuestion.getCurrentAnswer().setExitTimestamp(System.currentTimeMillis());
 
@@ -104,7 +83,7 @@ public class FlowLogicImplementation extends FlowLogic {
                 Question current = currentAnswer.getChildren().get(index);
 
                 // add a dummy answer
-                addAnswer(QuestionUtils.generateQuestionWithDummyOptions(), current);
+                addDummyAnswer(current);
 
                 FlowData flowData = new FlowData();
                 flowData.setFragment(getFragment(current));
@@ -123,7 +102,7 @@ public class FlowLogicImplementation extends FlowLogic {
             }
         } else {
             throw new IllegalArgumentException("The answers list is empty. Check if the current question "
-                    + currentQuestion.getRawNumber() + " is answered first.");
+                    + currentQuestion.getNumber() + " is answered first.");
         }
     }
 
@@ -131,10 +110,13 @@ public class FlowLogicImplementation extends FlowLogic {
     public boolean update(ArrayList<Option> response) {
         update(response, currentQuestion);
 
-        ArrayList<String> postFlow = currentQuestion.getFlowPattern().getPostFlow();
+        FlowPattern.PostFlow postFlow = currentQuestion.getFlowPattern().getPostFlow();
+        if (postFlow != null) {
+            ArrayList<String> postFlowTags = postFlow.getTags();
 
-        if (postFlow != null && !postFlow.isEmpty()) {
-            return postFlow(currentQuestion);
+            if (postFlowTags != null && !postFlowTags.isEmpty()) {
+                return postFlow(currentQuestion);
+            }
         }
 
         return true;
@@ -162,13 +144,13 @@ public class FlowLogicImplementation extends FlowLogic {
                     .remove(currentlyVisibleQuestion.getQuestion().getCurrentAnswer());
 
             Timber.i("------");
-            Timber.i("Question popped " + currentlyVisibleQuestion.getQuestion().getRawNumber());
+            Timber.i("Question popped " + currentlyVisibleQuestion.getQuestion().getNumber());
             Timber.i("Answer count after popping question "
                     + currentlyVisibleQuestion.getQuestion().getAnswers().size());
 
             setCurrent(toBeVisibleQuestion.getQuestion());
 
-            Timber.i("Showing question " + toBeVisibleQuestion.getQuestion().getRawNumber());
+            Timber.i("Showing question " + toBeVisibleQuestion.getQuestion().getNumber());
             Timber.i("Answer count " + toBeVisibleQuestion.getQuestion().getAnswers().size());
             Timber.i("Question child count " + toBeVisibleQuestion.getQuestion().getChildren().size());
             Timber.i("------");
@@ -191,7 +173,7 @@ public class FlowLogicImplementation extends FlowLogic {
             if (nextQuestion != null) {
                 // if loop question, update logic will handle the addition of answers
                 if (!QuestionUtils.isLoopOptionsQuestion(nextQuestion))
-                    addAnswer(QuestionUtils.generateQuestionWithDummyOptions(), nextQuestion);
+                    addDummyAnswer(nextQuestion);
 
                 setCurrent(nextQuestion);
 
@@ -221,10 +203,10 @@ public class FlowLogicImplementation extends FlowLogic {
             int indexOfNextChild = indexOfCurrentChild + 1;
             return getNextQuestion(exitFlowQuestion, indexOfNextChild);
         } else {
-            QuestionFlow nextQuestionQuestionFlow = nextQuestion.getFlowPattern().getQuestionFlow();
+            FlowPattern.QuestionFlow nextQuestionQuestionFlow = nextQuestion.getFlowPattern().getQuestionFlow();
             if (nextQuestionQuestionFlow != null &&
-                    nextQuestionQuestionFlow.getUiMode() == QuestionFlow.UI.NONE) {
-                addAnswer(QuestionUtils.generateQuestionWithDummyOptions(), nextQuestion);
+                    nextQuestionQuestionFlow.getUiMode() == FlowPattern.QuestionFlow.UI.NONE) {
+                addDummyAnswer(nextQuestion);
                 nextQuestion = getNextQuestion(nextQuestion, 0);
             }
 
@@ -240,14 +222,14 @@ public class FlowLogicImplementation extends FlowLogic {
             return;
         }
 
-        PreFlow preFlow = question.getFlowPattern().getPreFlow();
+        FlowPattern.PreFlow preFlow = question.getFlowPattern().getPreFlow();
         if (preFlow == null) return;
 
         String surveyorID = SharedPreferenceUtils.getSurveyorID(sharedPreferences);
 
         if (surveyorID == null) return;
 
-        JsonObject auth = AuthJsonUtils.getAuthForSurveyCode(authJson, surveyorID);
+        JsonObject auth = AuthUtils.getAuthForSurveyCode(authJson, surveyorID);
 
         if (auth == null) return;
 
@@ -266,9 +248,7 @@ public class FlowLogicImplementation extends FlowLogic {
                         String value = e.getAsString();
                         options.add(new Option(
                                 "",
-                                "",
-                                new Text("", value, value, ""),
-                                "",
+                                new Text(value, value),
                                 "" + j)
                         );
                     }
@@ -276,17 +256,15 @@ public class FlowLogicImplementation extends FlowLogic {
                     String value = authFillElement.getAsString();
                     options.add(new Option(
                             "",
-                            "",
-                            new Text("", value, value, ""),
-                            "",
+                            new Text(value, value),
                             "" + i)
                     );
                 }
             }
         }
 
-        question.getOptionList().clear();
-        question.getOptionList().addAll(options);
+        question.getOptions().clear();
+        question.getOptions().addAll(options);
     }
 
     private boolean postFlow(Question question) {
@@ -297,12 +275,17 @@ public class FlowLogicImplementation extends FlowLogic {
             return false;
         }
 
-        ArrayList<String> postFlow = question.getFlowPattern().getPostFlow();
+        FlowPattern.PostFlow postFlow = question.getFlowPattern().getPostFlow();
+        if (postFlow == null) {
+            return false;
+        }
 
-        if (postFlow != null) {
-            if (postFlow.contains("SURVEYOR_CODE")) {
+        ArrayList<String> postFlowTags = postFlow.getTags();
+
+        if (postFlowTags != null) {
+            if (postFlowTags.contains("SURVEYOR_CODE")) {
                 String inputCode = question.getCurrentAnswer().getOptions().get(0).getTextString();
-                JsonObject surveyorAuthJson = AuthJsonUtils.getAuthForSurveyCode(authJson, inputCode);
+                JsonObject surveyorAuthJson = AuthUtils.getAuthForSurveyCode(authJson, inputCode);
 
                 SharedPreferenceUtils.putSurveyID(sharedPreferences, inputCode);
 
@@ -348,23 +331,23 @@ public class FlowLogicImplementation extends FlowLogic {
     }
 
     private Question exitFlow(Question question) {
-        ExitFlow exitFlow = question.getFlowPattern().getExitFlow();
+        FlowPattern.ExitFlow exitFlow = question.getFlowPattern().getExitFlow();
 
-        if (exitFlow.isIncrementBubble() && !AnswerUtils.containsOption("0", question.getCurrentAnswer())) {
+        if (exitFlow.isIncrementBubble() && !question.getCurrentAnswer().containsOption("0")) {
             question.setBubbleAnswersCount(question.getBubbleAnswersCount() + 1);
         }
 
-        if (exitFlow.getMode() == ExitFlow.Modes.END || question.isRoot()) {
+        if (exitFlow.getStrategy() == FlowPattern.ExitFlow.Strategy.END || question.isRoot()) {
             backStack.clear();
             question.getCurrentAnswer().setExitTimestamp(System.currentTimeMillis());
             return null;
-        } else if (exitFlow.getMode() == ExitFlow.Modes.LOOP) {
+        } else if (exitFlow.getStrategy() == FlowPattern.ExitFlow.Strategy.LOOP) {
 
-            AnswerFlow answerFlow = question.getFlowPattern().getAnswerFlow();
+            FlowPattern.AnswerFlow answerFlow = question.getFlowPattern().getAnswerFlow();
 
-            if (answerFlow.getMode() == AnswerFlow.Modes.MULTIPLE) {
+            if (answerFlow.getMode() == FlowPattern.AnswerFlow.Modes.MULTIPLE) {
                 return question;
-            } else if (answerFlow.getMode() == AnswerFlow.Modes.OPTION) {
+            } else if (answerFlow.getMode() == FlowPattern.AnswerFlow.Modes.OPTION) {
                 if (!SkipHelper.shouldSkipBasedOnAnswerScope(question)) {
                     return question;
                 }
@@ -373,7 +356,7 @@ public class FlowLogicImplementation extends FlowLogic {
 
         question.getCurrentAnswer().setExitTimestamp(System.currentTimeMillis());
 
-        return question.getParentAnswer().getQuestionReference();
+        return question.getParentAnswer().getParentQuestion();
     }
 
     private void update(ArrayList<Option> response, Question question) {
@@ -388,7 +371,7 @@ public class FlowLogicImplementation extends FlowLogic {
             for (int i = 0; i < question.getAnswers().size(); i++) {
                 Answer answer = question.getAnswers().get(i);
                 if (response.get(0).getPosition().equals(answer.getOptions().get(0).getPosition())) {
-                    answer.setOptions(response);
+                    answer.setLoggedOptions(response);
                     question.setCurrentAnswer(answer);
 
                     shouldAddAnswer = false;
@@ -407,24 +390,24 @@ public class FlowLogicImplementation extends FlowLogic {
 
         if (question.getAnswers().size() <= 0) {
             throw new IllegalArgumentException("Answer count for question "
-                    + question.getRawNumber() + " is 0 while updating");
+                    + question.getNumber() + " is 0 while updating");
         }
 
         Answer answer = question.getCurrentAnswer();
-        answer.setOptions(response);
+        answer.setLoggedOptions(response);
 
         Timber.i("Answer updated info :\n" + answer.toString());
 
         Timber.i("-----");
     }
 
-    private void addAnswer(ArrayList<Option> response, Question question) {
-        Answer answer = new Answer(response, question, System.currentTimeMillis());
-
-        if (QuestionUtils.isCurrentAnswerDummy(question))
+    private void addDummyAnswer(Question question) {
+        if (question.getCurrentAnswer() != null && question.getCurrentAnswer().isDummy())
             return; // return if the latest answer is dummy
 
-        setAnswerToQuestionBasedOnType(question, answer);
+        Answer dummy = Answer.createDummyAnswer();
+
+        setAnswerToQuestionBasedOnType(question, dummy);
     }
 
     private void setAnswerToQuestionBasedOnType(Question question, Answer answer) {
@@ -434,30 +417,30 @@ public class FlowLogicImplementation extends FlowLogic {
             return;
         }
 
-        AnswerFlow answerFlow = flowPattern.getAnswerFlow();
+        FlowPattern.AnswerFlow answerFlow = flowPattern.getAnswerFlow();
 
         if (answerFlow == null) {
-            Timber.e("Answer flow null for question " + question.getRawNumber());
+            Timber.e("Answer flow null for question " + question.getNumber());
             return;
         }
 
-        if (answerFlow.getMode() == AnswerFlow.Modes.OPTION) {
+        if (answerFlow.getMode() == FlowPattern.AnswerFlow.Modes.OPTION) {
 
-            if (question.getAnswers().size() == question.getOptionList().size())
+            if (question.getAnswers().size() == question.getOptions().size())
                 return;
 
             question.addAnswer(answer);
 
-        } else if (answerFlow.getMode() == AnswerFlow.Modes.ONCE) {
+        } else if (answerFlow.getMode() == FlowPattern.AnswerFlow.Modes.ONCE) {
             if (question.getAnswers().size() > 0)
-                question.setAnswerAt(0, answer);
+                question.getAnswers().set(0, answer);
             else question.addAnswer(answer);
         } else {
             question.addAnswer(answer);
         }
 
         Timber.i("-----");
-        Timber.i("Question raw number " + question.getRawNumber());
+        Timber.i("Question raw number " + question.getNumber());
         Timber.i("Dummy answer created info :\n" + answer.toString());
         Timber.i("Total answer count for question :\n" + question.getAnswers().size());
         Timber.i("-----");
@@ -497,16 +480,21 @@ public class FlowLogicImplementation extends FlowLogic {
             boolean shouldSkip = false;
 
             // skip pattern
-            PreFlow preFlow = question.getFlowPattern().getPreFlow();
+            FlowPattern.PreFlow preFlow = question.getFlowPattern().getPreFlow();
 
             if (preFlow != null) {
-                String preFlowQuestionNumber = preFlow.getQuestionSkipRawNumber();
+                FlowPattern.PreFlow.SkipUnless skipUnless = preFlow.getSkipUnless();
+                if (skipUnless == null) {
+                    return false;
+                }
+
+                String preFlowQuestionNumber = skipUnless.getQuestionNumber();
 
                 if (preFlowQuestionNumber == null) {
                     return false;
                 }
 
-                ArrayList<String> optionsSkip = preFlow.getOptionSkip();
+                ArrayList<String> optionsSkip = skipUnless.getSkipPositions();
 
                 Question questionFoundForSkipPattern = QuestionUtils.findQuestionFrom(question,
                         preFlowQuestionNumber, true);
@@ -525,25 +513,25 @@ public class FlowLogicImplementation extends FlowLogic {
 
         private static boolean shouldSkipBasedOnAnswerScope(Question question) {
             boolean shouldSkip = false;
-            AnswerFlow answerFlow = question.getFlowPattern().getAnswerFlow();
+            FlowPattern.AnswerFlow answerFlow = question.getFlowPattern().getAnswerFlow();
 
             if (answerFlow == null) {
                 return false;
             }
 
-            AnswerFlow.Modes answerMode = answerFlow.getMode();
+            FlowPattern.AnswerFlow.Modes answerMode = answerFlow.getMode();
 
             List<Answer> answerList = new ArrayList<>();
 
             // remove the dummy answers
             for (Answer answer : question.getAnswers()) {
-                if (AnswerUtils.isAnswerDummy(answer)) continue;
+                if (answer.isDummy()) continue;
                 answerList.add(answer);
             }
 
-            if (answerMode == AnswerFlow.Modes.ONCE) {
+            if (answerMode == FlowPattern.AnswerFlow.Modes.ONCE) {
                 shouldSkip = answerList.size() == 1;
-            } else if (answerMode == AnswerFlow.Modes.OPTION) {
+            } else if (answerMode == FlowPattern.AnswerFlow.Modes.OPTION) {
                 shouldSkip = shouldSkipForLoopOptionType(question);
             }
 
@@ -558,7 +546,7 @@ public class FlowLogicImplementation extends FlowLogic {
             ArrayList<String> originalOptionPositions = new ArrayList<>();
             ArrayList<String> loggedOptionPositions = new ArrayList<>();
 
-            for (Option option : question.getOptionList()) {
+            for (Option option : question.getOptions()) {
                 originalOptionPositions.add(option.getPosition());
             }
 

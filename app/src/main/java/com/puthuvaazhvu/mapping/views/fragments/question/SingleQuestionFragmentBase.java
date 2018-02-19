@@ -40,8 +40,8 @@ public abstract class SingleQuestionFragmentBase extends QuestionDataFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        String questionText = QuestionUtils.getTextString(getQuestion());
-        String rawNumber = getQuestion().getRawNumber();
+        String questionText = getQuestion().getTextString();
+        String rawNumber = getQuestion().getNumber();
 
         String text = rawNumber + ". " + questionText;
         getQuestionText().setText(text);

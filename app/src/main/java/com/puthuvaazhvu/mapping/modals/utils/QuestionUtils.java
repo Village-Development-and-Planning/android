@@ -1,29 +1,18 @@
 package com.puthuvaazhvu.mapping.modals.utils;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.modals.Answer;
+import com.puthuvaazhvu.mapping.modals.FlowPattern;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Text;
-import com.puthuvaazhvu.mapping.modals.flow.AnswerFlow;
-import com.puthuvaazhvu.mapping.modals.flow.ChildFlow;
-import com.puthuvaazhvu.mapping.modals.flow.ExitFlow;
-import com.puthuvaazhvu.mapping.modals.flow.FlowPattern;
-import com.puthuvaazhvu.mapping.modals.flow.PreFlow;
-import com.puthuvaazhvu.mapping.other.Constants;
-import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import io.reactivex.Single;
-import io.reactivex.SingleEmitter;
-import io.reactivex.SingleOnSubscribe;
-import io.reactivex.annotations.NonNull;
 import timber.log.Timber;
 
 /**
@@ -31,18 +20,6 @@ import timber.log.Timber;
  */
 
 public class QuestionUtils {
-
-    public static String getTextString(Question question) {
-        if (question.getText() == null) {
-            return null;
-        }
-        switch (Constants.APP_LANGUAGE) {
-            case TAMIL:
-                return question.getText().getTamil();
-            default:
-                return question.getText().getEnglish();
-        }
-    }
 
     public static ArrayList<Integer> getPathOfQuestion(Question question) {
         ArrayList<Integer> indexes = new ArrayList<>();
@@ -62,10 +39,10 @@ public class QuestionUtils {
         indexes.add(indexOfChild);
 
         Answer parentAnswer = node.getParentAnswer();
-        int parentAnswerIndex = parentAnswer.getQuestionReference().getAnswers().indexOf(parentAnswer);
+        int parentAnswerIndex = parentAnswer.getParentQuestion().getAnswers().indexOf(parentAnswer);
         indexes.add(parentAnswerIndex);
 
-        getPathOfQuestion(parentAnswer.getQuestionReference(), indexes);
+        getPathOfQuestion(parentAnswer.getParentQuestion(), indexes);
     }
 
     public static Question moveToQuestionUsingPath(String snapshotPath, Question root) {
@@ -102,109 +79,24 @@ public class QuestionUtils {
         return root;
     }
 
-    public static boolean isCurrentAnswerDummy(Question question) {
-        if (question.getAnswers().size() <= 0) {
-            return false;
-        }
-        return AnswerUtils.isAnswerDummy(question.getCurrentAnswer());
-    }
-
-    public static Question populateAnswersFromJson(final Question node, JsonObject nodeJson) {
-
-        if (nodeJson.has("question"))
-            nodeJson = JsonHelper.getJsonObject(nodeJson, "question");
-
-        JsonArray answersJsonArray = JsonHelper.getJsonArray(nodeJson, "answers");
-
-        if (answersJsonArray != null) {
-
-            for (int i = 0; i < answersJsonArray.size(); i++) {
-
-                JsonObject answersJson = answersJsonArray.get(i).getAsJsonObject();
-                JsonArray loggedOptionsJsonArray = JsonHelper.getJsonArray(answersJson, "logged_options");
-
-                ArrayList<Option> options = new ArrayList<>();
-
-                if (loggedOptionsJsonArray != null) {
-
-                    for (int j = 0; j < loggedOptionsJsonArray.size(); j++) {
-                        options.add(new Option(loggedOptionsJsonArray.get(j).getAsJsonObject()));
-                    }
-
-                }
-
-                // save the answer object
-                Answer answer = new Answer(options, node);
-                node.addAnswer(answer);
-
-                // answers children length and this array length should be the same
-                JsonArray childrenJsonArray = JsonHelper.getJsonArray(answersJson, "children");
-
-                if (childrenJsonArray != null) {
-
-                    if (childrenJsonArray.size() != answer.getChildren().size()) {
-                        throw new IllegalArgumentException("The length should be the same.");
-                    }
-
-                    for (int k = 0; k < childrenJsonArray.size(); k++) {
-
-                        Question child = answer.getChildren().get(k);
-                        JsonObject childJson = childrenJsonArray.get(k).getAsJsonObject();
-
-                        populateAnswersFromJson(child, childJson);
-
-                    }
-                }
-            }
-        }
-
-        return node;
-    }
-
     public static String getQuestionParentNumber(Question question) {
         if (question.isRoot()) {
             return null;
         }
 
-        int index = question.getRawNumber().lastIndexOf(".");
+        int index = question.getNumber().lastIndexOf(".");
 
         if (index >= 0) {
-            return question.getRawNumber().substring(0, index);
+            return question.getNumber().substring(0, index);
         } else {
             // single digit
-            return question.getRawNumber();
+            return question.getNumber();
         }
-    }
-
-    /**
-     * Recursively populates the node.
-     *
-     * @param question The root node question. (Null usually, if it's starting node)
-     * @param nodeJson The corresponding JSON
-     * @return The populated SingleQuestionFragment object.
-     */
-    public static Question populateQuestionFromJson(Question question, JsonObject nodeJson) {
-        if (question == null) // if null, start of the new node.
-            question = new Question(nodeJson);
-
-        JsonObject questionJson = JsonHelper.getJsonObject(nodeJson, "question");
-        if (questionJson != null) {
-            JsonArray childrenArray = JsonHelper.getJsonArray(questionJson, "children");
-            if (childrenArray != null) {
-                for (JsonElement e : childrenArray) {
-                    JsonObject o = e.getAsJsonObject();
-                    Question c = new Question(o);
-                    question.addChild(c);
-                    populateQuestionFromJson(c, o);
-                }
-            }
-        }
-        return question;
     }
 
     public static Question findQuestionFrom(Question from, String rawNumberTo, boolean traverseWithAnswers) {
         Question node = findNodeTraversingBack(from, rawNumberTo, traverseWithAnswers);
-        if (!node.isRoot() && node.getRawNumber().equals(rawNumberTo)) {
+        if (!node.isRoot() && node.getNumber().equals(rawNumberTo)) {
             return node;
         } else {
             return findNodeTraversingForward(node, rawNumberTo, traverseWithAnswers);
@@ -215,8 +107,8 @@ public class QuestionUtils {
         if (from.isRoot()) {
             return from;
         }
-        String currentNodeRawNumberWithDot = from.getRawNumber() + ".";
-        String currentNodeRawNumber = from.getRawNumber();
+        String currentNodeRawNumberWithDot = from.getNumber() + ".";
+        String currentNodeRawNumber = from.getNumber();
 
         if (rawNumberTo.equals(currentNodeRawNumber) || rawNumberTo.contains(currentNodeRawNumberWithDot)) {
             return from;
@@ -224,7 +116,7 @@ public class QuestionUtils {
             // move to the parent
             Question parent;
             if (traverseWithAnswers) {
-                parent = from.getParentAnswer().getQuestionReference();
+                parent = from.getParentAnswer().getParentQuestion();
             } else {
                 parent = from.getParent();
             }
@@ -232,7 +124,11 @@ public class QuestionUtils {
         }
     }
 
-    public static Question findNodeTraversingForward(Question from, String rawNumberTo, boolean traverseWithAnswers) {
+    public static Question findNodeTraversingForward(
+            Question from,
+            String rawNumberTo,
+            boolean traverseWithAnswers
+    ) {
         String currentNodeRawNumberWithDot;
         String currentNodeRawNumber;
 
@@ -240,8 +136,8 @@ public class QuestionUtils {
             currentNodeRawNumber = "";
             currentNodeRawNumberWithDot = "";
         } else {
-            currentNodeRawNumberWithDot = from.getRawNumber() + ".";
-            currentNodeRawNumber = from.getRawNumber();
+            currentNodeRawNumberWithDot = from.getNumber() + ".";
+            currentNodeRawNumber = from.getNumber();
         }
 
         if (rawNumberTo.equals(currentNodeRawNumber)) {
@@ -273,30 +169,20 @@ public class QuestionUtils {
         }
     }
 
-    public static int getValidAnswersCount(Question question) {
-        int count = 0;
-        for (Answer answer : question.getAnswers()) {
-            if (!AnswerUtils.isAnswerDummy(answer)) {
-                count++;
-            }
-        }
-        return count;
-    }
-
     public static boolean isGridSelectQuestion(Question question) {
-        ChildFlow childFlow = question.getFlowPattern().getChildFlow();
-        ChildFlow.Modes childFlowMode = childFlow.getMode();
-        ChildFlow.UI childFlowUI = childFlow.getUiToBeShown();
+        FlowPattern.ChildFlow childFlow = question.getFlowPattern().getChildFlow();
+        FlowPattern.ChildFlow.Strategy strategy = childFlow.getStrategy();
+        FlowPattern.ChildFlow.UI childFlowUI = childFlow.getUiToBeShown();
 
-        return childFlowUI == ChildFlow.UI.GRID && childFlowMode == ChildFlow.Modes.SELECT;
+        return childFlowUI == FlowPattern.ChildFlow.UI.GRID
+                && strategy == FlowPattern.ChildFlow.Strategy.SELECT;
     }
 
     public static boolean isShownTogetherQuestion(Question question) {
-        ChildFlow childFlow = question.getFlowPattern().getChildFlow();
-        ChildFlow.Modes childFlowMode = childFlow.getMode();
-        ChildFlow.UI childFlowUI = childFlow.getUiToBeShown();
+        FlowPattern.ChildFlow childFlow = question.getFlowPattern().getChildFlow();
+        FlowPattern.ChildFlow.Strategy strategy = childFlow.getStrategy();
 
-        return childFlowMode == ChildFlow.Modes.TOGETHER;
+        return strategy == FlowPattern.ChildFlow.Strategy.TOGETHER;
     }
 
     public static boolean isLoopOptionsQuestion(Question question) {
@@ -304,151 +190,24 @@ public class QuestionUtils {
 
         if (flowPattern == null) return false;
 
-        AnswerFlow answerFlow = flowPattern.getAnswerFlow();
+        FlowPattern.AnswerFlow answerFlow = flowPattern.getAnswerFlow();
 
         if (answerFlow == null) return false;
 
-        ExitFlow exitFlow = flowPattern.getExitFlow();
+        FlowPattern.ExitFlow exitFlow = flowPattern.getExitFlow();
 
         if (exitFlow == null) return false;
 
-        return exitFlow.getMode() == ExitFlow.Modes.LOOP && answerFlow.getMode() == AnswerFlow.Modes.OPTION;
-    }
-
-    public static boolean containsPreFlowTag(Question question, String tag) {
-        if (question.getFlowPattern() == null) {
-            return false;
-        }
-
-        PreFlow preFlow = question.getFlowPattern().getPreFlow();
-        if (preFlow != null) {
-            ArrayList<String> fillTags = preFlow.getFill();
-            if (fillTags != null) {
-                for (String s : fillTags) {
-                    if (tag.toLowerCase().equals(s.toLowerCase())) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
+        return exitFlow.getStrategy() == FlowPattern.ExitFlow.Strategy.LOOP
+                && answerFlow.getMode() == FlowPattern.AnswerFlow.Modes.OPTION;
     }
 
     public static int getIndexOfChild(Question parent, Question child) {
         if (parent == child) return -1;
 
         for (int i = 0; i < parent.getChildren().size(); i++) {
-            if (parent.getChildren().get(i).getRawNumber().equals(child.getRawNumber())) return i;
+            if (parent.getChildren().get(i).getNumber().equals(child.getNumber())) return i;
         }
         return -1;
-    }
-
-    public interface QuestionTreeSearchPredicate {
-        boolean evaluate(Question question);
-    }
-
-    public static Question findQuestionInTreeWithPredicate(Question questionFrom, QuestionTreeSearchPredicate predicate) {
-        if (predicate.evaluate(questionFrom)) {
-            return questionFrom;
-        }
-        Question result = null;
-        for (Question child : questionFrom.getChildren()) {
-
-            result = findQuestionInTreeWithPredicate(child, predicate);
-
-            if (result != null) {
-                break;
-            }
-
-        }
-        return result;
-    }
-
-    public synchronized static JsonObject convertToJson(Question node) {
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("position", node.getPosition());
-
-        JsonObject questionJson = new JsonObject();
-        jsonObject.add("question", questionJson);
-
-        if (node.getFlowPattern() != null)
-            questionJson.add("flow", node.getFlowPattern().getAsJson());
-
-        questionJson.addProperty("id", "");
-
-        if (node.getText() != null)
-            questionJson.add("text", node.getText().getAsJson());
-
-        questionJson.addProperty("type", node.getType());
-        questionJson.addProperty("number", node.getRawNumber());
-
-        // options
-        JsonArray optionsArray = new JsonArray();
-
-        if (node.getOptionList() != null)
-            for (Option o : node.getOptionList()) {
-                optionsArray.add(o.getAsJson());
-            }
-
-        questionJson.add("options", optionsArray);
-
-        // answers
-        JsonArray answersArray = new JsonArray();
-
-        if (node.getAnswers() != null)
-            for (Answer a : node.getAnswers()) {
-                answersArray.add(a.getAsJson());
-            }
-
-        questionJson.add("answers", answersArray);
-
-        // children
-        JsonArray childrenArray = new JsonArray();
-
-        if (node.getChildren() != null)
-            for (Question c : node.getChildren()) {
-                childrenArray.add(convertToJson(c));
-            }
-
-        questionJson.add("children", childrenArray);
-
-        return jsonObject;
-    }
-
-    public static void removeAnswerFromQuestion(Question question) {
-        AnswerFlow answerFlow = question.getFlowPattern().getAnswerFlow();
-
-        if (answerFlow == null) {
-            return;
-        }
-
-        if (answerFlow.getMode() == AnswerFlow.Modes.ONCE) {
-            question.getAnswers().clear();
-        }
-
-        // for OPTION the answers are going to be updated anyway
-        // we don't care for MULTIPLE
-    }
-
-    public static ArrayList<Option> generateQuestionWithDummyAndValidOptions() {
-        ArrayList<Option> options = new ArrayList<>();
-        options.add(new Option("", "NO DATA",
-                new Text("", "", "", ""),
-                "", ""));
-        return options;
-    }
-
-    public static ArrayList<Option> generateQuestionWithDummyOptions() {
-        ArrayList<Option> options = new ArrayList<>();
-        options.add(new Option("DUMMY", "DUMMY",
-                new Text("DUMMY", "dummy", "dummy", ""),
-                "", ""));
-        return options;
-    }
-
-    public static Question fillDynamicOptionsForQuestion(Question question, ArrayList<Option> options) {
-        question.getOptionList().clear();
-        question.getOptionList().addAll(options);
-        return question;
     }
 }

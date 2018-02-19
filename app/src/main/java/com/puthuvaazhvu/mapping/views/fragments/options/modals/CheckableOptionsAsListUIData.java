@@ -5,11 +5,9 @@ import android.os.Parcelable;
 
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.Answer;
+import com.puthuvaazhvu.mapping.modals.FlowPattern;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
-import com.puthuvaazhvu.mapping.modals.flow.FlowPattern;
-import com.puthuvaazhvu.mapping.modals.flow.QuestionFlow;
-import com.puthuvaazhvu.mapping.modals.utils.AnswerUtils;
 import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 
 import java.util.ArrayList;
@@ -18,7 +16,7 @@ import java.util.ArrayList;
  * Created by muthuveerappans on 1/9/18.
  */
 
-public class CheckableOptionsAsListUIData extends OptionsUIData implements Parcelable {
+public class CheckableOptionsAsListUIData extends OptionsUIData {
 
     private ArrayList<SingleDataOption> singleDataOptionArrayList;
 
@@ -46,49 +44,22 @@ public class CheckableOptionsAsListUIData extends OptionsUIData implements Parce
         return result;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        super.writeToParcel(dest, flags);
-        dest.writeTypedList(this.singleDataOptionArrayList);
-    }
-
-    protected CheckableOptionsAsListUIData(Parcel in) {
-        super(in);
-        this.singleDataOptionArrayList = in.createTypedArrayList(SingleDataOption.CREATOR);
-    }
-
-    public static final Creator<CheckableOptionsAsListUIData> CREATOR = new Creator<CheckableOptionsAsListUIData>() {
-        @Override
-        public CheckableOptionsAsListUIData createFromParcel(Parcel source) {
-            return new CheckableOptionsAsListUIData(source);
-        }
-
-        @Override
-        public CheckableOptionsAsListUIData[] newArray(int size) {
-            return new CheckableOptionsAsListUIData[size];
-        }
-    };
-
     public static CheckableOptionsAsListUIData adapter(Question question) {
         boolean showImage = false;
 
         FlowPattern flowPattern = question.getFlowPattern();
         if (flowPattern != null) {
-            QuestionFlow questionFlow = flowPattern.getQuestionFlow();
+            FlowPattern.QuestionFlow questionFlow = flowPattern.getQuestionFlow();
             if (questionFlow != null)
                 showImage = questionFlow.isShowImage();
         }
 
         ArrayList<SingleDataOption> singleDataOptionArrayList = new ArrayList<>();
-        for (Option option : question.getOptionList()) {
+        for (Option option : question.getOptions()) {
             SingleDataOption s = SingleDataOption.adapter(option, showImage, false);
-            if (!QuestionUtils.isCurrentAnswerDummy(question) &&
-                    question.getCurrentAnswer() != null) {
+            if (question.getCurrentAnswer() != null
+                    && !question.getCurrentAnswer().isDummy()
+                    && question.getCurrentAnswer() != null) {
                 for (Option oa : question.getCurrentAnswer().getOptions()) {
                     if (oa.getPosition() != null && oa.getPosition().equals(option.getPosition())) {
                         s.isSelected = true;
@@ -105,7 +76,7 @@ public class CheckableOptionsAsListUIData extends OptionsUIData implements Parce
                 singleDataOption.setShouldShowBackgroundColor(true);
                 for (Answer answer : question.getAnswers()) {
                     if (answer.getOptions().get(0).getPosition().equals(singleDataOption.getPosition()) &&
-                            !AnswerUtils.isAnswerDummy(answer)) {
+                            !answer.isDummy()) {
                         singleDataOption.setBackgroundColor(R.color.green_light);
                     }
                 }
@@ -114,8 +85,8 @@ public class CheckableOptionsAsListUIData extends OptionsUIData implements Parce
 
         return new CheckableOptionsAsListUIData(
                 "",
-                question.getRawNumber(),
-                QuestionUtils.getTextString(question),
+                question.getNumber(),
+                question.getTextString(),
                 question.getFlowPattern(),
                 singleDataOptionArrayList
         );
@@ -225,14 +196,14 @@ public class CheckableOptionsAsListUIData extends OptionsUIData implements Parce
             SingleDataOption singleDataOption;
             if (showImage)
                 singleDataOption = new SingleDataOption(
-                        option.getId(),
+                        "",
                         option.getTextString(),
                         option.getPosition(),
                         option.getImageData()
                 );
             else
                 singleDataOption = new SingleDataOption(
-                        option.getId(),
+                        "",
                         option.getTextString(),
                         option.getPosition()
                 );

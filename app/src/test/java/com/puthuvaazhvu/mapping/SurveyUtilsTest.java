@@ -3,7 +3,6 @@ package com.puthuvaazhvu.mapping;
 import android.content.Context;
 
 import com.puthuvaazhvu.mapping.modals.Survey;
-import com.puthuvaazhvu.mapping.modals.utils.SurveyUtils;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -44,6 +43,6 @@ public class SurveyUtilsTest {
         Observable<Survey> surveySingle = SurveyUtils.getSurveyWithUpdatedAnswers(TestUtils.getAnswersJson(this));
         Survey survey = surveySingle.blockingFirst();
 
-        assertThat(survey.getRootQuestion().getAnswers().size(), is(1));
+        assertThat(survey.getQuestion().getAnswers().size(), is(1));
     }
 }

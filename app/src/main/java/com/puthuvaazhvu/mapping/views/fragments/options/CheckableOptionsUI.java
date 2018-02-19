@@ -41,10 +41,8 @@ public abstract class CheckableOptionsUI extends ListOptionsUI {
         ArrayList<Option> options = new ArrayList<>();
         for (CheckableOptionsAsListUIData.SingleDataOption singleDataOption : checkableOptionsAsListUIData.getLoggedOptions()) {
             options.add(new Option(
-                    "",
                     type,
-                    new Text("", singleDataOption.getText(), singleDataOption.getText(), ""),
-                    "",
+                    new Text(singleDataOption.getText(), singleDataOption.getText()),
                     singleDataOption.getPosition()
             ));
         }

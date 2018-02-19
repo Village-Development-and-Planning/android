@@ -47,7 +47,7 @@ public class ConformationQuestionFragment extends SingleQuestionFragmentBase {
             getNextButton().setText(getText(R.string.yes_ta));
         }
 
-        String questionText = QuestionUtils.getTextString(getQuestion());
+        String questionText = getQuestion().getTextString();
         getQuestionText().setText(questionText);
     }
 
@@ -69,11 +69,9 @@ public class ConformationQuestionFragment extends SingleQuestionFragmentBase {
     private ArrayList<Option> response(String text) {
         ArrayList<Option> options = new ArrayList<>();
         options.add(new Option(
-                "",
                 "CONFIRMATION",
-                new Text("", text, text, ""),
-                "",
-                ""
+                new Text(text, text),
+                "CONFIRMATION"
         ));
         return options;
     }
