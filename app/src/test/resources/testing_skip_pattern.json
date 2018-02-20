@@ -1,0 +1,405 @@
+{
+  "_id": "59eadef25b146a66ce5aff0e",
+  "name": "mapping_csv",
+  "description": "mapping_csv",
+  "question": {
+    "type": "ROOT",
+    "options": [],
+    "children": [
+      {
+        "position": "1",
+        "question": {
+          "options": [
+            {
+              "position": "1",
+              "option": {
+                "type": "GENERIC",
+                "text": {
+                  "english": "Yes",
+                  "tamil": "???"
+                }
+              }
+            },
+            {
+              "position": "0",
+              "option": {
+                "type": "GENERIC",
+                "text": {
+                  "english": "No",
+                  "tamil": "?????"
+                }
+              }
+            }
+          ],
+          "children": [
+            {
+              "position": "1",
+              "question": {
+                "options": [
+                  {
+                    "position": "1",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "Solar light",
+                        "tamil": "??????????"
+                      }
+                    }
+                  },
+                  {
+                    "position": "2",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "LED light",
+                        "tamil": "??? ? ??."
+                      }
+                    }
+                  },
+                  {
+                    "position": "3",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "Mercury lamp",
+                        "tamil": "???????? ???????"
+                      }
+                    }
+                  },
+                  {
+                    "position": "4",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "Tube light",
+                        "tamil": "?????? ????"
+                      }
+                    }
+                  },
+                  {
+                    "position": "5",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "CFL lamp",
+                        "tamil": "??. ????. ???. ???????"
+                      }
+                    }
+                  },
+                  {
+                    "position": "6",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "Sodium lamp",
+                        "tamil": "??????? ???????"
+                      }
+                    }
+                  },
+                  {
+                    "position": "7",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "High Mast lamp",
+                        "tamil": "???? ?????? ???????"
+                      }
+                    }
+                  },
+                  {
+                    "position": "8",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "Others",
+                        "tamil": "??????"
+                      }
+                    }
+                  },
+                  {
+                    "position": "99",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "Post without bulb",
+                        "tamil": "??????? ?????? ??????????"
+                      }
+                    }
+                  }
+                ],
+                "children": [],
+                "text": {
+                  "english": "What type of street light?",
+                  "tamil": "???? ?????? ???? ????????"
+                },
+                "type": "SINGLE_CHOICE",
+                "tags": "",
+                "number": "2.1.6.1.1",
+                "flow": {
+                  "pre": {
+                    "fill": [],
+                    "skipUnless": {
+                      "question": "2.1.6.1",
+                      "option": "1"
+                    }
+                  },
+                  "question": {
+                    "ui": "SINGLE_CHOICE",
+                    "validation": null
+                  },
+                  "answer": {
+                    "scope": "once"
+                  },
+                  "child": {
+                    "strategy": "cascade"
+                  },
+                  "post": [],
+                  "exit": {
+                    "strategy": "parent"
+                  }
+                }
+              }
+            },
+            {
+              "position": "2",
+              "question": {
+                "options": [],
+                "children": [],
+                "text": {
+                  "english": "Light Post Number",
+                  "tamil": "???? ?????????? ??????"
+                },
+                "type": "INPUT",
+                "tags": "NUMBER",
+                "number": "2.1.6.1.2",
+                "flow": {
+                  "_tags": {
+                    "NUMBER": "NUMBER"
+                  },
+                  "pre": {
+                    "fill": [],
+                    "skipUnless": {
+                      "question": "2.1.6.1",
+                      "option": "1"
+                    }
+                  },
+                  "question": {
+                    "ui": "INPUT",
+                    "validation": "[0-9]+"
+                  },
+                  "answer": {
+                    "scope": "once"
+                  },
+                  "child": {
+                    "strategy": "cascade"
+                  },
+                  "post": [],
+                  "exit": {
+                    "strategy": "parent"
+                  }
+                }
+              }
+            },
+            {
+              "position": "3",
+              "question": {
+                "options": [],
+                "children": [],
+                "text": {
+                  "english": "Tag the GPS location",
+                  "tamil": "?? ?? ??? ???????? ???????????"
+                },
+                "type": "GPS",
+                "tags": "",
+                "number": "2.1.6.1.3",
+                "flow": {
+                  "pre": {
+                    "fill": [],
+                    "skipUnless": {
+                      "question": "2.1.6.1",
+                      "option": "1"
+                    }
+                  },
+                  "question": {
+                    "ui": "GPS",
+                    "validation": null
+                  },
+                  "answer": {
+                    "scope": "once"
+                  },
+                  "child": {
+                    "strategy": "cascade"
+                  },
+                  "post": [],
+                  "exit": {
+                    "strategy": "parent"
+                  }
+                }
+              }
+            },
+            {
+              "position": "4",
+              "question": {
+                "options": [
+                  {
+                    "position": "1",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "Yes",
+                        "tamil": "???"
+                      }
+                    }
+                  },
+                  {
+                    "position": "0",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "No",
+                        "tamil": "?????"
+                      }
+                    }
+                  }
+                ],
+                "children": [],
+                "text": {
+                  "english": "Is this light working?",
+                  "tamil": "???? ??????? ????????? "
+                },
+                "type": "SINGLE_CHOICE",
+                "tags": "",
+                "number": "2.1.6.1.4",
+                "flow": {
+                  "pre": {
+                    "fill": [],
+                    "skipUnless": {
+                      "question": "2.1.6.1.1",
+                      "option": "1,2,3,4,5,6,7,8"
+                    }
+                  },
+                  "question": {
+                    "ui": "SINGLE_CHOICE",
+                    "validation": null
+                  },
+                  "answer": {
+                    "scope": "once"
+                  },
+                  "child": {
+                    "strategy": "cascade"
+                  },
+                  "post": [],
+                  "exit": {
+                    "strategy": "parent"
+                  }
+                }
+              }
+            },
+            {
+              "position": "5",
+              "question": {
+                "options": [
+                  {
+                    "position": "1",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "For over a month",
+                        "tamil": "??? ??????????? ?????"
+                      }
+                    }
+                  },
+                  {
+                    "position": "2",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "For over a year",
+                        "tamil": "??? ???????????? ?????"
+                      }
+                    }
+                  }
+                ],
+                "children": [],
+                "text": {
+                  "english": "How long has this light not been working?",
+                  "tamil": "??????? ?????? ???? ???? ??????? ???????????"
+                },
+                "type": "SINGLE_CHOICE",
+                "tags": "",
+                "number": "2.1.6.1.5",
+                "flow": {
+                  "pre": {
+                    "fill": [],
+                    "skipUnless": {
+                      "question": "2.1.6.1.4",
+                      "option": "0"
+                    }
+                  },
+                  "question": {
+                    "ui": "SINGLE_CHOICE",
+                    "validation": null
+                  },
+                  "answer": {
+                    "scope": "once"
+                  },
+                  "child": {
+                    "strategy": "cascade"
+                  },
+                  "post": [],
+                  "exit": {
+                    "strategy": "parent"
+                  }
+                }
+              }
+            }
+          ],
+          "text": {
+            "english": "Tag a street light",
+            "tamil": "???? ????????? ???????????"
+          },
+          "type": "SINGLE_CHOICE",
+          "tags": "UI_BACK_DISABLED",
+          "number": "2.1.6.1",
+          "flow": {
+            "_tags": {
+              "UI_BACK_DISABLED": "UI_BACK_DISABLED"
+            },
+            "pre": {
+              "fill": []
+            },
+            "question": {
+              "ui": "SINGLE_CHOICE",
+              "validation": null,
+              "back": false
+            },
+            "answer": {
+              "scope": "multiple"
+            },
+            "child": {
+              "strategy": "cascade"
+            },
+            "post": [],
+            "exit": {
+              "strategy": "parent"
+            }
+          }
+        }
+      }
+    ],
+    "flow": {
+      "child": {
+        "strategy": "cascade"
+      },
+      "question": {
+        "ui": "NONE",
+        "validation": null
+      },
+      "exit": {
+        "strategy": "END"
+      }
+    }
+  },
+  "__v": 0,
+  "modifiedAt": "2017-10-21T05:45:22.128Z"
+}

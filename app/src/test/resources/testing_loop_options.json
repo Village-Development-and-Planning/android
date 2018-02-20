@@ -1,0 +1,177 @@
+{
+  "_id": "5a7886d9fdb3a526f48afe25",
+  "name": "Mapping",
+  "description": "Mapping",
+  "question": {
+    "type": "ROOT",
+    "options": [],
+    "children": [
+      {
+        "position": "2",
+        "question": {
+          "options": [
+            {
+              "position": "0",
+              "option": {
+                "_id": "59d94d5ff5d04d1d3e12ee45",
+                "type": "GENERIC",
+                "text": {
+                  "english": "TEST HABITATION 1",
+                  "tamil": "test",
+                  "_id": "59d94d5ff5d04d1d3e12ee46",
+                  "modifiedAt": "2017-10-07T21:55:43.497Z"
+                },
+                "__v": 0,
+                "modifiedAt": "2017-10-07T21:55:43.494Z"
+              },
+              "_id": "59d94d60f5d04d1d3e12f4022"
+            },
+            {
+              "position": "1",
+              "option": {
+                "_id": "59d94d5ff5d04d1d3e12ee46",
+                "type": "GENERIC",
+                "text": {
+                  "english": "TEST HABITATION 2",
+                  "tamil": "test",
+                  "_id": "59d94d5ff5d04d1d3e12ee49",
+                  "modifiedAt": "2017-10-07T21:55:43.497Z"
+                },
+                "__v": 0,
+                "modifiedAt": "2017-10-07T21:55:43.494Z"
+              },
+              "_id": "59d94d60f5d04d1d3e12f4021"
+            }
+          ],
+          "children": [
+            {
+              "position": "0.1",
+              "question": {
+                "options": [],
+                "children": [],
+                "flow": {
+                  "pre": {
+                    "fill": []
+                  },
+                  "question": {
+                    "ui": "GPS",
+                    "validation": null
+                  },
+                  "answer": {
+                    "scope": "once"
+                  },
+                  "child": {
+                    "strategy": "cascade"
+                  },
+                  "post": [],
+                  "exit": {
+                    "strategy": "parent"
+                  }
+                },
+                "text": {
+                  "english": "Record GPS location of habitation (Start of the habitation)",
+                  "tamil": "குடியிருப்பின் ஜி பி எஸ் விவரத்தைப் தேர்வு செய்யவும் (குடியிருப்பின் ஆரம்பம்)"
+                },
+                "type": "GPS",
+                "tags": "",
+                "number": "2.0.1"
+              }
+            },
+            {
+              "position": "1",
+              "question": {
+                "options": [],
+                "children": [],
+                "flow": {
+                  "pre": {
+                    "fill": []
+                  },
+                  "question": {
+                    "ui": "CONFIRMATION",
+                    "validation": null
+                  },
+                  "answer": {
+                    "scope": "once"
+                  },
+                  "child": {
+                    "strategy": "cascade"
+                  },
+                  "post": [],
+                  "exit": {
+                    "strategy": "parent"
+                  }
+                },
+                "text": {
+                  "english": "Do you want to tag a road in this habitation? If you have finished ALL the roads in this habitation please select NO and choose another habitation. ",
+                  "tamil": "இந்த குடியிருப்பில் உள்ள சாலையை நீங்கள் குறியிட விரும்புகிறீர்களா? இந்த குடியிருப்பில் உள்ள அனைத்து சாலைகளையும் நீங்கள் குறியிட்டு முடித்து விட்டீர்கள் எனில் இந்த கேள்விக்கு இல்லை என்ற பதிலை தேர்வு செய்து அடுத்த குடியிருப்பை தேர்வு செய்ய இயலும்"
+                },
+                "type": "CONFIRMATION",
+                "tags": "LOOP_MULTIPLE",
+                "number": "2.1"
+              }
+            }
+          ],
+          "flow": {
+            "pre": {
+              "fill": [
+                "HABITATION_NAME"
+              ]
+            },
+            "question": {
+              "ui": "SINGLE_CHOICE",
+              "validation": null,
+              "back": false
+            },
+            "answer": {
+              "scope": "options"
+            },
+            "child": {
+              "strategy": "cascade"
+            },
+            "post": [],
+            "exit": {
+              "strategy": "LOOP"
+            }
+          },
+          "text": {
+            "english": "Select habitation name",
+            "tamil": "குடியிருப்பின் பெயரை தேர்வு செய்யவும்"
+          },
+          "type": "SINGLE_CHOICE",
+          "tags": "FILL_HABITATION_NAME, LOOP_OPTIONS, UI_BACK_DISABLED",
+          "number": "2"
+        }
+      }
+    ],
+    "flow": {
+      "pre": {
+        "fill": []
+      },
+      "question": {
+        "ui": "NONE",
+        "validation": null
+      },
+      "answer": {
+        "scope": "once"
+      },
+      "child": {
+        "strategy": "cascade"
+      },
+      "post": [],
+      "exit": {
+        "strategy": "parent"
+      }
+    }
+  },
+  "__v": 0,
+  "respondents": [
+    "2.1"
+  ],
+  "enabled": true,
+  "modifiedAt": "2018-02-05T16:31:21.069Z",
+  "answerStats": {
+    "total": 59,
+    "processed": 41
+  },
+  "processes": []
+}

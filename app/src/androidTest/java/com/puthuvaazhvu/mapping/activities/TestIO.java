@@ -3,6 +3,8 @@ package com.puthuvaazhvu.mapping.activities;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
 import com.puthuvaazhvu.mapping.filestorage.AnswerIO;
 import com.puthuvaazhvu.mapping.filestorage.DataInfoIO;
@@ -10,6 +12,7 @@ import com.puthuvaazhvu.mapping.filestorage.SnapshotIO;
 import com.puthuvaazhvu.mapping.filestorage.SurveyIO;
 import com.puthuvaazhvu.mapping.filestorage.modals.DataInfo;
 import com.puthuvaazhvu.mapping.modals.Survey;
+import com.puthuvaazhvu.mapping.modals.deserialization.SurveyDeserialization;
 import com.puthuvaazhvu.mapping.utils.Utils;
 
 import org.junit.Test;
@@ -30,114 +33,100 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class TestIO {
 
     @Test
-    public void survey_test() throws Exception {
+    public void surveyIO() throws Exception {
         resetDataInfo();
 
-        Survey survey = getSurvey("answers_data_1.json");
+        Survey survey = getSurvey("survey_household.json");
 
-        SurveyIO surveyIO = new SurveyIO("5a08957bad04f82a15a0e974", "TEST");
+        SurveyIO surveyIO = new SurveyIO("123", "TEST");
         File file = surveyIO.save(survey).blockingFirst();
 
-        assertThat(file.getName(), is("5a08957bad04f82a15a0e974.bytes"));
+        assertThat(
+                "Check File name same as surveyID",
+                file.getName(),
+                is("123.bytes")
+        );
 
         DataInfo dataInfo = getDataInfo();
 
-        assertThat(dataInfo.getSurveysInfo().getSurveys().size(), is(1));
-        assertThat(dataInfo.getSurveysInfo().getSurvey("5a08957bad04f82a15a0e974").getSurveyName(), is("TEST"));
+        assertThat(
+                "Survey size in data info should be 1",
+                dataInfo.getSurveysInfo().getSurveys().size(),
+                is(1)
+        );
+        assertThat(
+                "Test if survey can be read",
+                dataInfo.getSurveysInfo().getSurvey("123").getSurveyName(),
+                is("TEST")
+        );
 
+        surveyIO.save(survey).blockingFirst();
+        assertThat(
+                "Test for no duplication",
+                dataInfo.getSurveysInfo().getSurveys().size(),
+                is(1)
+        );
+
+        surveyIO = new SurveyIO("abc", "test");
         file = surveyIO.save(survey).blockingFirst();
-        assertThat(dataInfo.getSurveysInfo().getSurveys().size(), is(1));
-
-        surveyIO = new SurveyIO("5a08957bad04f82a15a0e975", "test");
-        file = surveyIO.save(survey).blockingFirst();
-
-        assertThat(file.getName(), is("5a08957bad04f82a15a0e975.bytes"));
 
         dataInfo = getDataInfo();
 
-        assertThat(dataInfo.getSurveysInfo().getSurveys().size(), is(2));
-        assertThat(dataInfo.getSurveysInfo().getSurvey("5a08957bad04f82a15a0e975").getSurveyName(), is("test"));
-    }
-
-    @Test
-    public void answer_test() throws Exception {
-        resetDataInfo();
-
-        Survey survey = getSurvey("answers_data_1.json");
-
-        AnswerIO answerIO = new AnswerIO("5a08957bad04f82a15a0e974",
-                "TEST", "5a08957bad04f82a15a0e974_1");
-        File file = answerIO.save(survey).blockingFirst();
-
-        assertThat(file.getName(), is("5a08957bad04f82a15a0e974_1.json"));
-
-        DataInfo dataInfo = getDataInfo();
-
-        assertThat(dataInfo.getAnswersInfo().getAnswersCount("5a08957bad04f82a15a0e974"), is(1));
-        assertThat(dataInfo.getAnswersInfo().getAnswer("5a08957bad04f82a15a0e974_1").getSurveyName(), is("TEST"));
-
-        answerIO = new AnswerIO("5a08957bad04f82a15a0e974",
-                "TEST", "5a08957bad04f82a15a0e974_2");
-        file = answerIO.save(getSurvey("answers_data_1.json")).blockingFirst();
-
-        assertThat(file.getName(), is("5a08957bad04f82a15a0e974_2.json"));
-
-        dataInfo = getDataInfo();
-
-        assertThat(dataInfo.getAnswersInfo().getAnswersCount("5a08957bad04f82a15a0e974"), is(2));
-
-        answerIO = new AnswerIO("5a08957bad04f82a15a0e974",
-                "TEST", "5a08957bad04f82a15a0e974_1");
-        survey = answerIO.read().blockingFirst();
-
-        assertThat(survey.getId(), is("5a08957bad04f82a15a0e974"));
-
-        answerIO = new AnswerIO("5a08957bad04f82a15a0e974",
-                "TEST", "5a08957bad04f82a15a0e974_2");
-        answerIO.delete().blockingFirst();
-
-        dataInfo = getDataInfo();
-        assertThat(dataInfo.getAnswersInfo().getAnswer("5a08957bad04f82a15a0e974"), is(nullValue()));
-        assertThat(dataInfo.getAnswersInfo().getAnswersCount("5a08957bad04f82a15a0e974"), is(1));
+        assertThat(
+                "Survey size in data info should be updated to 2",
+                dataInfo.getSurveysInfo().getSurveys().size(),
+                is(2)
+        );
     }
 
     @Test
     public void snapshot_test() throws Exception {
         resetDataInfo();
 
-        SnapshotIO snapshotIO = new SnapshotIO("N/A", "5a08957bad04f82a15a0e974_0"
-                , "5a08957bad04f82a15a0e974", "TEST");
-        File file = snapshotIO.save(getSurvey("answers_data_1.json")).blockingFirst();
-        assertThat(file.exists(), is(true));
-        assertThat(file.getName(), is("5a08957bad04f82a15a0e974_0.bytes"));
+        SnapshotIO snapshotIO = new SnapshotIO("000", "123_0"
+                , "123", "TEST");
+        File file = snapshotIO.save(getSurvey("survey_household.json")).blockingFirst();
+
+        assertThat("Check if the file is created", file.exists(), is(true));
+        assertThat("Check file name is same as snapshot id", file.getName(), is("123_0.bytes"));
 
         DataInfo dataInfo = getDataInfo();
 
-        assertThat(dataInfo.getSnapshotsInfo().getSurvey("5a08957bad04f82a15a0e974").getSnapshots().size()
-                , is(1));
+        assertThat(
+                "Check snapshot count of survey 123",
+                dataInfo.getSnapshotsInfo().getSurvey("123").getSnapshots().size()
+                , is(1)
+        );
 
-        assertThat(dataInfo.getSnapshotsInfo().getSurvey("5a08957bad04f82a15a0e974")
+        assertThat(
+                "Check latest snapshotID",
+                dataInfo.getSnapshotsInfo().getSurvey("123")
                         .getLatestLoggedSnapshot().getSnapshotID()
-                , is("5a08957bad04f82a15a0e974_0"));
+                , is("123_0"));
 
-        assertThat(dataInfo.getSnapshotsInfo().getSurvey("5a08957bad04f82a15a0e974")
+        assertThat(
+                "Check snapshot path to question",
+                dataInfo.getSnapshotsInfo().getSurvey("123")
                         .getLatestLoggedSnapshot().getPathToLastQuestion()
-                , is("N/A"));
+                , is("000"));
 
         // check for saving second snapshot
-        snapshotIO = new SnapshotIO("N/A", "5a08957bad04f82a15a0e974_1"
-                , "5a08957bad04f82a15a0e974", "TEST");
-        snapshotIO.save(getSurvey("answers_data_1.json")).blockingFirst();
+        snapshotIO = new SnapshotIO("N/A", "123_1"
+                , "123", "TEST");
+        snapshotIO.save(getSurvey("survey_household.json")).blockingFirst();
 
         dataInfo = getDataInfo();
 
-        assertThat(dataInfo.getSnapshotsInfo().getSurvey("5a08957bad04f82a15a0e974").getSnapshots().size()
-                , is(1));
+        assertThat(
+                "Make sure the survey count has not changed",
+                dataInfo.getSnapshotsInfo().getSurvey("123").getSnapshots().size(),
+                is(1)
+        );
 
-        // read
-        SnapshotIO io = new SnapshotIO("5a08957bad04f82a15a0e974_1");
+        // read file IO
+        SnapshotIO io = new SnapshotIO("123_1");
         Survey survey = io.read().blockingFirst();
-        assertThat(survey.getId(), is("5a08957bad04f82a15a0e974"));
+        assertThat("Check if survey 123 is read properly", survey.getQuestion().getType(), is("ROOT"));
     }
 
     private void resetDataInfo() {
@@ -156,8 +145,14 @@ public class TestIO {
         try {
             String a = Utils.readFromInputStream(InstrumentationRegistry.getContext().getAssets()
                     .open(file));
+            final GsonBuilder gsonBuilder = new GsonBuilder();
+            gsonBuilder.registerTypeAdapter(Survey.class, new SurveyDeserialization());
+            gsonBuilder.setPrettyPrinting();
+
+            final Gson gson = gsonBuilder.create();
+
             JsonParser jsonParser = new JsonParser();
-            return new Survey(jsonParser.parse(a).getAsJsonObject());
+            return gson.fromJson(jsonParser.parse(a).getAsJsonObject(), Survey.class);
         } catch (IOException e) {
             throw new IllegalArgumentException(e);
         }

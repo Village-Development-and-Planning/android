@@ -53,8 +53,9 @@ public class ShownTogetherFragment extends QuestionDataFragment {
         super.onCreate(savedInstanceState);
         dataList = new ArrayList<>();
         dataList.addAll(getQuestion().getCurrentAnswer().getChildren());
-        // add a valid dummy answer to avoid locking in the same question
-        getQuestion().getCurrentAnswer().setDummyButValid(true);
+
+        getQuestion().getCurrentAnswer().setDummy(false);
+
         shownTogetherAdapter = new ShownTogetherAdapter();
         optionsUiObjects = new HashMap<>();
     }
@@ -103,7 +104,7 @@ public class ShownTogetherFragment extends QuestionDataFragment {
                 if (question.getAnswers().isEmpty()) {
                     // add dummy answer if empty
                     question.addAnswer(
-                            Answer.createDummyAnswer()
+                            Answer.createDummyAnswer(question)
                     );
                 }
 

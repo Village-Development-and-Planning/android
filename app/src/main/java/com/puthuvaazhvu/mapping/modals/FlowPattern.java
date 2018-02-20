@@ -10,7 +10,7 @@ import static com.puthuvaazhvu.mapping.modals.FlowPattern.QuestionFlow.Validatio
  * Created by muthuveerappans on 19/02/18.
  */
 
-public class FlowPattern {
+public class FlowPattern extends BaseObject {
     private PreFlow preFlow;
     private AnswerFlow answerFlow;
     private ChildFlow childFlow;
@@ -66,12 +66,12 @@ public class FlowPattern {
         this.questionFlow = questionFlow;
     }
 
-    public static class AnswerFlow {
+    public static class AnswerFlow extends BaseObject {
         public enum Modes {
             NONE, ONCE, OPTION, MULTIPLE
         }
 
-        private Modes mode;
+        private Modes mode = Modes.NONE;
 
         public Modes getMode() {
             return mode;
@@ -99,10 +99,10 @@ public class FlowPattern {
         }
     }
 
-    public static class ChildFlow {
-        private Strategy strategy;
-        private UI uiToBeShown;
-        private RepeatMode repeatMode;
+    public static class ChildFlow extends BaseObject {
+        private Strategy strategy = Strategy.NONE;
+        private UI uiToBeShown = UI.NONE;
+        private RepeatMode repeatMode = RepeatMode.NONE;
 
         public enum Strategy {
             NONE, CASCADE, SELECT, TOGETHER
@@ -186,12 +186,12 @@ public class FlowPattern {
         }
     }
 
-    public static class ExitFlow {
+    public static class ExitFlow extends BaseObject {
         public enum Strategy {
             NONE, PARENT, LOOP, END
         }
 
-        private Strategy strategy;
+        private Strategy strategy = Strategy.NONE;
         private boolean incrementBubble;
 
         public Strategy getStrategy() {
@@ -228,7 +228,7 @@ public class FlowPattern {
         }
     }
 
-    public static class PostFlow {
+    public static class PostFlow extends BaseObject {
         ArrayList<String> tags = new ArrayList<>();
 
         public ArrayList<String> getTags() {
@@ -240,7 +240,7 @@ public class FlowPattern {
         }
     }
 
-    public static class QuestionFlow {
+    public static class QuestionFlow extends BaseObject {
         public enum Validation {
             NONE, NUMBER, TEXT
         }
@@ -249,8 +249,8 @@ public class FlowPattern {
             NONE, SINGLE_CHOICE, MULTIPLE_CHOICE, GPS, INPUT, INFO, CONFIRMATION, MESSAGE, DUMMY
         }
 
-        private Validation validation;
-        private UI uiMode;
+        private Validation validation = NONE;
+        private UI uiMode = UI.NONE;
         private boolean back = true;
         private int optionsLimit;
         private boolean showImage;
@@ -354,7 +354,7 @@ public class FlowPattern {
         }
     }
 
-    public static class PreFlow {
+    public static class PreFlow extends BaseObject {
         private ArrayList<String> fill;
         private SkipUnless skipUnless;
 
@@ -374,7 +374,7 @@ public class FlowPattern {
             this.skipUnless = skipUnless;
         }
 
-        public static class SkipUnless {
+        public static class SkipUnless extends BaseObject {
             private String questionNumber;
             private ArrayList<String> skipPositions;
 

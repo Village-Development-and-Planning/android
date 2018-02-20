@@ -49,6 +49,10 @@ public class Option extends BaseObject {
         this.imageData = imageData;
     }
 
+    public void setPosition(String position) {
+        this.position = position;
+    }
+
     public String getTextString() {
         switch (Constants.APP_LANGUAGE) {
             case TAMIL:

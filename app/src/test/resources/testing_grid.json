@@ -1,0 +1,127 @@
+{
+  "_id": "59eadef25b146a66ce5aff0e",
+  "name": "mapping_csv",
+  "description": "mapping_csv",
+  "question": {
+    "type": "ROOT",
+    "options": [],
+    "children": [
+      {
+        "position": "6",
+        "question": {
+          "options": [],
+          "children": [
+            {
+              "position": "12",
+              "question": {
+                "options": [
+                  {
+                    "position": "1",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "Yes",
+                        "tamil": "???"
+                      }
+                    }
+                  },
+                  {
+                    "position": "0",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "No",
+                        "tamil": "?????"
+                      }
+                    }
+                  }
+                ],
+                "children": [
+                ],
+                "text": {
+                  "english": "Tag common land",
+                  "tamil": "???? ???????? ???????????"
+                },
+                "type": "SINGLE_CHOICE",
+                "tags": "UI_BACK_DISABLED",
+                "number": "2.1.6.12",
+                "flow": {
+                  "_tags": {
+                    "UI_BACK_DISABLED": "UI_BACK_DISABLED"
+                  },
+                  "pre": {
+                    "fill": []
+                  },
+                  "question": {
+                    "ui": "SINGLE_CHOICE",
+                    "validation": null,
+                    "back": false
+                  },
+                  "answer": {
+                    "scope": "multiple"
+                  },
+                  "child": {
+                    "strategy": "cascade"
+                  },
+                  "post": [],
+                  "exit": {
+                    "strategy": "parent"
+                  }
+                }
+              }
+            }
+          ],
+          "text": {
+            "english": "Tag village facilities on the road",
+            "tamil": "???? ???????? ?????????? ????? ??????? ???????????"
+          },
+          "type": "CONFIRMATION",
+          "tags": "GRID_MULTIPLE, UI_BACK_DISABLED",
+          "number": "2.1.6",
+          "flow": {
+            "_tags": {
+              "GRID_MULTIPLE": "GRID",
+              "UI_BACK_DISABLED": "UI_BACK_DISABLED"
+            },
+            "pre": {
+              "fill": []
+            },
+            "question": {
+              "ui": "CONFIRMATION",
+              "validation": null,
+              "back": false
+            },
+            "answer": {
+              "scope": "once"
+            },
+            "child": {
+              "strategy": "select",
+              "select": {
+                "ui": "grid",
+                "repeat": "multiple"
+              }
+            },
+            "post": [],
+            "exit": {
+              "strategy": "parent"
+            }
+          }
+        }
+      }
+    ],
+    "flow": {
+      "child": {
+        "strategy": "cascade"
+      },
+      "question": {
+        "ui": "NONE",
+        "validation": null
+      },
+      "exit": {
+        "strategy": "END"
+      }
+    }
+  },
+  "__v": 0,
+  "modifiedAt": "2017-10-21T05:45:22.128Z"
+}

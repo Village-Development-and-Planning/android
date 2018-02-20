@@ -17,21 +17,11 @@ public class Answer extends BaseObject {
     private long startTimeStamp;
     private long exitTimestamp;
     private boolean isDummy;
-    private boolean isDummyButValid;
 
-    public static Answer createDummyAnswer() {
-        Answer answer = new Answer();
+    public static Answer createDummyAnswer(Question parentQuestion) {
+        Answer answer = new Answer(new ArrayList<Option>(), parentQuestion);
         answer.setDummy(true);
         return answer;
-    }
-
-    public static Answer createDummyValidAnswer() {
-        Answer answer = new Answer();
-        answer.setDummyButValid(true);
-        return answer;
-    }
-
-    private Answer() {
     }
 
     public Answer(ArrayList<Option> options, Question parentQuestion, long startTimeStamp) {
@@ -47,35 +37,28 @@ public class Answer extends BaseObject {
 
         if (parentQuestion != null) {
             // copy all the immediate children
-            for (Question c : parentQuestion.getChildren()) {
-                Question q = new Question(
-                        c.getPosition(),
-                        c.getText(),
-                        c.getType(),
-                        c.getOptions(),
-                        c.getTags(),
-                        c.getNumber(),
-                        c.getChildren(),
-                        c.getFlowPattern()
-                );
-                this.children.add(q);
+            ArrayList<Question> children = parentQuestion.getChildren();
+            if (children != null) {
+                for (Question c : children) {
+                    Question cCopy = new Question(
+                            c.getPosition(),
+                            c.getText(),
+                            c.getType(),
+                            c.getOptions(),
+                            c.getTags(),
+                            c.getNumber(),
+                            c.getChildren(),
+                            c.getFlowPattern()
+                    );
+                    // set the child under the same parent answer
+                    cCopy.setParent(parentQuestion);
+                    cCopy.setParentAnswer(this);
+                    this.children.add(cCopy);
+                }
             }
         }
 
-        // set the parent answer of the children
-        for (int i = 0; i < children.size(); i++) {
-            children.get(i).setParentAnswer(this);
-        }
-
         this.startTimeStamp = System.currentTimeMillis();
-    }
-
-    public boolean isDummyButValid() {
-        return isDummyButValid;
-    }
-
-    public void setDummyButValid(boolean dummyButValid) {
-        isDummyButValid = dummyButValid;
     }
 
     public void setParentQuestion(Question parentQuestion) {

@@ -1,7 +1,9 @@
 package com.puthuvaazhvu.mapping;
 
 import com.google.gson.JsonObject;
+import com.puthuvaazhvu.mapping.Helpers.DataTraversing;
 import com.puthuvaazhvu.mapping.modals.Answer;
+import com.puthuvaazhvu.mapping.modals.FlowPattern;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
@@ -11,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static junit.framework.Assert.assertNotSame;
 import static junit.framework.Assert.assertSame;
@@ -24,137 +27,216 @@ import static org.mockito.Mockito.mock;
  */
 
 public class QuestionUtilsTest {
-
-    private Survey survey;
+    private Survey dummySurvey;
 
     @Before
-    public void setup() {
-        survey = TestUtils.getSurvey(this);
+    public void setUp() throws Exception {
+        dummySurvey = createDummySurvey();
+
+        assertThat(
+                "Check structure of the dummy survey",
+                dummySurvey
+                        .getQuestion().getAnswers()
+                        .get(0).getChildren()
+                        .get(0).getAnswers()
+                        .get(0).getChildren()
+                        .size(),
+                is(3)
+        );
     }
 
     @Test
-    public void test_getQuestionRawNumberPrefix() {
-        Question question = survey.getQuestion().getChildren().get(1).getChildren().get(1).getChildren().get(6);
-        assertThat(question.getNumber(), is("2.1.7"));
-        assertThat(QuestionUtils.getQuestionParentNumber(question), is("2.1"));
+    public void getIndexOfChild() throws Exception {
+        Question root = dummySurvey.getQuestion();
+
+        assertThat(
+                "Check if the index of 1.2 is 1",
+                QuestionUtils.getIndexOfChild(root, DataTraversing.findQuestion("1.2", root)),
+                is(1)
+        );
     }
 
     @Test
-    public void test_findQuestion_rawNumber() {
-        io.reactivex.Observable<Survey> surveySingle = SurveyUtils.getSurveyWithUpdatedAnswers(TestUtils.getAnswersJson(this));
-        Survey survey = surveySingle.blockingFirst();
+    public void snapshotPathToQuestion() throws Exception {
+        ArrayList<Integer> path;
 
-        assertThat(survey.getQuestion().getAnswers().size(), is(1));
+        Question root = dummySurvey.getQuestion();
 
-        Question question = survey.getQuestion().getAnswers()
-                .get(0).getChildren().get(1).getAnswers().get(0).getChildren().get(1)
-                .getAnswers().get(0).getChildren().get(0);
+        Question node = root.getAnswers().get(0).getChildren().get(1).getAnswers().get(0).getChildren().get(2);
 
-        assertThat(question.getNumber(), is("2.1.1"));
-
-        Question found = QuestionUtils.findQuestionFrom(question, "2", true);
-
-        assertThat(found.getNumber(), is("2"));
-
-        question = survey.getQuestion().getAnswers()
-                .get(0).getChildren().get(1).getAnswers().get(0).getChildren().get(1)
-                .getAnswers().get(0).getChildren().get(1);
-
-        assertThat(question.getNumber(), is("2.1.2"));
-
-        found = QuestionUtils.findQuestionFrom(question, "2.1", true);
-
-        assertThat(found.getNumber(), is("2.1"));
-    }
-
-    @Test
-    public void test_getPathOfCurrentQuestion() {
-        Survey survey = TestUtils.getSurvey(this, "answers_data_1.json");
-        JsonObject questionJson =
-                TestUtils.getJson(this, "answers_data_1.json").get("question").getAsJsonObject();
-        QuestionUtils.populateAnswersFromJson(survey.getQuestion(), questionJson);
-
-        assertThat(survey.getId(), is("5a08957bad04f82a15a0e974"));
-        assertThat(survey.getQuestion().getAnswers().size(), is(1));
-
-        Question question = survey.getQuestion().getAnswers().get(0)
-                .getChildren().get(1).getAnswers().get(1).getChildren().get(1).getAnswers().get(0)
-                .getChildren().get(0);
-
-        assertThat(question.getNumber(), is("2.1.1"));
-
-        ArrayList<Integer> path = QuestionUtils.getPathOfQuestion(question);
-        assertThat(path.toString(), is("[0, 0, 1, 1, 1, 0, 0]"));
-
-        Question q = QuestionUtils.moveToQuestionUsingPath("0,0,1,1,1,0,0", survey.getQuestion());
-        assertThat(q.getNumber(), is("2.1.1"));
-    }
-
-    @Test
-    public void test_populateAnswersInternal_method() {
-        Survey survey = TestUtils.getSurvey(this, "survey_data_1.json");
-
-        JsonObject answers = TestUtils.getAnswersJson(this);
-        JsonObject questionWithAnswersJson = answers.get("question").getAsJsonObject();
-
-        Question rootNode = survey.getQuestion();
-
-        assertThat(rootNode.getType(), is("ROOT"));
-        assertThat(questionWithAnswersJson.get("type").getAsString(), is("ROOT"));
-
-        Question resultRoot = QuestionUtils.populateAnswersFromJson(rootNode, questionWithAnswersJson);
-
-        assertThat(resultRoot.getAnswers().size(), is(1));
-        assertThat(resultRoot.getAnswers().get(0).getOptions().size(), is(1));
-        assertThat(resultRoot.getAnswers().get(0).getOptions().get(0).getType(), is("DUMMY"));
-        assertThat(resultRoot.getAnswers().get(0).getChildren().size(), is(2));
-    }
-
-    @Test
-    public void test_toJson_method() {
-        Question question = survey.getQuestion().getChildren().get(1);
-
-        assertThat(question.getNumber(), is("2"));
-
-        ArrayList<Option> mockOptions = new ArrayList<>();
-        mockOptions.add(new Option("1", null, null, null, "0"));
-
-        Answer mockAnswer = new Answer(
-                mockOptions,
-                question
+        assertThat(
+                "Check node number",
+                node.getNumber(),
+                is("1.2.3")
         );
 
-        question.addAnswer(mockAnswer);
+        path = QuestionUtils.getPathOfQuestion(node);
 
-        Question child = mockAnswer.getChildren().get(1);
-
-        assertNotSame(child.getAnswers(), question.getChildren().get(1).getAnswers());
-
-        assertThat(child.getNumber(), is("2.1"));
-
-        assertNotSame(child, question.getChildren().get(1));
-
-        mockOptions = new ArrayList<>();
-        mockOptions.add(new Option("1", null, null, null, "0"));
-        mockOptions.add(new Option("2", null, null, null, "1"));
-        mockOptions.add(new Option("3", null, null, null, "2"));
-
-        mockAnswer = new Answer(
-                mockOptions,
-                child
+        assertThat(
+                "Check path of dummy root",
+                path.toString(),
+                is("[0, 0, 1, 0, 2]")
         );
-
-        child.addAnswer(mockAnswer);
-
-
-        JsonObject jsonObject = question.getAsJson().getAsJsonObject().get("question").getAsJsonObject();
-
-        assertThat(jsonObject.get("answers").getAsJsonArray().size(), is(1));
-        assertThat(jsonObject.get("children").getAsJsonArray().get(1).getAsJsonObject().get("question").getAsJsonObject().get("answers").getAsJsonArray().size(), is(0));
-        assertThat(jsonObject.get("answers").getAsJsonArray().get(0)
-                        .getAsJsonObject().get("children").getAsJsonArray().get(1)
-                        .getAsJsonObject().get("question").getAsJsonObject().get("answers").getAsJsonArray().size()
-                , is(1));
     }
 
+    @Test
+    public void moveToQuestionUsingPath() throws Exception {
+        Question root = dummySurvey.getQuestion();
+
+        Question currentNode = QuestionUtils.moveToQuestionUsingPath("0,0,0,0,2", root);
+
+        assertThat(
+                "Check number of current question",
+                currentNode.getNumber(),
+                is("1.1.3")
+        );
+
+        assertThat(
+                "Check parent of current question",
+                currentNode.getParentAnswer().getParentQuestion().getNumber(),
+                is("1.1")
+        );
+    }
+
+    @Test
+    public void findQuestion() throws Exception {
+        Question root = dummySurvey.getQuestion();
+
+        Question node = root.getAnswers().get(0).getChildren().get(1).getAnswers().get(0).getChildren().get(2);
+
+        assertThat(
+                "Check node number",
+                node.getNumber(),
+                is("1.2.3")
+        );
+
+        Question foundQ = QuestionUtils.findQuestionFrom(node, "1.1.3", true);
+
+        assertThat(
+                "Check found question number",
+                foundQ.getNumber(),
+                is("1.1.3")
+        );
+
+        assertThat(
+                "Check found question parent",
+                foundQ.getParentAnswer().getParentQuestion().getNumber(),
+                is("1.1")
+        );
+    }
+
+    @Test
+    public void isGridSelectQuestion() throws Exception {
+        Question root = dummySurvey.getQuestion();
+        assertThat(
+                "Check if 1.2 is grid question",
+                QuestionUtils.isGridSelectQuestion(DataTraversing.findQuestion("1.2", root)),
+                is(true)
+        );
+    }
+
+    @Test
+    public void isLoopOptionsQuestion() throws Exception {
+        Question root = dummySurvey.getQuestion();
+        assertThat(
+                "Check if 1.1 is loop options question",
+                QuestionUtils.isLoopOptionsQuestion(DataTraversing.findQuestion("1.1", root)),
+                is(true)
+        );
+    }
+
+    private Survey createDummySurvey() {
+
+        Question c1_1_1 = createDummyQuestion("1.1.1", null);
+        Question c1_1_2 = createDummyQuestion("1.1.2", null);
+        Question c1_1_3 = createDummyQuestion("1.1.3", null);
+
+        Question c1_2_1 = createDummyQuestion("1.2.1", null);
+        Question c1_2_2 = createDummyQuestion("1.2.2", null);
+        Question c1_2_3 = createDummyQuestion("1.2.3", null);
+
+        Question c1_1 = createDummyQuestion("1.1", new ArrayList<Question>(Arrays.asList(c1_1_1, c1_1_2, c1_1_3)));
+        setLoopOptionsType(c1_1);
+
+        Question c1_2 = createDummyQuestion("1.2", new ArrayList<Question>(Arrays.asList(c1_2_1, c1_2_2, c1_2_3)));
+        setGridSelectType(c1_2);
+
+        Question root = createDummyQuestion("1", new ArrayList<Question>(Arrays.asList(c1_1, c1_2)));
+
+        root.addAnswer(createDummyAnswer(root));
+
+        ArrayList<Question> a_children_root = root.getCurrentAnswer().getChildren();
+
+        a_children_root.get(0).addAnswer(createDummyAnswer(a_children_root.get(0)));
+        a_children_root.get(1).addAnswer(createDummyAnswer(a_children_root.get(1)));
+
+        ArrayList<Question> a_children_1_1 = root.getCurrentAnswer().getChildren().get(0).getCurrentAnswer().getChildren();
+        ArrayList<Question> a_children_1_2 = root.getCurrentAnswer().getChildren().get(1).getCurrentAnswer().getChildren();
+
+        a_children_1_1.get(0).addAnswer(createDummyAnswer(a_children_1_1.get(0)));
+        a_children_1_1.get(1).addAnswer(createDummyAnswer(a_children_1_1.get(1)));
+        a_children_1_1.get(2).addAnswer(createDummyAnswer(a_children_1_1.get(2)));
+        a_children_1_2.get(0).addAnswer(createDummyAnswer(a_children_1_2.get(0)));
+        a_children_1_2.get(1).addAnswer(createDummyAnswer(a_children_1_2.get(1)));
+        a_children_1_2.get(2).addAnswer(createDummyAnswer(a_children_1_2.get(2)));
+
+        return new Survey(null, null, null, root, null, true);
+    }
+
+    private void setLoopOptionsType(Question question) {
+        FlowPattern flowPattern = new FlowPattern();
+
+        FlowPattern.ExitFlow exitFlow = new FlowPattern.ExitFlow();
+        exitFlow.setStrategy(FlowPattern.ExitFlow.Strategy.LOOP);
+
+        flowPattern.setExitFlow(exitFlow);
+
+        FlowPattern.AnswerFlow answerFlow = new FlowPattern.AnswerFlow();
+        answerFlow.setMode(FlowPattern.AnswerFlow.Modes.OPTION);
+
+        flowPattern.setAnswerFlow(answerFlow);
+
+        question.setFlowPattern(flowPattern);
+    }
+
+    private void setGridSelectType(Question question) {
+        FlowPattern flowPattern = new FlowPattern();
+
+        FlowPattern.ChildFlow childFlow = new FlowPattern.ChildFlow();
+        childFlow.setStrategy(FlowPattern.ChildFlow.Strategy.SELECT);
+        childFlow.setUiToBeShown(FlowPattern.ChildFlow.UI.GRID);
+        childFlow.setRepeatMode(FlowPattern.ChildFlow.RepeatMode.MULTIPLE);
+
+        flowPattern.setChildFlow(childFlow);
+
+        question.setFlowPattern(flowPattern);
+    }
+
+    private void setTogetherType(Question question) {
+        FlowPattern flowPattern = new FlowPattern();
+
+        FlowPattern.ChildFlow childFlow = new FlowPattern.ChildFlow();
+        childFlow.setStrategy(FlowPattern.ChildFlow.Strategy.TOGETHER);
+
+        flowPattern.setChildFlow(childFlow);
+
+        question.setFlowPattern(flowPattern);
+    }
+
+    private Answer createDummyAnswer(Question parent) {
+        return Answer.createDummyAnswer(parent);
+    }
+
+    private Question createDummyQuestion(String number, ArrayList<Question> children) {
+        return new Question(
+                null,
+                null,
+                null,
+                null,
+                null,
+                number,
+                children,
+                null
+        );
+    }
 }

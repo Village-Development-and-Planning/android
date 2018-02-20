@@ -2,8 +2,8 @@ package com.puthuvaazhvu.mapping.modals.deserialization;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.FlowPattern;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
@@ -13,8 +13,6 @@ import com.puthuvaazhvu.mapping.modals.Text;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-
-import io.reactivex.exceptions.OnErrorNotImplementedException;
 
 /**
  * Created by muthuveerappans on 19/02/18.
@@ -60,6 +58,9 @@ public class SurveyDeserialization extends TypeAdapter<Survey> {
                 case "question":
                     question = readQuestion(in);
                     break;
+                default:
+                    in.skipValue();
+                    break;
             }
         }
         in.endObject();
@@ -76,51 +77,42 @@ public class SurveyDeserialization extends TypeAdapter<Survey> {
         ArrayList<String> tags = new ArrayList<>();
         ArrayList<Option> options = new ArrayList<>();
         ArrayList<Question> children = new ArrayList<>();
-        ArrayList<Answer> answers = new ArrayList<>();
 
         in.beginObject();
         while (in.hasNext()) {
             switch (in.nextName()) {
-                case "position":
-                    position = in.nextString();
+                case "options":
+                    in.beginArray();
+                    while (in.hasNext())
+                        options.add(readOption(in));
+                    in.endArray();
                     break;
-                case "question":
-                    in.beginObject();
+                case "children":
+                    in.beginArray();
                     while (in.hasNext()) {
-                        switch (in.nextName()) {
-                            case "options":
-                                in.beginArray();
-                                while (in.hasNext())
-                                    options.add(readOption(in));
-                                in.endArray();
-                                break;
-                            case "children":
-                                in.beginArray();
-                                while (in.hasNext()) {
-                                    children.add(readQuestion(in));
-                                }
-                                in.endArray();
-                                break;
-                            case "answers":
-                                throw new UnsupportedOperationException("Answer parsing is not implemented.");
-                            case "flow":
-                                flowPattern = readFlowPattern(in);
-                                break;
-                            case "text":
-                                text = readText(in);
-                                break;
-                            case "type":
-                                type = in.nextString();
-                                break;
-                            case "tags":
-                                tags = new ArrayList<>(Arrays.asList(in.nextString().split(",")));
-                                break;
-                            case "number":
-                                number = in.nextString();
-                                break;
-                        }
+                        children.add(readChild(in));
                     }
-                    in.endObject();
+                    in.endArray();
+                    break;
+                case "answers":
+                    throw new UnsupportedOperationException("Answer parsing is not implemented.");
+                case "flow":
+                    flowPattern = readFlowPattern(in);
+                    break;
+                case "text":
+                    text = readText(in);
+                    break;
+                case "type":
+                    type = in.nextString();
+                    break;
+                case "tags":
+                    tags = new ArrayList<>(Arrays.asList(in.nextString().split(",")));
+                    break;
+                case "number":
+                    number = in.nextString();
+                    break;
+                default:
+                    in.skipValue();
                     break;
             }
         }
@@ -138,12 +130,36 @@ public class SurveyDeserialization extends TypeAdapter<Survey> {
         );
     }
 
+    private Question readChild(JsonReader in) throws IOException {
+        String position = "";
+        Question child = null;
+
+        in.beginObject();
+        while (in.hasNext()) {
+            switch (in.nextName()) {
+                case "position":
+                    position = in.nextString();
+                    break;
+                case "question":
+                    child = readQuestion(in);
+                    child.setPosition(position);
+                    break;
+                default:
+                    in.skipValue();
+                    break;
+            }
+        }
+        in.endObject();
+
+        return child;
+    }
+
     private FlowPattern readFlowPattern(JsonReader in) throws IOException {
         FlowPattern flowPattern = new FlowPattern();
 
         in.beginObject();
         while (in.hasNext()) {
-            switch (in.nextString()) {
+            switch (in.nextName()) {
                 case "pre":
                     FlowPattern.PreFlow preFlow = new FlowPattern.PreFlow();
 
@@ -168,18 +184,20 @@ public class SurveyDeserialization extends TypeAdapter<Survey> {
                                             skipUnless.setQuestionNumber(in.nextString());
                                             break;
                                         case "option":
-                                            in.beginArray();
-                                            ArrayList<String> o = new ArrayList<>();
-                                            while (in.hasNext()) {
-                                                o.add(in.nextString());
-                                            }
+                                            ArrayList<String> o =
+                                                    new ArrayList<>(Arrays.asList(in.nextString().split(",")));
                                             skipUnless.setSkipPositions(o);
-                                            in.endArray();
+                                            break;
+                                        default:
+                                            in.skipValue();
                                             break;
                                     }
                                 }
                                 preFlow.setSkipUnless(skipUnless);
                                 in.endObject();
+                                break;
+                            default:
+                                in.skipValue();
                                 break;
                         }
                     }
@@ -194,9 +212,17 @@ public class SurveyDeserialization extends TypeAdapter<Survey> {
                     while (in.hasNext()) {
                         switch (in.nextName()) {
                             case "validation":
+                                if (in.peek() == JsonToken.NULL) {
+                                    in.skipValue();
+                                    break;
+                                }
                                 questionFlow.setValidation(FlowPattern.QuestionFlow.parseValidation(in.nextString()));
                                 break;
                             case "ui":
+                                if (in.peek() == JsonToken.NULL) {
+                                    in.skipValue();
+                                    break;
+                                }
                                 questionFlow.setUiMode(FlowPattern.QuestionFlow.parseUI(in.nextString()));
                                 break;
                             case "back":
@@ -214,6 +240,10 @@ public class SurveyDeserialization extends TypeAdapter<Survey> {
                             case "validationDigitsLimit":
                                 questionFlow.setValidationDigitsLimit(in.nextInt());
                                 break;
+                            default:
+                                in.skipValue();
+                                break;
+
                         }
                     }
                     in.endObject();
@@ -229,6 +259,9 @@ public class SurveyDeserialization extends TypeAdapter<Survey> {
                             case "scope":
                                 answerFlow.setMode(FlowPattern.AnswerFlow.parseMode(in.nextString()));
                                 break;
+                            default:
+                                in.skipValue();
+                                break;
                         }
                     }
                     in.endObject();
@@ -243,6 +276,8 @@ public class SurveyDeserialization extends TypeAdapter<Survey> {
                         switch (in.nextName()) {
                             case "strategy":
                                 childFlow.setStrategy(FlowPattern.ChildFlow.parseStrategy(in.nextString()));
+                                break;
+                            case "select":
                                 in.beginObject();
                                 while (in.hasNext()) {
                                     switch (in.nextName()) {
@@ -251,6 +286,9 @@ public class SurveyDeserialization extends TypeAdapter<Survey> {
                                             break;
                                         case "repeat":
                                             childFlow.setRepeatMode(FlowPattern.ChildFlow.parseRepeatMode(in.nextString()));
+                                            break;
+                                        default:
+                                            in.skipValue();
                                             break;
                                     }
                                 }
@@ -285,11 +323,17 @@ public class SurveyDeserialization extends TypeAdapter<Survey> {
                             case "incrementBubble":
                                 exitFlow.setIncrementBubble(in.nextBoolean());
                                 break;
+                            default:
+                                in.skipValue();
+                                break;
                         }
                     }
                     in.endObject();
 
                     flowPattern.setExitFlow(exitFlow);
+                    break;
+                default:
+                    in.skipValue();
                     break;
             }
         }
@@ -320,15 +364,29 @@ public class SurveyDeserialization extends TypeAdapter<Survey> {
                             case "text":
                                 text = readText(in);
                                 break;
+                            case "image":
+                                in.beginObject();
+                                while (in.hasNext()) {
+                                    switch (in.nextName()) {
+                                        case "data":
+                                            imageData = in.nextString();
+                                            break;
+                                        default:
+                                            in.skipValue();
+                                            break;
+                                    }
+                                }
+                                in.endObject();
+                                break;
+                            default:
+                                in.skipValue();
+                                break;
                         }
                     }
                     in.endObject();
                     break;
-                case "image":
-                    in.beginObject();
-                    if (in.nextName().equals("data"))
-                        imageData = in.nextString();
-                    in.endObject();
+                default:
+                    in.skipValue();
                     break;
 
             }
@@ -350,6 +408,9 @@ public class SurveyDeserialization extends TypeAdapter<Survey> {
                     break;
                 case "tamil":
                     tamil = in.nextString();
+                    break;
+                default:
+                    in.skipValue();
                     break;
             }
         }

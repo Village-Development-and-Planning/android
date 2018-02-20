@@ -81,10 +81,9 @@ public class GridQuestionsFragment extends QuestionDataFragment {
             }
         }));
 
-        // add a valid answer to avoid locking in the same question
-        getQuestion().getCurrentAnswer().setDummyButValid(true);
-
         children = getQuestion().getCurrentAnswer().getChildren();
+
+        getQuestion().getCurrentAnswer().setDummy(false);
 
         questionsAdapter = new QuestionsAdapter();
         recyclerView.setAdapter(questionsAdapter);

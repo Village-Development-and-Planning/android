@@ -108,7 +108,7 @@ public class FlowLogicImplementation extends FlowLogic {
 
     @Override
     public boolean update(ArrayList<Option> response) {
-        update(response, currentQuestion);
+        _update(response, currentQuestion);
 
         FlowPattern.PostFlow postFlow = currentQuestion.getFlowPattern().getPostFlow();
         if (postFlow != null) {
@@ -171,7 +171,7 @@ public class FlowLogicImplementation extends FlowLogic {
             Question nextQuestion = getNextQuestion(question, startingChildIndex);
 
             if (nextQuestion != null) {
-                // if loop question, update logic will handle the addition of answers
+                // if loop question, _update logic will handle the addition of answers
                 if (!QuestionUtils.isLoopOptionsQuestion(nextQuestion))
                     addDummyAnswer(nextQuestion);
 
@@ -198,8 +198,10 @@ public class FlowLogicImplementation extends FlowLogic {
         if (nextQuestion == null) {
             Question exitFlowQuestion = exitFlow(question);
             if (exitFlowQuestion == null) return null;
+            if (exitFlowQuestion == question) return exitFlowQuestion;
             int indexOfCurrentChild = QuestionUtils.getIndexOfChild(exitFlowQuestion, question);
-            if (indexOfCurrentChild < 0) return exitFlowQuestion;
+            if (indexOfCurrentChild < 0)
+                throw new IllegalArgumentException("Question" + question.getNumber() + " not found.");
             int indexOfNextChild = indexOfCurrentChild + 1;
             return getNextQuestion(exitFlowQuestion, indexOfNextChild);
         } else {
@@ -359,12 +361,12 @@ public class FlowLogicImplementation extends FlowLogic {
         return question.getParentAnswer().getParentQuestion();
     }
 
-    private void update(ArrayList<Option> response, Question question) {
+    private void _update(ArrayList<Option> response, Question question) {
         Timber.i("-----");
 
         long startTime = System.currentTimeMillis();
 
-        // if loop question add the answer if not present or update if answer is already present.
+        // if loop question add the answer if not present or _update if answer is already present.
         if (QuestionUtils.isLoopOptionsQuestion(question)) {
             // check for a reference answer
             boolean shouldAddAnswer = true;
@@ -372,6 +374,7 @@ public class FlowLogicImplementation extends FlowLogic {
                 Answer answer = question.getAnswers().get(i);
                 if (response.get(0).getPosition().equals(answer.getOptions().get(0).getPosition())) {
                     answer.setLoggedOptions(response);
+                    answer.setDummy(false);
                     question.setCurrentAnswer(answer);
 
                     shouldAddAnswer = false;
@@ -382,6 +385,7 @@ public class FlowLogicImplementation extends FlowLogic {
 
             if (shouldAddAnswer) {
                 Answer answer = new Answer(response, question, startTime);
+                answer.setDummy(false);
                 question.addAnswer(answer);
             }
 
@@ -394,6 +398,7 @@ public class FlowLogicImplementation extends FlowLogic {
         }
 
         Answer answer = question.getCurrentAnswer();
+        answer.setDummy(false);
         answer.setLoggedOptions(response);
 
         Timber.i("Answer updated info :\n" + answer.toString());
@@ -405,7 +410,7 @@ public class FlowLogicImplementation extends FlowLogic {
         if (question.getCurrentAnswer() != null && question.getCurrentAnswer().isDummy())
             return; // return if the latest answer is dummy
 
-        Answer dummy = Answer.createDummyAnswer();
+        Answer dummy = Answer.createDummyAnswer(question);
 
         setAnswerToQuestionBasedOnType(question, dummy);
     }
@@ -447,6 +452,12 @@ public class FlowLogicImplementation extends FlowLogic {
     }
 
     private Fragment getFragment(Question question) {
+        if (question.getFlowPattern() == null ||
+                question.getFlowPattern().getQuestionFlow() == null ||
+                question.getFlowPattern().getQuestionFlow().getUiMode() == null) {
+            return null;
+        }
+
         if (QuestionUtils.isShownTogetherQuestion(question)) {
             return new ShownTogetherFragment();
         } else if (QuestionUtils.isGridSelectQuestion(question)) {
@@ -541,7 +552,7 @@ public class FlowLogicImplementation extends FlowLogic {
         private static boolean shouldSkipForLoopOptionType(Question question) {
             ArrayList<Answer> answers = question.getAnswers();
 
-            if (answers.isEmpty()) return false;
+            if (answers.isEmpty() || question.getOptions() == null) return false;
 
             ArrayList<String> originalOptionPositions = new ArrayList<>();
             ArrayList<String> loggedOptionPositions = new ArrayList<>();

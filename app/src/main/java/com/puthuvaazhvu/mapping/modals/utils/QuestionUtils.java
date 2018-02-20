@@ -29,7 +29,7 @@ public class QuestionUtils {
     }
 
     // starts from a question ends in root
-    public static void getPathOfQuestion(Question node, ArrayList<Integer> indexes) {
+    private static void getPathOfQuestion(Question node, ArrayList<Integer> indexes) {
         if (node.isRoot()) {
             indexes.add(0); // add index for root
             return; // reached the head of the tree
@@ -171,6 +171,9 @@ public class QuestionUtils {
 
     public static boolean isGridSelectQuestion(Question question) {
         FlowPattern.ChildFlow childFlow = question.getFlowPattern().getChildFlow();
+
+        if (childFlow == null) return false;
+
         FlowPattern.ChildFlow.Strategy strategy = childFlow.getStrategy();
         FlowPattern.ChildFlow.UI childFlowUI = childFlow.getUiToBeShown();
 
@@ -180,6 +183,9 @@ public class QuestionUtils {
 
     public static boolean isShownTogetherQuestion(Question question) {
         FlowPattern.ChildFlow childFlow = question.getFlowPattern().getChildFlow();
+
+        if (childFlow == null) return false;
+
         FlowPattern.ChildFlow.Strategy strategy = childFlow.getStrategy();
 
         return strategy == FlowPattern.ChildFlow.Strategy.TOGETHER;
@@ -203,8 +209,6 @@ public class QuestionUtils {
     }
 
     public static int getIndexOfChild(Question parent, Question child) {
-        if (parent == child) return -1;
-
         for (int i = 0; i < parent.getChildren().size(); i++) {
             if (parent.getChildren().get(i).getNumber().equals(child.getNumber())) return i;
         }

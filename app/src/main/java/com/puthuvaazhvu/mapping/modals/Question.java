@@ -9,17 +9,17 @@ import java.util.ArrayList;
  */
 
 public class Question extends BaseObject {
-    private final String position;
-    private final Text text;
-    private final String type;
+    private String position;
+    private Text text;
+    private String type;
     private ArrayList<Option> options;
-    private final ArrayList<String> tags;
-    private final String number;
-    private final ArrayList<Question> children;
-    private final FlowPattern flowPattern;
+    private ArrayList<String> tags;
+    private String number;
+    private ArrayList<Question> children;
+    private FlowPattern flowPattern;
 
     private Answer parentAnswer;
-    private final ArrayList<Answer> answers;
+    private ArrayList<Answer> answers;
     private Answer currentAnswer;
     private Question parent;
     private boolean isFinished = false; // you can set to true for the question to skip
@@ -46,9 +46,19 @@ public class Question extends BaseObject {
 
         this.answers = new ArrayList<>();
 
-        for (Question c : children) {
-            c.setParent(this);
+        if (children != null) {
+            for (Question c : children) {
+                c.setParent(this);
+            }
         }
+    }
+
+    public void setFlowPattern(FlowPattern flowPattern) {
+        this.flowPattern = flowPattern;
+    }
+
+    public void setPosition(String position) {
+        this.position = position;
     }
 
     public int getBubbleAnswersCount() {
@@ -99,6 +109,14 @@ public class Question extends BaseObject {
         return (this.parent == null);
     }
 
+    public void setAnswers(ArrayList<Answer> answers) {
+        this.answers = answers;
+    }
+
+    public ArrayList<Answer> getAnswers() {
+        return answers;
+    }
+
     public boolean isLeaf() {
         if (this.children.size() == 0)
             return true;
@@ -116,10 +134,6 @@ public class Question extends BaseObject {
 
     public String getType() {
         return type;
-    }
-
-    public ArrayList<Answer> getAnswers() {
-        return answers;
     }
 
     public ArrayList<String> getTags() {
