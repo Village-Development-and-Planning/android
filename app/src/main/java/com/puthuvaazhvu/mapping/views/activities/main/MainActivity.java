@@ -20,7 +20,7 @@ import com.puthuvaazhvu.mapping.application.MappingApplication;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
-import com.puthuvaazhvu.mapping.modals.deserialization.SurveyDeserialization;
+import com.puthuvaazhvu.mapping.modals.deserialization.SurveyGsonAdapter;
 import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.other.Config;
 import com.puthuvaazhvu.mapping.other.Constants;
@@ -117,7 +117,7 @@ public class MainActivity extends MenuActivity
 
         if (DEBUG) {
             final GsonBuilder gsonBuilder = new GsonBuilder();
-            gsonBuilder.registerTypeAdapter(Survey.class, new SurveyDeserialization());
+            gsonBuilder.registerTypeAdapter(Survey.class, new SurveyGsonAdapter());
             gsonBuilder.setPrettyPrinting();
 
             final Gson gson = gsonBuilder.create();

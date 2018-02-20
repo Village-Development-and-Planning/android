@@ -64,7 +64,7 @@ public class FlowLogicImplementation extends FlowLogic {
     }
 
     @Override
-    public FlowData finishCurrent() {
+    public FlowData finishCurrentAndGetNext() {
         Question parent = currentQuestion.getParentAnswer().getParentQuestion();
 
         currentQuestion.getCurrentAnswer().setExitTimestamp(System.currentTimeMillis());
@@ -286,7 +286,7 @@ public class FlowLogicImplementation extends FlowLogic {
 
         if (postFlowTags != null) {
             if (postFlowTags.contains("SURVEYOR_CODE")) {
-                String inputCode = question.getCurrentAnswer().getOptions().get(0).getTextString();
+                String inputCode = question.getCurrentAnswer().getLoggedOptions().get(0).getTextString();
                 JsonObject surveyorAuthJson = AuthUtils.getAuthForSurveyCode(authJson, inputCode);
 
                 SharedPreferenceUtils.putSurveyID(sharedPreferences, inputCode);
@@ -372,7 +372,7 @@ public class FlowLogicImplementation extends FlowLogic {
             boolean shouldAddAnswer = true;
             for (int i = 0; i < question.getAnswers().size(); i++) {
                 Answer answer = question.getAnswers().get(i);
-                if (response.get(0).getPosition().equals(answer.getOptions().get(0).getPosition())) {
+                if (response.get(0).getPosition().equals(answer.getLoggedOptions().get(0).getPosition())) {
                     answer.setLoggedOptions(response);
                     answer.setDummy(false);
                     question.setCurrentAnswer(answer);
@@ -417,7 +417,7 @@ public class FlowLogicImplementation extends FlowLogic {
 
     private void setAnswerToQuestionBasedOnType(Question question, Answer answer) {
         FlowPattern flowPattern = question.getFlowPattern();
-        if (flowPattern == null || answer.getOptions() == null) {
+        if (flowPattern == null || answer.getLoggedOptions() == null) {
             question.addAnswer(answer);
             return;
         }
@@ -562,8 +562,8 @@ public class FlowLogicImplementation extends FlowLogic {
             }
 
             for (Answer answer : question.getAnswers()) {
-                if (!answer.getOptions().isEmpty())
-                    loggedOptionPositions.add(answer.getOptions().get(0).getPosition());
+                if (!answer.getLoggedOptions().isEmpty())
+                    loggedOptionPositions.add(answer.getLoggedOptions().get(0).getPosition());
             }
 
             return Utils.equalLists(originalOptionPositions, loggedOptionPositions);
@@ -575,7 +575,7 @@ public class FlowLogicImplementation extends FlowLogic {
             }
 
             boolean skipPatternMatch = false;
-            ArrayList<Option> loggedOptions = toCheckAnswer.getOptions();
+            ArrayList<Option> loggedOptions = toCheckAnswer.getLoggedOptions();
             for (Option option : loggedOptions) {
                 for (String o : optionsSkipPositions) {
                     if (option.getPosition() != null && option.getPosition().equals(o)) {

@@ -60,7 +60,7 @@ public class CheckableOptionsAsListUIData extends OptionsUIData {
             if (question.getCurrentAnswer() != null
                     && !question.getCurrentAnswer().isDummy()
                     && question.getCurrentAnswer() != null) {
-                for (Option oa : question.getCurrentAnswer().getOptions()) {
+                for (Option oa : question.getCurrentAnswer().getLoggedOptions()) {
                     if (oa.getPosition() != null && oa.getPosition().equals(option.getPosition())) {
                         s.isSelected = true;
                     }
@@ -75,7 +75,7 @@ public class CheckableOptionsAsListUIData extends OptionsUIData {
             for (SingleDataOption singleDataOption : singleDataOptionArrayList) {
                 singleDataOption.setShouldShowBackgroundColor(true);
                 for (Answer answer : question.getAnswers()) {
-                    if (answer.getOptions().get(0).getPosition().equals(singleDataOption.getPosition()) &&
+                    if (answer.getLoggedOptions().get(0).getPosition().equals(singleDataOption.getPosition()) &&
                             !answer.isDummy()) {
                         singleDataOption.setBackgroundColor(R.color.green_light);
                     }

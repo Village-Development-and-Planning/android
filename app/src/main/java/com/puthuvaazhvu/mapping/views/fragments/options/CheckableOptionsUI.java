@@ -39,12 +39,15 @@ public abstract class CheckableOptionsUI extends ListOptionsUI {
 
     public ArrayList<Option> getResponse(String type) {
         ArrayList<Option> options = new ArrayList<>();
-        for (CheckableOptionsAsListUIData.SingleDataOption singleDataOption : checkableOptionsAsListUIData.getLoggedOptions()) {
-            options.add(new Option(
+        for (CheckableOptionsAsListUIData.SingleDataOption singleDataOption :
+                checkableOptionsAsListUIData.getLoggedOptions()) {
+            Option option = new Option(
                     type,
                     new Text(singleDataOption.getText(), singleDataOption.getText()),
                     singleDataOption.getPosition()
-            ));
+            );
+            option.setValue(singleDataOption.getText());
+            options.add(option);
         }
         return options;
     }

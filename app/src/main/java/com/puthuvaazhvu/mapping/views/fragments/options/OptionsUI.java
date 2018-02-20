@@ -7,12 +7,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
-import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 
 import java.util.ArrayList;
 
@@ -42,7 +39,7 @@ public abstract class OptionsUI {
 
         Answer answer = question.getCurrentAnswer();
         if (answer != null) {
-            ArrayList<Option> latestOptions = answer.getOptions();
+            ArrayList<Option> latestOptions = answer.getLoggedOptions();
             if (latestOptions != null && latestOptions.size() > 0) {
                 return latestOptions;
             }

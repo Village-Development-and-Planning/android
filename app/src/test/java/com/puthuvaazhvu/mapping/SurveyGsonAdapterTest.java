@@ -1,22 +1,17 @@
 package com.puthuvaazhvu.mapping;
 
-import android.graphics.Rect;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.puthuvaazhvu.mapping.Helpers.DataTraversing;
 import com.puthuvaazhvu.mapping.Helpers.ReadTestFile;
+import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.FlowPattern;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
-import com.puthuvaazhvu.mapping.modals.deserialization.SurveyDeserialization;
-import com.puthuvaazhvu.mapping.utils.Utils;
+import com.puthuvaazhvu.mapping.modals.deserialization.SurveyGsonAdapter;
 
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,7 +24,17 @@ import static org.junit.Assert.assertThat;
  * Created by muthuveerappans on 19/02/18.
  */
 
-public class SurveyDeserializationTest {
+public class SurveyGsonAdapterTest {
+
+    private Gson gson;
+
+    @Before
+    public void setUp() throws Exception {
+        final GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(Survey.class, new SurveyGsonAdapter());
+
+        gson = gsonBuilder.create();
+    }
 
     @Test
     public void validity() throws Exception {
@@ -38,6 +43,20 @@ public class SurveyDeserializationTest {
                 "Check UI is none for 2.0.1",
                 survey.getQuestion().getChildren().get(0).getFlowPattern().getQuestionFlow().getUiMode(),
                 is(FlowPattern.QuestionFlow.UI.NONE)
+        );
+    }
+
+    @Test
+    public void answersJsonSerialization() throws Exception {
+        Survey survey = ReadTestFile.getTestMappingSurvey(this);
+        addAnswersToTreeFromQuestion(survey.getQuestion());
+
+        String json = gson.toJson(survey, Survey.class);
+
+        assertThat(
+                "Check Not null json",
+                json,
+                is(notNullValue())
         );
     }
 
@@ -150,5 +169,18 @@ public class SurveyDeserializationTest {
                 DataTraversing.findQuestion("2.1.5.1", root).getOptions().get(1).getText().getEnglish(),
                 is("Gravel")
         );
+    }
+
+    private void addAnswersToTreeFromQuestion(Question node) {
+        addAnswer(node);
+        for (Question c : node.getCurrentAnswer().getChildren()) {
+            addAnswersToTreeFromQuestion(c);
+        }
+    }
+
+    private void addAnswer(Question question) {
+        Answer answer2 = Answer.createDummyAnswer(question);
+        answer2.setDummy(false);
+        question.addAnswer(answer2);
     }
 }

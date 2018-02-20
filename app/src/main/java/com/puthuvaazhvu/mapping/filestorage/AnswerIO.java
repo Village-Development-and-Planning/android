@@ -1,5 +1,7 @@
 package com.puthuvaazhvu.mapping.filestorage;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.puthuvaazhvu.mapping.filestorage.modals.AnswerInfo;
@@ -8,6 +10,7 @@ import com.puthuvaazhvu.mapping.filestorage.modals.SnapshotsInfo;
 import com.puthuvaazhvu.mapping.filestorage.modals.SurveysInfo;
 import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Survey;
+import com.puthuvaazhvu.mapping.modals.deserialization.SurveyGsonAdapter;
 import com.puthuvaazhvu.mapping.other.Constants;
 
 import java.io.File;
@@ -27,12 +30,19 @@ public class AnswerIO extends StorageIO<Survey> {
 
     private final String surveyName, answerID, surveyID;
 
+    final Gson gson;
+
     public AnswerIO(String surveyID, String surveyName, String answerID) {
         dataInfoIO = new DataInfoIO();
 
         this.surveyName = surveyName;
         this.answerID = answerID;
         this.surveyID = surveyID;
+
+        final GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(Survey.class, new SurveyGsonAdapter());
+
+        gson = gsonBuilder.create();
     }
 
     @Override
@@ -42,49 +52,48 @@ public class AnswerIO extends StorageIO<Survey> {
 
     @Override
     public Observable<File> save(final File file, Survey survey) {
-        throw new UnsupportedOperationException("Not implemented");
-//        return Observable.just(survey.getAsJson().toString())
-//                .map(new Function<String, File>() {
-//                    @Override
-//                    public File apply(String c) throws Exception {
-//                        File f = StorageUtils.saveContentsToFile(file, c).blockingFirst();
-//
-//                        DataInfo dataInfo = dataInfoIO.read()
-//                                .onErrorReturnItem(new DataInfo())
-//                                .blockingFirst();
-//
-//                        AnswerInfo.Answer answer = new AnswerInfo.Answer();
-//                        answer.setSurveyID(surveyID);
-//                        answer.setSurveyName(surveyName);
-//                        answer.setTimeStamp(System.currentTimeMillis());
-//                        answer.setAnswerID(answerID);
-//
-//                        dataInfo.getAnswersInfo().getAnswers().add(answer);
-//
-//                        // remove all the snapshots of the particular surveyID
-//
-//                        SnapshotsInfo.Survey s
-//                                = dataInfo.getSnapshotsInfo().getSurvey(answerID);
-//
-//                        if (s != null) {
-//                            Iterator<SnapshotsInfo.Snapshot> snapshotIterator
-//                                    = s.getSnapshots().iterator();
-//
-//                            while (snapshotIterator.hasNext()) {
-//                                SnapshotsInfo.Snapshot snapshot = snapshotIterator.next();
-//                                SnapshotIO snapshotIO = new SnapshotIO(snapshot
-//                                        .getSnapshotID());
-//                                snapshotIO.delete().blockingFirst();
-//                                snapshotIterator.remove();
-//                            }
-//
-//                        }
-//
-//                        dataInfoIO.save(dataInfo).blockingFirst();
-//
-//                        return f;
-//                    }
-//                });
+        return Observable.just(gson.toJson(survey, Survey.class))
+                .map(new Function<String, File>() {
+                    @Override
+                    public File apply(String c) throws Exception {
+                        File f = StorageUtils.saveContentsToFile(file, c).blockingFirst();
+
+                        DataInfo dataInfo = dataInfoIO.read()
+                                .onErrorReturnItem(new DataInfo())
+                                .blockingFirst();
+
+                        AnswerInfo.Answer answer = new AnswerInfo.Answer();
+                        answer.setSurveyID(surveyID);
+                        answer.setSurveyName(surveyName);
+                        answer.setTimeStamp(System.currentTimeMillis());
+                        answer.setAnswerID(answerID);
+
+                        dataInfo.getAnswersInfo().getAnswers().add(answer);
+
+                        // remove all the snapshots of the surveyID
+
+                        SnapshotsInfo.Survey s
+                                = dataInfo.getSnapshotsInfo().getSurvey(answerID);
+
+                        if (s != null) {
+                            Iterator<SnapshotsInfo.Snapshot> snapshotIterator
+                                    = s.getSnapshots().iterator();
+
+                            while (snapshotIterator.hasNext()) {
+                                SnapshotsInfo.Snapshot snapshot = snapshotIterator.next();
+                                SnapshotIO snapshotIO = new SnapshotIO(snapshot
+                                        .getSnapshotID());
+                                snapshotIO.delete().blockingFirst();
+                                snapshotIterator.remove();
+                            }
+
+                        }
+
+                        dataInfoIO.save(dataInfo).blockingFirst();
+
+                        return f;
+                    }
+                });
     }
 
     @Override

@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.puthuvaazhvu.mapping.modals.Survey;
-import com.puthuvaazhvu.mapping.modals.deserialization.SurveyDeserialization;
+import com.puthuvaazhvu.mapping.modals.deserialization.SurveyGsonAdapter;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +31,7 @@ public class ReadTestFile {
 
     public static Survey getTestSurvey(Object obj, String filename) {
         final GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(Survey.class, new SurveyDeserialization());
+        gsonBuilder.registerTypeAdapter(Survey.class, new SurveyGsonAdapter());
         gsonBuilder.setPrettyPrinting();
 
         Gson gson = gsonBuilder.create();

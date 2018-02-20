@@ -1,9 +1,5 @@
 package com.puthuvaazhvu.mapping.modals;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
 import java.util.ArrayList;
 
 /**
@@ -73,10 +69,6 @@ public class Answer extends BaseObject {
         isDummy = dummy;
     }
 
-    public ArrayList<Option> getLoggedOptions() {
-        return loggedOptions;
-    }
-
     public void setLoggedOptions(ArrayList<Option> loggedOptions) {
         this.loggedOptions.clear();
         this.loggedOptions.addAll(loggedOptions);
@@ -90,7 +82,7 @@ public class Answer extends BaseObject {
         return exitTimestamp;
     }
 
-    public ArrayList<Option> getOptions() {
+    public ArrayList<Option> getLoggedOptions() {
         return loggedOptions;
     }
 
@@ -111,7 +103,7 @@ public class Answer extends BaseObject {
     }
 
     public boolean containsOption(String position) {
-        for (Option option : getOptions()) {
+        for (Option option : getLoggedOptions()) {
             if (option.getPosition().equals(position)) return true;
         }
         return false;

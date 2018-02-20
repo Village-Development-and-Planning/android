@@ -4,6 +4,7 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.FlowPattern;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
@@ -13,20 +14,61 @@ import com.puthuvaazhvu.mapping.modals.Text;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by muthuveerappans on 19/02/18.
  */
 
-public class SurveyDeserialization extends TypeAdapter<Survey> {
+public class SurveyGsonAdapter extends TypeAdapter<Survey> {
     @Override
     public void write(JsonWriter out, Survey value) throws IOException {
-        throw new UnsupportedOperationException("Not implemented.");
+        out.beginObject();
+        out.name("_id").value(value.getId());
+        out.name("name").value(value.getName());
+        out.name("description").value(value.getDescription());
+        out.name("version").value(1);
+        writeQuestion(out, value.getQuestion());
+        out.endObject();
     }
 
     @Override
     public Survey read(JsonReader in) throws IOException {
         return readSurvey(in);
+    }
+
+    private void writeQuestion(JsonWriter out, Question node) throws IOException {
+        out.name("question").beginObject();
+        out.name("number").value(node.getNumber());
+        out.name("answers").beginArray();
+        for (Answer answer : node.getAnswers()) {
+            out.beginObject();
+            writeOptions(out, answer.getLoggedOptions());
+            out.name("startTimestamp").value(answer.getStartTimeStamp());
+            out.name("endTimestamp").value(answer.getExitTimestamp());
+            out.name("children").beginArray();
+            for (Question c : answer.getChildren()) {
+                out.beginObject();
+                out.name("position").value(c.getPosition());
+                writeQuestion(out, c);
+                out.endObject();
+            }
+            out.endArray();
+            out.endObject();
+        }
+        out.endArray();
+        out.endObject();
+    }
+
+    private void writeOptions(JsonWriter out, List<Option> options) throws IOException {
+        out.name("logged_options").beginArray();
+        for (Option o : options) {
+            out.beginObject();
+            out.name("position").value(o.getPosition());
+            out.name("value").value(o.getValue());
+            out.endObject();
+        }
+        out.endArray();
     }
 
     private Survey readSurvey(JsonReader in) throws IOException {

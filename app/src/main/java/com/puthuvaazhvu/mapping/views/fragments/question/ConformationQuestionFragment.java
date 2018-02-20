@@ -68,11 +68,13 @@ public class ConformationQuestionFragment extends SingleQuestionFragmentBase {
 
     private ArrayList<Option> response(String text) {
         ArrayList<Option> options = new ArrayList<>();
-        options.add(new Option(
+        Option option = new Option(
                 "CONFIRMATION",
                 new Text(text, text),
                 "CONFIRMATION"
-        ));
+        );
+        option.setValue(text);
+        options.add(option);
         return options;
     }
 }

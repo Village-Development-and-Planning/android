@@ -12,7 +12,7 @@ import com.puthuvaazhvu.mapping.filestorage.SnapshotIO;
 import com.puthuvaazhvu.mapping.filestorage.SurveyIO;
 import com.puthuvaazhvu.mapping.filestorage.modals.DataInfo;
 import com.puthuvaazhvu.mapping.modals.Survey;
-import com.puthuvaazhvu.mapping.modals.deserialization.SurveyDeserialization;
+import com.puthuvaazhvu.mapping.modals.deserialization.SurveyGsonAdapter;
 import com.puthuvaazhvu.mapping.utils.Utils;
 
 import org.junit.Test;
@@ -31,6 +31,46 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(AndroidJUnit4.class)
 public class TestIO {
+
+    @Test
+    public void answersIO() throws Exception {
+        resetDataInfo();
+
+        Survey survey = getSurvey("survey_household.json");
+
+        AnswerIO answerIO = new AnswerIO("123",
+                "TEST", "123_1");
+        File file = answerIO.save(survey).blockingFirst();
+
+        assertThat("Check the file name", file.getName(), is("123_1.json"));
+
+        DataInfo dataInfo = getDataInfo();
+
+        assertThat(
+                "Check the count of data info - 1",
+                dataInfo.getAnswersInfo().getAnswersCount("123"),
+                is(1)
+        );
+        assertThat(dataInfo.getAnswersInfo().getAnswer("123_1").getSurveyName(), is("TEST"));
+
+        answerIO = new AnswerIO(
+                "123",
+                "TEST",
+                "123_2"
+        );
+        file = answerIO.save(getSurvey("survey_household.json")).blockingFirst();
+
+        assertThat(file.getName(), is("123_2.json"));
+
+        dataInfo = getDataInfo();
+
+        assertThat(
+                "Check if the answers count has been updated in data info",
+                dataInfo.getAnswersInfo().getAnswersCount("123"),
+                is(2)
+        );
+    }
+
 
     @Test
     public void surveyIO() throws Exception {
@@ -146,7 +186,7 @@ public class TestIO {
             String a = Utils.readFromInputStream(InstrumentationRegistry.getContext().getAssets()
                     .open(file));
             final GsonBuilder gsonBuilder = new GsonBuilder();
-            gsonBuilder.registerTypeAdapter(Survey.class, new SurveyDeserialization());
+            gsonBuilder.registerTypeAdapter(Survey.class, new SurveyGsonAdapter());
             gsonBuilder.setPrettyPrinting();
 
             final Gson gson = gsonBuilder.create();

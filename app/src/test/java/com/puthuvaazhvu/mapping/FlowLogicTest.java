@@ -20,8 +20,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 
+import static junit.framework.Assert.assertSame;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.anyInt;
@@ -46,6 +48,61 @@ public class FlowLogicTest {
         Mockito.when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPrefs);
 
         flowLogicImplementation = new FlowLogicImplementation(null, sharedPrefs);
+    }
+
+    @Test
+    public void answerValidationTime() throws Exception {
+        FlowLogic.FlowData flowData;
+
+        Survey dummySurvey = ReadTestFile.getTestSurvey(this, "testing_loop_options.json");
+        Question root = dummySurvey.getQuestion();
+
+        addAnswer(root);
+
+        long startTime = root.getCurrentAnswer().getStartTimeStamp();
+
+        Question q2 = root.getCurrentAnswer().getChildren().get(0);
+        addAnswer(q2);
+        addOption("0", q2);
+
+        long loopStartTime = q2.getCurrentAnswer().getStartTimeStamp();
+
+        flowLogicImplementation.setCurrent(q2);
+
+        addAnswer(flowLogicImplementation.getNext().getQuestion());
+        addAnswer(flowLogicImplementation.finishCurrentAndGetNext().getQuestion());
+        flowData = flowLogicImplementation.finishCurrentAndGetNext();
+
+        assertSame("Check if the questions are same references.", flowData.getQuestion(), q2);
+
+        addAnswer(q2);
+        addOption("1", q2);
+
+        addAnswer(flowLogicImplementation.getNext().getQuestion());
+        addAnswer(flowLogicImplementation.finishCurrentAndGetNext().getQuestion());
+        flowData = flowLogicImplementation.finishCurrentAndGetNext();
+
+        assertThat(
+                "END",
+                flowData,
+                is(nullValue())
+        );
+
+        long loopEndTime = q2.getCurrentAnswer().getExitTimestamp();
+
+        long endTime = root.getCurrentAnswer().getExitTimestamp();
+
+        assertThat(
+                "Check if the start time and end time are different for LOOP question",
+                (int) (loopEndTime - loopStartTime),
+                is(greaterThan(0))
+        );
+
+        assertThat(
+                "Check if the start time and end time are different for survey",
+                (int) (endTime - startTime),
+                is(greaterThan(0))
+        );
     }
 
     @Test
@@ -88,7 +145,7 @@ public class FlowLogicTest {
 
             assertThat(
                     "Test if the options are properly updated",
-                    flowLogicImplementation.getCurrent().getQuestion().getAnswers().get(i).getOptions().get(0)
+                    flowLogicImplementation.getCurrent().getQuestion().getAnswers().get(i).getLoggedOptions().get(0)
                             .getPosition(),
                     is("" + i)
             );
@@ -120,7 +177,7 @@ public class FlowLogicTest {
 
         assertThat(
                 "Test answers scope single with overridden value",
-                flowLogicImplementation.getCurrent().getQuestion().getAnswers().get(0).getOptions().get(0).getPosition(),
+                flowLogicImplementation.getCurrent().getQuestion().getAnswers().get(0).getLoggedOptions().get(0).getPosition(),
                 is("9")
         );
     }
@@ -254,7 +311,7 @@ public class FlowLogicTest {
                 is("2.1.6")
         );
 
-        flowData = flowLogicImplementation.finishCurrent();
+        flowData = flowLogicImplementation.finishCurrentAndGetNext();
 
         assertThat(
                 "End",
@@ -303,7 +360,7 @@ public class FlowLogicTest {
 
         flowLogicImplementation.getNext();
 
-        flowData = flowLogicImplementation.finishCurrent();
+        flowData = flowLogicImplementation.finishCurrentAndGetNext();
 
         assertThat(
                 "End",

@@ -40,7 +40,7 @@ public abstract class FlowLogic {
      *
      * @return Instance of {@link FlowLogic}
      */
-    public abstract FlowData finishCurrent();
+    public abstract FlowData finishCurrentAndGetNext();
 
     /**
      * Moves to the particular child of the current question

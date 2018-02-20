@@ -31,7 +31,6 @@ import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Text;
-import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.fragments.options.factory.OptionsUIFactory;
 
@@ -172,7 +171,7 @@ public class GPSQuestionFragment extends SingleQuestionFragmentBase {
 
         Answer answer = getQuestion().getCurrentAnswer();
         if (answer != null) {
-            ArrayList<Option> currOpt = answer.getOptions();
+            ArrayList<Option> currOpt = answer.getLoggedOptions();
             if (currOpt != null && currOpt.size() > 0) {
                 return currOpt;
             }
@@ -190,11 +189,12 @@ public class GPSQuestionFragment extends SingleQuestionFragmentBase {
         ArrayList<Option> options = new ArrayList<>();
 
         String loc = lastLocation.getLatitude() + "," + lastLocation.getLongitude();
-        options.add(new Option(
+        Option option = new Option(
                 "GPS",
                 new Text(loc, loc),
-                "GPS")
+                "GPS"
         );
+        options.add(option);
 
         return options;
     }

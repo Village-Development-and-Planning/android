@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.modals.Survey;
-import com.puthuvaazhvu.mapping.modals.deserialization.SurveyDeserialization;
+import com.puthuvaazhvu.mapping.modals.deserialization.SurveyGsonAdapter;
 import com.puthuvaazhvu.mapping.network.APIError;
 import com.puthuvaazhvu.mapping.network.ErrorUtils;
 import com.puthuvaazhvu.mapping.network.adapters.NetworkAdapter;
@@ -41,7 +41,7 @@ public class SingleSurveyAPI {
         client = retrofit.create(SingleSurveyClient.class);
 
         final GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(Survey.class, new SurveyDeserialization());
+        gsonBuilder.registerTypeAdapter(Survey.class, new SurveyGsonAdapter());
 
         final Gson gson = gsonBuilder.create();
     }
