@@ -43,7 +43,7 @@ public class SingleSurveyAPI {
         final GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(Survey.class, new SurveyGsonAdapter());
 
-        final Gson gson = gsonBuilder.create();
+        gson = gsonBuilder.create();
     }
 
     public Observable<Survey> getSurvey(final String surveyID) {

@@ -2,6 +2,7 @@
     <string name="app_name">Village Development Planning</string>
 
     <!--others-->
+    <string name="do_you_want_to_go_to_main_page">Do you want to go to the main page?</string>
     <string name="retry">Retry</string>
     <string name="no">NO</string>
     <string name="summary">SUMMARY</string>
@@ -9,6 +10,7 @@
     <string name="survey_complete">This survey is complete</string>
     <string name="survey_ongoing_dialog_message">Continue with %1$s survey now? </string>
     <string name="survey_start_again_msg">Do you want to start the survey?</string>
+    <string name="survey_continue_msg">Do you want to continue with the survey?</string>
     <string name="press">PRESS</string>
     <string name="tag_line">A Tamilnadu government initiative</string>
     <string name="enter_cst">Enter your CST code</string>

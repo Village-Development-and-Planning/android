@@ -10,19 +10,13 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.MenuItem;
-import android.view.View;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParser;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.application.MappingApplication;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
-import com.puthuvaazhvu.mapping.modals.deserialization.SurveyGsonAdapter;
 import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
-import com.puthuvaazhvu.mapping.other.Config;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.other.RepeatingTask;
 import com.puthuvaazhvu.mapping.utils.Utils;
@@ -56,8 +50,6 @@ public class MainActivity extends MenuActivity
         ConfirmationQuestionCommunication,
         ShowTogetherQuestionCommunication,
         BaseQuestionFragmentCommunication {
-
-    public static final boolean DEBUG = Config.DEBUG;
 
     private final long REPEATING_TASK_INTERVAL = TimeUnit.MINUTES.toMillis(30);
 
@@ -115,31 +107,14 @@ public class MainActivity extends MenuActivity
             }
         }, REPEATING_TASK_INTERVAL, true);
 
-        if (DEBUG) {
-            final GsonBuilder gsonBuilder = new GsonBuilder();
-            gsonBuilder.registerTypeAdapter(Survey.class, new SurveyGsonAdapter());
-            gsonBuilder.setPrettyPrinting();
-
-            final Gson gson = gsonBuilder.create();
-
-            String dataString = Utils.readFromAssetsFile(this, "shown_together_question.json");
-            JsonParser jsonParser = new JsonParser();
-            Survey survey = gson.fromJson(jsonParser.parse(dataString).getAsJsonObject(), Survey.class);
-            Question root = survey.getQuestion();
-            flowLogic = new FlowLogicImplementation(root, sharedPreferences);
-            presenter.initData(survey, flowLogic);
-            presenter.getNext();
-        } else {
-
-            if (savedInstanceState != null) {
-                String snapshot = dataFragment.getSnapshot();
-                if (snapshot != null) {
-                    MappingApplication.globalContext.getApplicationData().setSurveySnapShotPath(snapshot);
-                }
+        if (savedInstanceState != null) {
+            String snapshot = dataFragment.getSnapshot();
+            if (snapshot != null) {
+                MappingApplication.globalContext.getApplicationData().setSurveySnapShotPath(snapshot);
             }
-
-            onSurveyLoaded(MappingApplication.globalContext.getApplicationData().getSurvey());
         }
+
+        onSurveyLoaded(MappingApplication.globalContext.getApplicationData().getSurvey());
 
         if (dumpSurveyRepeatingTask)
             repeatingTask.start();
@@ -260,11 +235,7 @@ public class MainActivity extends MenuActivity
         defaultBackPressed = true;
         dumpSurveyRepeatingTask = false;
         repeatingTask.stop();
-        if (DEBUG) {
-            Utils.showMessageToast("Survey is over", this);
-            findViewById(R.id.container).setVisibility(View.GONE);
-        } else
-            presenter.dumpAnswer();
+        presenter.dumpAnswer();
     }
 
     @Override
@@ -307,7 +278,7 @@ public class MainActivity extends MenuActivity
         Utils.showMessageToast(messageID, this);
     }
 
-    @Override
+    @Override //Todo: java.lang.IllegalStateException: Can not perform this action after onSaveInstanceState
     public void hideLoading() {
         handler.post(new Runnable() {
             @Override

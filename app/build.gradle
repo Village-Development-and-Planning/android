@@ -22,6 +22,7 @@ repositories {
 }
 
 android {
+
     signingConfigs {
         release {
             storeFile file("puthuvaalvu_android_key.keystore")
@@ -30,16 +31,20 @@ android {
             keyPassword 'thambi@99'
         }
     }
+
     compileSdkVersion rootProject.ext.compileSdkVersion
+
     buildToolsVersion rootProject.ext.buildToolsVersion
+
     defaultConfig {
-        applicationId "com.puthuvaazhvu.mapping"
+        applicationId "com.puthuvaazhvu.android"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -47,31 +52,19 @@ android {
             debuggable true
             signingConfig signingConfigs.release
         }
+
         debug {
             applicationIdSuffix ".debug"
             debuggable true
             signingConfig signingConfigs.release
         }
-    }
-    productFlavors {
-        mock {
-            applicationIdSuffix = ".mock"
-        }
-        prod {
 
+        internal {
+            initWith debug
+            applicationIdSuffix ".internal"
         }
     }
-    // Remove specific build flavours as it's not needed.
-    android.variantFilter { variant ->
-        if (variant.buildType.name.equals('release')
-                && variant.getFlavors().get(0).name.equals('mock')) {
-            variant.setIgnore(true);
-        }
-        if (variant.buildType.name.equals('debug')
-                && variant.getFlavors().get(0).name.equals('prod')) {
-            variant.setIgnore(true);
-        }
-    }
+
     // Always show the result of every unit test, even if it passes.
     testOptions.unitTests.all {
         testLogging {

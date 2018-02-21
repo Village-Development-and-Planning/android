@@ -10,6 +10,7 @@ import com.puthuvaazhvu.mapping.modals.SurveyAPIInfo;
 import com.puthuvaazhvu.mapping.network.APIUtils;
 import com.puthuvaazhvu.mapping.network.implementations.ListSurveysAPI;
 import com.puthuvaazhvu.mapping.network.implementations.SingleSurveyAPI;
+import com.puthuvaazhvu.mapping.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +73,7 @@ public class Presenter implements Contract.UserAction {
 
         for (SurveyInfoData d : surveyInfoData) {
             SurveyDataRepository surveyDataRepository = new SurveyDataRepository(sharedPreferences, context, d.id);
-            observables.add(surveyDataRepository.get(false));
+            observables.add(surveyDataRepository.get(Utils.isNetworkAvailable(context)));
         }
 
         Observable.merge(observables)

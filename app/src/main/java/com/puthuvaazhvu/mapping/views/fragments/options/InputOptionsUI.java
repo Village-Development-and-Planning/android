@@ -100,7 +100,7 @@ public class InputOptionsUI extends OptionsUI {
 
         int limit = questionFlow.getValidationLimit();
 
-        if (limit == -1) return true;
+        if (limit <= 0) return true;
 
         try {
             int value = Integer.valueOf(input);
@@ -124,7 +124,7 @@ public class InputOptionsUI extends OptionsUI {
 
         int limit = questionFlow.getValidationDigitsLimit();
 
-        if (limit == -1) return true;
+        if (limit <= 0) return true;
 
         return limit == input.length();
     }

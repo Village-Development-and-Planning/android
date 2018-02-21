@@ -15,11 +15,14 @@ import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.application.MappingApplication;
 import com.puthuvaazhvu.mapping.data.AuthDataRepository;
 import com.puthuvaazhvu.mapping.filestorage.DataInfoIO;
+import com.puthuvaazhvu.mapping.filestorage.StorageUtils;
 import com.puthuvaazhvu.mapping.filestorage.modals.DataInfo;
 import com.puthuvaazhvu.mapping.other.Config;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListActivity;
+
+import java.io.File;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -83,7 +86,17 @@ public class SplashActivity extends BaseActivity {
 
         Observable.zip(
                 authDataRepository.get(Utils.isNetworkAvailable(this)),
-                dataInfoIO.read(),
+                dataInfoIO.read()
+                        .onErrorReturn(new Function<Throwable, DataInfo>() {
+                            @Override
+                            public DataInfo apply(Throwable throwable) throws Exception {
+                                DataInfo dataInfo = new DataInfo();
+                                File file = dataInfoIO.save(dataInfo).blockingFirst();
+                                if (!file.exists())
+                                    throw new Exception("Cannot create data info file");
+                                return dataInfo;
+                            }
+                        }),
                 new BiFunction<JsonObject, DataInfo, Object>() {
                     @Override
                     public Object apply(JsonObject jsonObject, DataInfo dataInfo) throws Exception {
@@ -92,7 +105,12 @@ public class SplashActivity extends BaseActivity {
 
                         // check datainfo.json file version
                         if (dataInfo.getVersion() != Config.Versions.DATA_INFO_VERSION) {
-                            dataInfoIO.delete().blockingFirst();
+                            File file = new File(StorageUtils.root() + "/" + Constants.DATA_DIR);
+                            if (file.exists()) {
+                                StorageUtils.deleteDir(file);
+                                dataInfo = new DataInfo();
+                                dataInfoIO.save(dataInfo).blockingFirst();
+                            }
                         }
                         return new Object();
                     }

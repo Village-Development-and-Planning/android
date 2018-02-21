@@ -87,6 +87,8 @@ public class MainPresenter implements Contract.UserAction {
 
     @Override
     public void dumpAnswer() {
+        activityView.showLoading(R.string.loading);
+
         String answerID = survey.getId() + "_" + System.currentTimeMillis();
         AnswerIO answerIO = new AnswerIO(survey.getId(), survey.getName(), answerID);
         answerIO.save(survey)
@@ -98,6 +100,7 @@ public class MainPresenter implements Contract.UserAction {
                         activityView.onSurveySaved(survey);
                         activityView.hideLoading();
                         activityView.showMessage(R.string.save_successful);
+                        activityView.openListOfSurveysActivity();
                     }
                 }, new Consumer<Throwable>() {
                     @Override
@@ -112,6 +115,8 @@ public class MainPresenter implements Contract.UserAction {
 
     @Override
     public void dumpSnapshot() {
+        activityView.showLoading(R.string.loading);
+
         String snapshotID = survey.getId() + "_" + System.currentTimeMillis();
         SnapshotIO snapshotIO
                 = new SnapshotIO(
@@ -130,7 +135,6 @@ public class MainPresenter implements Contract.UserAction {
                         activityView.onSurveySaved(survey);
                         activityView.hideLoading();
                         activityView.showMessage(R.string.save_successful);
-                        activityView.openListOfSurveysActivity();
                     }
                 }, new Consumer<Throwable>() {
                     @Override

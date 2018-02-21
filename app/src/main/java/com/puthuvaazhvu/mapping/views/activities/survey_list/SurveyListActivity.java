@@ -114,7 +114,9 @@ public class SurveyListActivity extends MenuActivity
     public void showAlertDialog() {
         AlertDialog alertDialog = Utils.createAlertDialog(
                 this,
-                getString(R.string.survey_start_again_msg),
+                adapter.getSelectedData().isOngoing() ?
+                        getString(R.string.survey_continue_msg) :
+                        getString(R.string.survey_start_again_msg),
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -175,6 +177,7 @@ public class SurveyListActivity extends MenuActivity
     }
 
     @Override
+    //Todo: Caused by: java.lang.IllegalStateException: Can not perform this action after onSaveInstanceState
     public void showLoading(int msgID) {
         if (progressDialog.isVisible() || progressDialog.isAdded()) {
             return;

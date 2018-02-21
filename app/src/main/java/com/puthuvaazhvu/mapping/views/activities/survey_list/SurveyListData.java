@@ -15,25 +15,35 @@ public class SurveyListData {
     private int count;
     private boolean isOngoing;
     private String snapshotPath; // will be null if the survey is new
+    private String snapshotID;
 
     public SurveyListData(String id, String name) {
         this.id = id;
         this.name = name;
     }
 
-    public SurveyListData(String id, String name, int count, boolean isOngoing) {
+    public SurveyListData(String id, String name, int count) {
         this.id = id;
         this.name = name;
         this.count = count;
-        this.isOngoing = isOngoing;
+        this.isOngoing = false;
     }
 
-    public SurveyListData(String id, String name, int count, boolean isOngoing, String snapshotPath) {
+    public SurveyListData(String id, String name, int count, boolean isOngoing, String snapshotPath, String snapshotID) {
         this.id = id;
         this.name = name;
         this.count = count;
         this.isOngoing = isOngoing;
         this.snapshotPath = snapshotPath;
+        this.snapshotID = snapshotID;
+    }
+
+    public String getSnapshotID() {
+        return snapshotID;
+    }
+
+    public void setSnapshotID(String snapshotID) {
+        this.snapshotID = snapshotID;
     }
 
     public String getSnapshotPath() {

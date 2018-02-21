@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.data.SurveyDataRepository;
 import com.puthuvaazhvu.mapping.filestorage.DataInfoIO;
+import com.puthuvaazhvu.mapping.filestorage.SnapshotIO;
 import com.puthuvaazhvu.mapping.filestorage.modals.AnswerInfo;
 import com.puthuvaazhvu.mapping.filestorage.modals.DataInfo;
 import com.puthuvaazhvu.mapping.filestorage.modals.SnapshotsInfo;
@@ -15,6 +16,7 @@ import com.puthuvaazhvu.mapping.utils.Utils;
 
 import java.util.ArrayList;
 
+import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
@@ -38,20 +40,29 @@ public class SurveyListPresenter implements Contract.UserAction {
         this.callback = callback;
         this.sharedPreferences = sharedPreferences;
         this.context = (Context) callback;
-        dataInfoIO = new DataInfoIO();
+        this.dataInfoIO = new DataInfoIO();
     }
 
     @Override
     public void getSurveyData(SurveyListData surveyListData) {
         callback.showLoading(R.string.loading);
 
-        SurveyDataRepository surveyDataRepository = new SurveyDataRepository(
-                sharedPreferences,
-                context,
-                surveyListData.getId()
-        );
+        Observable<Survey> surveyObservable;
 
-        surveyDataRepository.get(Utils.isNetworkAvailable(context))
+        if (surveyListData.isOngoing()) {
+            SnapshotIO snapshotIO = new SnapshotIO(surveyListData.getSnapshotID());
+            surveyObservable = snapshotIO.read();
+        } else {
+            SurveyDataRepository surveyDataRepository = new SurveyDataRepository(
+                    sharedPreferences,
+                    context,
+                    surveyListData.getId()
+            );
+
+            surveyObservable = surveyDataRepository.get(Utils.isNetworkAvailable(context));
+        }
+
+        surveyObservable
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Consumer<Survey>() {
@@ -70,7 +81,6 @@ public class SurveyListPresenter implements Contract.UserAction {
                 });
 
     }
-
 
     @Override
     public void fetchSurveys() {
@@ -91,11 +101,13 @@ public class SurveyListPresenter implements Contract.UserAction {
                             // calculate answers count
                             int answersCount = answersInfo.getAnswersCount(survey.getSurveyID());
                             String snapshotPath = null;
+                            String snapshotID = null;
 
                             SnapshotsInfo.Survey s = snapshotsInfo.getSurvey(survey.getSurveyID());
                             if (s != null) {
                                 SnapshotsInfo.Snapshot snapshot = s.getLatestLoggedSnapshot();
                                 snapshotPath = snapshot.getPathToLastQuestion();
+                                snapshotID = snapshot.getSnapshotID();
                             }
 
                             SurveyListData surveyListData = new SurveyListData(
@@ -103,7 +115,8 @@ public class SurveyListPresenter implements Contract.UserAction {
                                     survey.getSurveyName(),
                                     answersCount,
                                     snapshotPath != null,
-                                    snapshotPath
+                                    snapshotPath,
+                                    snapshotID
                             );
 
                             data.add(surveyListData);

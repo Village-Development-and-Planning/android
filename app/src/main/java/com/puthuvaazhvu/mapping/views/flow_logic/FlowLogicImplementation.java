@@ -140,8 +140,15 @@ public class FlowLogicImplementation extends FlowLogic {
             FlowData toBeVisibleQuestion = backStack.getLatest();
 
             // remove the last answer
-            currentlyVisibleQuestion.getQuestion().getAnswers()
-                    .remove(currentlyVisibleQuestion.getQuestion().getCurrentAnswer());
+            Question visibleQuestion = currentlyVisibleQuestion.getQuestion();
+            Answer currentAnswer = visibleQuestion.getCurrentAnswer();
+            visibleQuestion.getAnswers().remove(currentAnswer);
+            if (visibleQuestion.getAnswers().isEmpty()) {
+                visibleQuestion.setCurrentAnswer(null);
+            } else {
+                visibleQuestion.setCurrentAnswer(visibleQuestion.getAnswers()
+                        .get(visibleQuestion.getAnswers().size() - 1));
+            }
 
             Timber.i("------");
             Timber.i("Question popped " + currentlyVisibleQuestion.getQuestion().getNumber());

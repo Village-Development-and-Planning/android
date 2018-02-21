@@ -188,6 +188,14 @@ public final class StorageUtils {
         }
     }
 
+    public static void deleteDir(File dir) throws IOException {
+        if (dir.isDirectory())
+            for (File child : dir.listFiles())
+                deleteDir(child);
+
+        dir.delete();
+    }
+
     public static boolean isPathAValidFile(String absolutePath) {
         File file = new File(absolutePath);
         boolean result = file.exists();
