@@ -194,6 +194,7 @@ public class GPSQuestionFragment extends SingleQuestionFragmentBase {
                 new Text(loc, loc),
                 "GPS"
         );
+        option.setValue(loc);
         options.add(option);
 
         return options;

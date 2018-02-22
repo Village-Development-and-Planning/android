@@ -31,7 +31,6 @@ import timber.log.Timber;
 /**
  * Created by muthuveerappans on 16/01/18.
  */
-
 public class FlowLogicImplementation extends FlowLogic {
     private BackStack backStack;
     private Question currentQuestion;
@@ -71,39 +70,27 @@ public class FlowLogicImplementation extends FlowLogic {
 
         if (parent == null) return null;
         int indexOfNextQuestion = QuestionUtils.getIndexOfChild(parent, currentQuestion) + 1;
-        return _getNext(parent, indexOfNextQuestion);
+        return _getNext(parent, indexOfNextQuestion, true);
     }
 
     @Override
     public FlowData moveToIndexInChild(int index) {
         Answer currentAnswer = currentQuestion.getCurrentAnswer();
-
-        if (currentAnswer != null) {
-            try {
-                Question current = currentAnswer.getChildren().get(index);
-
-                // add a dummy answer
-                addDummyAnswer(current);
-
-                FlowData flowData = new FlowData();
-                flowData.setFragment(getFragment(current));
-                flowData.setQuestion(current);
-
-                // add to back stack
-                backStack.addQuestionToStack(flowData);
-                // set as the current question
-                setCurrent(current);
-
-                return flowData;
-
-            } catch (IndexOutOfBoundsException e) {
-                throw new IllegalArgumentException("The index " + index + " is not present inside the answers. "
-                        + currentAnswer.toString());
-            }
-        } else {
-            throw new IllegalArgumentException("The answers list is empty. Check if the current question "
-                    + currentQuestion.getNumber() + " is answered first.");
+        if (currentAnswer == null) {
+            throw new IllegalArgumentException("The current answer for the question "
+                    + currentQuestion.getNumber() + " is null.");
         }
+
+        Question nextQuestion = currentAnswer.getChildren().get(index);
+        boolean getChild = false;
+
+        if (!answerFlow(nextQuestion, Answer.createDummyAnswer(nextQuestion))) {
+            nextQuestion = currentQuestion;
+            getChild = true;
+            index++;
+        }
+
+        return _getNext(nextQuestion, index, getChild);
     }
 
     @Override
@@ -124,7 +111,7 @@ public class FlowLogicImplementation extends FlowLogic {
 
     @Override
     public FlowData getNext() {
-        return _getNext(currentQuestion, 0);
+        return _getNext(currentQuestion, 0, true);
     }
 
     @Override
@@ -166,60 +153,191 @@ public class FlowLogicImplementation extends FlowLogic {
         }
     }
 
-    private FlowData _getNext(Question question, int startingChildIndex) {
+    // get next algorithm
+    // 1. look at the child flow
+    // 2. If no question found, move to exit flow
+    // 3. After a question is found, add dummy answer based on the answer flow
+    // 4. Get the UI fragment
+    // 5. Add to back stack
+    private FlowData _getNext(Question question, int startingChildIndex, boolean getChild) {
         FlowData flowData = null;
+        Question current = question;
+        Fragment fragment = null;
+        int currentChildIndex = startingChildIndex;
 
-        // special case for grid
-        if (QuestionUtils.isGridSelectQuestion(question)) {
-            flowData = new FlowData();
-            flowData.setFragment(new GridQuestionsFragment());
-            flowData.setQuestion(question);
-        } else {
-            Question nextQuestion = getNextQuestion(question, startingChildIndex);
+        if (getChild) {
 
-            if (nextQuestion != null) {
-                // if loop question, _update logic will handle the addition of answers
-                if (!QuestionUtils.isLoopOptionsQuestion(nextQuestion))
-                    addDummyAnswer(nextQuestion);
+            do {
 
-                setCurrent(nextQuestion);
+                // if the answer is empty then shown this question
+                if (current.getAnswers().isEmpty()) {
+                    break;
+                }
 
-                flowData = new FlowData();
-                flowData.setFragment(getFragment(nextQuestion));
-                flowData.setQuestion(nextQuestion);
+                // CHILD FLOW OPERATION
 
-                backStack.addQuestionToStack(flowData);
-            }
+                // if current question child flow is grid, don't bother about the child flow
+                // just return this question with the appropriate UI.
+                if (QuestionUtils.isGridSelectQuestion(current)) {
+                    fragment = new GridQuestionsFragment();
+                    flowData = new FlowData();
+                    flowData.setQuestion(current);
+                    flowData.setFragment(fragment);
+                    setCurrent(current);
+                    return flowData;
+                }
+
+                Answer currentAnswer = current.getCurrentAnswer();
+                if (currentAnswer == null) {
+                    throw new IllegalArgumentException("The current answer for the question "
+                            + current.getNumber() + " is null.");
+                }
+
+                Question nq = null;
+
+                for (int i = currentChildIndex; i < currentAnswer.getChildren().size(); i++) {
+                    Question child = currentAnswer.getChildren().get(i);
+                    if (SkipHelper.shouldSkip(child)) {
+                        continue;
+                    }
+                    nq = child;
+                    break;
+                }
+
+                if (nq != null) {
+                    current = nq;
+                    break;
+                }
+
+                // EXIT FLOW OPERATION
+
+                FlowPattern.ExitFlow exitFlow = current.getFlowPattern().getExitFlow();
+
+                if (exitFlow.isIncrementBubble() && !current.getCurrentAnswer().containsOption("0")) {
+                    current.setBubbleAnswersCount(current.getBubbleAnswersCount() + 1);
+                }
+
+                if (exitFlow.getStrategy() == FlowPattern.ExitFlow.Strategy.END ||
+                        current.isRoot()) {
+
+                    backStack.clear();
+
+                    current.getCurrentAnswer()
+                            .setExitTimestamp(System.currentTimeMillis());
+
+                    return null;
+
+                } else if (exitFlow.getStrategy() == FlowPattern.ExitFlow.Strategy.LOOP) {
+
+                    FlowPattern.AnswerFlow answerFlow = current.getFlowPattern().getAnswerFlow();
+
+                    if (answerFlow.getMode() == FlowPattern.AnswerFlow.Modes.MULTIPLE) {
+                        break;
+                    } else if (answerFlow.getMode() == FlowPattern.AnswerFlow.Modes.OPTION) {
+
+                        if (!SkipHelper.shouldSkipBasedOnAnswerScope(current)) {
+                            break;
+                        }
+
+                    }
+                }
+
+                current.getCurrentAnswer().setExitTimestamp(System.currentTimeMillis());
+
+                Question parent = current.getParentAnswer().getParentQuestion();
+
+                int indexOfCurrentChild = QuestionUtils.getIndexOfChild(parent, current);
+                if (indexOfCurrentChild < 0) {
+                    throw new IllegalArgumentException("Question" + current.getNumber() + " not found.");
+                }
+
+                currentChildIndex = indexOfCurrentChild + 1;
+                current = parent;
+
+            } while (true);
+
         }
+
+        // ANSWER FLOW OPERATION
+
+        // add dummy answers
+        boolean answerFlowOk = false;
+        if (QuestionUtils.isLoopOptionsQuestion(current)) {
+            for (int i = 0; i < current.getOptions().size(); i++) {
+                Option currentOption = current.getOptions().get(i);
+                answerFlowOk = answerFlow(current, Answer.createDummyAnswer(current));
+                if (answerFlowOk) {
+                    Option dummy = new Option(currentOption);
+                    ArrayList<Option> dummyOptions = new ArrayList<>();
+                    dummyOptions.add(dummy);
+                    current.getCurrentAnswer().setLoggedOptions(dummyOptions);
+                }
+            }
+        } else {
+            answerFlowOk = answerFlow(current, Answer.createDummyAnswer(current));
+        }
+
+        if (!answerFlowOk) {
+            // skip the question
+            return _getNext(current, 0, true);
+        }
+
+        setCurrent(current);
+
+        fragment = getFragment(current);
+
+        // if still UI is null get the next question blindly.
+        if (fragment == null) {
+            current.getCurrentAnswer().setDummy(false);
+            return _getNext(current, 0, true);
+        }
+
+        flowData = new FlowData();
+        flowData.setFragment(fragment);
+        flowData.setQuestion(current);
+
+        // add the found question to back stack
+        backStack.addQuestionToStack(flowData);
 
         // execute the pre flow after the next question is found
-        if (flowData != null) {
-            preFlow(flowData.getQuestion());
-        }
+        preFlow(current);
 
         return flowData;
     }
 
-    private Question getNextQuestion(Question question, int startingChildIndex) {
-        Question nextQuestion = childFlow(question, startingChildIndex);
-        if (nextQuestion == null) {
-            Question exitFlowQuestion = exitFlow(question);
-            if (exitFlowQuestion == null) return null;
-            if (exitFlowQuestion == question) return exitFlowQuestion;
-            int indexOfCurrentChild = QuestionUtils.getIndexOfChild(exitFlowQuestion, question);
-            if (indexOfCurrentChild < 0)
-                throw new IllegalArgumentException("Question" + question.getNumber() + " not found.");
-            int indexOfNextChild = indexOfCurrentChild + 1;
-            return getNextQuestion(exitFlowQuestion, indexOfNextChild);
-        } else {
-            FlowPattern.QuestionFlow nextQuestionQuestionFlow = nextQuestion.getFlowPattern().getQuestionFlow();
-            if (nextQuestionQuestionFlow != null &&
-                    nextQuestionQuestionFlow.getUiMode() == FlowPattern.QuestionFlow.UI.NONE) {
-                addDummyAnswer(nextQuestion);
-                nextQuestion = getNextQuestion(nextQuestion, 0);
-            }
+    private boolean answerFlow(Question question, Answer answer) {
+        if (question.getCurrentAnswer() != null &&
+                question.getCurrentAnswer().isDummy())
+            return true; // don't add another dummy if dummy is already there
 
-            return nextQuestion;
+        FlowPattern flowPattern = question.getFlowPattern();
+        if (flowPattern == null) {
+            return false;
+        }
+
+        FlowPattern.AnswerFlow answerFlow = flowPattern.getAnswerFlow();
+        if (answerFlow == null) {
+            return false;
+        }
+
+        switch (answerFlow.getMode()) {
+            case OPTION:
+                if (question.getAnswers().size() !=
+                        question.getOptions().size()) {
+                    question.addAnswer(answer);
+                }
+                return true;
+            case ONCE:
+                if (question.getAnswers().size() > 0)
+                    question.getAnswers().set(0, answer);
+                else
+                    question.addAnswer(answer);
+                return true;
+            case MULTIPLE:
+                question.addAnswer(answer);
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -305,95 +423,23 @@ public class FlowLogicImplementation extends FlowLogic {
         return false;
     }
 
-    private Question childFlow(Question question, int indexToChild) {
-        // if the answer is empty then shown this question
-        if (question.getAnswers().isEmpty()) {
-            return question;
-        }
-
-        Answer currentAnswer = question.getCurrentAnswer();
-
-        Question nextQuestion = null;
-
-        // grid flow
-        if (QuestionUtils.isGridSelectQuestion(question) && !currentAnswer.getChildren().isEmpty()) {
-            nextQuestion = question;
-            return nextQuestion;
-        }
-
-        // cascade flow
-        int index = 0;
-        if (indexToChild > 0) {
-            index = indexToChild;
-        }
-
-        for (int i = index; i < currentAnswer.getChildren().size(); i++) {
-            Question child = currentAnswer.getChildren().get(i);
-            if (SkipHelper.shouldSkip(child)) {
-                continue;
-            }
-            nextQuestion = child;
-            break;
-        }
-
-        return nextQuestion;
-    }
-
-    private Question exitFlow(Question question) {
-        FlowPattern.ExitFlow exitFlow = question.getFlowPattern().getExitFlow();
-
-        if (exitFlow.isIncrementBubble() && !question.getCurrentAnswer().containsOption("0")) {
-            question.setBubbleAnswersCount(question.getBubbleAnswersCount() + 1);
-        }
-
-        if (exitFlow.getStrategy() == FlowPattern.ExitFlow.Strategy.END || question.isRoot()) {
-            backStack.clear();
-            question.getCurrentAnswer().setExitTimestamp(System.currentTimeMillis());
-            return null;
-        } else if (exitFlow.getStrategy() == FlowPattern.ExitFlow.Strategy.LOOP) {
-
-            FlowPattern.AnswerFlow answerFlow = question.getFlowPattern().getAnswerFlow();
-
-            if (answerFlow.getMode() == FlowPattern.AnswerFlow.Modes.MULTIPLE) {
-                return question;
-            } else if (answerFlow.getMode() == FlowPattern.AnswerFlow.Modes.OPTION) {
-                if (!SkipHelper.shouldSkipBasedOnAnswerScope(question)) {
-                    return question;
-                }
-            }
-        }
-
-        question.getCurrentAnswer().setExitTimestamp(System.currentTimeMillis());
-
-        return question.getParentAnswer().getParentQuestion();
-    }
-
     private void _update(ArrayList<Option> response, Question question) {
         Timber.i("-----");
 
-        long startTime = System.currentTimeMillis();
-
-        // if loop question add the answer if not present or _update if answer is already present.
         if (QuestionUtils.isLoopOptionsQuestion(question)) {
             // check for a reference answer
-            boolean shouldAddAnswer = true;
             for (int i = 0; i < question.getAnswers().size(); i++) {
                 Answer answer = question.getAnswers().get(i);
-                if (response.get(0).getPosition().equals(answer.getLoggedOptions().get(0).getPosition())) {
+                if (response.get(0).getPosition()
+                        .equals(answer.getLoggedOptions().get(0).getPosition())) {
                     answer.setLoggedOptions(response);
                     answer.setDummy(false);
                     question.setCurrentAnswer(answer);
 
-                    shouldAddAnswer = false;
-
                     Timber.i("Answer updated info :\n" + question.getAnswers().get(i).toString());
-                }
-            }
 
-            if (shouldAddAnswer) {
-                Answer answer = new Answer(response, question, startTime);
-                answer.setDummy(false);
-                question.addAnswer(answer);
+                    return;
+                }
             }
 
             return;
@@ -413,51 +459,6 @@ public class FlowLogicImplementation extends FlowLogic {
         Timber.i("-----");
     }
 
-    private void addDummyAnswer(Question question) {
-        if (question.getCurrentAnswer() != null && question.getCurrentAnswer().isDummy())
-            return; // return if the latest answer is dummy
-
-        Answer dummy = Answer.createDummyAnswer(question);
-
-        setAnswerToQuestionBasedOnType(question, dummy);
-    }
-
-    private void setAnswerToQuestionBasedOnType(Question question, Answer answer) {
-        FlowPattern flowPattern = question.getFlowPattern();
-        if (flowPattern == null || answer.getLoggedOptions() == null) {
-            question.addAnswer(answer);
-            return;
-        }
-
-        FlowPattern.AnswerFlow answerFlow = flowPattern.getAnswerFlow();
-
-        if (answerFlow == null) {
-            Timber.e("Answer flow null for question " + question.getNumber());
-            return;
-        }
-
-        if (answerFlow.getMode() == FlowPattern.AnswerFlow.Modes.OPTION) {
-
-            if (question.getAnswers().size() == question.getOptions().size())
-                return;
-
-            question.addAnswer(answer);
-
-        } else if (answerFlow.getMode() == FlowPattern.AnswerFlow.Modes.ONCE) {
-            if (question.getAnswers().size() > 0)
-                question.getAnswers().set(0, answer);
-            else question.addAnswer(answer);
-        } else {
-            question.addAnswer(answer);
-        }
-
-        Timber.i("-----");
-        Timber.i("Question raw number " + question.getNumber());
-        Timber.i("Dummy answer created info :\n" + answer.toString());
-        Timber.i("Total answer count for question :\n" + question.getAnswers().size());
-        Timber.i("-----");
-    }
-
     private Fragment getFragment(Question question) {
         if (question.getFlowPattern() == null ||
                 question.getFlowPattern().getQuestionFlow() == null ||
@@ -467,8 +468,6 @@ public class FlowLogicImplementation extends FlowLogic {
 
         if (QuestionUtils.isShownTogetherQuestion(question)) {
             return new ShownTogetherFragment();
-        } else if (QuestionUtils.isGridSelectQuestion(question)) {
-            return new GridQuestionsFragment();
         } else {
             switch (question.getFlowPattern().getQuestionFlow().getUiMode()) {
                 case INFO:
@@ -569,7 +568,7 @@ public class FlowLogicImplementation extends FlowLogic {
             }
 
             for (Answer answer : question.getAnswers()) {
-                if (!answer.getLoggedOptions().isEmpty())
+                if (!answer.isDummy() && !answer.getLoggedOptions().isEmpty())
                     loggedOptionPositions.add(answer.getLoggedOptions().get(0).getPosition());
             }
 

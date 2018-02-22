@@ -1,6 +1,7 @@
 package com.puthuvaazhvu.mapping.views.activities;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -17,7 +18,8 @@ import timber.log.Timber;
  * Created by muthuveerappans on 10/20/17.
  */
 
-public class BaseActivity extends AppCompatActivity {
+@SuppressLint("Registered")
+public class BaseActivity extends LoggerActivity {
     protected boolean paused;
     protected boolean resumed;
 

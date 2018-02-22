@@ -11,6 +11,7 @@ import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogic;
 import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogicImplementation;
+import com.puthuvaazhvu.mapping.views.fragments.question.GridQuestionsFragment;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -24,6 +25,7 @@ import static junit.framework.Assert.assertSame;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.anyInt;
@@ -54,33 +56,18 @@ public class FlowLogicTest {
     public void answerValidationTime() throws Exception {
         FlowLogic.FlowData flowData;
 
-        Survey dummySurvey = ReadTestFile.getTestSurvey(this, "testing_loop_options.json");
+        Survey dummySurvey = ReadTestFile.getTestSurvey(this, "testing_answers_start_time_end_time.json");
         Question root = dummySurvey.getQuestion();
 
-        addAnswer(root);
+        flowLogicImplementation.setCurrent(root);
 
-        long startTime = root.getCurrentAnswer().getStartTimeStamp();
+        flowLogicImplementation.getNext();
+        flowLogicImplementation.update(sampleOption("1"));
 
-        Question q2 = root.getCurrentAnswer().getChildren().get(0);
-        addAnswer(q2);
-        addOption("0", q2);
+        flowLogicImplementation.getNext();
+        flowLogicImplementation.update(sampleOption("TEST"));
 
-        long loopStartTime = q2.getCurrentAnswer().getStartTimeStamp();
-
-        flowLogicImplementation.setCurrent(q2);
-
-        addAnswer(flowLogicImplementation.getNext().getQuestion());
-        addAnswer(flowLogicImplementation.finishCurrentAndGetNext().getQuestion());
-        flowData = flowLogicImplementation.finishCurrentAndGetNext();
-
-        assertSame("Check if the questions are same references.", flowData.getQuestion(), q2);
-
-        addAnswer(q2);
-        addOption("1", q2);
-
-        addAnswer(flowLogicImplementation.getNext().getQuestion());
-        addAnswer(flowLogicImplementation.finishCurrentAndGetNext().getQuestion());
-        flowData = flowLogicImplementation.finishCurrentAndGetNext();
+        flowData = flowLogicImplementation.getNext();
 
         assertThat(
                 "END",
@@ -88,9 +75,12 @@ public class FlowLogicTest {
                 is(nullValue())
         );
 
-        long loopEndTime = q2.getCurrentAnswer().getExitTimestamp();
-
+        long startTime = root.getCurrentAnswer().getStartTimeStamp();
         long endTime = root.getCurrentAnswer().getExitTimestamp();
+
+        Question q2 = root.getCurrentAnswer().getChildren().get(0);
+        long loopStartTime = q2.getCurrentAnswer().getStartTimeStamp();
+        long loopEndTime = q2.getCurrentAnswer().getExitTimestamp();
 
         assertThat(
                 "Check if the start time and end time are different for LOOP question",
@@ -131,6 +121,12 @@ public class FlowLogicTest {
         Question q2 = DataTraversing.findQuestion("2", root);
 
         flowLogicImplementation.setCurrent(q2);
+
+        for (int i = 0; i < q2.getOptions().size(); i++) {
+            addAnswer(q2);
+            q2.getCurrentAnswer().setDummy(true);
+            addOption(q2.getOptions().get(i).getPosition(), q2);
+        }
 
         for (int i = 0; i < q2.getOptions().size(); i++) {
             ArrayList<Option> options = new ArrayList<>();
@@ -289,8 +285,8 @@ public class FlowLogicTest {
 
         assertThat(
                 "Shows GRID UI for 2.1.6",
-                flowData.getQuestion().getNumber(),
-                is("2.1.6")
+                flowData.getFragment(),
+                instanceOf(GridQuestionsFragment.class)
         );
 
         flowData = flowLogicImplementation.moveToIndexInChild(0);
@@ -430,6 +426,13 @@ public class FlowLogicTest {
                 flowData,
                 is(nullValue())
         );
+    }
+
+    private ArrayList<Option> sampleOption(String position) {
+        Option option = new Option(null, null, position);
+        ArrayList<Option> options = new ArrayList<>();
+        options.add(option);
+        return options;
     }
 
     private void addOption(String position, Question question) {

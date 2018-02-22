@@ -1,10 +1,10 @@
 package com.puthuvaazhvu.mapping;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -43,6 +43,10 @@ public class MainActivity extends BaseActivity implements FragmentInterface {
         switch (item.getItemId()) {
             case R.id.memory:
                 addFragment(new TestMemoryFragment());
+                return true;
+            case R.id.grid_question:
+                Intent intent = new Intent(this, GridQuestionFlowTestActivity.class);
+                startActivity(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

@@ -83,8 +83,6 @@ public class GridQuestionsFragment extends QuestionDataFragment {
 
         children = getQuestion().getCurrentAnswer().getChildren();
 
-        getQuestion().getCurrentAnswer().setDummy(false);
-
         questionsAdapter = new QuestionsAdapter();
         recyclerView.setAdapter(questionsAdapter);
     }

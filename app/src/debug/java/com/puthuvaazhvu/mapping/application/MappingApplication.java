@@ -28,5 +28,4 @@ public class MappingApplication extends Application {
 
         globalContext = GlobalContext.getInstance();
     }
-
 }

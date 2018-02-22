@@ -29,7 +29,7 @@ public abstract class QuestionFragment extends Fragment implements View.OnClickL
         try {
             baseQuestionFragmentCommunication = (BaseQuestionFragmentCommunication) context;
         } catch (ClassCastException e) {
-            throw new IllegalArgumentException("Please implement the " + BaseQuestionFragmentCommunication.class.getSimpleName() + " on the parent ativity");
+            throw new IllegalArgumentException("Please implement the " + BaseQuestionFragmentCommunication.class.getSimpleName() + " on the parent activity");
         }
     }
 

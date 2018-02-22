@@ -14,6 +14,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.filestorage.AnswerIO;
+import com.puthuvaazhvu.mapping.filestorage.StorageIO;
+import com.puthuvaazhvu.mapping.filestorage.StorageUtils;
 import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
@@ -21,7 +23,9 @@ import com.puthuvaazhvu.mapping.modals.deserialization.SurveyGsonAdapter;
 import com.puthuvaazhvu.mapping.utils.Utils;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -85,6 +89,55 @@ public class TestMemoryFragment extends BaseFragment {
                                 });
                     }
                 });
+
+        view.findViewById(R.id.deserialize_btn)
+                .setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        showLoading("Deserialize in progress...");
+                        convertToSurvey()
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribeOn(Schedulers.io())
+                                .subscribe(new Consumer<Survey>() {
+                                    @Override
+                                    public void accept(Survey survey) throws Exception {
+                                        Timber.i("Converted successfully " + survey.getId());
+                                    }
+                                }, new Consumer<Throwable>() {
+                                    @Override
+                                    public void accept(Throwable throwable) throws Exception {
+                                        Timber.e(throwable);
+                                        hideLoading();
+                                    }
+                                }, new Action() {
+                                    @Override
+                                    public void run() throws Exception {
+                                        hideLoading();
+                                        Timber.i("DONE!!!");
+                                    }
+                                });
+                    }
+                });
+    }
+
+    private Observable<Survey> convertToSurvey() {
+        return Observable.create(new ObservableOnSubscribe<byte[]>() {
+            @Override
+            public void subscribe(ObservableEmitter<byte[]> e) throws Exception {
+                InputStream is = getContext().getAssets().open("test_answer_snapshot.bytes");
+                byte[] fileBytes = new byte[is.available()];
+                is.read(fileBytes);
+                is.close();
+
+                e.onNext(fileBytes);
+                e.onComplete();
+            }
+        }).map(new Function<byte[], Survey>() {
+            @Override
+            public Survey apply(byte[] bytes) throws Exception {
+                return (Survey) StorageUtils.deserialize(bytes).blockingFirst();
+            }
+        });
     }
 
     private Observable<Boolean> uploadAnswersObservable() {
