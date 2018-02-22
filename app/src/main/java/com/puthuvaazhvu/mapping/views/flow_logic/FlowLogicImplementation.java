@@ -140,6 +140,7 @@ public class FlowLogicImplementation extends FlowLogic {
             Timber.i("------");
             Timber.i("Question popped " + currentlyVisibleQuestion.getQuestion().getNumber());
             Timber.i("Answer count after popping question "
+                    + currentlyVisibleQuestion.getQuestion().getNumber() + " "
                     + currentlyVisibleQuestion.getQuestion().getAnswers().size());
 
             setCurrent(toBeVisibleQuestion.getQuestion());
@@ -258,20 +259,28 @@ public class FlowLogicImplementation extends FlowLogic {
 
         }
 
+        // PRE FLOW OPERATION
+        preFlow(current);
+
         // ANSWER FLOW OPERATION
 
         // add dummy answers
         boolean answerFlowOk = false;
         if (QuestionUtils.isLoopOptionsQuestion(current)) {
-            for (int i = 0; i < current.getOptions().size(); i++) {
-                Option currentOption = current.getOptions().get(i);
-                answerFlowOk = answerFlow(current, Answer.createDummyAnswer(current));
-                if (answerFlowOk) {
-                    Option dummy = new Option(currentOption);
-                    ArrayList<Option> dummyOptions = new ArrayList<>();
-                    dummyOptions.add(dummy);
-                    current.getCurrentAnswer().setLoggedOptions(dummyOptions);
+            if (current.getAnswers().isEmpty()) {
+                for (int i = 0; i < current.getOptions().size(); i++) {
+                    Option currentOption = current.getOptions().get(i);
+                    answerFlowOk = answerFlow(current, Answer.createDummyAnswer(current));
+                    if (answerFlowOk) {
+                        Option dummy = new Option(currentOption);
+                        ArrayList<Option> dummyOptions = new ArrayList<>();
+                        dummyOptions.add(dummy);
+                        Answer a = current.getCurrentAnswer();
+                        a.setLoggedOptions(dummyOptions);
+                    }
                 }
+            } else {
+                answerFlowOk = true;
             }
         } else {
             answerFlowOk = answerFlow(current, Answer.createDummyAnswer(current));
@@ -299,17 +308,10 @@ public class FlowLogicImplementation extends FlowLogic {
         // add the found question to back stack
         backStack.addQuestionToStack(flowData);
 
-        // execute the pre flow after the next question is found
-        preFlow(current);
-
         return flowData;
     }
 
     private boolean answerFlow(Question question, Answer answer) {
-        if (question.getCurrentAnswer() != null &&
-                question.getCurrentAnswer().isDummy())
-            return true; // don't add another dummy if dummy is already there
-
         FlowPattern flowPattern = question.getFlowPattern();
         if (flowPattern == null) {
             return false;
@@ -334,7 +336,9 @@ public class FlowLogicImplementation extends FlowLogic {
                     question.addAnswer(answer);
                 return true;
             case MULTIPLE:
-                question.addAnswer(answer);
+                Answer c = question.getCurrentAnswer();
+                if (c == null || !c.isDummy())
+                    question.addAnswer(answer);
                 return true;
             default:
                 return false;
@@ -442,7 +446,7 @@ public class FlowLogicImplementation extends FlowLogic {
                 }
             }
 
-            return;
+            throw new IllegalArgumentException("Answers not properly added for " + question.getNumber());
         }
 
         if (question.getAnswers().size() <= 0) {

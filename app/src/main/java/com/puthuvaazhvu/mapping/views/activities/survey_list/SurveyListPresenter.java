@@ -104,7 +104,7 @@ public class SurveyListPresenter implements Contract.UserAction {
                             String snapshotID = null;
 
                             SnapshotsInfo.Survey s = snapshotsInfo.getSurvey(survey.getSurveyID());
-                            if (s != null) {
+                            if (s != null && !s.getSnapshots().isEmpty()) {
                                 SnapshotsInfo.Snapshot snapshot = s.getLatestLoggedSnapshot();
                                 snapshotPath = snapshot.getPathToLastQuestion();
                                 snapshotID = snapshot.getSnapshotID();

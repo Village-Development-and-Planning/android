@@ -379,7 +379,9 @@ public class FlowLogicTest {
 
         flowLogicImplementation.setCurrent(q2);
 
-        addAnswer(q2);
+        flowLogicImplementation.getNext();
+
+        flowLogicImplementation.update(sampleOption("0"));
 
         flowData = flowLogicImplementation.getNext();
 
@@ -391,15 +393,18 @@ public class FlowLogicTest {
 
         flowData = flowLogicImplementation.getNext();
 
+        flowLogicImplementation.update(sampleOption("TEST"));
+
         assertThat(
                 "Next question is 2.1 for cascade",
                 flowData.getQuestion().getNumber(),
                 is("2.1")
         );
 
-        addAnswer(flowData.getQuestion());
 
         flowData = flowLogicImplementation.getNext();
+
+        flowLogicImplementation.update(sampleOption("1"));
 
         assertThat(
                 "Next question is again 2 for exit strategy LOOP OPTIONS",
@@ -407,18 +412,15 @@ public class FlowLogicTest {
                 is("2")
         );
 
-        q2.getAnswers().clear();
+        flowData = flowLogicImplementation.getNext();
 
-        addAnswer(q2);
-        addOption("0", q2);
-        addAnswer(q2);
-        addOption("1", q2);
+        assertThat(
+                "Next question is again 2.0.1",
+                flowData.getQuestion().getNumber(),
+                is("2.0.1")
+        );
 
-        Question q2_1 = q2.getCurrentAnswer().getChildren().get(1);
-        addAnswer(q2_1);
-
-        flowLogicImplementation.setCurrent(q2_1);
-
+        flowLogicImplementation.getNext();
         flowData = flowLogicImplementation.getNext();
 
         assertThat(

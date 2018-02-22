@@ -73,7 +73,7 @@ public class AnswerIO extends StorageIO<Survey> {
                         // remove all the snapshots of the surveyID
 
                         SnapshotsInfo.Survey s
-                                = dataInfo.getSnapshotsInfo().getSurvey(answerID);
+                                = dataInfo.getSnapshotsInfo().getSurvey(surveyID);
 
                         if (s != null) {
                             Iterator<SnapshotsInfo.Snapshot> snapshotIterator
