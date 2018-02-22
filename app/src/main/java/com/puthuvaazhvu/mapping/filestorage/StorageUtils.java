@@ -2,12 +2,14 @@ package com.puthuvaazhvu.mapping.filestorage;
 
 import android.os.Environment;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
@@ -23,6 +25,25 @@ import timber.log.Timber;
  */
 
 public final class StorageUtils {
+
+    public Observable<Boolean> pipe(final InputStream in, final OutputStream out) throws IOException {
+        return Observable.create(new ObservableOnSubscribe<Boolean>() {
+            @Override
+            public void subscribe(ObservableEmitter<Boolean> e) throws Exception {
+                byte[] buffer = new byte[1024];
+                int len = in.read(buffer);
+                while (len != -1) {
+                    out.write(buffer, 0, len);
+                    len = in.read(buffer);
+                }
+                in.close();
+                out.close();
+
+                e.onNext(true);
+                e.onComplete();
+            }
+        });
+    }
 
     public static Observable<byte[]> serialize(final Object obj) {
         return Observable.create(new ObservableOnSubscribe<byte[]>() {
@@ -48,7 +69,8 @@ public final class StorageUtils {
                 ByteArrayInputStream in = new ByteArrayInputStream(data);
                 ObjectInputStream is = new ObjectInputStream(in);
 
-                e.onNext(is.readObject());
+                Object o = is.readObject();
+                e.onNext(o);
                 e.onComplete();
 
                 in.close();

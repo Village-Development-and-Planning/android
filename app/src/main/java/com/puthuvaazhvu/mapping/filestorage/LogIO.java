@@ -38,6 +38,6 @@ public class LogIO extends StorageIO<String> {
 
     @Override
     public String getAbsolutePath() {
-        return root().getAbsolutePath() + "/" + Constants.LOG_DIR + "/" + logID + ".txt";
+        return root().getAbsolutePath() + "/" + Constants.DATA_DIR + "/" + Constants.LOG_DIR + "/" + logID + ".txt";
     }
 }
