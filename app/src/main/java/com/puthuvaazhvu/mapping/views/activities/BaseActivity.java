@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.other.Constants;
+import com.puthuvaazhvu.mapping.utils.PauseHandler;
 import com.puthuvaazhvu.mapping.utils.Utils;
 
 import timber.log.Timber;
@@ -19,9 +20,11 @@ import timber.log.Timber;
  */
 
 @SuppressLint("Registered")
-public class BaseActivity extends LoggerActivity {
+public abstract class BaseActivity extends LoggerActivity {
     protected boolean paused;
     protected boolean resumed;
+
+    protected PauseHandler pauseHandler;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -31,10 +34,22 @@ public class BaseActivity extends LoggerActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+
+        pauseHandler = getPauseHandler();
+    }
+
+    public abstract PauseHandler getPauseHandler();
+
+    @Override
     protected void onResume() {
         super.onResume();
         resumed = true;
         paused = false;
+
+        if (pauseHandler != null)
+            pauseHandler.resume();
     }
 
     @Override
@@ -42,6 +57,9 @@ public class BaseActivity extends LoggerActivity {
         super.onPause();
         paused = true;
         resumed = false;
+
+        if (pauseHandler != null)
+            pauseHandler.pause();
     }
 
     private void checkForInitialPermissions() {

@@ -19,6 +19,8 @@ import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.other.RepeatingTask;
+import com.puthuvaazhvu.mapping.utils.DialogHandler;
+import com.puthuvaazhvu.mapping.utils.PauseHandler;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.activities.MenuActivity;
 import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListActivity;
@@ -60,8 +62,6 @@ public class MainActivity extends MenuActivity
 
     private FlowLogic flowLogic;
 
-    private ProgressDialog progressDialog;
-
     private boolean defaultBackPressed = false;
 
     private RepeatingTask repeatingTask;
@@ -74,15 +74,21 @@ public class MainActivity extends MenuActivity
 
     SharedPreferences sharedPreferences;
 
+    DialogHandler dialogHandler;
+
+    ProgressDialog progressDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        dataFragment = DataFragment.getInstance(getSupportFragmentManager());
-
         progressDialog = new ProgressDialog();
-        // progressDialog.setCancelable(false);
+        progressDialog.setCancelable(false);
+
+        dialogHandler = new DialogHandler(progressDialog, getSupportFragmentManager());
+
+        dataFragment = DataFragment.getInstance(getSupportFragmentManager());
 
         stackFragmentManagerInvoker = new StackFragmentManagerInvoker();
         stackFragmentManagerReceiver = new StackFragmentManagerReceiver(getSupportFragmentManager(), R.id.container);
@@ -118,6 +124,11 @@ public class MainActivity extends MenuActivity
 
         if (dumpSurveyRepeatingTask)
             repeatingTask.start();
+    }
+
+    @Override
+    public PauseHandler getPauseHandler() {
+        return dialogHandler;
     }
 
     @Override
@@ -185,7 +196,6 @@ public class MainActivity extends MenuActivity
     @Override
     protected void onPause() {
         super.onPause();
-        repeatingTask.stop();
     }
 
     @Override
@@ -262,15 +272,8 @@ public class MainActivity extends MenuActivity
 
     @Override
     public void showLoading(int messageID) {
-        if (paused) {
-            return;
-        }
-
-        if (progressDialog.isVisible() || progressDialog.isAdded()) {
-            progressDialog.dismiss();
-        }
         progressDialog.setTextView(getString(messageID));
-        progressDialog.show(getSupportFragmentManager(), "progress_dialog");
+        dialogHandler.showDialog("progress_dialog");
     }
 
     @Override
@@ -278,15 +281,9 @@ public class MainActivity extends MenuActivity
         Utils.showMessageToast(messageID, this);
     }
 
-    @Override //Todo: java.lang.IllegalStateException: Can not perform this action after onSaveInstanceState
+    @Override
     public void hideLoading() {
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                if (progressDialog.isVisible() || progressDialog.isAdded())
-                    progressDialog.dismiss();
-            }
-        });
+        dialogHandler.hideDialog();
     }
 
     @Override

@@ -14,7 +14,7 @@ import timber.log.Timber;
  * Created by muthuveerappans on 11/7/17.
  */
 
-public class MenuActivity extends BaseActivity {
+public abstract class MenuActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

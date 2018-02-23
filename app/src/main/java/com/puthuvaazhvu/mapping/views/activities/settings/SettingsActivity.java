@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.other.Constants;
+import com.puthuvaazhvu.mapping.utils.PauseHandler;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.activities.MenuActivity;
 import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListActivity;
@@ -79,6 +80,11 @@ public class SettingsActivity extends MenuActivity implements View.OnClickListen
         });
 
         setLanguageForViews();
+    }
+
+    @Override
+    public PauseHandler getPauseHandler() {
+        return null;
     }
 
     @Override

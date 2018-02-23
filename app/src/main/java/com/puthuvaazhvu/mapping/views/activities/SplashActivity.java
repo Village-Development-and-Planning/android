@@ -19,6 +19,7 @@ import com.puthuvaazhvu.mapping.filestorage.StorageUtils;
 import com.puthuvaazhvu.mapping.filestorage.modals.DataInfo;
 import com.puthuvaazhvu.mapping.other.Config;
 import com.puthuvaazhvu.mapping.other.Constants;
+import com.puthuvaazhvu.mapping.utils.PauseHandler;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListActivity;
 
@@ -65,6 +66,11 @@ public class SplashActivity extends BaseActivity {
                 null);
 
         retryDialog.setCancelable(false);
+    }
+
+    @Override
+    public PauseHandler getPauseHandler() {
+        return null;
     }
 
     @Override

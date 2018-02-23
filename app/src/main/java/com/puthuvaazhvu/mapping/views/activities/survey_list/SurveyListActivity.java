@@ -21,6 +21,8 @@ import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.application.MappingApplication;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.other.Constants;
+import com.puthuvaazhvu.mapping.utils.DialogHandler;
+import com.puthuvaazhvu.mapping.utils.PauseHandler;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.activities.MenuActivity;
 import com.puthuvaazhvu.mapping.views.activities.main.MainActivity;
@@ -40,6 +42,8 @@ public class SurveyListActivity extends MenuActivity
         implements View.OnClickListener, Contract.View {
 
     private ProgressDialog progressDialog;
+
+    DialogHandler dialogHandler;
 
     private TextView infoTxt;
 
@@ -63,6 +67,8 @@ public class SurveyListActivity extends MenuActivity
 
         progressDialog = new ProgressDialog();
 
+        dialogHandler = new DialogHandler(progressDialog, getSupportFragmentManager());
+
         setContentView(R.layout.select_survey_activity);
 
         infoTxt = findViewById(R.id.info_txt);
@@ -80,6 +86,11 @@ public class SurveyListActivity extends MenuActivity
 
 
         presenter = new SurveyListPresenter(this, sharedPreferences);
+    }
+
+    @Override
+    public PauseHandler getPauseHandler() {
+        return dialogHandler;
     }
 
     @Override
@@ -177,19 +188,14 @@ public class SurveyListActivity extends MenuActivity
     }
 
     @Override
-    //Todo: Caused by: java.lang.IllegalStateException: Can not perform this action after onSaveInstanceState
     public void showLoading(int msgID) {
-        if (progressDialog.isVisible() || progressDialog.isAdded()) {
-            return;
-        }
         progressDialog.setTextView(getString(msgID));
-        progressDialog.show(getSupportFragmentManager(), "progress_dialog");
+        dialogHandler.showDialog("progress_dialog");
     }
 
     @Override
     public void hideLoading() {
-        if (progressDialog.isVisible() || progressDialog.isAdded())
-            progressDialog.dismiss();
+        dialogHandler.hideDialog();
     }
 
     @Override

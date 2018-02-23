@@ -16,6 +16,8 @@ import android.widget.TextView;
 
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.other.Constants;
+import com.puthuvaazhvu.mapping.utils.DialogHandler;
+import com.puthuvaazhvu.mapping.utils.PauseHandler;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.activities.MenuActivity;
 import com.puthuvaazhvu.mapping.views.dialogs.ProgressDialog;
@@ -37,11 +39,15 @@ public class SurveyDataDumpActivity extends MenuActivity
 
     private Contract.UserAction presenter;
 
+    private DialogHandler dialogHandler;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         progressDialog = new ProgressDialog();
+
+        dialogHandler = new DialogHandler(progressDialog, getSupportFragmentManager());
 
         SharedPreferences sharedPreferences = getSharedPreferences(Constants.PREFS, MODE_PRIVATE);
 
@@ -62,6 +68,11 @@ public class SurveyDataDumpActivity extends MenuActivity
         recyclerView.setAdapter(listSurveyAdapter);
 
         presenter.fetchListOfSurveys();
+    }
+
+    @Override
+    public PauseHandler getPauseHandler() {
+        return dialogHandler;
     }
 
     @Override
@@ -98,17 +109,13 @@ public class SurveyDataDumpActivity extends MenuActivity
 
     @Override
     public void showLoading(int msgID) {
-        if (progressDialog.isVisible() || progressDialog.isAdded()) {
-            progressDialog.dismiss();
-        }
         progressDialog.setTextView(getString(msgID));
-        progressDialog.show(getSupportFragmentManager(), "progress_dialog");
+        dialogHandler.showDialog("progress_dialog");
     }
 
     @Override
     public void hideLoading() {
-        if (progressDialog.isVisible())
-            progressDialog.dismiss();
+        dialogHandler.hideDialog();
     }
 
     @Override

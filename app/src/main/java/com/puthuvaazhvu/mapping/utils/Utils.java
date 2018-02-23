@@ -18,9 +18,11 @@ import android.widget.Toast;
 
 import com.puthuvaazhvu.mapping.other.Constants;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -84,18 +86,14 @@ public class Utils {
         return json;
     }
 
-    public static String readFromInputStream(InputStream is) {
-        String json = null;
-        try {
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            is.read(buffer);
-            is.close();
-            json = new String(buffer, "UTF-8");
-        } catch (IOException ex) {
-            Timber.e("Error reading the file. " + ex.getMessage());
+    public static String readFromInputStream(InputStream is) throws IOException {
+        BufferedReader r = new BufferedReader(new InputStreamReader(is));
+        StringBuilder total = new StringBuilder();
+        String line;
+        while ((line = r.readLine()) != null) {
+            total.append(line).append('\n');
         }
-        return json;
+        return total.toString();
     }
 
     public static List<String> hasPermissions(Context context, String... permissions) {

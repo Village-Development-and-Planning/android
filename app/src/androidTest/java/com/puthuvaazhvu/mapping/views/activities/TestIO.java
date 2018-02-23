@@ -1,4 +1,4 @@
-package com.puthuvaazhvu.mapping.activities;
+package com.puthuvaazhvu.mapping.views.activities;
 
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
