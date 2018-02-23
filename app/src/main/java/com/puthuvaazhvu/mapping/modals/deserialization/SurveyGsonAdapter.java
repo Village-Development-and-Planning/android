@@ -111,47 +111,67 @@ public class SurveyGsonAdapter extends TypeAdapter<Survey> {
     }
 
     private Question readQuestion(JsonReader in) throws IOException {
-        String type = "";
-        String number = "";
-        Text text = null;
-        String position = "";
-        FlowPattern flowPattern = null;
-        ArrayList<String> tags = new ArrayList<>();
-        ArrayList<Option> options = new ArrayList<>();
-        ArrayList<Question> children = new ArrayList<>();
+        Question question = new Question();
 
         in.beginObject();
         while (in.hasNext()) {
             switch (in.nextName()) {
                 case "options":
+                    ArrayList<Option> options = new ArrayList<>();
                     in.beginArray();
                     while (in.hasNext())
                         options.add(readOption(in));
                     in.endArray();
+                    question.setOptions(options);
                     break;
                 case "children":
+                    ArrayList<Question> children = new ArrayList<>();
                     in.beginArray();
                     while (in.hasNext()) {
-                        children.add(readChild(in));
+                        Question child = null;
+                        String position = "";
+
+                        in.beginObject();
+                        while (in.hasNext()) {
+                            switch (in.nextName()) {
+                                case "position":
+                                    position = in.nextString();
+                                    break;
+                                case "question":
+                                    child = readQuestion(in);
+                                    break;
+                                default:
+                                    in.skipValue();
+                                    break;
+                            }
+                        }
+                        in.endObject();
+
+                        if (child != null) {
+                            child.setPosition(position);
+                            child.setParent(question);
+                            children.add(child);
+                        }
                     }
                     in.endArray();
+                    question.setChildren(children);
                     break;
                 case "answers":
                     throw new UnsupportedOperationException("Answer parsing is not implemented.");
                 case "flow":
-                    flowPattern = readFlowPattern(in);
+                    question.setFlowPattern(readFlowPattern(in));
                     break;
                 case "text":
-                    text = readText(in);
+                    question.setText(readText(in));
                     break;
                 case "type":
-                    type = in.nextString();
+                    question.setType(in.nextString());
                     break;
                 case "tags":
-                    tags = new ArrayList<>(Arrays.asList(in.nextString().split(",")));
+                    question.setTags(new ArrayList<>(Arrays.asList(in.nextString().split(","))));
                     break;
                 case "number":
-                    number = in.nextString();
+                    question.setNumber(in.nextString());
                     break;
                 default:
                     in.skipValue();
@@ -160,40 +180,7 @@ public class SurveyGsonAdapter extends TypeAdapter<Survey> {
         }
         in.endObject();
 
-        return new Question(
-                position,
-                text,
-                type,
-                options,
-                tags,
-                number,
-                children,
-                flowPattern
-        );
-    }
-
-    private Question readChild(JsonReader in) throws IOException {
-        String position = "";
-        Question child = null;
-
-        in.beginObject();
-        while (in.hasNext()) {
-            switch (in.nextName()) {
-                case "position":
-                    position = in.nextString();
-                    break;
-                case "question":
-                    child = readQuestion(in);
-                    child.setPosition(position);
-                    break;
-                default:
-                    in.skipValue();
-                    break;
-            }
-        }
-        in.endObject();
-
-        return child;
+        return question;
     }
 
     private FlowPattern readFlowPattern(JsonReader in) throws IOException {

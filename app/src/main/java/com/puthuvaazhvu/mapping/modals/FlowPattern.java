@@ -1,5 +1,6 @@
 package com.puthuvaazhvu.mapping.modals;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import static com.puthuvaazhvu.mapping.modals.FlowPattern.QuestionFlow.Validation.NONE;
@@ -10,7 +11,7 @@ import static com.puthuvaazhvu.mapping.modals.FlowPattern.QuestionFlow.Validatio
  * Created by muthuveerappans on 19/02/18.
  */
 
-public class FlowPattern extends BaseObject {
+public class FlowPattern extends BaseObject implements Serializable {
     private PreFlow preFlow;
     private AnswerFlow answerFlow;
     private ChildFlow childFlow;
@@ -66,7 +67,7 @@ public class FlowPattern extends BaseObject {
         this.questionFlow = questionFlow;
     }
 
-    public static class AnswerFlow extends BaseObject {
+    public static class AnswerFlow extends BaseObject implements Serializable {
         public enum Modes {
             NONE, ONCE, OPTION, MULTIPLE
         }
@@ -99,7 +100,7 @@ public class FlowPattern extends BaseObject {
         }
     }
 
-    public static class ChildFlow extends BaseObject {
+    public static class ChildFlow extends BaseObject implements Serializable {
         private Strategy strategy = Strategy.NONE;
         private UI uiToBeShown = UI.NONE;
         private RepeatMode repeatMode = RepeatMode.NONE;
@@ -186,7 +187,7 @@ public class FlowPattern extends BaseObject {
         }
     }
 
-    public static class ExitFlow extends BaseObject {
+    public static class ExitFlow extends BaseObject implements Serializable {
         public enum Strategy {
             NONE, PARENT, LOOP, END
         }
@@ -228,7 +229,7 @@ public class FlowPattern extends BaseObject {
         }
     }
 
-    public static class PostFlow extends BaseObject {
+    public static class PostFlow extends BaseObject implements Serializable {
         ArrayList<String> tags = new ArrayList<>();
 
         public ArrayList<String> getTags() {
@@ -240,7 +241,7 @@ public class FlowPattern extends BaseObject {
         }
     }
 
-    public static class QuestionFlow extends BaseObject {
+    public static class QuestionFlow extends BaseObject implements Serializable {
         public enum Validation {
             NONE, NUMBER, TEXT
         }
@@ -354,7 +355,7 @@ public class FlowPattern extends BaseObject {
         }
     }
 
-    public static class PreFlow extends BaseObject {
+    public static class PreFlow extends BaseObject implements Serializable {
         private ArrayList<String> fill;
         private SkipUnless skipUnless;
 

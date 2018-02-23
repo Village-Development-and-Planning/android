@@ -1,7 +1,9 @@
 package com.puthuvaazhvu.mapping.modals;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import timber.log.Timber;
@@ -17,6 +19,9 @@ public class Answer extends BaseObject {
     private long startTimeStamp;
     private long exitTimestamp;
     private boolean isDummy;
+
+    public Answer() {
+    }
 
     public static Answer createDummyAnswer(Question parentQuestion) {
         Answer answer = new Answer(new ArrayList<Option>(), parentQuestion);
@@ -48,10 +53,9 @@ public class Answer extends BaseObject {
                             c.getTags(),
                             c.getNumber(),
                             c.getChildren(),
-                            c.getFlowPattern()
+                            c.getFlowPattern(),
+                            parentQuestion
                     );
-                    // set the child under the same parent answer
-                    cCopy.setParent(parentQuestion);
                     cCopy.setParentAnswer(this);
                     this.children.add(cCopy);
                 }
@@ -59,10 +63,6 @@ public class Answer extends BaseObject {
         }
 
         this.startTimeStamp = System.currentTimeMillis();
-    }
-
-    public void setParentQuestion(Question parentQuestion) {
-        this.parentQuestion = parentQuestion;
     }
 
     public boolean isDummy() {
@@ -133,4 +133,25 @@ public class Answer extends BaseObject {
 
         return string;
     }
+
+//    private void writeObject(ObjectOutputStream os) throws IOException {
+//        Timber.i("Writing answer for question number " + parentQuestion.getNumber() + " : " + parentQuestion.hashCode());
+//        Timber.i("Answer hashcode " + hashCode());
+//        os.writeObject(loggedOptions);
+//        os.writeObject(children);
+//        os.writeObject(parentQuestion);
+//        os.writeLong(startTimeStamp);
+//        os.writeLong(exitTimestamp);
+//        os.writeBoolean(isDummy);
+//        Timber.i("Over Answer ---" + parentQuestion.getNumber() + " : " + parentQuestion.hashCode());
+//    }
+//
+//    private void readObject(ObjectInputStream is) throws ClassNotFoundException, IOException {
+//        loggedOptions = (ArrayList<Option>) is.readObject();
+//        children = (ArrayList<Question>) is.readObject();
+//        parentQuestion = (Question) is.readObject();
+//        startTimeStamp = is.readLong();
+//        exitTimestamp = is.readLong();
+//        isDummy = is.readBoolean();
+//    }
 }

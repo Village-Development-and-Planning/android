@@ -35,7 +35,7 @@
             android:name=".views.activities.dump_survey_activity.SurveyDataDumpActivity"
             tools:node="remove" />
 
-        <activity android:name=".GridQuestionFlowTestActivity" />
+        <activity android:name=".SurveyTestActivity" />
 
         <activity
             android:name=".views.activities.SplashActivity"

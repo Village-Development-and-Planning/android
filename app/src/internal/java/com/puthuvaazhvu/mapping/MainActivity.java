@@ -44,8 +44,9 @@ public class MainActivity extends BaseActivity implements FragmentInterface {
             case R.id.memory:
                 addFragment(new TestMemoryFragment());
                 return true;
-            case R.id.grid_question:
-                Intent intent = new Intent(this, GridQuestionFlowTestActivity.class);
+            case R.id.test_survey:
+                Intent intent = new Intent(this, SurveyTestActivity.class);
+                intent.putExtra("file_name", "survey_testing.json");
                 startActivity(intent);
                 return true;
             default:

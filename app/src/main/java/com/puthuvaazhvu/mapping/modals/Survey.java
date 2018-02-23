@@ -3,6 +3,8 @@ package com.puthuvaazhvu.mapping.modals;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.io.Serializable;
+
 /**
  * Created by muthuveerappans on 8/24/17.
  */
@@ -14,6 +16,9 @@ public class Survey extends BaseObject {
     private Question question;
     private String modifiedAt;
     private boolean enabled;
+
+    public Survey() {
+    }
 
     public Survey(String id, String name, String description, Question question, String modifiedAt, boolean enabled) {
         this.id = id;

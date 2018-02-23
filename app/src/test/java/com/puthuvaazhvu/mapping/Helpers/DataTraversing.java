@@ -13,7 +13,7 @@ public class DataTraversing {
 
         Question q = null;
 
-        if (node.getNumber().equals(number)) {
+        if (!node.isRoot() && node.getNumber().equals(number)) {
             q = node;
         } else {
             ArrayList<Question> children = node.getChildren();

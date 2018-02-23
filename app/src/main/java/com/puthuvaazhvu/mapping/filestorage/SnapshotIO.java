@@ -1,14 +1,21 @@
 package com.puthuvaazhvu.mapping.filestorage;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import com.puthuvaazhvu.mapping.filestorage.modals.DataInfo;
 import com.puthuvaazhvu.mapping.filestorage.modals.SnapshotsInfo;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.other.Constants;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.Iterator;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.ObservableSource;
 import io.reactivex.functions.Function;
 import timber.log.Timber;
@@ -43,7 +50,7 @@ public class SnapshotIO extends StorageIO<Survey> {
     }
 
     @Override
-    public Observable<Survey> read(File file) {
+    public Observable<Survey> read(final File file) {
         return StorageUtils.readFromFile(file)
                 .map(new Function<byte[], Survey>() {
                     @Override
@@ -54,7 +61,7 @@ public class SnapshotIO extends StorageIO<Survey> {
     }
 
     @Override
-    public Observable<File> save(final File file, Survey contents) {
+    public Observable<File> save(final File file, final Survey contents) {
         if (!file.exists())
             return Observable.error(new Throwable("File " + file.getAbsolutePath() + " is not present."));
 

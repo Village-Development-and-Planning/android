@@ -64,9 +64,6 @@
           ],
           "flow": {
             "pre": {
-              "fill": [
-                "HABITATION_NAME"
-              ]
             },
             "question": {
               "ui": "SINGLE_CHOICE",

@@ -1,0 +1,191 @@
+{
+  "_id": "5a7886d9fdb3a526f48afe25",
+  "name": "Mapping",
+  "description": "Mapping",
+  "question": {
+    "type": "ROOT",
+    "options": [],
+    "children": [
+      {
+        "position": "6",
+        "question": {
+          "options": [],
+          "children": [
+            {
+              "position": "1.1",
+              "question": {
+                "options": [],
+                "children": [
+                  {
+                    "position": "1.1",
+                    "question": {
+                      "options": [],
+                      "children": [
+                        {
+                          "position": "1.1",
+                          "question": {
+                            "options": [],
+                            "children": [],
+                            "flow": {
+                              "pre": {
+                                "fill": []
+                              },
+                              "question": {
+                                "ui": "INPUT",
+                                "validation": null
+                              },
+                              "answer": {
+                                "scope": "once"
+                              },
+                              "child": {
+                                "strategy": "cascade"
+                              },
+                              "post": [
+                                "SURVEYOR_CODE"
+                              ],
+                              "exit": {
+                                "strategy": "parent"
+                              }
+                            },
+                            "text": {
+                              "english": "Enter your surveyor code",
+                              "tamil": "உங்களுடைய சர்வேயர் குறியீட்டை பதிவு செய்யவும்"
+                            },
+                            "type": "INPUT",
+                            "tags": "AUTH_SURVEYOR_CODE",
+                            "number": "1.1.1.1"
+                          }
+                        }
+                      ],
+                      "flow": {
+                        "pre": {
+                          "fill": []
+                        },
+                        "question": {
+                          "ui": "INPUT",
+                          "validation": null
+                        },
+                        "answer": {
+                          "scope": "once"
+                        },
+                        "child": {
+                          "strategy": "cascade"
+                        },
+                        "post": [
+                          "SURVEYOR_CODE"
+                        ],
+                        "exit": {
+                          "strategy": "parent"
+                        }
+                      },
+                      "text": {
+                        "english": "Enter your surveyor code",
+                        "tamil": "உங்களுடைய சர்வேயர் குறியீட்டை பதிவு செய்யவும்"
+                      },
+                      "type": "INPUT",
+                      "tags": "AUTH_SURVEYOR_CODE",
+                      "number": "1.1.1"
+                    }
+                  }
+                ],
+                "flow": {
+                  "pre": {
+                    "fill": []
+                  },
+                  "question": {
+                    "ui": "INPUT",
+                    "validation": null
+                  },
+                  "answer": {
+                    "scope": "once"
+                  },
+                  "child": {
+                    "strategy": "cascade"
+                  },
+                  "post": [
+                    "SURVEYOR_CODE"
+                  ],
+                  "exit": {
+                    "strategy": "parent"
+                  }
+                },
+                "text": {
+                  "english": "Enter your surveyor code",
+                  "tamil": "உங்களுடைய சர்வேயர் குறியீட்டை பதிவு செய்யவும்"
+                },
+                "type": "INPUT",
+                "tags": "AUTH_SURVEYOR_CODE",
+                "number": "1.1"
+              }
+            }
+          ],
+          "text": {
+            "english": "Tag village facilities on the road",
+            "tamil": "???? ???????? ?????????? ????? ??????? ???????????"
+          },
+          "type": "CONFIRMATION",
+          "tags": "GRID_MULTIPLE, UI_BACK_DISABLED",
+          "number": "2.1.6",
+          "flow": {
+            "_tags": {
+              "GRID_MULTIPLE": "GRID",
+              "UI_BACK_DISABLED": "UI_BACK_DISABLED"
+            },
+            "pre": {
+              "fill": []
+            },
+            "question": {
+              "ui": "CONFIRMATION",
+              "validation": null,
+              "back": false
+            },
+            "answer": {
+              "scope": "once"
+            },
+            "child": {
+              "strategy": "select",
+              "select": {
+                "ui": "grid",
+                "repeat": "multiple"
+              }
+            },
+            "post": [],
+            "exit": {
+              "strategy": "parent"
+            }
+          }
+        }
+      }
+    ],
+    "flow": {
+      "pre": {
+        "fill": []
+      },
+      "question": {
+        "ui": "NONE",
+        "validation": null
+      },
+      "answer": {
+        "scope": "once"
+      },
+      "child": {
+        "strategy": "cascade"
+      },
+      "post": [],
+      "exit": {
+        "strategy": "parent"
+      }
+    }
+  },
+  "__v": 0,
+  "respondents": [
+    "2.1"
+  ],
+  "enabled": true,
+  "modifiedAt": "2018-02-05T16:31:21.069Z",
+  "answerStats": {
+    "total": 59,
+    "processed": 41
+  },
+  "processes": []
+}

@@ -13,9 +13,14 @@ import com.google.gson.JsonSerializer;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.JsonHelper;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+
+import timber.log.Timber;
 
 /**
  * Created by muthuveerappans on 8/24/17.
@@ -28,7 +33,12 @@ public class Option extends BaseObject {
     private String imageData;
     private String value;
 
+    public Option() {
+        this.value = "";
+    }
+
     public Option(Option other) {
+        this();
         this.type = other.type;
         this.text = other.text;
         this.position = other.position;
@@ -37,12 +47,14 @@ public class Option extends BaseObject {
     }
 
     public Option(String type, Text text, String position) {
+        this();
         this.type = type;
         this.text = text;
         this.position = position;
     }
 
     public Option(String type, Text text, String position, String imageData) {
+        this();
         this.type = type;
         this.text = text;
         this.position = position;
@@ -85,4 +97,20 @@ public class Option extends BaseObject {
     public String getPosition() {
         return position;
     }
+
+//    private void writeObject(ObjectOutputStream os) throws IOException {
+//        os.writeUTF(type);
+//        os.writeObject(text);
+//        os.writeUTF(position);
+//        os.writeUTF(imageData);
+//        os.writeUTF(value);
+//    }
+//
+//    private void readObject(ObjectInputStream is) throws ClassNotFoundException, IOException {
+//        type = is.readUTF();
+//        text = (Text) is.readObject();
+//        position = is.readUTF();
+//        imageData = is.readUTF();
+//        value = is.readUTF();
+//    }
 }

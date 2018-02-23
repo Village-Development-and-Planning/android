@@ -5,6 +5,7 @@ import com.puthuvaazhvu.mapping.other.Constants;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import timber.log.Timber;
@@ -22,13 +23,21 @@ public class Question extends BaseObject {
     private String number;
     private ArrayList<Question> children;
     private FlowPattern flowPattern;
+    private Question parent;
 
     private Answer parentAnswer;
     private ArrayList<Answer> answers;
     private Answer currentAnswer;
-    private Question parent;
     private boolean isFinished = false; // you can set to true for the question to skip
     private int bubbleAnswersCount;
+
+    public Question() {
+        this.answers = new ArrayList<>();
+        this.children = new ArrayList<>();
+        this.flowPattern = new FlowPattern();
+        this.position = "";
+        this.number = "";
+    }
 
     public Question(
             String position,
@@ -38,24 +47,50 @@ public class Question extends BaseObject {
             ArrayList<String> tags,
             String number,
             ArrayList<Question> children,
-            FlowPattern flowPattern
+            FlowPattern flowPattern,
+            Question parent
     ) {
+        this();
         this.position = position;
         this.text = text;
         this.type = type;
         this.options = options;
         this.tags = tags;
         this.number = number;
+        if (children != null)
+            this.children = children;
+        if (flowPattern != null)
+            this.flowPattern = flowPattern;
+
+        this.parent = parent;
+    }
+
+    public void setParent(Question parent) {
+        this.parent = parent;
+    }
+
+    public void setText(Text text) {
+        this.text = text;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setOptions(ArrayList<Option> options) {
+        this.options = options;
+    }
+
+    public void setTags(ArrayList<String> tags) {
+        this.tags = tags;
+    }
+
+    public void setNumber(String number) {
+        this.number = number;
+    }
+
+    public void setChildren(ArrayList<Question> children) {
         this.children = children;
-        this.flowPattern = flowPattern;
-
-        this.answers = new ArrayList<>();
-
-        if (children != null) {
-            for (Question c : children) {
-                c.setParent(this);
-            }
-        }
     }
 
     public void setFlowPattern(FlowPattern flowPattern) {
@@ -100,10 +135,6 @@ public class Question extends BaseObject {
 
     public void setFinished(boolean finished) {
         isFinished = finished;
-    }
-
-    public void setParent(Question parent) {
-        this.parent = parent;
     }
 
     public Question getParent() {
@@ -181,4 +212,40 @@ public class Question extends BaseObject {
                 "Answers count " + (answers != null ? answers.size() : 0) + "\n" +
                 "Parent " + (parent == null ? "ROOT" : parent.getNumber()) + "\n";
     }
+
+//    private void writeObject(ObjectOutputStream os) throws IOException {
+//        Timber.i("Writing question number " + number + " : " + hashCode());
+//        os.writeUTF(position);
+//        os.writeObject(text);
+//        os.writeUTF(type);
+//        os.writeObject(options);
+//        os.writeObject(tags);
+//        os.writeUTF(number);
+//        os.writeObject(children);
+//        os.writeObject(parent);
+//        os.writeObject(flowPattern);
+//        os.writeObject(answers);
+//        os.writeObject(parentAnswer);
+//        os.writeObject(currentAnswer);
+//        os.writeBoolean(isFinished);
+//        os.writeInt(bubbleAnswersCount);
+//        Timber.i("Over Question ---" + number + " : " + hashCode());
+//    }
+//
+//    private void readObject(ObjectInputStream is) throws ClassNotFoundException, IOException {
+//        position = is.readUTF();
+//        text = (Text) is.readObject();
+//        type = is.readUTF();
+//        options = (ArrayList<Option>) is.readObject();
+//        tags = (ArrayList<String>) is.readObject();
+//        number = is.readUTF();
+//        children = (ArrayList<Question>) is.readObject();
+//        parent = (Question) is.readObject();
+//        flowPattern = (FlowPattern) is.readObject();
+//        answers = (ArrayList<Answer>) is.readObject();
+//        parentAnswer = (Answer) is.readObject();
+//        currentAnswer = (Answer) is.readObject();
+//        isFinished = is.readBoolean();
+//        bubbleAnswersCount = is.readInt();
+//    }
 }

@@ -3,6 +3,7 @@ package com.puthuvaazhvu.mapping;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.Helpers.DataTraversing;
 import com.puthuvaazhvu.mapping.Helpers.ReadTestFile;
 import com.puthuvaazhvu.mapping.modals.Answer;
@@ -48,8 +49,12 @@ public class FlowLogicTest {
         this.sharedPrefs = Mockito.mock(SharedPreferences.class);
         this.context = Mockito.mock(Context.class);
         Mockito.when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPrefs);
+        Mockito.when(sharedPrefs.getString("survey_id", null)).thenReturn("21010430");
 
         flowLogicImplementation = new FlowLogicImplementation(null, sharedPrefs);
+
+        JsonObject auth = ReadTestFile.readFromFileAsJson(this, "auth.json");
+        flowLogicImplementation.setAuthJson(auth);
     }
 
     @Test

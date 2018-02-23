@@ -1,0 +1,1114 @@
+{
+  "_id": "5a7886d9fdb3a526f48afe25",
+  "name": "Mapping",
+  "description": "Mapping",
+  "question": {
+    "type": "ROOT",
+    "options": [],
+    "children": [
+      {
+        "position": "1.1",
+        "question": {
+          "options": [],
+          "children": [],
+          "flow": {
+            "pre": {
+              "fill": []
+            },
+            "question": {
+              "ui": "INPUT",
+              "validation": null
+            },
+            "answer": {
+              "scope": "once"
+            },
+            "child": {
+              "strategy": "cascade"
+            },
+            "post": [
+              "SURVEYOR_CODE"
+            ],
+            "exit": {
+              "strategy": "parent"
+            }
+          },
+          "text": {
+            "english": "Enter your surveyor code",
+            "tamil": "உங்களுடைய சர்வேயர் குறியீட்டை பதிவு செய்யவும்"
+          },
+          "type": "INPUT",
+          "tags": "AUTH_SURVEYOR_CODE",
+          "number": "1.1"
+        }
+      },
+      {
+        "position": "1.2",
+        "question": {
+          "options": [],
+          "children": [],
+          "flow": {
+            "pre": {
+              "fill": [
+                "DISTRICT_NAME"
+              ]
+            },
+            "question": {
+              "ui": "INFO",
+              "validation": null
+            },
+            "answer": {
+              "scope": "once"
+            },
+            "child": {
+              "strategy": "cascade"
+            },
+            "post": [],
+            "exit": {
+              "strategy": "parent"
+            }
+          },
+          "text": {
+            "english": "District name",
+            "tamil": "மாவட்டத்தின் பெயர்"
+          },
+          "type": "INFO",
+          "tags": "FILL_DISTRICT_NAME",
+          "number": "1.2"
+        }
+      },
+      {
+        "position": "1.3",
+        "question": {
+          "options": [],
+          "children": [],
+          "flow": {
+            "pre": {
+              "fill": [
+                "BLOCK_NAME"
+              ]
+            },
+            "question": {
+              "ui": "INFO",
+              "validation": null
+            },
+            "answer": {
+              "scope": "once"
+            },
+            "child": {
+              "strategy": "cascade"
+            },
+            "post": [],
+            "exit": {
+              "strategy": "parent"
+            }
+          },
+          "text": {
+            "english": "Block Name",
+            "tamil": "வட்டாரத்தின் பெயர்"
+          },
+          "type": "INFO",
+          "tags": "FILL_BLOCK_NAME",
+          "number": "1.3"
+        }
+      },
+      {
+        "position": "1.4",
+        "question": {
+          "options": [],
+          "children": [],
+          "flow": {
+            "pre": {
+              "fill": [
+                "PANCHAYAT_NAME"
+              ]
+            },
+            "question": {
+              "ui": "INFO",
+              "validation": null
+            },
+            "answer": {
+              "scope": "once"
+            },
+            "child": {
+              "strategy": "cascade"
+            },
+            "post": [],
+            "exit": {
+              "strategy": "parent"
+            }
+          },
+          "text": {
+            "english": "Panchayat Name",
+            "tamil": "ஊராட்சியின் பெயர்"
+          },
+          "type": "INFO",
+          "tags": "FILL_PANCHAYAT_NAME",
+          "number": "1.4"
+        }
+      },
+      {
+        "position": "2",
+        "question": {
+          "options": [],
+          "children": [
+            {
+              "position": "0.1",
+              "question": {
+                "options": [],
+                "children": [],
+                "flow": {
+                  "pre": {
+                    "fill": []
+                  },
+                  "question": {
+                    "ui": "GPS",
+                    "validation": null
+                  },
+                  "answer": {
+                    "scope": "once"
+                  },
+                  "child": {
+                    "strategy": "cascade"
+                  },
+                  "post": [],
+                  "exit": {
+                    "strategy": "parent"
+                  }
+                },
+                "text": {
+                  "english": "Record GPS location of habitation (Start of the habitation)",
+                  "tamil": "குடியிருப்பின் ஜி பி எஸ் விவரத்தைப் தேர்வு செய்யவும் (குடியிருப்பின் ஆரம்பம்)"
+                },
+                "type": "GPS",
+                "tags": "",
+                "number": "2.0.1"
+              }
+            },
+            {
+              "position": "1",
+              "question": {
+                "options": [],
+                "children": [
+                  {
+                    "position": "1",
+                    "question": {
+                      "options": [],
+                      "children": [],
+                      "flow": {
+                        "pre": {
+                          "fill": []
+                        },
+                        "question": {
+                          "ui": "INPUT",
+                          "validation": null,
+                          "back": false
+                        },
+                        "answer": {
+                          "scope": "once"
+                        },
+                        "child": {
+                          "strategy": "cascade"
+                        },
+                        "post": [],
+                        "exit": {
+                          "strategy": "parent"
+                        }
+                      },
+                      "text": {
+                        "english": "Enter road name",
+                        "tamil": "சாலையின் பெயரை பதிவு செய்யவும்"
+                      },
+                      "type": "INPUT",
+                      "tags": "TEXT, UI_BACK_DISABLED",
+                      "number": "2.1.1"
+                    }
+                  },
+                  {
+                    "position": "2",
+                    "question": {
+                      "options": [],
+                      "children": [],
+                      "flow": {
+                        "pre": {
+                          "fill": []
+                        },
+                        "question": {
+                          "ui": "INPUT",
+                          "validation": null
+                        },
+                        "answer": {
+                          "scope": "once"
+                        },
+                        "child": {
+                          "strategy": "cascade"
+                        },
+                        "post": [],
+                        "exit": {
+                          "strategy": "parent"
+                        }
+                      },
+                      "text": {
+                        "english": "Enter road code",
+                        "tamil": "சாலையின் குறியீட்டு எண்ணை பதிவு செய்யவும்"
+                      },
+                      "type": "INPUT",
+                      "tags": "TEXT",
+                      "number": "2.1.2"
+                    }
+                  },
+                  {
+                    "position": "3",
+                    "question": {
+                      "options": [],
+                      "children": [],
+                      "flow": {
+                        "pre": {
+                          "fill": []
+                        },
+                        "question": {
+                          "ui": "GPS",
+                          "validation": null
+                        },
+                        "answer": {
+                          "scope": "once"
+                        },
+                        "child": {
+                          "strategy": "cascade"
+                        },
+                        "post": [],
+                        "exit": {
+                          "strategy": "parent"
+                        }
+                      },
+                      "text": {
+                        "english": "Tag the GPS location (start of the road)",
+                        "tamil": "ஜி பி எஸ் விவரத்தைப் தேர்வு செய்யவும் (சாலையின் ஆரம்பத்தில்)"
+                      },
+                      "type": "GPS",
+                      "tags": "",
+                      "number": "2.1.3"
+                    }
+                  }
+                ],
+                "flow": {
+                  "pre": {
+                    "fill": []
+                  },
+                  "question": {
+                    "ui": "CONFIRMATION",
+                    "validation": null
+                  },
+                  "answer": {
+                    "scope": "multiple"
+                  },
+                  "child": {
+                    "strategy": "cascade"
+                  },
+                  "post": [],
+                  "exit": {
+                    "strategy": "LOOP"
+                  }
+                },
+                "text": {
+                  "english": "Do you want to tag a road in this habitation? If you have finished ALL the roads in this habitation please select NO and choose another habitation. ",
+                  "tamil": "இந்த குடியிருப்பில் உள்ள சாலையை நீங்கள் குறியிட விரும்புகிறீர்களா? இந்த குடியிருப்பில் உள்ள அனைத்து சாலைகளையும் நீங்கள் குறியிட்டு முடித்து விட்டீர்கள் எனில் இந்த கேள்விக்கு இல்லை என்ற பதிலை தேர்வு செய்து அடுத்த குடியிருப்பை தேர்வு செய்ய இயலும்"
+                },
+                "type": "CONFIRMATION",
+                "tags": "LOOP_MULTIPLE",
+                "number": "2.1"
+              }
+            },
+            {
+              "position": "7.1",
+              "question": {
+                "options": [],
+                "children": [
+                  {
+                    "position": "1",
+                    "question": {
+                      "options": [
+                        {
+                          "position": "1",
+                          "option": {
+                            "type": "GENERIC",
+                            "text": {
+                              "english": "Yes",
+                              "tamil": "ஆம்  "
+                            }
+                          }
+                        },
+                        {
+                          "position": "0",
+                          "option": {
+                            "type": "GENERIC",
+                            "text": {
+                              "english": "No",
+                              "tamil": "இல்லை"
+                            }
+                          }
+                        }
+                      ],
+                      "children": [],
+                      "flow": {
+                        "pre": {
+                          "fill": []
+                        },
+                        "question": {
+                          "ui": "SINGLE_CHOICE",
+                          "validation": null
+                        },
+                        "answer": {
+                          "scope": "once"
+                        },
+                        "child": {
+                          "strategy": "cascade"
+                        },
+                        "post": [],
+                        "exit": {
+                          "strategy": "parent"
+                        }
+                      },
+                      "text": {
+                        "english": "Land",
+                        "tamil": "நிலம்"
+                      },
+                      "type": "SINGLE_CHOICE",
+                      "tags": "",
+                      "number": "2.7.1.1"
+                    }
+                  },
+                  {
+                    "position": "2",
+                    "question": {
+                      "options": [
+                        {
+                          "position": "1",
+                          "option": {
+                            "type": "GENERIC",
+                            "text": {
+                              "english": "Yes",
+                              "tamil": "ஆம்  "
+                            }
+                          }
+                        },
+                        {
+                          "position": "0",
+                          "option": {
+                            "type": "GENERIC",
+                            "text": {
+                              "english": "No",
+                              "tamil": "இல்லை"
+                            }
+                          }
+                        }
+                      ],
+                      "children": [],
+                      "flow": {
+                        "pre": {
+                          "fill": []
+                        },
+                        "question": {
+                          "ui": "SINGLE_CHOICE",
+                          "validation": null
+                        },
+                        "answer": {
+                          "scope": "once"
+                        },
+                        "child": {
+                          "strategy": "cascade"
+                        },
+                        "post": [],
+                        "exit": {
+                          "strategy": "parent"
+                        }
+                      },
+                      "text": {
+                        "english": "House",
+                        "tamil": "வீடு"
+                      },
+                      "type": "SINGLE_CHOICE",
+                      "tags": "",
+                      "number": "2.7.1.2"
+                    }
+                  },
+                  {
+                    "position": "3",
+                    "question": {
+                      "options": [
+                        {
+                          "position": "1",
+                          "option": {
+                            "type": "GENERIC",
+                            "text": {
+                              "english": "Yes",
+                              "tamil": "ஆம்  "
+                            }
+                          }
+                        },
+                        {
+                          "position": "0",
+                          "option": {
+                            "type": "GENERIC",
+                            "text": {
+                              "english": "No",
+                              "tamil": "இல்லை"
+                            }
+                          }
+                        }
+                      ],
+                      "children": [],
+                      "flow": {
+                        "pre": {
+                          "fill": []
+                        },
+                        "question": {
+                          "ui": "SINGLE_CHOICE",
+                          "validation": null
+                        },
+                        "answer": {
+                          "scope": "once"
+                        },
+                        "child": {
+                          "strategy": "cascade"
+                        },
+                        "post": [],
+                        "exit": {
+                          "strategy": "parent"
+                        }
+                      },
+                      "text": {
+                        "english": "Livestock (Cows/Goats)",
+                        "tamil": "கால்நடைகள் (பசுக்கள் ஆடுகள்)"
+                      },
+                      "type": "SINGLE_CHOICE",
+                      "tags": "",
+                      "number": "2.7.1.3"
+                    }
+                  },
+                  {
+                    "position": "4",
+                    "question": {
+                      "options": [
+                        {
+                          "position": "1",
+                          "option": {
+                            "type": "GENERIC",
+                            "text": {
+                              "english": "Yes",
+                              "tamil": "ஆம்  "
+                            }
+                          }
+                        },
+                        {
+                          "position": "0",
+                          "option": {
+                            "type": "GENERIC",
+                            "text": {
+                              "english": "No",
+                              "tamil": "இல்லை"
+                            }
+                          }
+                        }
+                      ],
+                      "children": [],
+                      "flow": {
+                        "pre": {
+                          "fill": []
+                        },
+                        "question": {
+                          "ui": "SINGLE_CHOICE",
+                          "validation": null
+                        },
+                        "answer": {
+                          "scope": "once"
+                        },
+                        "child": {
+                          "strategy": "cascade"
+                        },
+                        "post": [],
+                        "exit": {
+                          "strategy": "parent"
+                        }
+                      },
+                      "text": {
+                        "english": "Poultry",
+                        "tamil": "கோழிகள்"
+                      },
+                      "type": "SINGLE_CHOICE",
+                      "tags": "",
+                      "number": "2.7.1.4"
+                    }
+                  },
+                  {
+                    "position": "5",
+                    "question": {
+                      "options": [
+                        {
+                          "position": "1",
+                          "option": {
+                            "type": "GENERIC",
+                            "text": {
+                              "english": "Yes",
+                              "tamil": "ஆம்  "
+                            }
+                          }
+                        },
+                        {
+                          "position": "0",
+                          "option": {
+                            "type": "GENERIC",
+                            "text": {
+                              "english": "No",
+                              "tamil": "இல்லை"
+                            }
+                          }
+                        }
+                      ],
+                      "children": [],
+                      "flow": {
+                        "pre": {
+                          "fill": []
+                        },
+                        "question": {
+                          "ui": "SINGLE_CHOICE",
+                          "validation": null
+                        },
+                        "answer": {
+                          "scope": "once"
+                        },
+                        "child": {
+                          "strategy": "cascade"
+                        },
+                        "post": [],
+                        "exit": {
+                          "strategy": "parent"
+                        }
+                      },
+                      "text": {
+                        "english": "TV",
+                        "tamil": "தொலைகாட்சிப்பெட்டி"
+                      },
+                      "type": "SINGLE_CHOICE",
+                      "tags": "",
+                      "number": "2.7.1.5"
+                    }
+                  },
+                  {
+                    "position": "6",
+                    "question": {
+                      "options": [
+                        {
+                          "position": "1",
+                          "option": {
+                            "type": "GENERIC",
+                            "text": {
+                              "english": "Yes",
+                              "tamil": "ஆம்  "
+                            }
+                          }
+                        },
+                        {
+                          "position": "0",
+                          "option": {
+                            "type": "GENERIC",
+                            "text": {
+                              "english": "No",
+                              "tamil": "இல்லை"
+                            }
+                          }
+                        }
+                      ],
+                      "children": [],
+                      "flow": {
+                        "pre": {
+                          "fill": []
+                        },
+                        "question": {
+                          "ui": "SINGLE_CHOICE",
+                          "validation": null
+                        },
+                        "answer": {
+                          "scope": "once"
+                        },
+                        "child": {
+                          "strategy": "cascade"
+                        },
+                        "post": [],
+                        "exit": {
+                          "strategy": "parent"
+                        }
+                      },
+                      "text": {
+                        "english": "Vehicles (Cycle, Bike, Car)",
+                        "tamil": "வாகனங்கள் (சைக்கிள் பைக் கார்)"
+                      },
+                      "type": "SINGLE_CHOICE",
+                      "tags": "",
+                      "number": "2.7.1.6"
+                    }
+                  },
+                  {
+                    "position": "7",
+                    "question": {
+                      "options": [
+                        {
+                          "position": "1",
+                          "option": {
+                            "type": "GENERIC",
+                            "text": {
+                              "english": "Yes",
+                              "tamil": "ஆம்  "
+                            }
+                          }
+                        },
+                        {
+                          "position": "0",
+                          "option": {
+                            "type": "GENERIC",
+                            "text": {
+                              "english": "No",
+                              "tamil": "இல்லை"
+                            }
+                          }
+                        }
+                      ],
+                      "children": [],
+                      "flow": {
+                        "pre": {
+                          "fill": []
+                        },
+                        "question": {
+                          "ui": "SINGLE_CHOICE",
+                          "validation": null
+                        },
+                        "answer": {
+                          "scope": "once"
+                        },
+                        "child": {
+                          "strategy": "cascade"
+                        },
+                        "post": [],
+                        "exit": {
+                          "strategy": "parent"
+                        }
+                      },
+                      "text": {
+                        "english": "Electrical appliances (Fridge, laptop etc.)",
+                        "tamil": "மின்சார பொருட்கள் (குளிர்சாதனப் பெட்;டி மடிக்கணிணி மற்றும் பல)"
+                      },
+                      "type": "SINGLE_CHOICE",
+                      "tags": "",
+                      "number": "2.7.1.7"
+                    }
+                  },
+                  {
+                    "position": "8",
+                    "question": {
+                      "options": [
+                        {
+                          "position": "1",
+                          "option": {
+                            "type": "GENERIC",
+                            "text": {
+                              "english": "Yes",
+                              "tamil": "ஆம்  "
+                            }
+                          }
+                        },
+                        {
+                          "position": "0",
+                          "option": {
+                            "type": "GENERIC",
+                            "text": {
+                              "english": "No",
+                              "tamil": "இல்லை"
+                            }
+                          }
+                        }
+                      ],
+                      "children": [],
+                      "flow": {
+                        "pre": {
+                          "fill": []
+                        },
+                        "question": {
+                          "ui": "SINGLE_CHOICE",
+                          "validation": null
+                        },
+                        "answer": {
+                          "scope": "once"
+                        },
+                        "child": {
+                          "strategy": "cascade"
+                        },
+                        "post": [],
+                        "exit": {
+                          "strategy": "parent"
+                        }
+                      },
+                      "text": {
+                        "english": "Mobile Phone",
+                        "tamil": "கைபேசி"
+                      },
+                      "type": "SINGLE_CHOICE",
+                      "tags": "",
+                      "number": "2.7.1.8"
+                    }
+                  },
+                  {
+                    "position": "9",
+                    "question": {
+                      "options": [
+                        {
+                          "position": "1",
+                          "option": {
+                            "type": "GENERIC",
+                            "text": {
+                              "english": "Yes",
+                              "tamil": "ஆம்  "
+                            }
+                          }
+                        },
+                        {
+                          "position": "0",
+                          "option": {
+                            "type": "GENERIC",
+                            "text": {
+                              "english": "No",
+                              "tamil": "இல்லை"
+                            }
+                          }
+                        }
+                      ],
+                      "children": [],
+                      "flow": {
+                        "pre": {
+                          "fill": []
+                        },
+                        "question": {
+                          "ui": "SINGLE_CHOICE",
+                          "validation": null
+                        },
+                        "answer": {
+                          "scope": "once"
+                        },
+                        "child": {
+                          "strategy": "cascade"
+                        },
+                        "post": [],
+                        "exit": {
+                          "strategy": "parent"
+                        }
+                      },
+                      "text": {
+                        "english": "Extended or repaired the house this year",
+                        "tamil": "இந்த ஆண்டில் வீட்டில் விரிவாக்கம் அல்லது மராமத்து வேலை நடைபெற்றதா?"
+                      },
+                      "type": "SINGLE_CHOICE",
+                      "tags": "",
+                      "number": "2.7.1.9"
+                    }
+                  },
+                  {
+                    "position": "10",
+                    "question": {
+                      "options": [
+                        {
+                          "position": "1",
+                          "option": {
+                            "type": "GENERIC",
+                            "text": {
+                              "english": "Yes",
+                              "tamil": "ஆம்  "
+                            }
+                          }
+                        },
+                        {
+                          "position": "0",
+                          "option": {
+                            "type": "GENERIC",
+                            "text": {
+                              "english": "No",
+                              "tamil": "இல்லை"
+                            }
+                          }
+                        }
+                      ],
+                      "children": [],
+                      "flow": {
+                        "pre": {
+                          "fill": []
+                        },
+                        "question": {
+                          "ui": "SINGLE_CHOICE",
+                          "validation": null
+                        },
+                        "answer": {
+                          "scope": "once"
+                        },
+                        "child": {
+                          "strategy": "cascade"
+                        },
+                        "post": [],
+                        "exit": {
+                          "strategy": "parent"
+                        }
+                      },
+                      "text": {
+                        "english": "Bullock cart or agriculture equipment",
+                        "tamil": "தங்களிடம் வண்டி அல்லது விவசாய உபகரணங்கள் உள்ளனவா?"
+                      },
+                      "type": "SINGLE_CHOICE",
+                      "tags": "",
+                      "number": "2.7.1.10"
+                    }
+                  },
+                  {
+                    "position": "11",
+                    "question": {
+                      "options": [
+                        {
+                          "position": "1",
+                          "option": {
+                            "type": "GENERIC",
+                            "text": {
+                              "english": "Yes",
+                              "tamil": "ஆம்  "
+                            }
+                          }
+                        },
+                        {
+                          "position": "0",
+                          "option": {
+                            "type": "GENERIC",
+                            "text": {
+                              "english": "No",
+                              "tamil": "இல்லை"
+                            }
+                          }
+                        }
+                      ],
+                      "children": [],
+                      "flow": {
+                        "pre": {
+                          "fill": []
+                        },
+                        "question": {
+                          "ui": "SINGLE_CHOICE",
+                          "validation": null
+                        },
+                        "answer": {
+                          "scope": "once"
+                        },
+                        "child": {
+                          "strategy": "cascade"
+                        },
+                        "post": [],
+                        "exit": {
+                          "strategy": "parent"
+                        }
+                      },
+                      "text": {
+                        "english": "Tractor",
+                        "tamil": "டிராக்டர்"
+                      },
+                      "type": "SINGLE_CHOICE",
+                      "tags": "",
+                      "number": "2.7.1.11"
+                    }
+                  }
+                ],
+                "flow": {
+                  "pre": {
+                    "fill": []
+                  },
+                  "question": {
+                    "ui": "MESSAGE",
+                    "validation": null
+                  },
+                  "answer": {
+                    "scope": "once"
+                  },
+                  "child": {
+                    "strategy": "together"
+                  },
+                  "post": [],
+                  "exit": {
+                    "strategy": "parent"
+                  }
+                },
+                "text": {
+                  "english": "Do you have any of these assets now? ",
+                  "tamil": "கீழ்கண்ட சொத்துக்கள் தங்களிடம் உள்ளதா?"
+                },
+                "type": "MESSAGE",
+                "tags": "SHOWN_TOGETHER",
+                "number": "2.7.1"
+              }
+            }
+          ],
+          "flow": {
+            "pre": {
+              "fill": [
+                "HABITATION_NAME"
+              ]
+            },
+            "question": {
+              "ui": "SINGLE_CHOICE",
+              "validation": null,
+              "back": false
+            },
+            "answer": {
+              "scope": "options"
+            },
+            "child": {
+              "strategy": "cascade"
+            },
+            "post": [],
+            "exit": {
+              "strategy": "LOOP"
+            }
+          },
+          "text": {
+            "english": "Select habitation name",
+            "tamil": "குடியிருப்பின் பெயரை தேர்வு செய்யவும்"
+          },
+          "type": "SINGLE_CHOICE",
+          "tags": "FILL_HABITATION_NAME, LOOP_OPTIONS, UI_BACK_DISABLED",
+          "number": "2"
+        }
+      },
+      {
+        "position": "6",
+        "question": {
+          "options": [],
+          "children": [
+            {
+              "position": "12",
+              "question": {
+                "options": [
+                  {
+                    "position": "1",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "Yes",
+                        "tamil": "???"
+                      }
+                    }
+                  },
+                  {
+                    "position": "0",
+                    "option": {
+                      "type": "GENERIC",
+                      "text": {
+                        "english": "No",
+                        "tamil": "?????"
+                      }
+                    }
+                  }
+                ],
+                "children": [],
+                "text": {
+                  "english": "Tag common land",
+                  "tamil": "???? ???????? ???????????"
+                },
+                "type": "SINGLE_CHOICE",
+                "tags": "UI_BACK_DISABLED",
+                "number": "2.1.6.12",
+                "flow": {
+                  "_tags": {
+                    "UI_BACK_DISABLED": "UI_BACK_DISABLED"
+                  },
+                  "pre": {
+                    "fill": []
+                  },
+                  "question": {
+                    "ui": "SINGLE_CHOICE",
+                    "validation": null,
+                    "back": false
+                  },
+                  "answer": {
+                    "scope": "multiple"
+                  },
+                  "child": {
+                    "strategy": "cascade"
+                  },
+                  "post": [],
+                  "exit": {
+                    "strategy": "parent"
+                  }
+                }
+              }
+            }
+          ],
+          "text": {
+            "english": "Tag village facilities on the road",
+            "tamil": "???? ???????? ?????????? ????? ??????? ???????????"
+          },
+          "type": "CONFIRMATION",
+          "tags": "GRID_MULTIPLE, UI_BACK_DISABLED",
+          "number": "2.1.6",
+          "flow": {
+            "_tags": {
+              "GRID_MULTIPLE": "GRID",
+              "UI_BACK_DISABLED": "UI_BACK_DISABLED"
+            },
+            "pre": {
+              "fill": []
+            },
+            "question": {
+              "ui": "CONFIRMATION",
+              "validation": null,
+              "back": false
+            },
+            "answer": {
+              "scope": "once"
+            },
+            "child": {
+              "strategy": "select",
+              "select": {
+                "ui": "grid",
+                "repeat": "multiple"
+              }
+            },
+            "post": [],
+            "exit": {
+              "strategy": "parent"
+            }
+          }
+        }
+      }
+    ],
+    "flow": {
+      "pre": {
+        "fill": []
+      },
+      "question": {
+        "ui": "NONE",
+        "validation": null
+      },
+      "answer": {
+        "scope": "once"
+      },
+      "child": {
+        "strategy": "cascade"
+      },
+      "post": [],
+      "exit": {
+        "strategy": "parent"
+      }
+    }
+  },
+  "__v": 0,
+  "respondents": [
+    "2.1"
+  ],
+  "enabled": true,
+  "modifiedAt": "2018-02-05T16:31:21.069Z",
+  "answerStats": {
+    "total": 59,
+    "processed": 41
+  },
+  "processes": []
+}

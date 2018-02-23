@@ -2,6 +2,11 @@ package com.puthuvaazhvu.mapping.filestorage;
 
 import android.os.Environment;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+import com.puthuvaazhvu.mapping.modals.Survey;
+
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -14,6 +19,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.Serializable;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -49,15 +55,25 @@ public final class StorageUtils {
         return Observable.create(new ObservableOnSubscribe<byte[]>() {
             @Override
             public void subscribe(ObservableEmitter<byte[]> e) throws Exception {
+                Kryo kryo = new Kryo();
+
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
-                ObjectOutputStream os = new ObjectOutputStream(out);
-                os.writeObject(obj);
+                Output output = new Output(out);
+                kryo.writeClassAndObject(output, obj);
+                output.close();
 
                 e.onNext(out.toByteArray());
                 e.onComplete();
 
-                os.close();
-                out.close();
+//                ByteArrayOutputStream out = new ByteArrayOutputStream();
+//                ObjectOutputStream os = new ObjectOutputStream(out);
+//                os.writeObject(obj);
+//
+//                e.onNext(out.toByteArray());
+//                e.onComplete();
+//
+//                os.close();
+//                out.close();
             }
         });
     }
@@ -66,15 +82,24 @@ public final class StorageUtils {
         return Observable.create(new ObservableOnSubscribe<Object>() {
             @Override
             public void subscribe(ObservableEmitter<Object> e) throws Exception {
-                ByteArrayInputStream in = new ByteArrayInputStream(data);
-                ObjectInputStream is = new ObjectInputStream(in);
+                Kryo kryo = new Kryo();
 
-                Object o = is.readObject();
+                Input input = new Input(new ByteArrayInputStream(data));
+                Object o = kryo.readClassAndObject(input);
+                input.close();
+
                 e.onNext(o);
                 e.onComplete();
 
-                in.close();
-                is.close();
+//                ByteArrayInputStream in = new ByteArrayInputStream(data);
+//                ObjectInputStream is = new ObjectInputStream(in);
+//
+//                Object o = is.readObject();
+//                e.onNext(o);
+//                e.onComplete();
+//
+//                in.close();
+//                is.close();
             }
         });
     }

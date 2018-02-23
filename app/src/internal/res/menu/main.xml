@@ -6,7 +6,7 @@
         android:title="MEMORY TESTING"
         app:showAsAction="never" />
     <item
-        android:id="@+id/grid_question"
-        android:title="GRID QUESTION FLOW"
+        android:id="@+id/test_survey"
+        android:title="TEST SURVEY"
         app:showAsAction="never" />
 </menu>

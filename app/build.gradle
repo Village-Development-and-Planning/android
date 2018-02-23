@@ -99,6 +99,8 @@ dependencies {
     // for logging
     compile "com.jakewharton.timber:timber:$rootProject.ext.timberVersion"
 
+    compile group: 'com.esotericsoftware', name: 'kryo', version: '4.0.1'
+
     // crash reports
     compile('com.crashlytics.sdk.android:crashlytics:2.7.0@aar') {
         transitive = true;

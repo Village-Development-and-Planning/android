@@ -260,7 +260,11 @@ public class FlowLogicImplementation extends FlowLogic {
         }
 
         // PRE FLOW OPERATION
-        preFlow(current);
+        if (!preFlow(current)) {
+            Timber.e("Auth error!");
+            // auth error
+            return null;
+        }
 
         // ANSWER FLOW OPERATION
 
@@ -345,28 +349,28 @@ public class FlowLogicImplementation extends FlowLogic {
         }
     }
 
-    private void preFlow(Question question) {
+    private boolean preFlow(Question question) {
 
         if (authJson == null) {
             // authentication error
             Timber.e("Authentication error");
-            return;
+            return false;
         }
 
         FlowPattern.PreFlow preFlow = question.getFlowPattern().getPreFlow();
-        if (preFlow == null) return;
+        if (preFlow == null) return false;
 
         String surveyorID = SharedPreferenceUtils.getSurveyorID(sharedPreferences);
 
-        if (surveyorID == null) return;
+        if (surveyorID == null) return false;
 
         JsonObject auth = AuthUtils.getAuthForSurveyCode(authJson, surveyorID);
 
-        if (auth == null) return;
+        if (auth == null) return false;
 
         ArrayList<String> fill = preFlow.getFill();
 
-        if (fill == null || fill.isEmpty()) return;
+        if (fill == null || fill.isEmpty()) return true;
 
         ArrayList<Option> options = new ArrayList<>();
 
@@ -396,11 +400,11 @@ public class FlowLogicImplementation extends FlowLogic {
 
         question.getOptions().clear();
         question.getOptions().addAll(options);
+
+        return true;
     }
 
     private boolean postFlow(Question question) {
-        JsonObject authJson = MappingApplication.globalContext.getApplicationData().getAuthJson();
-
         if (authJson == null) {
             Timber.e("Auth json is null.");
             return false;
