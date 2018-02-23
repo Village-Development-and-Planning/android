@@ -11,6 +11,8 @@ import android.view.MenuItem;
 
 import com.puthuvaazhvu.mapping.fragments.FragmentInterface;
 import com.puthuvaazhvu.mapping.fragments.TestMemoryFragment;
+import com.puthuvaazhvu.mapping.utils.DialogHandler;
+import com.puthuvaazhvu.mapping.utils.PauseHandler;
 import com.puthuvaazhvu.mapping.views.activities.BaseActivity;
 import com.puthuvaazhvu.mapping.views.dialogs.ProgressDialog;
 
@@ -20,6 +22,7 @@ import com.puthuvaazhvu.mapping.views.dialogs.ProgressDialog;
 
 public class MainActivity extends BaseActivity implements FragmentInterface {
     private ProgressDialog progressDialog;
+    DialogHandler dialogHandler;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -28,6 +31,12 @@ public class MainActivity extends BaseActivity implements FragmentInterface {
         setContentView(R.layout.main);
 
         progressDialog = new ProgressDialog();
+        dialogHandler = new DialogHandler(progressDialog, getSupportFragmentManager());
+    }
+
+    @Override
+    public PauseHandler getPauseHandler() {
+        return dialogHandler;
     }
 
     @Override
@@ -63,11 +72,11 @@ public class MainActivity extends BaseActivity implements FragmentInterface {
     @Override
     public void showLoading(String msg) {
         progressDialog.setTextView(msg);
-        progressDialog.show(getSupportFragmentManager(), "msg");
+        dialogHandler.showDialog("progress_dialog");
     }
 
     @Override
     public void hideLoading() {
-        progressDialog.dismiss();
+        dialogHandler.hideDialog();
     }
 }

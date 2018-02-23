@@ -358,7 +358,11 @@ public class FlowLogicImplementation extends FlowLogic {
         }
 
         FlowPattern.PreFlow preFlow = question.getFlowPattern().getPreFlow();
-        if (preFlow == null) return false;
+        if (preFlow == null) return true;
+
+        // if no pre-flow present in the question, proceed as normal
+        ArrayList<String> fill = preFlow.getFill();
+        if (fill == null || fill.isEmpty()) return true;
 
         String surveyorID = SharedPreferenceUtils.getSurveyorID(sharedPreferences);
 
@@ -367,10 +371,6 @@ public class FlowLogicImplementation extends FlowLogic {
         JsonObject auth = AuthUtils.getAuthForSurveyCode(authJson, surveyorID);
 
         if (auth == null) return false;
-
-        ArrayList<String> fill = preFlow.getFill();
-
-        if (fill == null || fill.isEmpty()) return true;
 
         ArrayList<Option> options = new ArrayList<>();
 
