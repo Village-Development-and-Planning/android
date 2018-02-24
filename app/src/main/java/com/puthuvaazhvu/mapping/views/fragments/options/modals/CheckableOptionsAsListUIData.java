@@ -8,6 +8,7 @@ import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.FlowPattern;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
+import com.puthuvaazhvu.mapping.modals.Text;
 import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 
 import java.util.ArrayList;
@@ -100,6 +101,7 @@ public class CheckableOptionsAsListUIData extends OptionsUIData {
         private int backgroundColor = -1;
         private String imageData;
         private boolean shouldShowBackgroundColor = false;
+        private Text optionTextObj;
 
         public SingleDataOption(String id, String text, String position) {
             this.id = id;
@@ -112,6 +114,14 @@ public class CheckableOptionsAsListUIData extends OptionsUIData {
             this.text = text;
             this.position = position;
             this.imageData = imageData;
+        }
+
+        public Text getOptionTextObj() {
+            return optionTextObj;
+        }
+
+        public void setOptionTextObj(Text optionTextObj) {
+            this.optionTextObj = optionTextObj;
         }
 
         public String getId() {
@@ -209,6 +219,8 @@ public class CheckableOptionsAsListUIData extends OptionsUIData {
                 );
 
             singleDataOption.setShouldShowBackgroundColor(shouldShowBackgroundColor);
+            singleDataOption.setOptionTextObj(option.getText());
+
             return singleDataOption;
         }
     }

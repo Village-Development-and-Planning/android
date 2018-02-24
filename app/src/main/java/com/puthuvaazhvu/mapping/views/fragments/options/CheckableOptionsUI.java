@@ -46,7 +46,7 @@ public abstract class CheckableOptionsUI extends ListOptionsUI {
                     new Text(singleDataOption.getText(), singleDataOption.getText()),
                     singleDataOption.getPosition()
             );
-            option.setValue(singleDataOption.getText());
+            option.setValue(singleDataOption.getOptionTextObj().getEnglish());
             options.add(option);
         }
         return options;

@@ -48,7 +48,7 @@ public class InfoOptionsUI extends ListOptionsUI {
         ArrayList<Option> response = new ArrayList<>();
         for (Option option : question.getOptions()) {
             Option o = new Option(option);
-            o.setValue(option.getTextString());
+            o.setValue(option.getText().getEnglish());
             response.add(o);
         }
         return response;
