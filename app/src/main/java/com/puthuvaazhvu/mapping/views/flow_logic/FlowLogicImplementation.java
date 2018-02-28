@@ -212,6 +212,8 @@ public class FlowLogicImplementation extends FlowLogic {
 
                 // EXIT FLOW OPERATION
 
+                current.getCurrentAnswer().setExitTimestamp(System.currentTimeMillis());
+
                 FlowPattern.ExitFlow exitFlow = current.getFlowPattern().getExitFlow();
 
                 if (exitFlow.isIncrementBubble() && !current.getCurrentAnswer().containsOption("0")) {
@@ -220,14 +222,8 @@ public class FlowLogicImplementation extends FlowLogic {
 
                 if (exitFlow.getStrategy() == FlowPattern.ExitFlow.Strategy.END ||
                         current.isRoot()) {
-
                     backStack.clear();
-
-                    current.getCurrentAnswer()
-                            .setExitTimestamp(System.currentTimeMillis());
-
                     return null;
-
                 } else if (exitFlow.getStrategy() == FlowPattern.ExitFlow.Strategy.LOOP) {
 
                     FlowPattern.AnswerFlow answerFlow = current.getFlowPattern().getAnswerFlow();
@@ -242,8 +238,6 @@ public class FlowLogicImplementation extends FlowLogic {
 
                     }
                 }
-
-                current.getCurrentAnswer().setExitTimestamp(System.currentTimeMillis());
 
                 Question parent = current.getParentAnswer().getParentQuestion();
 

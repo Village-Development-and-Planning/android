@@ -13,6 +13,6 @@ public class APIUtils {
     public static String BASE_URL = "https://ptracking.org/";
 
     public static String getAuth(SharedPreferences sharedPreferences) {
-        return "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiZGV2IiwiaWF0IjoxNTAzNzc2NjkxfQ.p6kwJVeJN4h_3QoAjRg998cQHaiy2m_6cH166OXq6NA";
+        return "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjAwMDAwMCIsIm5hbWUiOiJBcHAgU3VydmV5b3IiLCJyb2xlcyI6WyJTVVJWRVlPUiJdLCJpYXQiOjE1MTk4MTgzMzB9.ueYCvM-qOqg5Dhpsh3iC3XkeJv995Bur9PEfmbf4h1g";
     }
 }
