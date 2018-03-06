@@ -6,7 +6,10 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 
 import com.puthuvaazhvu.mapping.filestorage.LogIO;
+import com.puthuvaazhvu.mapping.filestorage.StorageUtils;
+import com.puthuvaazhvu.mapping.other.Constants;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import timber.log.Timber;
@@ -42,6 +45,17 @@ public class GlobalExceptionHandler {
                             Thread paramThread,
                             Throwable paramThrowable
                     ) {
+                        if (paramThrowable.getClass().equals(OutOfMemoryError.class)) {
+                            try {
+                                String path = StorageUtils.root().getAbsolutePath() + "/" +
+                                        Constants.DATA_DIR + "/" +
+                                        Constants.LOG_DIR + "/" +
+                                        System.currentTimeMillis() + "_dump.hprof";
+                                android.os.Debug.dumpHprofData(path);
+                            } catch (IOException e) {
+                                Timber.e(e);
+                            }
+                        }
 
                         saveLogs();
 

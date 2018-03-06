@@ -55,7 +55,7 @@ public class MainActivity extends BaseActivity implements FragmentInterface {
                 return true;
             case R.id.test_survey:
                 Intent intent = new Intent(this, SurveyTestActivity.class);
-                intent.putExtra("file_name", "survey_testing.json");
+                intent.putExtra("file_name", "survey_testing_random_questions.json");
                 startActivity(intent);
                 return true;
             default:

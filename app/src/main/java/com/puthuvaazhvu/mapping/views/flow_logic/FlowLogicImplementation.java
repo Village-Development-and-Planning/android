@@ -5,7 +5,6 @@ import android.support.v4.app.Fragment;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.puthuvaazhvu.mapping.application.MappingApplication;
 import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.FlowPattern;
 import com.puthuvaazhvu.mapping.modals.Option;
@@ -117,17 +116,19 @@ public class FlowLogicImplementation extends FlowLogic {
     @Override
     public FlowData getPrevious() {
         // first remove the last question
-        FlowData currentlyVisibleQuestion = backStack.removeLatest();
-        if (currentlyVisibleQuestion == null) {
+        Answer currentlyVisibleAnswer = backStack.removeLatest();
+        if (currentlyVisibleAnswer == null) {
             FlowData flowData = new FlowData();
             flowData.setQuestion(currentQuestion);
             flowData.setFragment(getFragment(currentQuestion));
             return flowData;
         } else {
-            FlowData toBeVisibleQuestion = backStack.getLatest();
+            Question visibleQuestion = currentlyVisibleAnswer.getParentQuestion();
+
+            Answer toBeVisibleAnswer = backStack.getLatest();
+            Question toBeVisibleQuestion = toBeVisibleAnswer.getParentQuestion();
 
             // remove the last answer
-            Question visibleQuestion = currentlyVisibleQuestion.getQuestion();
             Answer currentAnswer = visibleQuestion.getCurrentAnswer();
             visibleQuestion.getAnswers().remove(currentAnswer);
             if (visibleQuestion.getAnswers().isEmpty()) {
@@ -138,19 +139,23 @@ public class FlowLogicImplementation extends FlowLogic {
             }
 
             Timber.i("------");
-            Timber.i("Question popped " + currentlyVisibleQuestion.getQuestion().getNumber());
+            Timber.i("Question popped " + visibleQuestion.getNumber());
             Timber.i("Answer count after popping question "
-                    + currentlyVisibleQuestion.getQuestion().getNumber() + " "
-                    + currentlyVisibleQuestion.getQuestion().getAnswers().size());
+                    + visibleQuestion.getNumber() + " "
+                    + visibleQuestion.getAnswers().size());
 
-            setCurrent(toBeVisibleQuestion.getQuestion());
+            setCurrent(toBeVisibleQuestion);
 
-            Timber.i("Showing question " + toBeVisibleQuestion.getQuestion().getNumber());
-            Timber.i("Answer count " + toBeVisibleQuestion.getQuestion().getAnswers().size());
-            Timber.i("Question child count " + toBeVisibleQuestion.getQuestion().getChildren().size());
+            Timber.i("Showing question " + toBeVisibleQuestion.getNumber());
+            Timber.i("Answer count " + toBeVisibleQuestion.getAnswers().size());
+            Timber.i("Question child count " + toBeVisibleQuestion.getChildren().size());
             Timber.i("------");
 
-            return toBeVisibleQuestion;
+            FlowData flowData = new FlowData();
+            flowData.setQuestion(toBeVisibleQuestion);
+            flowData.setFragment(getFragment(toBeVisibleQuestion));
+
+            return flowData;
         }
     }
 
@@ -304,7 +309,7 @@ public class FlowLogicImplementation extends FlowLogic {
         flowData.setQuestion(current);
 
         // add the found question to back stack
-        backStack.addQuestionToStack(flowData);
+        backStack.addQuestionToStack(flowData.getQuestion().getCurrentAnswer());
 
         return flowData;
     }
@@ -597,43 +602,43 @@ public class FlowLogicImplementation extends FlowLogic {
     }
 
     private static class BackStack {
-        private final ArrayList<FlowData> questionStack;
+        private final ArrayList<Answer> answerStack;
 
         public BackStack() {
-            questionStack = new ArrayList<>();
+            answerStack = new ArrayList<>();
         }
 
-        public void addQuestionToStack(FlowData flowData) {
-            questionStack.add(flowData.copy());
+        public void addQuestionToStack(Answer answer) {
+            answerStack.add(answer);
         }
 
         public boolean isStackEmpty() {
-            return questionStack.isEmpty();
+            return answerStack.isEmpty();
         }
 
-        public FlowData getLatest() {
-            if (questionStack.isEmpty()) return null;
-            return questionStack.get(questionStack.size() - 1);
+        public Answer getLatest() {
+            if (answerStack.isEmpty()) return null;
+            return answerStack.get(answerStack.size() - 1);
         }
 
-        public FlowData removeLatest() {
-            if (questionStack.isEmpty()) {
+        public Answer removeLatest() {
+            if (answerStack.isEmpty()) {
                 return null;
             }
 
-            int indexToRemove = questionStack.size() - 1;
+            int indexToRemove = answerStack.size() - 1;
 
             // always maintain min of 1 element in the array
             // this is for the ROOT question.
             if (indexToRemove > 0) {
-                return questionStack.remove(indexToRemove);
+                return answerStack.remove(indexToRemove);
             }
 
             return null;
         }
 
         public void clear() {
-            questionStack.clear();
+            answerStack.clear();
         }
     }
 }
