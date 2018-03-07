@@ -6,7 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.modals.deserialization.SurveyGsonAdapter;
-import com.puthuvaazhvu.mapping.network.APIError;
+import com.puthuvaazhvu.mapping.other.Error;
 import com.puthuvaazhvu.mapping.network.ErrorUtils;
 import com.puthuvaazhvu.mapping.network.adapters.NetworkAdapter;
 import com.puthuvaazhvu.mapping.network.client_interfaces.SingleSurveyClient;
@@ -59,8 +59,8 @@ public class SingleSurveyAPI {
                     emitter.onNext(gson.fromJson(jsonObject, Survey.class));
                     emitter.onComplete();
                 } else {
-                    APIError apiError = ErrorUtils.parseError(response);
-                    emitter.onError(new Throwable(apiError.message()));
+                    Error error = ErrorUtils.parseError(response);
+                    emitter.onError(new Throwable(error.message()));
                 }
             }
         });

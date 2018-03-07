@@ -5,6 +5,7 @@
     <string name="do_you_want_to_go_to_main_page">Do you want to go to the main page?</string>
     <string name="retry">Retry</string>
     <string name="no">NO</string>
+    <string name="delete_snapshot">Do you want to delete %1$s?</string>
     <string name="summary">SUMMARY</string>
     <string name="yes">YES</string>
     <string name="survey_complete">This survey is complete</string>
@@ -16,6 +17,7 @@
     <string name="enter_cst">Enter your CST code</string>
     <string name="survey_file_saving_msg">Saving the survey. Please wait...</string>
     <string name="loading">LOADING</string>
+    <string name="deleting">DELETING</string>
     <string name="next">NEXT</string>
     <string name="back">BACK</string>
     <string name="settings">SETTINGS</string>
@@ -34,6 +36,7 @@
     <string name="auth_error">Authentication error.</string>
     <string name="survey_code_invalid">Surveyor code not valid</string>
     <string name="invalid_ui">Invalid UI provided</string>
+    <string name="error_deleting_file">Error deleting the file!</string>
     <string name="err_no_data">Cannot get the required survey</string>
     <string name="question_iteration_error">Cannot proceed</string>
     <string name="survey_incomplete">Please complete all the questions</string>

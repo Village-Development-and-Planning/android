@@ -1,7 +1,7 @@
 package com.puthuvaazhvu.mapping.network.implementations;
 
 import com.puthuvaazhvu.mapping.modals.SurveyAPIInfo;
-import com.puthuvaazhvu.mapping.network.APIError;
+import com.puthuvaazhvu.mapping.other.Error;
 import com.puthuvaazhvu.mapping.network.ErrorUtils;
 import com.puthuvaazhvu.mapping.network.adapters.NetworkAdapter;
 import com.puthuvaazhvu.mapping.network.client_interfaces.ListSurveysClient;
@@ -28,7 +28,7 @@ public class ListSurveysAPI {
     public interface ListSurveysAPICallbacks {
         void onSurveysLoaded(List<SurveyAPIInfo> surveyInfoList);
 
-        void onErrorOccurred(APIError error);
+        void onErrorOccurred(Error error);
     }
 
     public static ListSurveysAPI getInstance(String authToken) {
@@ -57,7 +57,7 @@ public class ListSurveysAPI {
                     }
 
                     @Override
-                    public void onErrorOccurred(APIError error) {
+                    public void onErrorOccurred(Error error) {
                         emitter.onError(new Throwable(error.message()));
                     }
                 });

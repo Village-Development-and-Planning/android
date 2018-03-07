@@ -66,6 +66,7 @@ public class SurveyListActivity extends MenuActivity
         surveyListData = new ArrayList<>();
 
         progressDialog = new ProgressDialog();
+        progressDialog.setCancelable(false);
 
         dialogHandler = new DialogHandler(progressDialog, getSupportFragmentManager());
 
@@ -180,6 +181,26 @@ public class SurveyListActivity extends MenuActivity
                         ? adapter.getSelectedData().getSnapshotPath() : null);
 
         openMainSurveyActivity();
+    }
+
+    @Override
+    public void showSnapshotDeleteDialog(final SurveyListData surveyListData) {
+        Utils.createAlertDialog(
+                this,
+                String.format(getString(R.string.delete_snapshot), surveyListData.getName()),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        presenter.deleteSnapshot(surveyListData);
+                    }
+                },
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                }
+        ).show();
     }
 
     @Override

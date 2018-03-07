@@ -1,11 +1,11 @@
-package com.puthuvaazhvu.mapping.network;
+package com.puthuvaazhvu.mapping.other;
 
-public class APIError {
+public class Error {
 
     private int statusCode = -1;
     private String message = "N/A";
 
-    public APIError() {
+    public Error() {
     }
 
     public void setStatusCode(int statusCode) {
