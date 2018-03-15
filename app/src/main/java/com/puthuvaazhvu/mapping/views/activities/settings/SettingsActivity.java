@@ -2,6 +2,8 @@ package com.puthuvaazhvu.mapping.views.activities.settings;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -21,6 +23,8 @@ import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.activities.MenuActivity;
 import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListActivity;
 import com.puthuvaazhvu.mapping.views.dialogs.ProgressDialog;
+
+import timber.log.Timber;
 
 /**
  * Created by muthuveerappans on 11/1/17.
@@ -46,6 +50,9 @@ public class SettingsActivity extends MenuActivity implements View.OnClickListen
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
+
+        TextView versionTxt = findViewById(R.id.version);
+        versionTxt.setText("Version " + getVersionName());
 
         progressDialog = new ProgressDialog();
 
@@ -123,5 +130,18 @@ public class SettingsActivity extends MenuActivity implements View.OnClickListen
         Intent intent = new Intent(this, SurveyListActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
+    }
+
+    private String getVersionName() {
+        try {
+            PackageManager manager = getPackageManager();
+            PackageInfo info = null;
+            info = manager.getPackageInfo(
+                    getPackageName(), 0);
+            return info.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            Timber.e(e);
+        }
+        return "N/A";
     }
 }
