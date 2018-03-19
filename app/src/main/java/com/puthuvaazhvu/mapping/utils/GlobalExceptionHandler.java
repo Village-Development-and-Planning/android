@@ -87,7 +87,8 @@ public class GlobalExceptionHandler {
             String log = "";
             log += "Android version: " + Build.VERSION.SDK_INT + "\n";
             log += "Device: " + model + "\n";
-            log += "App version: " + (info == null ? "(null)" : info.versionCode) + "\n";
+            log += "App version code: " + (info == null ? "(null)" : info.versionCode) + "\n";
+            log += "App version name: " + (info == null ? "(null)" : info.versionName) + "\n";
             log += Utils.readFromInputStream(in);
 
             LogIO logIO = new LogIO("log_" + System.currentTimeMillis());

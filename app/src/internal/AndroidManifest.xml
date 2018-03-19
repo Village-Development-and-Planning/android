@@ -34,20 +34,10 @@
             android:name=".views.activities.dump_survey_activity.SurveyDataDumpActivity"
             tools:node="remove" />
 
-        <activity android:name=".SurveyTestActivity" />
-
         <activity
             android:name=".views.activities.SplashActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             tools:node="remove">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

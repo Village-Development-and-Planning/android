@@ -41,14 +41,18 @@ public class LoggerActivity extends AppCompatActivity {
         @Override
         public void run() {
             try {
-                log();
+                logHeap(_logHeap());
             } finally {
                 mHandler.postDelayed(mStatusChecker, LOG_INTERVAL);
             }
         }
     };
 
-    private void log() {
+    protected void logHeap(String log) {
+        Timber.i(log);
+    }
+
+    private String _logHeap() {
         String log = "";
 
         log += "HEAP MEMORY\n";
@@ -56,7 +60,7 @@ public class LoggerActivity extends AppCompatActivity {
         log += logMemory();
         log += "\n";
 
-        Timber.i(log);
+        return log;
     }
 
     private String logMemory() {
