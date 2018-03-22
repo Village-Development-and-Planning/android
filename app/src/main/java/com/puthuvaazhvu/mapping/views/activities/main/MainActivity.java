@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.MenuItem;
@@ -55,9 +56,6 @@ public class MainActivity extends MenuActivity
 
     private final long REPEATING_TASK_INTERVAL = TimeUnit.MINUTES.toMillis(30);
 
-    private StackFragmentManagerInvoker stackFragmentManagerInvoker;
-    private StackFragmentManagerReceiver stackFragmentManagerReceiver;
-
     private Contract.UserAction presenter;
 
     private FlowLogic flowLogic;
@@ -89,9 +87,6 @@ public class MainActivity extends MenuActivity
         dialogHandler = new DialogHandler(progressDialog, getSupportFragmentManager());
 
         dataFragment = DataFragment.getInstance(getSupportFragmentManager());
-
-        stackFragmentManagerInvoker = new StackFragmentManagerInvoker();
-        stackFragmentManagerReceiver = new StackFragmentManagerReceiver(getSupportFragmentManager(), R.id.container);
 
         sharedPreferences = getSharedPreferences(Constants.PREFS, MODE_PRIVATE);
 
@@ -220,8 +215,7 @@ public class MainActivity extends MenuActivity
 
     @Override
     public void loadQuestionUI(Fragment fragment, String tag) {
-        replaceFragmentCommand(fragment, tag);
-        executePendingCommands();
+        replaceFragment(fragment, tag);
     }
 
     @Override
@@ -310,25 +304,10 @@ public class MainActivity extends MenuActivity
         presenter.updateCurrentQuestion(response, runnable);
     }
 
-    public void replaceFragmentCommand(Fragment fragment, String tag) {
-        stackFragmentManagerInvoker.addCommand(new FragmentReplaceCommand(stackFragmentManagerReceiver, tag, fragment));
-    }
-
-    public void addPushFragmentCommand(Fragment fragment, String tag) {
-        stackFragmentManagerInvoker.addCommand(new FragmentPushCommand(stackFragmentManagerReceiver, tag, fragment));
-    }
-
-    public void addPopFragmentCommand(String tag) {
-        // don't pop if the stack count is 1.
-        if (stackFragmentManagerReceiver.getStackCount() == 1) {
-            Timber.e("There is only one fragment in the stack.");
-            return;
-        }
-        stackFragmentManagerInvoker.addCommand(new FragmentPopCommand(stackFragmentManagerReceiver, tag));
-    }
-
-    public void executePendingCommands() {
-        stackFragmentManagerInvoker.executeCommand();
+    public void replaceFragment(Fragment fragment, String tag) {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.container, fragment, tag);
+        fragmentTransaction.commitAllowingStateLoss();
     }
 
     private void startListOfSurveysActivity() {
