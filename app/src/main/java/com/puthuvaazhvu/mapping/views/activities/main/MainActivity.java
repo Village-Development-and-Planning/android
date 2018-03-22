@@ -34,11 +34,6 @@ import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces
 import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.QuestionDataFragmentCommunication;
 import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.ShowTogetherQuestionCommunication;
 import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.SingleQuestionFragmentCommunication;
-import com.puthuvaazhvu.mapping.views.managers.StackFragmentManagerInvoker;
-import com.puthuvaazhvu.mapping.views.managers.commands.FragmentPopCommand;
-import com.puthuvaazhvu.mapping.views.managers.commands.FragmentPushCommand;
-import com.puthuvaazhvu.mapping.views.managers.commands.FragmentReplaceCommand;
-import com.puthuvaazhvu.mapping.views.managers.receiver.StackFragmentManagerReceiver;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
