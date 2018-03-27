@@ -20,7 +20,9 @@ import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.PauseHandler;
 import com.puthuvaazhvu.mapping.utils.Utils;
+import com.puthuvaazhvu.mapping.views.activities.BaseActivity;
 import com.puthuvaazhvu.mapping.views.activities.MenuActivity;
+import com.puthuvaazhvu.mapping.views.activities.connector.ConnectorActivity;
 import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListActivity;
 import com.puthuvaazhvu.mapping.views.dialogs.ProgressDialog;
 
@@ -30,7 +32,7 @@ import timber.log.Timber;
  * Created by muthuveerappans on 11/1/17.
  */
 
-public class SettingsActivity extends MenuActivity implements View.OnClickListener {
+public class SettingsActivity extends BaseActivity implements View.OnClickListener {
     Button main_page_button;
     ProgressDialog progressDialog;
 
@@ -45,6 +47,8 @@ public class SettingsActivity extends MenuActivity implements View.OnClickListen
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.settings_activity);
+
+        findViewById(R.id.connector_page_button).setOnClickListener(this);
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -120,10 +124,17 @@ public class SettingsActivity extends MenuActivity implements View.OnClickListen
                         },
                         null).show();
                 break;
+            case R.id.connector_page_button:
+                showConnectorActivity();
+                break;
         }
     }
 
     private void setLanguageForViews() {
+    }
+
+    private void showConnectorActivity() {
+        startActivity(new Intent(this, ConnectorActivity.class));
     }
 
     private void showListOfSurveyActivity() {

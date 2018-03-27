@@ -27,17 +27,10 @@ public class SingleSurveyAPI {
     private final SingleSurveyClient client;
     private Gson gson = new Gson();
 
-    public static SingleSurveyAPI getInstance(String authToken) {
-        if (singleSurveyAPI == null) {
-            singleSurveyAPI = new SingleSurveyAPI(authToken);
-        }
-        return singleSurveyAPI;
-    }
-
-    private SingleSurveyAPI(String authToken) {
+    public SingleSurveyAPI(String username, String password) {
         super();
         NetworkAdapter adapter = NetworkAdapter.getInstance();
-        Retrofit retrofit = adapter.getUnsafeRetrofit(authToken);
+        Retrofit retrofit = adapter.getDigestAuthenticationRetrofit(username, password);
         client = retrofit.create(SingleSurveyClient.class);
 
         final GsonBuilder gsonBuilder = new GsonBuilder();

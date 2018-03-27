@@ -45,11 +45,18 @@ import timber.log.Timber;
  */
 
 public class GPSQuestionFragment extends SingleQuestionFragmentBase {
+    private static final float LOCATION_MIN_ACCURACY = 30; //meters
+    private static final float LOCATION_ACCURACY_COUNT_MAX = 10;
+
     protected Button button;
     private Location lastLocation;
+    private Location finalLocation;
     private TextView textView;
 
     private FusedLocationProviderClient mFusedLocationClient;
+
+    private float lowestLocationAccuracy = Float.MAX_VALUE;
+    private float locationCount;
 
     private LocationRequest mLocationRequest;
     private LocationCallback mLocationCallback;
@@ -83,7 +90,10 @@ public class GPSQuestionFragment extends SingleQuestionFragmentBase {
                     // Update UI with location data
                     lastLocation = location;
                 }
-                if (lastLocation != null) updateUI();
+                if (lastLocation != null) {
+                    updateUI();
+                    checkForLocationAccuracy(lastLocation);
+                }
             }
         };
     }
@@ -122,6 +132,8 @@ public class GPSQuestionFragment extends SingleQuestionFragmentBase {
             Option lo = getCurrentAnswerOptions().get(0);
             textView.setText(lo.getTextString());
         }
+
+        disableUI();
     }
 
     @Override
@@ -180,7 +192,7 @@ public class GPSQuestionFragment extends SingleQuestionFragmentBase {
     }
 
     public ArrayList<Option> response() {
-        if (lastLocation == null) {
+        if (finalLocation == null) {
             return null;
         }
 
@@ -188,7 +200,7 @@ public class GPSQuestionFragment extends SingleQuestionFragmentBase {
 
         ArrayList<Option> options = new ArrayList<>();
 
-        String loc = lastLocation.getLatitude() + "," + lastLocation.getLongitude();
+        String loc = finalLocation.getLatitude() + "," + finalLocation.getLongitude();
         Option option = new Option(
                 "GPS",
                 new Text(loc, loc),
@@ -208,7 +220,10 @@ public class GPSQuestionFragment extends SingleQuestionFragmentBase {
                     public void onComplete(@NonNull Task<Location> task) {
                         if (task.isSuccessful() && task.getResult() != null) {
                             lastLocation = task.getResult();
-                            if (lastLocation != null) updateUI();
+                            if (lastLocation != null) {
+                                updateUI();
+                                checkForLocationAccuracy(lastLocation);
+                            }
                             //Utils.showMessageToast(R.string.gps_recorded_successfully, context);
                         } else {
                             Timber.e(task.getException());
@@ -218,16 +233,40 @@ public class GPSQuestionFragment extends SingleQuestionFragmentBase {
                 });
     }
 
+    private void checkForLocationAccuracy(Location lastLocation) {
+        locationCount++;
+        if (lastLocation.hasAccuracy() && lastLocation.getAccuracy() < lowestLocationAccuracy) {
+            lowestLocationAccuracy = lastLocation.getAccuracy();
+        }
+
+        if (lowestLocationAccuracy <= LOCATION_MIN_ACCURACY) {
+            finalLocation = lastLocation;
+            locationCount = 0;
+            enableUI();
+        } else if (locationCount > LOCATION_ACCURACY_COUNT_MAX) {
+            finalLocation = lastLocation;
+            enableUI();
+        }
+    }
+
     private void updateUI() {
         if (textView == null || lastLocation == null) return;
         textView.setText("" + lastLocation.getLatitude() + ", " + "" + lastLocation.getLongitude() + "\n" +
                 "Time: " + DateFormat.getTimeInstance().format(new Date()));
     }
 
+    private void disableUI() {
+        getNextButton().setVisibility(View.INVISIBLE);
+    }
+
+    private void enableUI() {
+        getNextButton().setVisibility(View.VISIBLE);
+    }
+
     private void createLocationRequest() {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(10000);
-        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setInterval(5000);
+        mLocationRequest.setFastestInterval(2500);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 

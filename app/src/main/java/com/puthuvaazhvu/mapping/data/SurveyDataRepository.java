@@ -9,6 +9,7 @@ import com.puthuvaazhvu.mapping.filestorage.SurveyIO;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.network.APIUtils;
 import com.puthuvaazhvu.mapping.network.implementations.SingleSurveyAPI;
+import com.puthuvaazhvu.mapping.utils.Utils;
 
 import java.io.File;
 
@@ -23,36 +24,30 @@ import io.reactivex.functions.Function;
 public class SurveyDataRepository extends DataRepository<Survey> {
     private final SingleSurveyAPI singleSurveyAPI;
 
-    private String snapshotID, surveyID;
+    private String surveyID;
 
     public SurveyDataRepository(
-            SharedPreferences sharedPreferences,
             Context context,
+            String username,
+            String password,
             String surveyID
     ) {
         super(context);
-
         this.surveyID = surveyID;
-
-        singleSurveyAPI = SingleSurveyAPI.getInstance(APIUtils.getAuth(sharedPreferences));
+        singleSurveyAPI = new SingleSurveyAPI(username, password);
     }
 
-    @Override
-    public Observable<Survey> get(boolean forceNetwork) {
-        if (forceNetwork) {
-            return getSurveyFromAPI(surveyID);
-        } else {
-            return getSurveyFromFile()
-                    .onErrorReturn(new Function<Throwable, Survey>() {
-                        @Override
-                        public Survey apply(Throwable throwable) throws Exception {
-                            return getSurveyFromAPI(surveyID).blockingFirst();
-                        }
-                    });
-        }
+    public SurveyDataRepository(Context context, String surveyID) {
+        super(context);
+        singleSurveyAPI = new SingleSurveyAPI("", "");
+        this.surveyID = surveyID;
     }
 
     private Observable<Survey> getSurveyFromAPI(String surveyID) {
+        if (!Utils.isNetworkAvailable(context)) {
+            return Observable.error(new Throwable("No internet available"));
+        }
+
         return singleSurveyAPI.getSurvey(surveyID)
                 .map(new Function<Survey, Survey>() {
                     @Override
@@ -71,5 +66,15 @@ public class SurveyDataRepository extends DataRepository<Survey> {
     private Observable<Survey> getSurveyFromFile() {
         SurveyIO surveyIO = new SurveyIO(surveyID);
         return surveyIO.read();
+    }
+
+    @Override
+    public Observable<Survey> getFromNetwork() {
+        return getSurveyFromAPI(surveyID);
+    }
+
+    @Override
+    public Observable<Survey> getFromFileSystem() {
+        return getSurveyFromFile();
     }
 }

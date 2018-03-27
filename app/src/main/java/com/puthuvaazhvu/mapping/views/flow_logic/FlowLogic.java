@@ -71,6 +71,37 @@ public abstract class FlowLogic {
     public static class FlowData {
         private Fragment fragment;
         private Question question;
+        private boolean isOver;
+        private boolean isError;
+        private int errorCode;
+
+        public static class ErrorCodes {
+            public static final int AUTH_ERROR = -1;
+        }
+
+        public boolean isOver() {
+            return isOver;
+        }
+
+        public void setOver(boolean over) {
+            isOver = over;
+        }
+
+        public boolean isError() {
+            return isError;
+        }
+
+        public void setError(boolean error) {
+            isError = error;
+        }
+
+        public int getErrorCode() {
+            return errorCode;
+        }
+
+        public void setErrorCode(int errorCode) {
+            this.errorCode = errorCode;
+        }
 
         public Fragment getFragment() {
             return fragment;
@@ -87,13 +118,5 @@ public abstract class FlowLogic {
         public void setQuestion(Question question) {
             this.question = question;
         }
-
-        public FlowData copy() {
-            FlowData flowData = new FlowData();
-            flowData.fragment = this.fragment;
-            flowData.question = this.question;
-            return flowData;
-        }
-
     }
 }

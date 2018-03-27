@@ -12,6 +12,7 @@ import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.MenuItem;
 
+import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.application.MappingApplication;
 import com.puthuvaazhvu.mapping.modals.Option;
@@ -110,10 +111,10 @@ public class MainActivity extends MenuActivity
             }
         }
 
-        onSurveyLoaded(MappingApplication.globalContext.getApplicationData().getSurvey());
-
         if (dumpSurveyRepeatingTask)
             repeatingTask.start();
+
+        presenter.getAuth();
     }
 
     @Override
@@ -211,6 +212,18 @@ public class MainActivity extends MenuActivity
     @Override
     public void loadQuestionUI(Fragment fragment, String tag) {
         replaceFragment(fragment, tag);
+    }
+
+    @Override
+    public void finishActivityWithError(String error) {
+        Utils.showMessageToast(error, this);
+        finish();
+    }
+
+    @Override
+    public void onAuthSuccess(JsonObject authJson) {
+        MappingApplication.globalContext.getApplicationData().setAuthJson(authJson);
+        onSurveyLoaded(MappingApplication.globalContext.getApplicationData().getSurvey());
     }
 
     @Override

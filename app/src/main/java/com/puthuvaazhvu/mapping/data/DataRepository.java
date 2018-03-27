@@ -15,5 +15,8 @@ public abstract class DataRepository<T> {
         this.context = context;
     }
 
-    public abstract Observable<T> get(boolean forceNetwork);
+    public abstract Observable<T> getFromNetwork();
+
+    public abstract Observable<T> getFromFileSystem();
+
 }

@@ -38,6 +38,10 @@ public interface Contract {
         void toggleDefaultBackPressed(boolean toggle);
 
         void loadQuestionUI(Fragment fragment, String tag);
+
+        void finishActivityWithError(String error);
+
+        void onAuthSuccess(JsonObject authJson);
     }
 
     interface UserAction {
@@ -45,6 +49,8 @@ public interface Contract {
         Survey getSurvey();
 
         Question getCurrent();
+
+        void getAuth();
 
         /**
          * Get's the next question to be shown in the UI

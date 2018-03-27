@@ -230,7 +230,7 @@ public class SurveyListActivity extends MenuActivity
         if (resumed) {
 
             if (data.isEmpty()) {
-                infoTxt.setText("No survey(s) found. Dump survey from the server first.");
+                infoTxt.setText("No survey(s) found. Download surveys from the settings page.");
                 return;
             }
 

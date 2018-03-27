@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -19,6 +20,7 @@ import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.DialogHandler;
 import com.puthuvaazhvu.mapping.utils.PauseHandler;
 import com.puthuvaazhvu.mapping.utils.Utils;
+import com.puthuvaazhvu.mapping.views.activities.AuthActivity;
 import com.puthuvaazhvu.mapping.views.activities.MenuActivity;
 import com.puthuvaazhvu.mapping.views.dialogs.ProgressDialog;
 
@@ -29,7 +31,7 @@ import java.util.List;
  * Created by muthuveerappans on 10/30/17.
  */
 
-public class SurveyDataDumpActivity extends MenuActivity
+public class SurveyDataDumpActivity extends AuthActivity
         implements View.OnClickListener, Contract.View {
 
     private ListSurveyAdapter listSurveyAdapter;
@@ -45,13 +47,18 @@ public class SurveyDataDumpActivity extends MenuActivity
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+
         progressDialog = new ProgressDialog();
 
         dialogHandler = new DialogHandler(progressDialog, getSupportFragmentManager());
 
         SharedPreferences sharedPreferences = getSharedPreferences(Constants.PREFS, MODE_PRIVATE);
 
-        presenter = new Presenter(sharedPreferences, this);
+        presenter = new Presenter(sharedPreferences, this, surveyCode, "none");
 
         setContentView(R.layout.save_survey_data);
 
@@ -68,6 +75,17 @@ public class SurveyDataDumpActivity extends MenuActivity
         recyclerView.setAdapter(listSurveyAdapter);
 
         presenter.fetchListOfSurveys();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == android.R.id.home) {
+            finish();
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

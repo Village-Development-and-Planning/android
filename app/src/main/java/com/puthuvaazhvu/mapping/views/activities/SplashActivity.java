@@ -87,11 +87,12 @@ public class SplashActivity extends BaseActivity {
 
     private void init() {
         SharedPreferences sharedPreferences = getSharedPreferences(Constants.PREFS, MODE_PRIVATE);
-        AuthDataRepository authDataRepository = new AuthDataRepository(sharedPreferences, this);
+        //AuthDataRepository authDataRepository = new AuthDataRepository(sharedPreferences, this);
         final DataInfoIO dataInfoIO = new DataInfoIO();
 
         Observable.zip(
-                authDataRepository.get(Utils.isNetworkAvailable(this)),
+                //authDataRepository.get(Utils.isNetworkAvailable(this)),
+                Observable.just(new JsonObject()),
                 dataInfoIO.read()
                         .onErrorReturn(new Function<Throwable, DataInfo>() {
                             @Override
@@ -107,7 +108,7 @@ public class SplashActivity extends BaseActivity {
                     @Override
                     public Object apply(JsonObject jsonObject, DataInfo dataInfo) throws Exception {
                         // set the auth to the global context
-                        MappingApplication.globalContext.getApplicationData().setAuthJson(jsonObject);
+                        //MappingApplication.globalContext.getApplicationData().setAuthJson(jsonObject);
 
                         // check datainfo.json file version
                         if (dataInfo.getVersion() != Config.Versions.DATA_INFO_VERSION) {

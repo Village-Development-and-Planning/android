@@ -33,12 +33,15 @@ public class Presenter implements Contract.UserAction {
     private ListSurveysAPI listSurveysAPI;
     private SharedPreferences sharedPreferences;
     private Context context;
+    private String username, password;
 
-    public Presenter(SharedPreferences sharedPreferences, Contract.View view) {
+    public Presenter(SharedPreferences sharedPreferences, Contract.View view, String username, String password) {
         this.viewCallbacks = view;
-        listSurveysAPI = ListSurveysAPI.getInstance(APIUtils.getAuth(sharedPreferences));
+        listSurveysAPI = new ListSurveysAPI(username, password);
         this.sharedPreferences = sharedPreferences;
         this.context = (Context) view;
+        this.username = username;
+        this.password = password;
     }
 
     @Override
@@ -72,8 +75,9 @@ public class Presenter implements Contract.UserAction {
         List<Observable<Survey>> observables = new ArrayList<>();
 
         for (SurveyInfoData d : surveyInfoData) {
-            SurveyDataRepository surveyDataRepository = new SurveyDataRepository(sharedPreferences, context, d.id);
-            observables.add(surveyDataRepository.get(Utils.isNetworkAvailable(context)));
+            SurveyDataRepository surveyDataRepository = new SurveyDataRepository(context, username, password, d.id);
+            observables.add(Utils.isNetworkAvailable(context) ?
+                    surveyDataRepository.getFromNetwork() : surveyDataRepository.getFromFileSystem());
         }
 
         Observable.merge(observables)

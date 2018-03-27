@@ -1,5 +1,7 @@
 package com.puthuvaazhvu.mapping.network.implementations;
 
+import android.content.SharedPreferences;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.network.adapters.NetworkAdapter;
@@ -18,20 +20,11 @@ import retrofit2.Retrofit;
  */
 
 public class AuthAPI {
-    public static AuthAPI authAPI;
     private final AuthClient client;
 
-    public static AuthAPI getInstance(String authToken) {
-        if (authAPI == null) {
-            authAPI = new AuthAPI(authToken);
-        }
-        return authAPI;
-    }
-
-    private AuthAPI(String authToken) {
-        super();
+    public AuthAPI(String username, String password) {
         NetworkAdapter adapter = NetworkAdapter.getInstance();
-        Retrofit retrofit = adapter.getUnsafeRetrofit(authToken);
+        Retrofit retrofit = adapter.getDigestAuthenticationRetrofit(username, password);
         client = retrofit.create(AuthClient.class);
     }
 

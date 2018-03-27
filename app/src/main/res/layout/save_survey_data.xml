@@ -35,7 +35,7 @@
         android:id="@+id/textView5"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Select single/multiple survey(s) and click the button to dump answerDataModals from the server."
+        android:text="Select single/multiple survey(s) and click the button to dump the survey(s) from the server."
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="15dp"
         android:layout_marginLeft="16dp"

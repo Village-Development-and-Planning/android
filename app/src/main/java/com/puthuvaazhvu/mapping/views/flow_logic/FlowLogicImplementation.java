@@ -67,7 +67,11 @@ public class FlowLogicImplementation extends FlowLogic {
 
         currentQuestion.getCurrentAnswer().setExitTimestamp(System.currentTimeMillis());
 
-        if (parent == null) return null;
+        if (parent == null) {
+            FlowData flowData = new FlowData();
+            flowData.setOver(true);
+            return flowData;
+        }
         int indexOfNextQuestion = QuestionUtils.getIndexOfChild(parent, currentQuestion) + 1;
         return _getNext(parent, indexOfNextQuestion, true);
     }
@@ -228,7 +232,11 @@ public class FlowLogicImplementation extends FlowLogic {
                 if (exitFlow.getStrategy() == FlowPattern.ExitFlow.Strategy.END ||
                         current.isRoot()) {
                     backStack.clear();
-                    return null;
+
+                    flowData = new FlowData();
+                    flowData.setOver(true);
+                    return flowData;
+
                 } else if (exitFlow.getStrategy() == FlowPattern.ExitFlow.Strategy.LOOP) {
 
                     FlowPattern.AnswerFlow answerFlow = current.getFlowPattern().getAnswerFlow();
@@ -262,7 +270,10 @@ public class FlowLogicImplementation extends FlowLogic {
         if (!preFlow(current)) {
             Timber.e("Auth error!");
             // auth error
-            return null;
+            flowData = new FlowData();
+            flowData.setError(true);
+            flowData.setErrorCode(FlowData.ErrorCodes.AUTH_ERROR);
+            return flowData;
         }
 
         // ANSWER FLOW OPERATION

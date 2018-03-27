@@ -1,11 +1,18 @@
 package com.puthuvaazhvu.mapping.network.adapters;
 
+import com.burgstaller.okhttp.AuthenticationCacheInterceptor;
+import com.burgstaller.okhttp.CachingAuthenticatorDecorator;
+import com.burgstaller.okhttp.digest.CachingAuthenticator;
+import com.burgstaller.okhttp.digest.Credentials;
+import com.burgstaller.okhttp.digest.DigestAuthenticator;
 import com.puthuvaazhvu.mapping.network.APIUtils;
 
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -52,6 +59,20 @@ public class NetworkAdapter {
 
     public Retrofit getRetrofit(String authToken) {
         httpClient.addInterceptor(headerInterceptor(authToken));
+        return builder.client(httpClient.build()).build();
+    }
+
+    public Retrofit getDigestAuthenticationRetrofit(String username, String password) {
+        final DigestAuthenticator authenticator = new DigestAuthenticator(
+                new Credentials(username, password)
+        );
+
+        final Map<String, CachingAuthenticator> authCache = new ConcurrentHashMap<>();
+
+        httpClient
+                .authenticator(new CachingAuthenticatorDecorator(authenticator, authCache))
+                .addInterceptor(new AuthenticationCacheInterceptor(authCache));
+
         return builder.client(httpClient.build()).build();
     }
 

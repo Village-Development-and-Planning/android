@@ -31,17 +31,9 @@ public class ListSurveysAPI {
         void onErrorOccurred(Error error);
     }
 
-    public static ListSurveysAPI getInstance(String authToken) {
-        if (surveysAPI == null) {
-            surveysAPI = new ListSurveysAPI(authToken);
-        }
-        return surveysAPI;
-    }
-
-    private ListSurveysAPI(String authToken) {
-        super();
+    public ListSurveysAPI(String username, String password) {
         NetworkAdapter adapter = NetworkAdapter.getInstance();
-        Retrofit retrofit = adapter.getUnsafeRetrofit(authToken);
+        Retrofit retrofit = adapter.getDigestAuthenticationRetrofit(username, password);
         client = retrofit.create(ListSurveysClient.class);
     }
 

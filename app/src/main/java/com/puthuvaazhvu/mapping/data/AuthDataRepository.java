@@ -8,6 +8,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.puthuvaazhvu.mapping.filestorage.AuthIO;
+import com.puthuvaazhvu.mapping.filestorage.StorageUtils;
 import com.puthuvaazhvu.mapping.network.APIUtils;
 import com.puthuvaazhvu.mapping.network.implementations.AuthAPI;
 import com.puthuvaazhvu.mapping.other.Constants;
@@ -28,24 +29,29 @@ public class AuthDataRepository extends DataRepository<JsonObject> {
     private final AuthAPI authAPI;
     private final AuthIO authIO;
 
-    public AuthDataRepository(SharedPreferences sharedPreferences, Context context) {
+    public AuthDataRepository(Context context, String username, String password) {
         super(context);
-        authAPI = AuthAPI.getInstance(APIUtils.getAuth(sharedPreferences));
+        authAPI = new AuthAPI(username, password);
         authIO = new AuthIO();
     }
 
-    @Override
+    public AuthDataRepository(Context context) {
+        super(context);
+        authIO = new AuthIO();
+        authAPI = new AuthAPI("", "");
+    }
+
     public Observable<JsonObject> get(boolean forceNetwork) {
-        if (forceNetwork || !new File(authIO.getAbsolutePath()).exists()) {
-            if (Utils.isNetworkAvailable(context))
-                return getFromNetwork();
-            else return Observable.error(new Throwable("No internet available"));
+        if (forceNetwork || Utils.isNetworkAvailable(context)
+                || !StorageUtils.isPathAValidFile(authIO.getAbsolutePath())) {
+            return getFromNetwork();
         } else {
-            return authIO.read();
+            return getFromFileSystem();
         }
     }
 
-    private Observable<JsonObject> getFromNetwork() {
+    @Override
+    public Observable<JsonObject> getFromNetwork() {
         return authAPI.getAuthData()
                 .map(new Function<JsonObject, JsonObject>() {
                     @Override
@@ -56,5 +62,10 @@ public class AuthDataRepository extends DataRepository<JsonObject> {
                         return jsonObject;
                     }
                 });
+    }
+
+    @Override
+    public Observable<JsonObject> getFromFileSystem() {
+        return authIO.read();
     }
 }

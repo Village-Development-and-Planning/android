@@ -1,10 +1,13 @@
 package com.puthuvaazhvu.mapping.views.activities.main;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.text.TextUtils;
 
+import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
+import com.puthuvaazhvu.mapping.data.AuthDataRepository;
 import com.puthuvaazhvu.mapping.filestorage.AnswerIO;
 import com.puthuvaazhvu.mapping.filestorage.SnapshotIO;
 import com.puthuvaazhvu.mapping.modals.Option;
@@ -22,6 +25,8 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
+import static com.puthuvaazhvu.mapping.views.flow_logic.FlowLogic.FlowData.ErrorCodes.AUTH_ERROR;
+
 /**
  * Created by muthuveerappans on 9/30/17.
  */
@@ -37,6 +42,8 @@ public class MainPresenter implements Contract.UserAction {
 
     private final SharedPreferences sharedPreferences;
 
+    private AuthDataRepository authDataRepository;
+
     public MainPresenter(
             Contract.View activityView,
             Handler uiHandler,
@@ -46,6 +53,7 @@ public class MainPresenter implements Contract.UserAction {
         this.uiHandler = uiHandler;
 
         this.sharedPreferences = sharedPreferences;
+        authDataRepository = new AuthDataRepository((Context) activityView);
     }
 
     @Override
@@ -182,12 +190,41 @@ public class MainPresenter implements Contract.UserAction {
         showUI(flowLogic.getPrevious());
     }
 
+    @Override
+    public void getAuth() {
+        activityView.showLoading(R.string.loading);
+        authDataRepository.getFromFileSystem()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<JsonObject>() {
+                    @Override
+                    public void accept(JsonObject jsonObject) throws Exception {
+                        activityView.onAuthSuccess(jsonObject);
+                        activityView.hideLoading();
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        activityView.finishActivityWithError("Authentication error.");
+                        activityView.hideLoading();
+                    }
+                });
+    }
+
     private void showUI(FlowLogic.FlowData flowData) {
         if (flowData == null) {
+            activityView.finishActivityWithError("Unexpected error.");
+        } else if (flowData.isError()) {
+            if (flowData.getErrorCode() == AUTH_ERROR) {
+                getAuth();
+            } else {
+                activityView.finishActivityWithError("Unexpected error.");
+            }
+        } else if (flowData.isOver()) {
             activityView.onSurveyEnd();
-            return;
+        } else {
+            activityView.loadQuestionUI(flowData.getFragment(), flowData.getQuestion().getNumber());
         }
-        activityView.loadQuestionUI(flowData.getFragment(), flowData.getQuestion().getNumber());
     }
 
 }

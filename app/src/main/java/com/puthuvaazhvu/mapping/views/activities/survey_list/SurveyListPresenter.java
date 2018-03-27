@@ -93,12 +93,11 @@ public class SurveyListPresenter implements Contract.UserAction {
                     });
         } else {
             SurveyDataRepository surveyDataRepository = new SurveyDataRepository(
-                    sharedPreferences,
                     context,
                     surveyListData.getId()
             );
 
-            surveyDataRepository.get(Utils.isNetworkAvailable(context))
+            surveyDataRepository.getFromFileSystem()
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe(new Consumer<Survey>() {
