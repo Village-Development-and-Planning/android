@@ -45,7 +45,7 @@ import timber.log.Timber;
  */
 
 public class GPSQuestionFragment extends SingleQuestionFragmentBase {
-    private static final float LOCATION_MIN_ACCURACY = 30; //meters
+    private static final float LOCATION_MIN_ACCURACY = 50; //meters
     private static final float LOCATION_ACCURACY_COUNT_MAX = 10;
 
     protected Button button;
