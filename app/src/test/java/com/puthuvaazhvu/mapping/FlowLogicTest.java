@@ -76,8 +76,8 @@ public class FlowLogicTest {
 
         assertThat(
                 "END",
-                flowData,
-                is(nullValue())
+                flowData.isOver(),
+                is(true)
         );
 
         long startTime = root.getCurrentAnswer().getStartTimeStamp();
@@ -248,8 +248,8 @@ public class FlowLogicTest {
 
         assertThat(
                 "Skips all the questions",
-                flowData,
-                is(nullValue())
+                flowData.isOver(),
+                is(true)
         );
 
         addAnswer(q2_1_6_1);
@@ -266,8 +266,8 @@ public class FlowLogicTest {
 
         assertThat(
                 "Skips questions and moves to parent",
-                flowData,
-                is(nullValue())
+                flowData.isOver(),
+                is(true)
         );
     }
 
@@ -316,8 +316,8 @@ public class FlowLogicTest {
 
         assertThat(
                 "End",
-                flowData,
-                is(nullValue())
+                flowData.isOver(),
+                is(true)
         );
     }
 
@@ -364,9 +364,9 @@ public class FlowLogicTest {
         flowData = flowLogicImplementation.finishCurrentAndGetNext();
 
         assertThat(
-                "End",
-                flowData,
-                is(nullValue())
+                "END",
+                flowData.isOver(),
+                is(true)
         );
     }
 
@@ -430,8 +430,8 @@ public class FlowLogicTest {
 
         assertThat(
                 "LOOP OPTIONS complete",
-                flowData,
-                is(nullValue())
+                flowData.isOver(),
+                is(true)
         );
     }
 
