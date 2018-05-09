@@ -11,7 +11,7 @@ import retrofit2.http.Path;
  */
 
 public interface SingleSurveyClient {
-    @GET("/cms/surveys/{id}")
+    @GET("/app/download/{id}")
     Call<JsonElement> getSurvey(
             @Path("id") String surveyID
     );

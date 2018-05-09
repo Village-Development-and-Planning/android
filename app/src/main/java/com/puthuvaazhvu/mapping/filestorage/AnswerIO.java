@@ -28,21 +28,18 @@ import static com.puthuvaazhvu.mapping.filestorage.StorageUtils.root;
 public class AnswerIO extends StorageIO<Survey> {
     private final DataInfoIO dataInfoIO;
 
-    private final String surveyName, answerID, surveyID;
-
     final Gson gson;
+    private final String answerID;
 
-    public AnswerIO(String surveyID, String surveyName, String answerID) {
+    public AnswerIO(String answerId) {
         dataInfoIO = new DataInfoIO();
-
-        this.surveyName = surveyName;
-        this.answerID = answerID;
-        this.surveyID = surveyID;
 
         final GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(Survey.class, new SurveyGsonAdapter());
 
         gson = gsonBuilder.create();
+
+        this.answerID = answerId;
     }
 
     @Override
@@ -51,7 +48,7 @@ public class AnswerIO extends StorageIO<Survey> {
     }
 
     @Override
-    public Observable<File> save(final File file, Survey survey) {
+    public Observable<File> save(final File file, final Survey survey) {
         return Observable.just(gson.toJson(survey, Survey.class))
                 .map(new Function<String, File>() {
                     @Override
@@ -63,8 +60,8 @@ public class AnswerIO extends StorageIO<Survey> {
                                 .blockingFirst();
 
                         AnswerInfo.Answer answer = new AnswerInfo.Answer();
-                        answer.setSurveyID(surveyID);
-                        answer.setSurveyName(surveyName);
+                        answer.setSurveyID(survey.getId());
+                        answer.setSurveyName(survey.getName());
                         answer.setTimeStamp(System.currentTimeMillis());
                         answer.setAnswerID(answerID);
 
@@ -73,7 +70,7 @@ public class AnswerIO extends StorageIO<Survey> {
                         // remove all the snapshots of the surveyID
 
                         SnapshotsInfo.Survey s
-                                = dataInfo.getSnapshotsInfo().getSurvey(surveyID);
+                                = dataInfo.getSnapshotsInfo().getSurvey(survey.getId());
 
                         if (s != null) {
                             Iterator<SnapshotsInfo.Snapshot> snapshotIterator

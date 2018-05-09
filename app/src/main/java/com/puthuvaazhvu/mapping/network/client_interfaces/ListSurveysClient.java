@@ -12,6 +12,6 @@ import retrofit2.http.GET;
  */
 
 public interface ListSurveysClient {
-    @GET("/cms/surveys")
+    @GET("/app/download")
     Call<List<SurveyAPIInfo>> getSurveyList();
 }

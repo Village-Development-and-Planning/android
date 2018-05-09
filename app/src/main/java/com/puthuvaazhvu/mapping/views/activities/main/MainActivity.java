@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
@@ -41,6 +42,7 @@ import java.util.concurrent.TimeUnit;
 
 import timber.log.Timber;
 
+// Todo: Error on orientation change
 public class MainActivity extends MenuActivity
         implements Contract.View,
         SingleQuestionFragmentCommunication,

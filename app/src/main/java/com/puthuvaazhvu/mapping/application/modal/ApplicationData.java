@@ -24,17 +24,10 @@ public class ApplicationData {
     private Survey survey;
     private String surveySnapShotPath;
     private JsonObject authJson;
+    private String currentSurveyorCode;
 
     private ApplicationData() {
 
-    }
-
-    public static ApplicationData getApplicationData() {
-        return applicationData;
-    }
-
-    public static void setApplicationData(ApplicationData applicationData) {
-        ApplicationData.applicationData = applicationData;
     }
 
     public void setSurvey(Survey survey) {
@@ -59,5 +52,13 @@ public class ApplicationData {
 
     public void setAuthJson(JsonObject authJson) {
         this.authJson = authJson;
+    }
+
+    public String getCurrentSurveyorCode() {
+        return currentSurveyorCode;
+    }
+
+    public void setCurrentSurveyorCode(String currentSurveyorCode) {
+        this.currentSurveyorCode = currentSurveyorCode;
     }
 }

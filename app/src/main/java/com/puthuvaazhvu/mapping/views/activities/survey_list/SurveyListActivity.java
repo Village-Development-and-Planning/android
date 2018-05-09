@@ -25,6 +25,7 @@ import com.puthuvaazhvu.mapping.utils.DialogHandler;
 import com.puthuvaazhvu.mapping.utils.PauseHandler;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.activities.MenuActivity;
+import com.puthuvaazhvu.mapping.views.activities.connector.ConnectorActivity;
 import com.puthuvaazhvu.mapping.views.activities.main.MainActivity;
 import com.puthuvaazhvu.mapping.views.activities.dump_survey_activity.*;
 import com.puthuvaazhvu.mapping.views.dialogs.ProgressDialog;
@@ -76,6 +77,7 @@ public class SurveyListActivity extends MenuActivity
 
         findViewById(R.id.dump_from_server).setOnClickListener(this);
         findViewById(R.id.proceed_btn).setOnClickListener(this);
+        findViewById(R.id.connector_btn).setOnClickListener(this);
 
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
 
@@ -120,6 +122,9 @@ public class SurveyListActivity extends MenuActivity
                     showAlertDialog();
                 }
                 break;
+            case R.id.connector_btn:
+                openConnectorActivity();
+                break;
         }
     }
 
@@ -144,6 +149,11 @@ public class SurveyListActivity extends MenuActivity
         );
 
         alertDialog.show();
+    }
+
+    private void openConnectorActivity() {
+        Intent intent = new Intent(this, ConnectorActivity.class);
+        startActivity(intent);
     }
 
     private void openMainSurveyActivity() {

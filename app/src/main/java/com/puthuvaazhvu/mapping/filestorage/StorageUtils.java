@@ -20,6 +20,8 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -32,23 +34,12 @@ import timber.log.Timber;
 
 public final class StorageUtils {
 
-    public Observable<Boolean> pipe(final InputStream in, final OutputStream out) throws IOException {
-        return Observable.create(new ObservableOnSubscribe<Boolean>() {
-            @Override
-            public void subscribe(ObservableEmitter<Boolean> e) throws Exception {
-                byte[] buffer = new byte[1024];
-                int len = in.read(buffer);
-                while (len != -1) {
-                    out.write(buffer, 0, len);
-                    len = in.read(buffer);
-                }
-                in.close();
-                out.close();
-
-                e.onNext(true);
-                e.onComplete();
-            }
-        });
+    public static Observable<List<File>> getFilesFromDir(File dir) {
+        if (dir.exists()) {
+            return Observable.just(Arrays.asList(dir.listFiles()));
+        } else {
+            return Observable.error(new Throwable("Directory " + dir.getAbsolutePath() + " not exists."));
+        }
     }
 
     public static Observable<byte[]> serialize(final Object obj) {
@@ -64,16 +55,6 @@ public final class StorageUtils {
 
                 e.onNext(out.toByteArray());
                 e.onComplete();
-
-//                ByteArrayOutputStream out = new ByteArrayOutputStream();
-//                ObjectOutputStream os = new ObjectOutputStream(out);
-//                os.writeObject(obj);
-//
-//                e.onNext(out.toByteArray());
-//                e.onComplete();
-//
-//                os.close();
-//                out.close();
             }
         });
     }
@@ -90,16 +71,6 @@ public final class StorageUtils {
 
                 e.onNext(o);
                 e.onComplete();
-
-//                ByteArrayInputStream in = new ByteArrayInputStream(data);
-//                ObjectInputStream is = new ObjectInputStream(in);
-//
-//                Object o = is.readObject();
-//                e.onNext(o);
-//                e.onComplete();
-//
-//                in.close();
-//                is.close();
             }
         });
     }

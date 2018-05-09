@@ -10,6 +10,7 @@ import android.widget.Button;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.activities.AuthActivity;
+import com.puthuvaazhvu.mapping.views.activities.connector.upload.UploadActivity;
 import com.puthuvaazhvu.mapping.views.activities.dump_survey_activity.SurveyDataDumpActivity;
 
 /**
@@ -60,12 +61,17 @@ public class ConnectorActivity extends AuthActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.upload_surveys:
-                Utils.showMessageToast("Not implemented yet.", this);
+                openUploadSurveysActivity();
                 break;
             case R.id.download_survey:
                 openDownloadSurveyActivity();
                 break;
         }
+    }
+
+    private void openUploadSurveysActivity() {
+        Intent i = new Intent(this, UploadActivity.class);
+        startActivity(i);
     }
 
     private void openDownloadSurveyActivity() {
@@ -80,6 +86,8 @@ public class ConnectorActivity extends AuthActivity implements View.OnClickListe
     }
 
     private void enableUI() {
+        if (downloadSurveyBtn == null || uploadSurveyBtn == null) return;
+
         downloadSurveyBtn.setEnabled(true);
         uploadSurveyBtn.setEnabled(true);
     }

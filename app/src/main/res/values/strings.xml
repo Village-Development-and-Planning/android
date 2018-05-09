@@ -28,6 +28,8 @@
     <string name="go_to_index_page_sub_heading">Go to main page</string>
     <string name="app_primary_language">Select the primary language</string>
     <string name="enter_surveyor_code">Enter surveyor code</string>
+    <string name="failure_answers_title">Failed answers</string>
+    <string name="uploaded_answers_title">Answers uploaded successfully</string>
 
     <!--success-->
     <string name="gps_recorded_successfully">GPS recorded successfully</string>

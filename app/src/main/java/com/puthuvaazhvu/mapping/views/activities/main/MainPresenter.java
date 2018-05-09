@@ -98,7 +98,7 @@ public class MainPresenter implements Contract.UserAction {
         activityView.showLoading(R.string.loading);
 
         String answerID = survey.getId() + "_" + System.currentTimeMillis();
-        AnswerIO answerIO = new AnswerIO(survey.getId(), survey.getName(), answerID);
+        AnswerIO answerIO = new AnswerIO(answerID);
         answerIO.save(survey)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
