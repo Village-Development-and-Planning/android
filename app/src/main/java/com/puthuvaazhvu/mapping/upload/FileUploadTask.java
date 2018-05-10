@@ -36,8 +36,6 @@ public abstract class FileUploadTask implements Command {
 
     private final FileUploadResultReceiver receiver;
 
-    private final Handler handler;
-
     private final UploadSurveysAPI uploadSurveysAPI;
 
     private final List<UploadResult> successFiles = new ArrayList<>();
@@ -49,7 +47,6 @@ public abstract class FileUploadTask implements Command {
 
     public FileUploadTask(String username, String password, FileUploadResultReceiver receiver) {
         this.receiver = receiver;
-        this.handler = new Handler(Looper.getMainLooper());
         this.uploadSurveysAPI = new UploadSurveysAPI(username, password);
 
         this.username = username;
