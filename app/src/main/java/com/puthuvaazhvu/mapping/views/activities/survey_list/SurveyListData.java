@@ -1,5 +1,8 @@
 package com.puthuvaazhvu.mapping.views.activities.survey_list;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,8 +10,7 @@ import java.util.List;
  * Created by muthuveerappans on 10/30/17.
  */
 
-public class SurveyListData {
-
+public class SurveyListData implements Parcelable {
     private String id;
     private String name;
     private boolean isChecked;
@@ -37,6 +39,44 @@ public class SurveyListData {
         this.snapshotPath = snapshotPath;
         this.snapshotID = snapshotID;
     }
+
+    protected SurveyListData(Parcel in) {
+        id = in.readString();
+        name = in.readString();
+        isChecked = in.readByte() != 0;
+        count = in.readInt();
+        isOngoing = in.readByte() != 0;
+        snapshotPath = in.readString();
+        snapshotID = in.readString();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(name);
+        dest.writeByte((byte) (isChecked ? 1 : 0));
+        dest.writeInt(count);
+        dest.writeByte((byte) (isOngoing ? 1 : 0));
+        dest.writeString(snapshotPath);
+        dest.writeString(snapshotID);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<SurveyListData> CREATOR = new Creator<SurveyListData>() {
+        @Override
+        public SurveyListData createFromParcel(Parcel in) {
+            return new SurveyListData(in);
+        }
+
+        @Override
+        public SurveyListData[] newArray(int size) {
+            return new SurveyListData[size];
+        }
+    };
 
     public String getSnapshotID() {
         return snapshotID;

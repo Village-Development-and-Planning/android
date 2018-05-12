@@ -40,6 +40,7 @@
     <string name="survey_code_invalid">Surveyor code not valid</string>
     <string name="invalid_ui">Invalid UI provided</string>
     <string name="error_deleting_file">Error deleting the file!</string>
+    <string name="fatal_error">Fatal error. Please go to settings and clear cached data.</string>
     <string name="err_no_data">Cannot get the required survey</string>
     <string name="question_iteration_error">Cannot proceed</string>
     <string name="survey_incomplete">Please complete all the questions</string>

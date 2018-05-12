@@ -1,5 +1,6 @@
 package com.puthuvaazhvu.mapping.views.activities.main;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -7,19 +8,15 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
-import android.text.TextUtils;
 import android.view.MenuItem;
 
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
-import com.puthuvaazhvu.mapping.application.MappingApplication;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
-import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.other.RepeatingTask;
 import com.puthuvaazhvu.mapping.utils.DialogHandler;
@@ -27,9 +24,9 @@ import com.puthuvaazhvu.mapping.utils.PauseHandler;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.activities.MenuActivity;
 import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListActivity;
+import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListData;
 import com.puthuvaazhvu.mapping.views.dialogs.ProgressDialog;
 import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogic;
-import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogicImplementation;
 import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.BaseQuestionFragmentCommunication;
 import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.ConfirmationQuestionCommunication;
 import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.GridQuestionFragmentCommunication;
@@ -40,6 +37,9 @@ import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
 // Todo: Error on orientation change
@@ -66,35 +66,32 @@ public class MainActivity extends MenuActivity
 
     private Handler handler;
 
-    private DataFragment dataFragment;
-
     SharedPreferences sharedPreferences;
 
     DialogHandler dialogHandler;
 
     ProgressDialog progressDialog;
 
+    MainActivityViewModal viewModal;
+
+    SurveyListData surveyListData;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
+
+        viewModal = ViewModelProviders.of(this).get(MainActivityViewModal.class);
 
         progressDialog = new ProgressDialog();
         progressDialog.setCancelable(false);
 
         dialogHandler = new DialogHandler(progressDialog, getSupportFragmentManager());
 
-        dataFragment = DataFragment.getInstance(getSupportFragmentManager());
-
         sharedPreferences = getSharedPreferences(Constants.PREFS, MODE_PRIVATE);
 
         handler = new Handler(Looper.getMainLooper());
-
-        presenter = new MainPresenter(
-                this,
-                handler,
-                sharedPreferences
-        );
 
         repeatingTask = new RepeatingTask(handler, new Runnable() {
             @Override
@@ -106,18 +103,48 @@ public class MainActivity extends MenuActivity
             }
         }, REPEATING_TASK_INTERVAL, true);
 
-        if (savedInstanceState != null) {
-            String snapshot = dataFragment.getSnapshot();
-            if (snapshot != null) {
-                MappingApplication.globalContext.getApplicationData().setSurveySnapShotPath(snapshot);
-            }
-        }
-
         if (dumpSurveyRepeatingTask)
             repeatingTask.start();
 
-        presenter.getAuth();
+        surveyListData = getIntent().getExtras().getParcelable("survey_list_data");
+
+        presenter = new MainPresenter(this, handler, surveyListData);
+
+        JsonObject auth = viewModal.getAuthJson().getValue();
+        Survey survey = viewModal.getSurvey().getValue();
+        FlowLogic flowLogic = viewModal.getFlowLogic();
+
+        if (auth == null || survey == null || flowLogic == null) {
+            showLoading(R.string.loading);
+
+            presenter.init()
+                    .observeOn(Schedulers.io())
+                    .subscribeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Consumer<FlowLogic>() {
+                                   @Override
+                                   public void accept(FlowLogic flowLogic) throws Exception {
+                                       hideLoading();
+                                       viewModal.setSurveyMutableLiveData(presenter.getSurvey());
+                                       viewModal.setAuthJson(presenter.getAuthJson());
+                                       viewModal.setFlowLogic(flowLogic);
+                                       presenter.getNext();
+                                   }
+                               },
+                            new Consumer<Throwable>() {
+                                @Override
+                                public void accept(Throwable throwable) throws Exception {
+                                    hideLoading();
+                                    finishActivityWithError(throwable.getMessage());
+                                }
+                            });
+        } else {
+            presenter.setSurvey(survey);
+            presenter.setAuthJson(auth);
+            presenter.setFlowLogic(flowLogic);
+            presenter.getNext();
+        }
     }
+
 
     @Override
     public PauseHandler getPauseHandler() {
@@ -145,43 +172,6 @@ public class MainActivity extends MenuActivity
     }
 
     @Override
-    public void onSurveyLoaded(Survey survey) {
-
-        if (survey == null || survey.getQuestion() == null) {
-            onError(R.string.invalid_data);
-            defaultBackPressed = true;
-            return;
-        }
-
-        Question root = survey.getQuestion();
-
-        flowLogic = new FlowLogicImplementation(
-                root,
-                sharedPreferences
-        );
-        flowLogic.setAuthJson(MappingApplication.globalContext.getApplicationData().getAuthJson());
-
-        presenter.initData(survey, flowLogic);
-
-        String snapShotPath = MappingApplication.globalContext.getApplicationData().getSurveySnapShotPath();
-
-        if (snapShotPath == null)
-            presenter.getNext();
-        else {
-            // from saved state
-            // move to the current question and update the UI.
-
-            Question question = QuestionUtils.moveToQuestionUsingPath(snapShotPath, root);
-
-            // if the answers are from snapshot set this to the current question
-            flowLogic.setCurrent(question);
-
-            FlowLogic.FlowData flowData = flowLogic.getCurrent();
-            loadQuestionUI(flowData.getFragment(), flowData.getQuestion().getNumber());
-        }
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
     }
@@ -189,21 +179,6 @@ public class MainActivity extends MenuActivity
     @Override
     protected void onPause() {
         super.onPause();
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        dataFragment.setSnapshot(TextUtils.join(",", QuestionUtils.getPathOfQuestion(presenter.getCurrent())));
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-//        String snapshot = dataFragment.getSnapshot();
-//        if (snapshot != null) {
-//            MappingApplication.globalContext.getApplicationData().setSurveySnapShotPath(snapshot);
-//        }
     }
 
     @Override
@@ -220,17 +195,6 @@ public class MainActivity extends MenuActivity
     public void finishActivityWithError(String error) {
         Utils.showMessageToast(error, this);
         finish();
-    }
-
-    @Override
-    public void onAuthSuccess(JsonObject authJson) {
-        MappingApplication.globalContext.getApplicationData().setAuthJson(authJson);
-        onSurveyLoaded(MappingApplication.globalContext.getApplicationData().getSurvey());
-    }
-
-    @Override
-    public void shouldShowSummary(Survey survey) {
-        throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
@@ -253,7 +217,7 @@ public class MainActivity extends MenuActivity
     }
 
     @Override
-    public void openListOfSurveysActivity() {
+    public void showSurveyCompleteDialog() {
         if (paused) {
             return;
         }
@@ -301,11 +265,6 @@ public class MainActivity extends MenuActivity
         }
     }
 
-    @Override
-    public void toggleDefaultBackPressed(boolean toggle) {
-        defaultBackPressed = toggle;
-    }
-
     public void moveToQuestionAt(int index) {
         presenter.moveToQuestionAt(index);
     }
@@ -320,7 +279,8 @@ public class MainActivity extends MenuActivity
         fragmentTransaction.commitAllowingStateLoss();
     }
 
-    private void startListOfSurveysActivity() {
+    @Override
+    public void startListOfSurveysActivity() {
         Intent intent = new Intent(this, SurveyListActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);

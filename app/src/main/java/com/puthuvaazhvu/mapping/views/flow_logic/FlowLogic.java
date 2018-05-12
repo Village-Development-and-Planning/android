@@ -13,18 +13,6 @@ import java.util.ArrayList;
  */
 
 public abstract class FlowLogic {
-    JsonObject authJson;
-
-    public FlowLogic() {
-    }
-
-    public JsonObject getAuthJson() {
-        return authJson;
-    }
-
-    public void setAuthJson(JsonObject authJson) {
-        this.authJson = authJson;
-    }
 
     public abstract void setCurrent(Question question);
 

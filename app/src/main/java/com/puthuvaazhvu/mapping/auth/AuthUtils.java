@@ -14,4 +14,13 @@ public class AuthUtils {
         if (jsonElement != null) return jsonElement.getAsJsonObject();
         return null;
     }
+
+    public static String getSurveyorName(JsonObject auth, String surveyCode) {
+        JsonObject surveyorJson = AuthUtils.getAuthForSurveyCode(auth, surveyCode);
+        if (surveyorJson == null) {
+            return "N/A";
+        }
+
+        return surveyorJson.get("SURVEYOR_NAME").getAsString();
+    }
 }

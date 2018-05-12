@@ -1,6 +1,7 @@
 package com.puthuvaazhvu.mapping.views.activities.survey_list;
 
 import android.app.Activity;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -56,6 +57,8 @@ public class SurveyListActivity extends MenuActivity
 
     Handler handler;
 
+    SurveyListActivityViewModal viewModal;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,8 +90,9 @@ public class SurveyListActivity extends MenuActivity
         adapter = new ListAdapter();
         recyclerView.setAdapter(adapter);
 
-
         presenter = new SurveyListPresenter(this, sharedPreferences);
+
+        viewModal = ViewModelProviders.of(this).get(SurveyListActivityViewModal.class);
     }
 
     @Override
@@ -137,7 +141,14 @@ public class SurveyListActivity extends MenuActivity
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        presenter.getSurveyData(adapter.getSelectedData());
+                        SurveyListData surveyListData = viewModal.getCurrentSelectedSurvey();
+                        if (surveyListData != null) {
+                            dialog.dismiss();
+                            openMainSurveyActivity(surveyListData);
+                        } else {
+                            dialog.dismiss();
+                            onError(R.string.invalid_data);
+                        }
                     }
                 },
                 new DialogInterface.OnClickListener() {
@@ -156,8 +167,9 @@ public class SurveyListActivity extends MenuActivity
         startActivity(intent);
     }
 
-    private void openMainSurveyActivity() {
+    private void openMainSurveyActivity(SurveyListData surveyListData) {
         Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("survey_list_data", surveyListData);
         startActivity(intent);
     }
 
@@ -177,40 +189,6 @@ public class SurveyListActivity extends MenuActivity
     private void startDumpSurveyActivity() {
         Intent i = new Intent(this, SurveyDataDumpActivity.class);
         startActivityForResult(i, 1);
-    }
-
-    @Override
-    public void onSurveyLoaded(Survey survey) {
-        Timber.i("Survey loaded : " + survey.getId());
-
-        MappingApplication.globalContext.getApplicationData()
-                .setSurvey(survey);
-
-        MappingApplication.globalContext.getApplicationData()
-                .setSurveySnapShotPath(adapter.getSelectedData() != null
-                        ? adapter.getSelectedData().getSnapshotPath() : null);
-
-        openMainSurveyActivity();
-    }
-
-    @Override
-    public void showSnapshotDeleteDialog(final SurveyListData surveyListData) {
-        Utils.createAlertDialog(
-                this,
-                String.format(getString(R.string.delete_snapshot), surveyListData.getName()),
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        presenter.deleteSnapshot(surveyListData);
-                    }
-                },
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                }
-        ).show();
     }
 
     @Override
@@ -277,8 +255,12 @@ public class SurveyListActivity extends MenuActivity
                         for (SurveyListData s : surveyListData) {
                             s.setChecked(false);
                         }
-                        surveyListData.get(holder.getAdapterPosition()).setChecked(isChecked);
+                        SurveyListData data = surveyListData.get(holder.getAdapterPosition());
+                        data.setChecked(isChecked);
                         ListAdapter.this.notifyDataSetChanged();
+
+                        if (isChecked)
+                            viewModal.setCurrentSelectedSurvey(data);
                     }
                 }
             });

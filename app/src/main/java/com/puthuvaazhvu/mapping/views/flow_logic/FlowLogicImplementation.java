@@ -33,19 +33,29 @@ import timber.log.Timber;
 public class FlowLogicImplementation extends FlowLogic {
     private BackStack backStack;
     private Question currentQuestion;
-    private SharedPreferences sharedPreferences;
+    private JsonObject authJson;
+    private String surveyorID;
 
-    public FlowLogicImplementation() {
-        super();
+    public FlowLogicImplementation(JsonObject authJson) {
         backStack = new BackStack();
+        this.authJson = authJson;
     }
 
     public FlowLogicImplementation(
             Question root,
-            SharedPreferences sharedPreferences) {
-        this();
+            JsonObject authJson) {
+        this(authJson);
         setCurrent(root);
-        this.sharedPreferences = sharedPreferences;
+    }
+
+    public FlowLogicImplementation(
+            Question root,
+            JsonObject authJson,
+            String snapshotPath
+    ) {
+        this(authJson);
+        Question question = QuestionUtils.moveToQuestionUsingPath(snapshotPath, root);
+        setCurrent(question);
     }
 
     @Override
@@ -117,58 +127,14 @@ public class FlowLogicImplementation extends FlowLogic {
         return _getNext(currentQuestion, 0, true);
     }
 
-    @Override
-    public FlowData getPrevious() {
-        // first remove the last question
-        Answer currentlyVisibleAnswer = backStack.removeLatest();
-        if (currentlyVisibleAnswer == null) {
-            FlowData flowData = new FlowData();
-            flowData.setQuestion(currentQuestion);
-            flowData.setFragment(getFragment(currentQuestion));
-            return flowData;
-        } else {
-            Question visibleQuestion = currentlyVisibleAnswer.getParentQuestion();
-
-            Answer toBeVisibleAnswer = backStack.getLatest();
-            Question toBeVisibleQuestion = toBeVisibleAnswer.getParentQuestion();
-
-            // remove the last answer
-            Answer currentAnswer = visibleQuestion.getCurrentAnswer();
-            visibleQuestion.getAnswers().remove(currentAnswer);
-            if (visibleQuestion.getAnswers().isEmpty()) {
-                visibleQuestion.setCurrentAnswer(null);
-            } else {
-                visibleQuestion.setCurrentAnswer(visibleQuestion.getAnswers()
-                        .get(visibleQuestion.getAnswers().size() - 1));
-            }
-
-            Timber.i("------");
-            Timber.i("Question popped " + visibleQuestion.getNumber());
-            Timber.i("Answer count after popping question "
-                    + visibleQuestion.getNumber() + " "
-                    + visibleQuestion.getAnswers().size());
-
-            setCurrent(toBeVisibleQuestion);
-
-            Timber.i("Showing question " + toBeVisibleQuestion.getNumber());
-            Timber.i("Answer count " + toBeVisibleQuestion.getAnswers().size());
-            Timber.i("Question child count " + toBeVisibleQuestion.getChildren().size());
-            Timber.i("------");
-
-            FlowData flowData = new FlowData();
-            flowData.setQuestion(toBeVisibleQuestion);
-            flowData.setFragment(getFragment(toBeVisibleQuestion));
-
-            return flowData;
-        }
-    }
 
     // get next algorithm
-    // 1. look at the child flow
-    // 2. If no question found, move to exit flow
-    // 3. After a question is found, add dummy answer based on the answer flow
-    // 4. Get the UI fragment
-    // 5. Add to back stack
+    // 1. Check if the answers are empty for current question.
+    // 2. If no, move to the child flow
+    // 3. If no question found, move to exit flow
+    // 4. After a question is found, add dummy answer based on the answer flow
+    // 5. Get the UI fragment
+    // 6. Add to back stack
     private FlowData _getNext(Question question, int startingChildIndex, boolean getChild) {
         FlowData flowData = null;
         Question current = question;
@@ -179,8 +145,10 @@ public class FlowLogicImplementation extends FlowLogic {
 
             do {
 
-                // if the answer is empty then shown this question
-                if (current.getAnswers().isEmpty()) {
+                // if the answer is empty/dummy then shown this question
+                if (current.getAnswers().isEmpty() ||
+                        current.getCurrentAnswer() == null ||
+                        current.getCurrentAnswer().isDummy()) {
                     break;
                 }
 
@@ -325,6 +293,52 @@ public class FlowLogicImplementation extends FlowLogic {
         return flowData;
     }
 
+    @Override
+    public FlowData getPrevious() {
+        // first remove the last question
+        Answer currentlyVisibleAnswer = backStack.removeLatest();
+        if (currentlyVisibleAnswer == null) {
+            FlowData flowData = new FlowData();
+            flowData.setQuestion(currentQuestion);
+            flowData.setFragment(getFragment(currentQuestion));
+            return flowData;
+        } else {
+            Question visibleQuestion = currentlyVisibleAnswer.getParentQuestion();
+
+            Answer toBeVisibleAnswer = backStack.getLatest();
+            Question toBeVisibleQuestion = toBeVisibleAnswer.getParentQuestion();
+
+            // remove the last answer
+            Answer currentAnswer = visibleQuestion.getCurrentAnswer();
+            visibleQuestion.getAnswers().remove(currentAnswer);
+            if (visibleQuestion.getAnswers().isEmpty()) {
+                visibleQuestion.setCurrentAnswer(null);
+            } else {
+                visibleQuestion.setCurrentAnswer(visibleQuestion.getAnswers()
+                        .get(visibleQuestion.getAnswers().size() - 1));
+            }
+
+            Timber.i("------");
+            Timber.i("Question popped " + visibleQuestion.getNumber());
+            Timber.i("Answer count after popping question "
+                    + visibleQuestion.getNumber() + " "
+                    + visibleQuestion.getAnswers().size());
+
+            setCurrent(toBeVisibleQuestion);
+
+            Timber.i("Showing question " + toBeVisibleQuestion.getNumber());
+            Timber.i("Answer count " + toBeVisibleQuestion.getAnswers().size());
+            Timber.i("Question child count " + toBeVisibleQuestion.getChildren().size());
+            Timber.i("------");
+
+            FlowData flowData = new FlowData();
+            flowData.setQuestion(toBeVisibleQuestion);
+            flowData.setFragment(getFragment(toBeVisibleQuestion));
+
+            return flowData;
+        }
+    }
+
     private boolean answerFlow(Question question, Answer answer) {
         FlowPattern flowPattern = question.getFlowPattern();
         if (flowPattern == null) {
@@ -373,8 +387,6 @@ public class FlowLogicImplementation extends FlowLogic {
         // if no pre-flow present in the question, proceed as normal
         ArrayList<String> fill = preFlow.getFill();
         if (fill == null || fill.isEmpty()) return true;
-
-        String surveyorID = SharedPreferenceUtils.getSurveyorID(sharedPreferences);
 
         if (surveyorID == null) return false;
 
@@ -432,7 +444,7 @@ public class FlowLogicImplementation extends FlowLogic {
                 String inputCode = question.getCurrentAnswer().getLoggedOptions().get(0).getTextString();
                 JsonObject surveyorAuthJson = AuthUtils.getAuthForSurveyCode(authJson, inputCode);
 
-                SharedPreferenceUtils.putSurveyID(sharedPreferences, inputCode);
+                surveyorID = inputCode;
 
                 return surveyorAuthJson != null;
             }

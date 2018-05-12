@@ -20,7 +20,7 @@ import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.DialogHandler;
 import com.puthuvaazhvu.mapping.utils.PauseHandler;
 import com.puthuvaazhvu.mapping.utils.Utils;
-import com.puthuvaazhvu.mapping.views.activities.AuthActivity;
+import com.puthuvaazhvu.mapping.views.activities.BaseActivity;
 import com.puthuvaazhvu.mapping.views.activities.MenuActivity;
 import com.puthuvaazhvu.mapping.views.dialogs.ProgressDialog;
 
@@ -31,7 +31,7 @@ import java.util.List;
  * Created by muthuveerappans on 10/30/17.
  */
 
-public class SurveyDataDumpActivity extends AuthActivity
+public class SurveyDataDumpActivity extends MenuActivity
         implements View.OnClickListener, Contract.View {
 
     private ListSurveyAdapter listSurveyAdapter;
@@ -52,13 +52,15 @@ public class SurveyDataDumpActivity extends AuthActivity
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
+        String surveyorCode = getIntent().getExtras().getString("surveyor_code");
+
         progressDialog = new ProgressDialog();
 
         dialogHandler = new DialogHandler(progressDialog, getSupportFragmentManager());
 
         SharedPreferences sharedPreferences = getSharedPreferences(Constants.PREFS, MODE_PRIVATE);
 
-        presenter = new Presenter(sharedPreferences, this, surveyCode, "none");
+        presenter = new Presenter(sharedPreferences, this, surveyorCode, "none");
 
         setContentView(R.layout.save_survey_data);
 

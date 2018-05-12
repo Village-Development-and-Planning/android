@@ -94,6 +94,8 @@ dependencies {
 
     compile 'com.burgstaller:okhttp-digest:1.16'
 
+    implementation "android.arch.lifecycle:extensions:$lifecycle_version"
+
     // http library
     compile "com.squareup.retrofit2:retrofit:$rootProject.ext.retrofetVersion"
     compile "com.squareup.retrofit2:converter-gson:$rootProject.ext.retrofetVersion"

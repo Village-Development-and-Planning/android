@@ -26,7 +26,7 @@ import timber.log.Timber;
  */
 
 public class AuthDataRepository extends DataRepository<JsonObject> {
-    private final AuthAPI authAPI;
+    private AuthAPI authAPI;
     private final AuthIO authIO;
 
     public AuthDataRepository(Context context, String username, String password) {
@@ -38,7 +38,6 @@ public class AuthDataRepository extends DataRepository<JsonObject> {
     public AuthDataRepository(Context context) {
         super(context);
         authIO = new AuthIO();
-        authAPI = new AuthAPI("", "");
     }
 
     public Observable<JsonObject> get(boolean forceNetwork) {

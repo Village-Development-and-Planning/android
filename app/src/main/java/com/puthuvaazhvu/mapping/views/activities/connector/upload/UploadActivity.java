@@ -13,13 +13,15 @@ import com.puthuvaazhvu.mapping.application.MappingApplication;
 import com.puthuvaazhvu.mapping.auth.AuthUtils;
 import com.puthuvaazhvu.mapping.upload.AnswersUploadTask;
 import com.puthuvaazhvu.mapping.upload.FileUploadResultReceiver;
-import com.puthuvaazhvu.mapping.views.activities.AuthActivity;
+import com.puthuvaazhvu.mapping.utils.PauseHandler;
+import com.puthuvaazhvu.mapping.views.activities.BaseActivity;
+import com.puthuvaazhvu.mapping.views.activities.MenuActivity;
 
 /**
  * Created by muthuveerappans on 09/05/18.
  */
 
-public class UploadActivity extends AuthActivity implements FileUploadResultReceiver {
+public class UploadActivity extends MenuActivity implements FileUploadResultReceiver {
     TextView surveyorCodeTxt, surveyorNameTxt, uploadingProgressTxt, uploadedCountTxt, failureAnswersTitle;
     Button uploadBtn;
     Button doneBtn;
@@ -30,6 +32,9 @@ public class UploadActivity extends AuthActivity implements FileUploadResultRece
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        String surveyorCode = getIntent().getExtras().getString("surveyor_code");
+        String surveyorName = getIntent().getExtras().getString("surveyor_name");
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -76,9 +81,16 @@ public class UploadActivity extends AuthActivity implements FileUploadResultRece
             }
         });
 
-        answersUploadTask = new AnswersUploadTask(surveyCode, "none", this);
+        answersUploadTask = new AnswersUploadTask(surveyorCode, "none", this);
 
         toggleUIForLoading(false);
+
+        updateTitles(surveyorName, surveyorCode);
+    }
+
+    @Override
+    public PauseHandler getPauseHandler() {
+        return null;
     }
 
     @Override
@@ -90,21 +102,6 @@ public class UploadActivity extends AuthActivity implements FileUploadResultRece
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onAuthenticated() {
-        JsonObject auth = MappingApplication.globalContext.getApplicationData().getAuthJson();
-
-        if (auth == null) return;
-
-        JsonObject surveyorAuth = AuthUtils.getAuthForSurveyCode(auth, surveyCode);
-
-        if (surveyorAuth == null) return;
-
-        String surveyorName = surveyorAuth.get("SURVEYOR_NAME").getAsString();
-
-        updateTitles(surveyorName, surveyCode);
     }
 
     @Override

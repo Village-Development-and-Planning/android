@@ -19,17 +19,9 @@ public interface Contract {
         void onError(int msg);
 
         void onSurveysFetched(List<SurveyListData> surveyIds);
-
-        void onSurveyLoaded(Survey survey);
-
-        void showSnapshotDeleteDialog(SurveyListData surveyListData);
     }
 
     interface UserAction {
         void fetchSurveys();
-
-        void getSurveyData(SurveyListData surveyListData);
-
-        void deleteSnapshot(SurveyListData surveyListData);
     }
 }
