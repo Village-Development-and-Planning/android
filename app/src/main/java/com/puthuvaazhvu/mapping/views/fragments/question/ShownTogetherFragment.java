@@ -1,5 +1,6 @@
 package com.puthuvaazhvu.mapping.views.fragments.question;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -15,11 +16,12 @@ import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.utils.Utils;
+import com.puthuvaazhvu.mapping.views.activities.main.MainActivityViewModal;
 import com.puthuvaazhvu.mapping.views.custom_components.LinearLayoutRecyclerView;
 import com.puthuvaazhvu.mapping.views.fragments.options.CreateOptionsUI;
 import com.puthuvaazhvu.mapping.views.fragments.options.OptionsUI;
 import com.puthuvaazhvu.mapping.views.fragments.options.factory.OptionsUIFactoryWithNonScrollableCheckableUI;
-import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.ShowTogetherQuestionCommunication;
+import com.puthuvaazhvu.mapping.views.fragments.question.types.QuestionFragmentTypes;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,36 +30,22 @@ import java.util.HashMap;
  * Created by muthuveerappans on 1/10/18.
  */
 
-public class ShownTogetherFragment extends QuestionDataFragment {
+public class ShownTogetherFragment extends QuestionFragment {
     private ArrayList<Question> dataList;
-    //private RecyclerView optionsRecyclerView;
+
     private LinearLayoutRecyclerView together_question_container;
+
     private ShownTogetherAdapter shownTogetherAdapter;
+
     private HashMap<String, OptionsUI> optionsUiObjects;
 
-    protected ShowTogetherQuestionCommunication showTogetherQuestionCommunication;
+    private MainActivityViewModal viewModal;
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        try {
-            showTogetherQuestionCommunication = (ShowTogetherQuestionCommunication) context;
-        } catch (ClassCastException e) {
-            throw new IllegalArgumentException("Please implement the " + ShowTogetherQuestionCommunication.class.getSimpleName() + " on the parent ativity");
-        }
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        dataList = new ArrayList<>();
-        dataList.addAll(getQuestion().getCurrentAnswer().getChildren());
-
-        getQuestion().getCurrentAnswer().setDummy(false);
-
-        shownTogetherAdapter = new ShownTogetherAdapter();
-        optionsUiObjects = new HashMap<>();
+        viewModal = ViewModelProviders.of(getActivity()).get(MainActivityViewModal.class);
     }
 
     @Nullable
@@ -71,30 +59,31 @@ public class ShownTogetherFragment extends QuestionDataFragment {
         super.onViewCreated(view, savedInstanceState);
 
         together_question_container = view.findViewById(R.id.together_question_container);
+
+        dataList = new ArrayList<>();
+        dataList.addAll(currentQuestion.getCurrentAnswer().getChildren());
+
+        currentQuestion.getCurrentAnswer().setDummy(false);
+
+        shownTogetherAdapter = new ShownTogetherAdapter();
+        optionsUiObjects = new HashMap<>();
+
         together_question_container.setAdapter(shownTogetherAdapter);
-
-        String questionText = getQuestion().getTextString();
-        String rawNumber = getQuestion().getNumber();
-
-        String text = rawNumber + ". " + questionText;
-        getQuestionText().setText(text);
     }
 
     @Override
     public void onBackButtonPressed(View view) {
-        showTogetherQuestionCommunication.onBackPressedFromShownTogetherQuestion(getQuestion());
+        callbacks.onBackPressed(QuestionFragmentTypes.SHOWN_TOGETHER);
     }
 
     @Override
     public void onNextButtonPressed(View view) {
-        //updateAnswersInQuestionTreeWithReadAnswers();
-
         if (!updateAnswersInQuestionTreeWithReadAnswers()) {
             Utils.showMessageToast(R.string.options_not_entered_err, getContext());
             return;
         }
 
-        showTogetherQuestionCommunication.onNextPressedFromShownTogetherQuestion(getQuestion());
+        callbacks.onNextPressed(QuestionFragmentTypes.SHOWN_TOGETHER, null);
     }
 
     private boolean updateAnswersInQuestionTreeWithReadAnswers() {
@@ -108,15 +97,15 @@ public class ShownTogetherFragment extends QuestionDataFragment {
                     );
                 }
 
-                baseQuestionFragmentCommunication.getFlowLogic().setCurrent(question);
-                baseQuestionFragmentCommunication.getFlowLogic().update(optionsUI.response());
+                viewModal.getFlowLogic().setCurrent(question);
+                viewModal.getFlowLogic().update(optionsUI.response());
             } else {
                 return false;
             }
         }
 
         // reset to the parent question for seamless flow.
-        baseQuestionFragmentCommunication.getFlowLogic().setCurrent(getQuestion());
+        viewModal.getFlowLogic().setCurrent(currentQuestion);
 
         return true;
     }

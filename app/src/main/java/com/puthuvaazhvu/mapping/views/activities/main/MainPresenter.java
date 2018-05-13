@@ -1,6 +1,7 @@
 package com.puthuvaazhvu.mapping.views.activities.main;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.text.TextUtils;
 
@@ -48,10 +49,13 @@ public class MainPresenter implements Contract.UserAction {
     private final SurveyDataRepository surveyDataRepository;
     private final AuthDataRepository authDataRepository;
 
+    private final SharedPreferences sharedPreferences;
+
     MainPresenter(
             Contract.View activityView,
             Handler uiHandler,
-            SurveyListData surveyListData
+            SurveyListData surveyListData,
+            SharedPreferences sharedPreferences
     ) {
         this.activityView = activityView;
         this.uiHandler = uiHandler;
@@ -60,6 +64,8 @@ public class MainPresenter implements Contract.UserAction {
 
         this.surveyDataRepository = new SurveyDataRepository((Context) activityView, surveyListData.getId());
         this.authDataRepository = new AuthDataRepository((Context) activityView);
+
+        this.sharedPreferences = sharedPreferences;
     }
 
     @Override
@@ -83,7 +89,15 @@ public class MainPresenter implements Contract.UserAction {
 
                 Question root = survey.getQuestion();
 
-                FlowLogic flowLogic = new FlowLogicImplementation(root, authJson);
+                FlowLogic flowLogic;
+
+                if (surveyListData.isOngoing() && surveyListData.getSnapshotPath() != null
+                        && !surveyListData.getSnapshotPath().isEmpty()) {
+                    flowLogic = new FlowLogicImplementation(root, authJson, surveyListData.getSnapshotPath(), sharedPreferences);
+                } else {
+                    flowLogic = new FlowLogicImplementation(root, authJson, sharedPreferences);
+                }
+
                 setFlowLogic(flowLogic);
 
                 return flowLogic;
@@ -225,6 +239,7 @@ public class MainPresenter implements Contract.UserAction {
         } else if (flowData.isOver()) {
             activityView.onSurveyEnd();
         } else {
+            activityView.updateCurrentQuestion(flowData.getQuestion());
             activityView.loadQuestionUI(flowData.getFragment(), flowData.getQuestion().getNumber());
         }
     }

@@ -8,6 +8,7 @@ import android.arch.lifecycle.ViewModel;
 import android.support.annotation.Nullable;
 
 import com.google.gson.JsonObject;
+import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogic;
 
@@ -17,6 +18,7 @@ import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogic;
 
 public class MainActivityViewModal extends ViewModel {
     private MutableLiveData<Survey> surveyMutableLiveData = new MutableLiveData<>();
+    private Question currentQuestion;
     private MutableLiveData<JsonObject> authJson = new MutableLiveData<>();
     private FlowLogic flowLogic;
 
@@ -44,4 +46,11 @@ public class MainActivityViewModal extends ViewModel {
         this.authJson.setValue(authJson);
     }
 
+    public Question getCurrentQuestion() {
+        return currentQuestion;
+    }
+
+    public void setCurrentQuestion(Question currentQuestion) {
+        this.currentQuestion = currentQuestion;
+    }
 }

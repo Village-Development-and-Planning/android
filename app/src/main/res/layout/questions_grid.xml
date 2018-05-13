@@ -5,6 +5,36 @@
     android:background="@color/theme_background"
     android:orientation="vertical">
 
+    <android.support.v7.widget.CardView
+        android:id="@+id/question_card"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:visibility="gone">
+
+        <RelativeLayout
+            android:id="@+id/question_holder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp">
+
+            <TextView
+                android:id="@+id/question_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/dummy_question_ta"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:textColor="@color/black"
+                android:textStyle="bold" />
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/grid_questions_recycler_view"
         android:layout_width="match_parent"

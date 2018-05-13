@@ -34,26 +34,29 @@ public class FlowLogicImplementation extends FlowLogic {
     private BackStack backStack;
     private Question currentQuestion;
     private JsonObject authJson;
-    private String surveyorID;
+    private SharedPreferences sharedPreferences;
 
-    public FlowLogicImplementation(JsonObject authJson) {
+    public FlowLogicImplementation(JsonObject authJson, SharedPreferences sharedPreferences) {
         backStack = new BackStack();
         this.authJson = authJson;
+        this.sharedPreferences = sharedPreferences;
     }
 
     public FlowLogicImplementation(
             Question root,
-            JsonObject authJson) {
-        this(authJson);
+            JsonObject authJson,
+            SharedPreferences sharedPreferences) {
+        this(authJson, sharedPreferences);
         setCurrent(root);
     }
 
     public FlowLogicImplementation(
             Question root,
             JsonObject authJson,
-            String snapshotPath
+            String snapshotPath,
+            SharedPreferences sharedPreferences
     ) {
-        this(authJson);
+        this(authJson, sharedPreferences);
         Question question = QuestionUtils.moveToQuestionUsingPath(snapshotPath, root);
         setCurrent(question);
     }
@@ -388,6 +391,8 @@ public class FlowLogicImplementation extends FlowLogic {
         ArrayList<String> fill = preFlow.getFill();
         if (fill == null || fill.isEmpty()) return true;
 
+        String surveyorID = SharedPreferenceUtils.getSurveyorID(sharedPreferences);
+
         if (surveyorID == null) return false;
 
         JsonObject auth = AuthUtils.getAuthForSurveyCode(authJson, surveyorID);
@@ -444,7 +449,7 @@ public class FlowLogicImplementation extends FlowLogic {
                 String inputCode = question.getCurrentAnswer().getLoggedOptions().get(0).getTextString();
                 JsonObject surveyorAuthJson = AuthUtils.getAuthForSurveyCode(authJson, inputCode);
 
-                surveyorID = inputCode;
+                SharedPreferenceUtils.putSurveyID(sharedPreferences, inputCode);
 
                 return surveyorAuthJson != null;
             }

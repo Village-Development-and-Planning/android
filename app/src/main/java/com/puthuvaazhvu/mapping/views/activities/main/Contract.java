@@ -39,6 +39,8 @@ public interface Contract {
         void finishActivityWithError(String error);
 
         void startListOfSurveysActivity();
+
+        void updateCurrentQuestion(Question question);
     }
 
     interface UserAction {

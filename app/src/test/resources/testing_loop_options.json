@@ -16,7 +16,7 @@
                 "_id": "59d94d5ff5d04d1d3e12ee45",
                 "type": "GENERIC",
                 "text": {
-                  "english": "TEST HABITATION 1",
+                  "english": "SITHAIYAGOUNDANPATTI",
                   "tamil": "test",
                   "_id": "59d94d5ff5d04d1d3e12ee46",
                   "modifiedAt": "2017-10-07T21:55:43.497Z"
@@ -32,7 +32,7 @@
                 "_id": "59d94d5ff5d04d1d3e12ee46",
                 "type": "GENERIC",
                 "text": {
-                  "english": "TEST HABITATION 2",
+                  "english": "ETHAKOVIL",
                   "tamil": "test",
                   "_id": "59d94d5ff5d04d1d3e12ee49",
                   "modifiedAt": "2017-10-07T21:55:43.497Z"
@@ -113,9 +113,7 @@
           ],
           "flow": {
             "pre": {
-              "fill": [
-                "HABITATION_NAME"
-              ]
+              "fill": []
             },
             "question": {
               "ui": "SINGLE_CHOICE",

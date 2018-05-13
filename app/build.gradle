@@ -52,17 +52,6 @@ android {
             debuggable true
             signingConfig signingConfigs.release
         }
-
-        debug {
-            applicationIdSuffix ".debug"
-            debuggable true
-            signingConfig signingConfigs.release
-        }
-
-        internal {
-            initWith debug
-            applicationIdSuffix ".internal"
-        }
     }
 
     // Always show the result of every unit test, even if it passes.

@@ -1,5 +1,6 @@
 package com.puthuvaazhvu.mapping.views.fragments.question;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -13,34 +14,33 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.puthuvaazhvu.mapping.R;
+import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.utils.RecyclerItemClickListener;
-import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.GridQuestionFragmentCommunication;
+import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.GridQuestionFragmentCallbacks;
+import com.puthuvaazhvu.mapping.views.fragments.question.types.QuestionFragmentTypes;
 
 import java.util.ArrayList;
+import java.util.Timer;
+
+import timber.log.Timber;
 
 /**
  * Created by muthuveerappans on 10/1/17.
  */
 
-public class GridQuestionsFragment extends QuestionDataFragment {
+public class GridQuestionsFragment extends QuestionFragment {
     private RecyclerView recyclerView;
     private QuestionsAdapter questionsAdapter;
 
-    private ArrayList<Question> children;
-
-    protected GridQuestionFragmentCommunication gridQuestionFragmentCommunication;
+    private GridQuestionFragmentCallbacks gridQuestionFragmentCallbacks;
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        try {
-            gridQuestionFragmentCommunication = (GridQuestionFragmentCommunication) context;
-        } catch (ClassCastException e) {
-            throw new IllegalArgumentException("Please implement the " + GridQuestionFragmentCommunication.class.getSimpleName() + " on the parent ativity");
-        }
+        gridQuestionFragmentCallbacks = (GridQuestionFragmentCallbacks) context;
     }
 
     @Nullable
@@ -71,33 +71,42 @@ public class GridQuestionsFragment extends QuestionDataFragment {
                         recyclerView.setLayoutManager(gridLayoutManager);
                     }
                 });
-
         recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getContext()
                 , new RecyclerItemClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                Question question = children.get(position);
-                gridQuestionFragmentCommunication.onQuestionSelectedFromGrid(question, position);
+                gridQuestionFragmentCallbacks.onGridItemClicked(position);
             }
         }));
 
-        children = getQuestion().getCurrentAnswer().getChildren();
+        Answer currentAnswer = currentQuestion.getCurrentAnswer();
+        if (currentAnswer != null && !currentAnswer.getChildren().isEmpty()) {
+            final ArrayList<Question> children = currentAnswer.getChildren();
 
-        questionsAdapter = new QuestionsAdapter();
-        recyclerView.setAdapter(questionsAdapter);
+            questionsAdapter = new QuestionsAdapter(children);
+            recyclerView.setAdapter(questionsAdapter);
+        } else {
+            Timber.e("The current answer is null or the children are empty for the question "
+                    + currentQuestion.getNumber());
+        }
     }
 
     @Override
     public void onBackButtonPressed(View view) {
-        gridQuestionFragmentCommunication.onBackPressedFromGrid(getQuestion());
+        callbacks.onBackPressed(QuestionFragmentTypes.GRID);
     }
 
     @Override
     public void onNextButtonPressed(View view) {
-        gridQuestionFragmentCommunication.onNextPressedFromGrid(getQuestion());
+        callbacks.onNextPressed(QuestionFragmentTypes.GRID, null);
     }
 
     private class QuestionsAdapter extends RecyclerView.Adapter<QVH> {
+        private ArrayList<Question> children;
+
+        public QuestionsAdapter(ArrayList<Question> children) {
+            this.children = children;
+        }
 
         @Override
         public QVH onCreateViewHolder(ViewGroup parent, int viewType) {

@@ -8,7 +8,9 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -30,9 +32,11 @@ import com.google.android.gms.tasks.Task;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Option;
+import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Text;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.fragments.options.factory.OptionsUIFactory;
+import com.puthuvaazhvu.mapping.views.fragments.question.types.QuestionFragmentTypes;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -44,7 +48,7 @@ import timber.log.Timber;
  * Created by muthuveerappans on 23/01/18.
  */
 
-public class GPSQuestionFragment extends SingleQuestionFragmentBase {
+public class GPSQuestionFragment extends QuestionFragment {
     private static final float LOCATION_MIN_ACCURACY = 50; //meters
     private static final float LOCATION_ACCURACY_COUNT_MAX = 10;
 
@@ -110,9 +114,17 @@ public class GPSQuestionFragment extends SingleQuestionFragmentBase {
         stopLocationUpdates();
     }
 
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return LayoutInflater.from(getContext()).inflate(R.layout.single_question, container, false);
+    }
+
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        ViewGroup optionsContainer = view.findViewById(R.id.options_container);
 
         View gpsUI = getLayoutInflater().inflate(R.layout.gps_options, optionsContainer, true);
         button = gpsUI.findViewById(R.id.button);
@@ -128,12 +140,24 @@ public class GPSQuestionFragment extends SingleQuestionFragmentBase {
 
         textView = view.findViewById(R.id.location_text);
 
-        if (getCurrentAnswerOptions() != null) {
-            Option lo = getCurrentAnswerOptions().get(0);
-            textView.setText(lo.getTextString());
-        }
-
         disableUI();
+
+        updateUIWithCachedOptions(currentQuestion);
+    }
+
+    @Override
+    public void onBackButtonPressed(View view) {
+        callbacks.onBackPressed(QuestionFragmentTypes.GPS);
+    }
+
+    @Override
+    public void onNextButtonPressed(View view) {
+        ArrayList<Option> options = response();
+        if (options == null) {
+            callbacks.onError(Utils.getErrorMessage(R.string.options_not_entered_err, getContext()));
+        } else {
+            callbacks.onNextPressed(QuestionFragmentTypes.GPS, options);
+        }
     }
 
     @Override
@@ -155,40 +179,19 @@ public class GPSQuestionFragment extends SingleQuestionFragmentBase {
         }
     }
 
-    @Override
-    public void onBackButtonPressed(View view) {
-        getSingleQuestionFragmentCommunication().onBackPressedFromSingleQuestion(getQuestion());
-    }
+    private void updateUIWithCachedOptions(Question question) {
+        if (question.getCurrentAnswer() != null
+                && question.getCurrentAnswer().isDummy())
+            return;
 
-    @Override
-    public void onNextButtonPressed(View view) {
-        ArrayList<Option> options = response();
-        if (options == null) {
-            getSingleQuestionFragmentCommunication().onError(Utils.getErrorMessage(R.string.options_not_entered_err
-                    , getContext()));
-        } else {
-            getSingleQuestionFragmentCommunication().onNextPressedFromSingleQuestion(getQuestion(), options);
-        }
-    }
-
-    @Override
-    public OptionsUIFactory getOptionsUIFactory() {
-        return null;
-    }
-
-    protected ArrayList<Option> getCurrentAnswerOptions() {
-        if (getQuestion().getCurrentAnswer() != null
-                && getQuestion().getCurrentAnswer().isDummy())
-            return null;
-
-        Answer answer = getQuestion().getCurrentAnswer();
+        Answer answer = question.getCurrentAnswer();
         if (answer != null) {
             ArrayList<Option> currOpt = answer.getLoggedOptions();
             if (currOpt != null && currOpt.size() > 0) {
-                return currOpt;
+                Option lo = currOpt.get(0);
+                textView.setText(lo.getTextString());
             }
         }
-        return null;
     }
 
     public ArrayList<Option> response() {

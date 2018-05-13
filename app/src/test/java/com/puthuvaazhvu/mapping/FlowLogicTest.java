@@ -10,6 +10,7 @@ import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
+import com.puthuvaazhvu.mapping.modals.Text;
 import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogic;
 import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogicImplementation;
 import com.puthuvaazhvu.mapping.views.fragments.question.GridQuestionsFragment;
@@ -49,12 +50,10 @@ public class FlowLogicTest {
         this.sharedPrefs = Mockito.mock(SharedPreferences.class);
         this.context = Mockito.mock(Context.class);
         Mockito.when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPrefs);
-        Mockito.when(sharedPrefs.getString("survey_id", null)).thenReturn("21010430");
-
-        flowLogicImplementation = new FlowLogicImplementation(null, sharedPrefs);
+        Mockito.when(sharedPrefs.getString("last_session_survey_id", null)).thenReturn("21010430");
 
         JsonObject auth = ReadTestFile.readFromFileAsJson(this, "auth.json");
-        flowLogicImplementation.setAuthJson(auth);
+        flowLogicImplementation = new FlowLogicImplementation(null, auth, sharedPrefs);
     }
 
     @Test
@@ -385,10 +384,10 @@ public class FlowLogicTest {
         flowLogicImplementation.setCurrent(q2);
 
         flowLogicImplementation.getNext();
-
         flowLogicImplementation.update(sampleOption("0"));
 
         flowData = flowLogicImplementation.getNext();
+        flowLogicImplementation.update(sampleOption("TEST"));
 
         assertThat(
                 "Next question is 2.0.1 for cascade",
@@ -397,7 +396,6 @@ public class FlowLogicTest {
         );
 
         flowData = flowLogicImplementation.getNext();
-
         flowLogicImplementation.update(sampleOption("TEST"));
 
         assertThat(
@@ -418,6 +416,7 @@ public class FlowLogicTest {
         );
 
         flowData = flowLogicImplementation.getNext();
+        flowLogicImplementation.update(sampleOption("TEST"));
 
         assertThat(
                 "Next question is again 2.0.1",
@@ -426,6 +425,8 @@ public class FlowLogicTest {
         );
 
         flowLogicImplementation.getNext();
+        flowLogicImplementation.update(sampleOption("TEST"));
+
         flowData = flowLogicImplementation.getNext();
 
         assertThat(

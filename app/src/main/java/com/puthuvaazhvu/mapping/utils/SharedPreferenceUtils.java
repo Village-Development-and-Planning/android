@@ -9,12 +9,12 @@ import android.content.SharedPreferences;
 public class SharedPreferenceUtils {
 
     public static String getSurveyorID(SharedPreferences sharedPreferences) {
-        return sharedPreferences.getString("survey_id", null);
+        return sharedPreferences.getString("last_session_survey_id", null);
     }
 
     public static void putSurveyID(SharedPreferences sharedPreferences, String surveyID) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("survey_id", surveyID);
+        editor.putString("last_session_survey_id", surveyID);
         editor.apply();
     }
 }

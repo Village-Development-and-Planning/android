@@ -1,19 +1,25 @@
 package com.puthuvaazhvu.mapping.views.activities.main;
 
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
 
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
+import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
@@ -27,12 +33,9 @@ import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListActivity;
 import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListData;
 import com.puthuvaazhvu.mapping.views.dialogs.ProgressDialog;
 import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogic;
-import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.BaseQuestionFragmentCommunication;
-import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.ConfirmationQuestionCommunication;
-import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.GridQuestionFragmentCommunication;
-import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.QuestionDataFragmentCommunication;
-import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.ShowTogetherQuestionCommunication;
-import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.SingleQuestionFragmentCommunication;
+import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.GridQuestionFragmentCallbacks;
+import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.QuestionFragmentCallbacks;
+import com.puthuvaazhvu.mapping.views.fragments.question.types.QuestionFragmentTypes;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -42,15 +45,8 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
-// Todo: Error on orientation change
 public class MainActivity extends MenuActivity
-        implements Contract.View,
-        SingleQuestionFragmentCommunication,
-        QuestionDataFragmentCommunication,
-        GridQuestionFragmentCommunication,
-        ConfirmationQuestionCommunication,
-        ShowTogetherQuestionCommunication,
-        BaseQuestionFragmentCommunication {
+        implements Contract.View, QuestionFragmentCallbacks, GridQuestionFragmentCallbacks {
 
     private final long REPEATING_TASK_INTERVAL = TimeUnit.MINUTES.toMillis(30);
 
@@ -108,7 +104,7 @@ public class MainActivity extends MenuActivity
 
         surveyListData = getIntent().getExtras().getParcelable("survey_list_data");
 
-        presenter = new MainPresenter(this, handler, surveyListData);
+        presenter = new MainPresenter(this, handler, surveyListData, sharedPreferences);
 
         JsonObject auth = viewModal.getAuthJson().getValue();
         Survey survey = viewModal.getSurvey().getValue();
@@ -118,8 +114,8 @@ public class MainActivity extends MenuActivity
             showLoading(R.string.loading);
 
             presenter.init()
-                    .observeOn(Schedulers.io())
-                    .subscribeOn(AndroidSchedulers.mainThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
                     .subscribe(new Consumer<FlowLogic>() {
                                    @Override
                                    public void accept(FlowLogic flowLogic) throws Exception {
@@ -141,10 +137,8 @@ public class MainActivity extends MenuActivity
             presenter.setSurvey(survey);
             presenter.setAuthJson(auth);
             presenter.setFlowLogic(flowLogic);
-            presenter.getNext();
         }
     }
-
 
     @Override
     public PauseHandler getPauseHandler() {
@@ -184,6 +178,11 @@ public class MainActivity extends MenuActivity
     @Override
     public void onError(int messageID) {
         Utils.showMessageToast(getString(messageID), this);
+    }
+
+    @Override
+    public void updateCurrentQuestion(Question question) {
+        viewModal.setCurrentQuestion(question);
     }
 
     @Override
@@ -265,14 +264,6 @@ public class MainActivity extends MenuActivity
         }
     }
 
-    public void moveToQuestionAt(int index) {
-        presenter.moveToQuestionAt(index);
-    }
-
-    public void updateCurrentQuestion(Question question, ArrayList<Option> response, Runnable runnable) {
-        presenter.updateCurrentQuestion(response, runnable);
-    }
-
     public void replaceFragment(Fragment fragment, String tag) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.container, fragment, tag);
@@ -291,45 +282,53 @@ public class MainActivity extends MenuActivity
     }
 
     @Override
-    public void onBackPressedFromGrid(Question question) {
-        onBackPressedFromSingleQuestion(question);
-    }
+    public void onNextPressed(QuestionFragmentTypes type, ArrayList<Option> response) {
+        Question currentQuestion = viewModal.getCurrentQuestion();
 
-    @Override
-    public void onNextPressedFromGrid(Question question) {
-        presenter.finishCurrent(question);
-        //presenter.getNext();
-    }
-
-    @Override
-    public void onQuestionSelectedFromGrid(Question question, int pos) {
-        // if a question is clicked
-        if (pos < 0) {
-            throw new IllegalArgumentException("The position is invalid.");
+        switch (type) {
+            case GPS:
+            case INFO:
+            case CONFORMATION:
+            case SINGLE:
+            case MESSAGE:
+                presenter.updateCurrentQuestion(response, new Runnable() {
+                    @Override
+                    public void run() {
+                        presenter.getNext();
+                    }
+                });
+                break;
+            case SHOWN_TOGETHER:
+            case GRID:
+                presenter.finishCurrent(currentQuestion);
+                break;
         }
-
-        moveToQuestionAt(pos);
     }
 
     @Override
-    public Question getCurrentQuestionFromActivity() {
-        return presenter.getCurrent();
-    }
+    public void onBackPressed(QuestionFragmentTypes type, Object... args) {
+        final Question currentQuestion = viewModal.getCurrentQuestion();
 
-    @Override
-    public void onNextPressedFromSingleQuestion(Question question, ArrayList<Option> response) {
-        // normal stack flow
-        updateCurrentQuestion(question, response, new Runnable() {
-            @Override
-            public void run() {
-                presenter.getNext();
-            }
-        });
-    }
-
-    @Override
-    public void onBackPressedFromSingleQuestion(Question question) {
-        presenter.getPrevious();
+        switch (type) {
+            case GPS:
+                presenter.getPrevious();
+                break;
+            case GRID:
+            case MESSAGE:
+            case INFO:
+            case SINGLE:
+            case SHOWN_TOGETHER:
+                presenter.getPrevious();
+                break;
+            case CONFORMATION:
+                presenter.updateCurrentQuestion((ArrayList<Option>) args[0], new Runnable() {
+                    @Override
+                    public void run() {
+                        presenter.finishCurrent(currentQuestion);
+                    }
+                });
+                break;
+        }
     }
 
     @Override
@@ -343,29 +342,7 @@ public class MainActivity extends MenuActivity
     }
 
     @Override
-    public void onBackPressedFromConformationQuestion(final Question question, ArrayList<Option> response) {
-        updateCurrentQuestion(question, response, new Runnable() {
-            @Override
-            public void run() {
-                presenter.finishCurrent(question);
-                //presenter.getNext();
-            }
-        });
-    }
-
-    @Override
-    public void onBackPressedFromShownTogetherQuestion(Question question) {
-        onBackPressedFromSingleQuestion(question);
-    }
-
-    @Override
-    public void onNextPressedFromShownTogetherQuestion(Question question) {
-        presenter.finishCurrent(question);
-        //presenter.getNext();
-    }
-
-    @Override
-    public FlowLogic getFlowLogic() {
-        return flowLogic;
+    public void onGridItemClicked(int pos) {
+        presenter.moveToQuestionAt(pos);
     }
 }
