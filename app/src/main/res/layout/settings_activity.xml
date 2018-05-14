@@ -42,7 +42,7 @@
                 android:id="@+id/go_to_main_page_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Go to main page"
+                android:text="Go back to main screen"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
 
             <Button
@@ -69,7 +69,7 @@
                 android:id="@+id/app_primary_language_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Select app primary language"
+                android:text="Select language"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
 
             <RadioGroup
