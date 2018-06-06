@@ -12,9 +12,7 @@ import android.widget.TextView;
 
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
-import com.puthuvaazhvu.mapping.application.MappingApplication;
-import com.puthuvaazhvu.mapping.data.AuthDataRepository;
-import com.puthuvaazhvu.mapping.filestorage.DataInfoIO;
+import com.puthuvaazhvu.mapping.filestorage.io.DataInfoIO;
 import com.puthuvaazhvu.mapping.filestorage.StorageUtils;
 import com.puthuvaazhvu.mapping.filestorage.modals.DataInfo;
 import com.puthuvaazhvu.mapping.other.Config;
@@ -87,7 +85,7 @@ public class SplashActivity extends BaseActivity {
 
     private void init() {
         SharedPreferences sharedPreferences = getSharedPreferences(Constants.PREFS, MODE_PRIVATE);
-        //AuthDataRepository authDataRepository = new AuthDataRepository(sharedPreferences, this);
+        //AuthRepository authDataRepository = new AuthRepository(sharedPreferences, this);
         final DataInfoIO dataInfoIO = new DataInfoIO();
 
         Observable.zip(

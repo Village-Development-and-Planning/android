@@ -1,11 +1,11 @@
 package com.puthuvaazhvu.mapping.network.implementations;
 
-import android.content.SharedPreferences;
-
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.puthuvaazhvu.mapping.modals.surveyorinfo.SurveyorInfo;
 import com.puthuvaazhvu.mapping.network.adapters.NetworkAdapter;
-import com.puthuvaazhvu.mapping.network.client_interfaces.AuthClient;
+import com.puthuvaazhvu.mapping.network.client_interfaces.SurveyorInfoClient;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -19,19 +19,22 @@ import retrofit2.Retrofit;
  * Created by muthuveerappans on 31/01/18.
  */
 
-public class AuthAPI {
-    private final AuthClient client;
+public class SurveyorInfoAPI {
+    private final SurveyorInfoClient client;
+    private final Gson gson;
 
-    public AuthAPI(String username, String password) {
+    public SurveyorInfoAPI(String username, String password) {
         NetworkAdapter adapter = NetworkAdapter.getInstance();
         Retrofit retrofit = adapter.getDigestAuthenticationRetrofit(username, password);
-        client = retrofit.create(AuthClient.class);
+        client = retrofit.create(SurveyorInfoClient.class);
+
+        this.gson = new Gson();
     }
 
-    public Observable<JsonObject> getAuthData() {
-        return Observable.create(new ObservableOnSubscribe<JsonObject>() {
+    public Observable<SurveyorInfo> getAuthData() {
+        return Observable.create(new ObservableOnSubscribe<SurveyorInfo>() {
             @Override
-            public void subscribe(final ObservableEmitter<JsonObject> e) throws Exception {
+            public void subscribe(final ObservableEmitter<SurveyorInfo> e) throws Exception {
 
                 Call<JsonElement> call = client.getAuthData();
                 call.enqueue(new Callback<JsonElement>() {
@@ -43,7 +46,8 @@ public class AuthAPI {
                             return;
                         }
                         JsonObject jsonObject = jsonElement.getAsJsonObject();
-                        e.onNext(jsonObject);
+                        SurveyorInfo surveyorInfo = gson.fromJson(jsonObject, SurveyorInfo.class);
+                        e.onNext(surveyorInfo);
                         e.onComplete();
                     }
 

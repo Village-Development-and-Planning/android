@@ -25,4 +25,12 @@ public class Constants {
         ENGLISH,
         TAMIL
     }
+
+    public static class ErrorCodes {
+        public static int FILE_NOT_EXIST = -1;
+        public static int ERROR_READING_FILE = -2;
+        public static int ERROR_WRITING_FILE = -3;
+        public static int ERROR_DELETING_FILE = -4;
+        public static int NETWORK_ERROR = -100;
+    }
 }

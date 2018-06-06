@@ -6,14 +6,18 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.modals.deserialization.SurveyGsonAdapter;
+import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.other.Error;
 import com.puthuvaazhvu.mapping.network.ErrorUtils;
 import com.puthuvaazhvu.mapping.network.adapters.NetworkAdapter;
 import com.puthuvaazhvu.mapping.network.client_interfaces.SingleSurveyClient;
+import com.puthuvaazhvu.mapping.utils.ThrowableWithErrorCode;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.ObservableSource;
+import io.reactivex.functions.Function;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
@@ -23,7 +27,6 @@ import retrofit2.Retrofit;
  */
 
 public class SingleSurveyAPI {
-    public static SingleSurveyAPI singleSurveyAPI;
     private final SingleSurveyClient client;
     private Gson gson = new Gson();
 
@@ -39,23 +42,24 @@ public class SingleSurveyAPI {
         gson = gsonBuilder.create();
     }
 
-    public Observable<Survey> getSurvey(final String surveyID) {
-        return Observable.create(new ObservableOnSubscribe<Survey>() {
-            @Override
-            public void subscribe(ObservableEmitter<Survey> emitter) throws Exception {
-                Call<JsonElement> call = client.getSurvey(surveyID);
-                Response<JsonElement> response = call.execute();
+    public Observable<Survey> getSurvey(final String surveyId) {
+        return Observable.just(surveyId)
+                .map(new Function<String, Survey>() {
+                    @Override
+                    public Survey apply(String s) throws Exception {
+                        Call<JsonElement> call = client.getSurvey(surveyId);
+                        Response<JsonElement> response = call.execute();
 
-                if (response.isSuccessful()) {
-                    JsonElement jsonElement = response.body();
-                    JsonObject jsonObject = jsonElement.getAsJsonObject();
-                    emitter.onNext(gson.fromJson(jsonObject, Survey.class));
-                    emitter.onComplete();
-                } else {
-                    Error error = ErrorUtils.parseError(response);
-                    emitter.onError(new Throwable(error.message()));
-                }
-            }
-        });
+                        if (response.isSuccessful()) {
+                            JsonElement jsonElement = response.body();
+                            JsonObject jsonObject = jsonElement.getAsJsonObject();
+                            return gson.fromJson(jsonObject, Survey.class);
+                        } else {
+                            Error error = ErrorUtils.parseError(response);
+                            throw new Exception(new ThrowableWithErrorCode(error.message(),
+                                    Constants.ErrorCodes.NETWORK_ERROR));
+                        }
+                    }
+                });
     }
 }

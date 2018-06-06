@@ -5,7 +5,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.modals.Upload;
 import com.puthuvaazhvu.mapping.network.adapters.NetworkAdapter;
-import com.puthuvaazhvu.mapping.network.client_interfaces.AuthClient;
 import com.puthuvaazhvu.mapping.network.client_interfaces.SurveysUploadClient;
 
 import java.io.File;

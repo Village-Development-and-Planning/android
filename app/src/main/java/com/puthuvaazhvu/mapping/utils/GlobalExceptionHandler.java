@@ -5,7 +5,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 
-import com.puthuvaazhvu.mapping.filestorage.LogIO;
+import com.puthuvaazhvu.mapping.filestorage.io.LogIO;
 import com.puthuvaazhvu.mapping.filestorage.StorageUtils;
 import com.puthuvaazhvu.mapping.other.Constants;
 

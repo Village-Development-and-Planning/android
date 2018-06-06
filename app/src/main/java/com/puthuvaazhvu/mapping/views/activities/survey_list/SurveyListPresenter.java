@@ -4,19 +4,14 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.puthuvaazhvu.mapping.R;
-import com.puthuvaazhvu.mapping.data.SurveyDataRepository;
-import com.puthuvaazhvu.mapping.filestorage.DataInfoIO;
-import com.puthuvaazhvu.mapping.filestorage.SnapshotIO;
+import com.puthuvaazhvu.mapping.filestorage.io.DataInfoIO;
 import com.puthuvaazhvu.mapping.filestorage.modals.AnswerInfo;
 import com.puthuvaazhvu.mapping.filestorage.modals.DataInfo;
 import com.puthuvaazhvu.mapping.filestorage.modals.SnapshotsInfo;
 import com.puthuvaazhvu.mapping.filestorage.modals.SurveysInfo;
-import com.puthuvaazhvu.mapping.modals.Survey;
-import com.puthuvaazhvu.mapping.utils.Utils;
 
 import java.util.ArrayList;
 
-import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;

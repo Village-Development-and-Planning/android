@@ -144,4 +144,11 @@ public abstract class FileUploadTask implements Command {
         failureFiles.clear();
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
 }

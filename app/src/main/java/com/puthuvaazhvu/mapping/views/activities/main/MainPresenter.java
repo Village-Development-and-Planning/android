@@ -7,10 +7,10 @@ import android.text.TextUtils;
 
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
-import com.puthuvaazhvu.mapping.data.AuthDataRepository;
-import com.puthuvaazhvu.mapping.data.SurveyDataRepository;
-import com.puthuvaazhvu.mapping.filestorage.AnswerIO;
-import com.puthuvaazhvu.mapping.filestorage.SnapshotIO;
+import com.puthuvaazhvu.mapping.data.AuthRepository;
+import com.puthuvaazhvu.mapping.data.SurveyRepository;
+import com.puthuvaazhvu.mapping.filestorage.io.AnswerIO;
+import com.puthuvaazhvu.mapping.filestorage.io.SnapshotIO;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
@@ -46,8 +46,8 @@ public class MainPresenter implements Contract.UserAction {
     private Survey survey;
     private JsonObject authJson;
 
-    private final SurveyDataRepository surveyDataRepository;
-    private final AuthDataRepository authDataRepository;
+    private final SurveyRepository surveyRepository;
+    private final AuthRepository authRepository;
 
     private final SharedPreferences sharedPreferences;
 
@@ -62,8 +62,8 @@ public class MainPresenter implements Contract.UserAction {
 
         this.surveyListData = surveyListData;
 
-        this.surveyDataRepository = new SurveyDataRepository((Context) activityView, surveyListData.getId());
-        this.authDataRepository = new AuthDataRepository((Context) activityView);
+        this.surveyRepository = new SurveyRepository((Context) activityView, surveyListData.getId());
+        this.authRepository = new AuthRepository((Context) activityView);
 
         this.sharedPreferences = sharedPreferences;
     }
@@ -76,10 +76,10 @@ public class MainPresenter implements Contract.UserAction {
             SnapshotIO snapshotIO = new SnapshotIO(surveyListData.getSnapshotID());
             surveyObservable = snapshotIO.read();
         } else {
-            surveyObservable = surveyDataRepository.getFromFileSystem();
+            surveyObservable = surveyRepository.getFromFileSystem();
         }
 
-        Observable<JsonObject> authObservable = authDataRepository.getFromFileSystem();
+        Observable<JsonObject> authObservable = authRepository.getFromFileSystem();
 
         return Observable.zip(surveyObservable, authObservable, new BiFunction<Survey, JsonObject, FlowLogic>() {
             @Override

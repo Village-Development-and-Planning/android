@@ -1,7 +1,11 @@
 package com.puthuvaazhvu.mapping.upload;
 
-import com.puthuvaazhvu.mapping.filestorage.AnswerIO;
+import android.content.Context;
+
+import com.puthuvaazhvu.mapping.data.AnswersRepository;
+import com.puthuvaazhvu.mapping.filestorage.io.AnswerIO;
 import com.puthuvaazhvu.mapping.filestorage.StorageUtils;
+import com.puthuvaazhvu.mapping.filestorage.modals.DataInfo;
 import com.puthuvaazhvu.mapping.other.Constants;
 
 import java.io.File;
@@ -10,39 +14,36 @@ import java.util.List;
 import io.reactivex.Observable;
 import io.reactivex.functions.Function;
 
-import static com.puthuvaazhvu.mapping.filestorage.StorageUtils.root;
-
 /**
  * Created by muthuveerappans on 10/05/18.
  */
 
 public class AnswersUploadTask extends FileUploadTask {
+    private final AnswersRepository answersRepository;
+    private final AnswerIO answerIO;
 
-    public AnswersUploadTask(String username, String password, FileUploadResultReceiver receiver) {
+    public AnswersUploadTask(Context context, String username, String password, FileUploadResultReceiver receiver) {
         super(username, password, receiver);
+
+        answerIO = new AnswerIO();
+        answersRepository = new AnswersRepository(context, username, password);
     }
 
     @Override
     protected Observable<List<File>> getFiles() {
-        return StorageUtils.getFilesFromDir(getDir());
+        return answersRepository.getAnswerFiles();
     }
 
     @Override
     protected Observable<String> onPostExecute(final UploadResult result) {
-        String fileNameWithoutExtension = result.getFile().getName().replaceAll("[.][a-zA-z]+$", "");
-        AnswerIO answerIO = new AnswerIO(fileNameWithoutExtension);
-
-        return answerIO.delete()
-                .map(new Function<Boolean, String>() {
+        String answerId = result.getFile().getName().replaceAll("[.][a-zA-z]+$", "");
+        return answerIO.delete(answerId, getUsername())
+                .map(new Function<DataInfo, String>() {
                     @Override
-                    public String apply(Boolean aBoolean) throws Exception {
-                        return aBoolean ? "File " + result.getFile().getName() + " deleted successfully. " :
-                                "Error deleting the file " + result.getFile().getName();
+                    public String apply(DataInfo dataInfo) throws Exception {
+                        return "File " + result.getFile().getName() + " deleted successfully. ";
                     }
                 });
     }
 
-    private File getDir() {
-        return new File(root().getAbsolutePath() + "/" + Constants.DATA_DIR + "/" + Constants.ANSWER_DIR);
-    }
 }

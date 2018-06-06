@@ -4,23 +4,19 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.puthuvaazhvu.mapping.R;
-import com.puthuvaazhvu.mapping.data.SurveyDataRepository;
+import com.puthuvaazhvu.mapping.data.SurveyRepository;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.modals.SurveyAPIInfo;
-import com.puthuvaazhvu.mapping.network.APIUtils;
 import com.puthuvaazhvu.mapping.network.implementations.ListSurveysAPI;
-import com.puthuvaazhvu.mapping.network.implementations.SingleSurveyAPI;
 import com.puthuvaazhvu.mapping.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
@@ -75,9 +71,9 @@ public class Presenter implements Contract.UserAction {
         List<Observable<Survey>> observables = new ArrayList<>();
 
         for (SurveyInfoData d : surveyInfoData) {
-            SurveyDataRepository surveyDataRepository = new SurveyDataRepository(context, username, password, d.id);
+            SurveyRepository surveyRepository = new SurveyRepository(context, username, password, d.id);
             observables.add(Utils.isNetworkAvailable(context) ?
-                    surveyDataRepository.getFromNetwork() : surveyDataRepository.getFromFileSystem());
+                    surveyRepository.getFromNetwork() : surveyRepository.getFromFileSystem());
         }
 
         Observable.merge(observables)

@@ -3,7 +3,6 @@ package com.puthuvaazhvu.mapping.views.activities.connector;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
@@ -15,7 +14,7 @@ import android.widget.EditText;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.auth.AuthUtils;
-import com.puthuvaazhvu.mapping.data.AuthDataRepository;
+import com.puthuvaazhvu.mapping.data.AuthRepository;
 import com.puthuvaazhvu.mapping.utils.DialogHandler;
 import com.puthuvaazhvu.mapping.utils.PauseHandler;
 import com.puthuvaazhvu.mapping.utils.Utils;
@@ -135,8 +134,8 @@ public class ConnectorActivity extends MenuActivity implements View.OnClickListe
     private void getAuth(final String code) {
         showLoading(R.string.loading);
 
-        AuthDataRepository authDataRepository = new AuthDataRepository(this, code, "none");
-        authDataRepository.get(false)
+        AuthRepository authRepository = new AuthRepository(this, code, "none");
+        authRepository.get(false)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<JsonObject>() {

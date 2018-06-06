@@ -9,7 +9,7 @@ import retrofit2.http.GET;
  * Created by muthuveerappans on 31/01/18.
  */
 
-public interface AuthClient {
-    @GET("/app/auth")
+public interface SurveyorInfoClient {
+    @GET("/app/info")
     Call<JsonElement> getAuthData();
 }

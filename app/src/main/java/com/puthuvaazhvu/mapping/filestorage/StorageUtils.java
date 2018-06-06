@@ -6,6 +6,8 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.puthuvaazhvu.mapping.modals.Survey;
+import com.puthuvaazhvu.mapping.other.Constants;
+import com.puthuvaazhvu.mapping.utils.ThrowableWithErrorCode;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -26,6 +28,7 @@ import java.util.List;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.functions.Function;
 import timber.log.Timber;
 
 /**
@@ -43,137 +46,107 @@ public final class StorageUtils {
     }
 
     public static Observable<byte[]> serialize(final Object obj) {
-        return Observable.create(new ObservableOnSubscribe<byte[]>() {
-            @Override
-            public void subscribe(ObservableEmitter<byte[]> e) throws Exception {
-                Kryo kryo = new Kryo();
+        return Observable.just(obj)
+                .map(new Function<Object, byte[]>() {
+                    @Override
+                    public byte[] apply(Object o) throws Exception {
+                        Kryo kryo = new Kryo();
 
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                Output output = new Output(out);
-                kryo.writeClassAndObject(output, obj);
-                output.close();
+                        ByteArrayOutputStream out = new ByteArrayOutputStream();
+                        Output output = new Output(out);
+                        kryo.writeClassAndObject(output, obj);
+                        output.close();
 
-                e.onNext(out.toByteArray());
-                e.onComplete();
-            }
-        });
+                        return out.toByteArray();
+                    }
+                });
     }
 
     public static Observable<Object> deserialize(final byte[] data) {
-        return Observable.create(new ObservableOnSubscribe<Object>() {
-            @Override
-            public void subscribe(ObservableEmitter<Object> e) throws Exception {
-                Kryo kryo = new Kryo();
+        return Observable.just(data)
+                .map(new Function<byte[], Object>() {
+                    @Override
+                    public Object apply(byte[] bytes) throws Exception {
+                        Kryo kryo = new Kryo();
 
-                Input input = new Input(new ByteArrayInputStream(data));
-                Object o = kryo.readClassAndObject(input);
-                input.close();
+                        Input input = new Input(new ByteArrayInputStream(data));
+                        Object o = kryo.readClassAndObject(input);
+                        input.close();
 
-                e.onNext(o);
-                e.onComplete();
-            }
-        });
+                        return o;
+                    }
+                });
     }
 
     public static Observable<File> saveContentsToFile(final File file, final byte[] contents) {
-        return Observable.create(new ObservableOnSubscribe<File>() {
-            @Override
-            public void subscribe(ObservableEmitter<File> e) throws Exception {
-                if (!file.exists()) {
-                    String message = "The file " + file.getAbsolutePath() + " doesn't exits";
-                    Timber.e(message);
-                    e.onError(new Throwable(message));
-                    return;
-                }
+        return Observable.just(true)
+                .map(new Function<Boolean, File>() {
+                    @Override
+                    public File apply(Boolean aBoolean) throws Exception {
+                        if (!file.exists()) {
+                            String message = "The file " + file.getAbsolutePath() + " doesn't exits";
+                            Timber.e(message);
+                            throw new Exception(new ThrowableWithErrorCode(message, Constants.ErrorCodes.FILE_NOT_EXIST));
+                        }
 
-                FileOutputStream fOut = new FileOutputStream(file);
+                        FileOutputStream fOut = new FileOutputStream(file);
 
-                fOut.write(contents);
+                        fOut.write(contents);
 
-                fOut.flush();
-                fOut.close();
+                        fOut.flush();
+                        fOut.close();
 
-                e.onNext(file);
-                e.onComplete();
-            }
-        });
+                        return file;
+                    }
+                });
     }
 
     public static Observable<File> saveContentsToFile(final File file, final String contents) {
-        return Observable.create(new ObservableOnSubscribe<File>() {
-            @Override
-            public void subscribe(ObservableEmitter<File> e) throws Exception {
-                if (!file.exists()) {
-                    String message = "The file " + file.getAbsolutePath() + " doesn't exits";
-                    Timber.e(message);
-                    e.onError(new Throwable(message));
-                    return;
-                }
+        return Observable.just(true)
+                .map(new Function<Boolean, File>() {
+                    @Override
+                    public File apply(Boolean aBoolean) throws Exception {
+                        if (!file.exists()) {
+                            String message = "The file " + file.getAbsolutePath() + " doesn't exits";
+                            Timber.e(message);
+                            throw new Exception(new ThrowableWithErrorCode(message, Constants.ErrorCodes.FILE_NOT_EXIST));
+                        }
 
-                PrintWriter out = new PrintWriter(file);
-                out.println(contents);
+                        PrintWriter out = new PrintWriter(file);
+                        out.println(contents);
 
-                out.close();
+                        out.close();
 
-                e.onNext(file);
-                e.onComplete();
-            }
-        });
+                        return file;
+                    }
+                });
     }
 
     public static Observable<byte[]> readFromFile(final File file) {
-        return Observable.create(new ObservableOnSubscribe<byte[]>() {
-            @Override
-            public void subscribe(ObservableEmitter<byte[]> emitter) throws Exception {
-                if (!file.exists()) {
-                    emitter.onError(new Throwable("File " + file.getAbsolutePath() + " is not present."));
-                    return;
-                }
+        return Observable.just(file)
+                .map(new Function<File, byte[]>() {
+                    @Override
+                    public byte[] apply(File file) throws Exception {
+                        if (!file.exists()) {
+                            throw new Exception(
+                                    new ThrowableWithErrorCode("File " + file.getAbsolutePath() + " is not present.",
+                                            Constants.ErrorCodes.FILE_NOT_EXIST)
+                            );
+                        }
 
-                FileInputStream fin = new FileInputStream(file);
+                        FileInputStream fin = new FileInputStream(file);
 
-                byte fileContent[] = new byte[(int) file.length()];
+                        byte fileContent[] = new byte[(int) file.length()];
 
-                int length = fin.read(fileContent);
+                        int length = fin.read(fileContent);
 
-                Timber.i("No of bytes read from " + file.getAbsolutePath() + " is " + length);
+                        Timber.i("No of bytes read from " + file.getAbsolutePath() + " is " + length);
 
-                fin.close();
+                        fin.close();
 
-                emitter.onNext(fileContent);
-                emitter.onComplete();
-            }
-        });
-    }
-
-    public static File createDirectory(String path) {
-        File dir = new File(path);
-        if (!dir.exists()) {
-            boolean result = dir.mkdirs();
-            if (result) {
-                Timber.i("Survey data dir created successfully. " + dir.getAbsolutePath());
-            } else {
-                Timber.i("Failed to save Survey data dir. " + dir.getAbsolutePath());
-                return null;
-            }
-            return dir;
-        }
-        return dir;
-    }
-
-    public static File createFile(File dir, String fileName) {
-        try {
-            if (dir != null) {
-                File file = new File(dir, fileName);
-                file.createNewFile();
-                return file;
-            } else {
-                Timber.e("The dir provided is null.");
-            }
-        } catch (IOException e) {
-            Timber.e("Error creating " + fileName + " " + e.getMessage());
-        }
-        return null;
+                        return fileContent;
+                    }
+                });
     }
 
     public static File createFile(String absolutePathToFile) {
@@ -206,22 +179,18 @@ public final class StorageUtils {
         }
     }
 
-    public static void deleteDir(File dir) throws IOException {
-        if (dir.isDirectory())
+    public static boolean deleteDir(File dir) throws IOException {
+        if (dir.isDirectory()) {
             for (File child : dir.listFiles())
                 deleteDir(child);
+        }
 
-        dir.delete();
+        return dir.delete();
     }
 
     public static boolean isPathAValidFile(String absolutePath) {
         File file = new File(absolutePath);
-        boolean result = file.exists();
-        return result;
-    }
-
-    public static File root() {
-        return Environment.getExternalStorageDirectory();
+        return file.exists();
     }
 
     /* Checks if external storage is available for read and write */

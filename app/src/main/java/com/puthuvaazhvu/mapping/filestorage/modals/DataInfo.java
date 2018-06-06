@@ -3,6 +3,7 @@ package com.puthuvaazhvu.mapping.filestorage.modals;
 import com.puthuvaazhvu.mapping.other.Config;
 
 import java.io.Serializable;
+import java.util.HashMap;
 
 /**
  * Created by muthuveerappans on 16/02/18.
@@ -10,15 +11,11 @@ import java.io.Serializable;
 
 public class DataInfo implements Serializable {
     private int version;
-    private SurveysInfo surveysInfo;
-    private SnapshotsInfo snapshotsInfo;
-    private AnswerInfo answersInfo;
+    private HashMap<String, SurveyorInfo> surveyorInfoHashMap;
 
     public DataInfo() {
-        version = Config.Versions.DATA_INFO_VERSION;
-        surveysInfo = new SurveysInfo();
-        snapshotsInfo = new SnapshotsInfo();
-        answersInfo = new AnswerInfo();
+        this.version = Config.Versions.DATA_INFO_VERSION;
+        this.surveyorInfoHashMap = new HashMap<>();
     }
 
     public int getVersion() {
@@ -29,27 +26,11 @@ public class DataInfo implements Serializable {
         this.version = version;
     }
 
-    public SurveysInfo getSurveysInfo() {
-        return surveysInfo;
+    public SurveyorInfo getSurveyorInfo(String surveyorCode) {
+        return surveyorInfoHashMap.get(surveyorCode);
     }
 
-    public void setSurveysInfo(SurveysInfo surveysInfo) {
-        this.surveysInfo = surveysInfo;
-    }
-
-    public SnapshotsInfo getSnapshotsInfo() {
-        return snapshotsInfo;
-    }
-
-    public void setSnapshotsInfo(SnapshotsInfo snapshotsInfo) {
-        this.snapshotsInfo = snapshotsInfo;
-    }
-
-    public AnswerInfo getAnswersInfo() {
-        return answersInfo;
-    }
-
-    public void setAnswersInfo(AnswerInfo answersInfo) {
-        this.answersInfo = answersInfo;
+    public void addSurveyorInfoToMap(String surveyorCode, SurveyorInfo surveyorInfo) {
+        surveyorInfoHashMap.put(surveyorCode, surveyorInfo);
     }
 }
