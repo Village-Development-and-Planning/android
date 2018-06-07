@@ -35,7 +35,7 @@ public class LogIO extends IOBase {
         return StorageUtils.saveContentsToFile(createFile(getAbsolutePath()), contents);
     }
 
-    private String getAbsolutePath() {
+    public String getAbsolutePath() {
         return root().getAbsolutePath() + "/" + Constants.DATA_DIR + "/" + Constants.LOG_DIR + "/" + logID + ".txt";
     }
 }

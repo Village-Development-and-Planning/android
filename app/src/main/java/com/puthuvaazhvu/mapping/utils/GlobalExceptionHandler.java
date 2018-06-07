@@ -47,10 +47,8 @@ public class GlobalExceptionHandler {
                     ) {
                         if (paramThrowable.getClass().equals(OutOfMemoryError.class)) {
                             try {
-                                String path = StorageUtils.root().getAbsolutePath() + "/" +
-                                        Constants.DATA_DIR + "/" +
-                                        Constants.LOG_DIR + "/" +
-                                        System.currentTimeMillis() + "_dump.hprof";
+                                LogIO logIO = new LogIO("" + System.currentTimeMillis());
+                                String path = logIO.getAbsolutePath();
                                 android.os.Debug.dumpHprofData(path);
                             } catch (IOException e) {
                                 Timber.e(e);

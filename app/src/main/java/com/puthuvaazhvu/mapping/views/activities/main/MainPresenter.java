@@ -7,15 +7,20 @@ import android.text.TextUtils;
 
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
-import com.puthuvaazhvu.mapping.data.AuthRepository;
-import com.puthuvaazhvu.mapping.data.SurveyRepository;
+import com.puthuvaazhvu.mapping.filestorage.modals.DataInfo;
+import com.puthuvaazhvu.mapping.modals.surveyorinfo.SurveyorInfoFromAPI;
+import com.puthuvaazhvu.mapping.other.Constants;
+import com.puthuvaazhvu.mapping.repository.SnapshotRepository;
+import com.puthuvaazhvu.mapping.repository.SnapshotRepositoryData;
+import com.puthuvaazhvu.mapping.repository.SurveyRepository;
 import com.puthuvaazhvu.mapping.filestorage.io.AnswerIO;
 import com.puthuvaazhvu.mapping.filestorage.io.SnapshotIO;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
-import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListData;
+import com.puthuvaazhvu.mapping.utils.SharedPreferenceUtils;
+import com.puthuvaazhvu.mapping.views.activities.modals.CurrentSurveyInfo;
 import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogic;
 import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogicImplementation;
 
@@ -23,9 +28,11 @@ import java.io.File;
 import java.util.ArrayList;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
@@ -42,77 +49,78 @@ public class MainPresenter implements Contract.UserAction {
 
     private final Handler uiHandler;
 
-    private final SurveyListData surveyListData;
+    private final CurrentSurveyInfo currentSurveyInfo;
     private Survey survey;
-    private JsonObject authJson;
+    private final SurveyorInfoFromAPI surveyorInfoFromAPI;
 
+    private final SharedPreferenceUtils sharedPreferenceUtils;
     private final SurveyRepository surveyRepository;
-    private final AuthRepository authRepository;
+    private final SnapshotRepository snapshotRepository;
 
-    private final SharedPreferences sharedPreferences;
+    private final AnswerIO answerIO;
+    private final SnapshotIO snapshotIO;
 
     MainPresenter(
             Contract.View activityView,
             Handler uiHandler,
-            SurveyListData surveyListData,
-            SharedPreferences sharedPreferences
+            CurrentSurveyInfo currentSurveyInfo
     ) {
+        Context c = (Context) activityView;
+
+        this.answerIO = new AnswerIO();
+        this.snapshotIO = new SnapshotIO();
+
         this.activityView = activityView;
         this.uiHandler = uiHandler;
 
-        this.surveyListData = surveyListData;
+        this.currentSurveyInfo = currentSurveyInfo;
 
-        this.surveyRepository = new SurveyRepository((Context) activityView, surveyListData.getId());
-        this.authRepository = new AuthRepository((Context) activityView);
+        sharedPreferenceUtils = SharedPreferenceUtils.getInstance(c);
 
-        this.sharedPreferences = sharedPreferences;
+        surveyorInfoFromAPI = sharedPreferenceUtils.getSurveyorInfo();
+
+        surveyRepository = new SurveyRepository(c, surveyorInfoFromAPI.getCode(), Constants.PASSWORD);
+        snapshotRepository = new SnapshotRepository(c, surveyorInfoFromAPI.getCode(), Constants.PASSWORD);
     }
 
     @Override
     public Observable<FlowLogic> init() {
         Observable<Survey> surveyObservable;
 
-        if (surveyListData.isOngoing()) {
-            SnapshotIO snapshotIO = new SnapshotIO(surveyListData.getSnapshotID());
-            surveyObservable = snapshotIO.read();
+        if (currentSurveyInfo.isOngoing()) {
+            surveyObservable = snapshotRepository.get(true).map(new Function<SnapshotRepositoryData, Survey>() {
+                @Override
+                public Survey apply(SnapshotRepositoryData snapshotRepositoryData) throws Exception {
+                    return snapshotRepositoryData.getSurvey();
+                }
+            });
         } else {
-            surveyObservable = surveyRepository.getFromFileSystem();
+            surveyObservable = surveyRepository.get(true);
         }
 
-        Observable<JsonObject> authObservable = authRepository.getFromFileSystem();
-
-        return Observable.zip(surveyObservable, authObservable, new BiFunction<Survey, JsonObject, FlowLogic>() {
+        return surveyObservable.map(new Function<Survey, FlowLogic>() {
             @Override
-            public FlowLogic apply(Survey survey, JsonObject authJson) throws Exception {
-                setSurvey(survey);
-                setAuthJson(authJson);
-
+            public FlowLogic apply(Survey survey) throws Exception {
                 Question root = survey.getQuestion();
-
                 FlowLogic flowLogic;
 
-                if (surveyListData.isOngoing() && surveyListData.getSnapshotPath() != null
-                        && !surveyListData.getSnapshotPath().isEmpty()) {
-                    flowLogic = new FlowLogicImplementation(root, authJson, surveyListData.getSnapshotPath(), sharedPreferences);
+                if (currentSurveyInfo.isOngoing() && currentSurveyInfo.getSnapshotPath() != null
+                        && !currentSurveyInfo.getSnapshotPath().isEmpty()) {
+                    flowLogic = new FlowLogicImplementation(
+                            root,
+                            surveyorInfoFromAPI,
+                            currentSurveyInfo.getSnapshotPath()
+                    );
                 } else {
-                    flowLogic = new FlowLogicImplementation(root, authJson, sharedPreferences);
+                    flowLogic = new FlowLogicImplementation(root, surveyorInfoFromAPI);
                 }
 
+                setSurvey(survey);
                 setFlowLogic(flowLogic);
 
                 return flowLogic;
             }
         });
-    }
-
-    @Override
-    public JsonObject getAuthJson() {
-        return authJson;
-    }
-
-    @Override
-    public void setAuthJson(JsonObject authJson) {
-        this.authJson = authJson;
     }
 
     @Override
@@ -149,14 +157,12 @@ public class MainPresenter implements Contract.UserAction {
     public void dumpAnswer() {
         activityView.showLoading(R.string.loading);
 
-        String answerID = survey.getId() + "_" + System.currentTimeMillis();
-        AnswerIO answerIO = new AnswerIO(answerID);
-        answerIO.save(survey)
+        answerIO.save(getSurvey(), surveyorInfoFromAPI.getCode())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<File>() {
+                .subscribe(new Consumer<DataInfo>() {
                     @Override
-                    public void accept(File file) throws Exception {
+                    public void accept(DataInfo dataInfo) throws Exception {
                         activityView.onSurveySaved(survey);
                         activityView.hideLoading();
                         activityView.showMessage(R.string.save_successful);
@@ -177,21 +183,27 @@ public class MainPresenter implements Contract.UserAction {
     public void dumpSnapshot() {
         activityView.showLoading(R.string.loading);
 
-        String snapshotID = survey.getId() + "_" + System.currentTimeMillis();
-        SnapshotIO snapshotIO
-                = new SnapshotIO(
-                TextUtils.join(",", QuestionUtils.getPathOfQuestion(flowLogic.getCurrent().getQuestion())),
-                snapshotID,
-                survey.getId(),
-                survey.getName()
-        );
-
-        snapshotIO.save(survey)
+        Observable.just(true)
+                .map(new Function<Boolean, String>() {
+                    @Override
+                    public String apply(Boolean aBoolean) throws Exception {
+                        return TextUtils.join(
+                                ",",
+                                QuestionUtils.getPathOfQuestion(flowLogic.getCurrent().getQuestion())
+                        );
+                    }
+                })
+                .flatMap(new Function<String, ObservableSource<DataInfo>>() {
+                    @Override
+                    public ObservableSource<DataInfo> apply(String s) throws Exception {
+                        return snapshotIO.save(getSurvey(), surveyorInfoFromAPI.getCode(), s);
+                    }
+                })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<File>() {
+                .subscribe(new Consumer<DataInfo>() {
                     @Override
-                    public void accept(File file) throws Exception {
+                    public void accept(DataInfo dataInfo) throws Exception {
                         activityView.onSurveySaved(survey);
                         activityView.hideLoading();
                         activityView.showMessage(R.string.save_successful);

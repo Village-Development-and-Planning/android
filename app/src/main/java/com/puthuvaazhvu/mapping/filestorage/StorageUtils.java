@@ -5,29 +5,20 @@ import android.os.Environment;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.ThrowableWithErrorCode;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.functions.Function;
 import timber.log.Timber;
 
@@ -179,13 +170,13 @@ public final class StorageUtils {
         }
     }
 
-    public static boolean deleteDir(File dir) throws IOException {
-        if (dir.isDirectory()) {
-            for (File child : dir.listFiles())
-                deleteDir(child);
+    public static boolean delete(File f) throws IOException {
+        if (f.isDirectory()) {
+            for (File child : f.listFiles())
+                delete(child);
         }
 
-        return dir.delete();
+        return f.delete();
     }
 
     public static boolean isPathAValidFile(String absolutePath) {

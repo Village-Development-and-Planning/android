@@ -1,25 +1,19 @@
 package com.puthuvaazhvu.mapping.views.activities.main;
 
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.EditText;
 
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
-import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
@@ -29,8 +23,8 @@ import com.puthuvaazhvu.mapping.utils.DialogHandler;
 import com.puthuvaazhvu.mapping.utils.PauseHandler;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.activities.MenuActivity;
-import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListActivity;
-import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListData;
+import com.puthuvaazhvu.mapping.views.activities.home.HomeActivity;
+import com.puthuvaazhvu.mapping.views.activities.modals.CurrentSurveyInfo;
 import com.puthuvaazhvu.mapping.views.dialogs.ProgressDialog;
 import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogic;
 import com.puthuvaazhvu.mapping.views.fragments.question.Communicationinterfaces.GridQuestionFragmentCallbacks;
@@ -70,7 +64,7 @@ public class MainActivity extends MenuActivity
 
     MainActivityViewModal viewModal;
 
-    SurveyListData surveyListData;
+    CurrentSurveyInfo surveyInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,15 +96,14 @@ public class MainActivity extends MenuActivity
         if (dumpSurveyRepeatingTask)
             repeatingTask.start();
 
-        surveyListData = getIntent().getExtras().getParcelable("survey_list_data");
+        surveyInfo = getIntent().getExtras().getParcelable("survey_list_data");
 
-        presenter = new MainPresenter(this, handler, surveyListData, sharedPreferences);
+        presenter = new MainPresenter(this, handler, surveyInfo);
 
-        JsonObject auth = viewModal.getAuthJson().getValue();
         Survey survey = viewModal.getSurvey().getValue();
         FlowLogic flowLogic = viewModal.getFlowLogic();
 
-        if (auth == null || survey == null || flowLogic == null) {
+        if (survey == null || flowLogic == null) {
             showLoading(R.string.loading);
 
             presenter.init()
@@ -121,7 +114,6 @@ public class MainActivity extends MenuActivity
                                    public void accept(FlowLogic flowLogic) throws Exception {
                                        hideLoading();
                                        viewModal.setSurveyMutableLiveData(presenter.getSurvey());
-                                       viewModal.setAuthJson(presenter.getAuthJson());
                                        viewModal.setFlowLogic(flowLogic);
                                        presenter.getNext();
                                    }
@@ -135,7 +127,6 @@ public class MainActivity extends MenuActivity
                             });
         } else {
             presenter.setSurvey(survey);
-            presenter.setAuthJson(auth);
             presenter.setFlowLogic(flowLogic);
         }
     }
@@ -228,7 +219,7 @@ public class MainActivity extends MenuActivity
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         defaultBackPressed = true;
-                        startListOfSurveysActivity();
+                        startHomeActivity();
                     }
                 }, null);
         alertDialog.setCancelable(false);
@@ -271,8 +262,8 @@ public class MainActivity extends MenuActivity
     }
 
     @Override
-    public void startListOfSurveysActivity() {
-        Intent intent = new Intent(this, SurveyListActivity.class);
+    public void startHomeActivity() {
+        Intent intent = new Intent(this, HomeActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }

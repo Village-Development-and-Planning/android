@@ -1,16 +1,12 @@
-package com.puthuvaazhvu.mapping.views.activities.survey_list;
+package com.puthuvaazhvu.mapping.views.activities.modals;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.puthuvaazhvu.mapping.modals.Survey;
+import com.puthuvaazhvu.mapping.repository.SnapshotRepositoryData;
 
-/**
- * Created by muthuveerappans on 10/30/17.
- */
-
-public class SurveyListData implements Parcelable {
+public class CurrentSurveyInfo implements Parcelable {
     private String id;
     private String name;
     private boolean isChecked;
@@ -19,19 +15,7 @@ public class SurveyListData implements Parcelable {
     private String snapshotPath; // will be null if the survey is new
     private String snapshotID;
 
-    public SurveyListData(String id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
-    public SurveyListData(String id, String name, int count) {
-        this.id = id;
-        this.name = name;
-        this.count = count;
-        this.isOngoing = false;
-    }
-
-    public SurveyListData(String id, String name, int count, boolean isOngoing, String snapshotPath, String snapshotID) {
+    public CurrentSurveyInfo(String id, String name, int count, boolean isOngoing, String snapshotPath, String snapshotID) {
         this.id = id;
         this.name = name;
         this.count = count;
@@ -40,7 +24,7 @@ public class SurveyListData implements Parcelable {
         this.snapshotID = snapshotID;
     }
 
-    protected SurveyListData(Parcel in) {
+    protected CurrentSurveyInfo(Parcel in) {
         id = in.readString();
         name = in.readString();
         isChecked = in.readByte() != 0;
@@ -66,15 +50,15 @@ public class SurveyListData implements Parcelable {
         return 0;
     }
 
-    public static final Creator<SurveyListData> CREATOR = new Creator<SurveyListData>() {
+    public static final Creator<CurrentSurveyInfo> CREATOR = new Creator<CurrentSurveyInfo>() {
         @Override
-        public SurveyListData createFromParcel(Parcel in) {
-            return new SurveyListData(in);
+        public CurrentSurveyInfo createFromParcel(Parcel in) {
+            return new CurrentSurveyInfo(in);
         }
 
         @Override
-        public SurveyListData[] newArray(int size) {
-            return new SurveyListData[size];
+        public CurrentSurveyInfo[] newArray(int size) {
+            return new CurrentSurveyInfo[size];
         }
     };
 
@@ -124,5 +108,20 @@ public class SurveyListData implements Parcelable {
 
     public void setOngoing(boolean ongoing) {
         isOngoing = ongoing;
+    }
+
+    public static CurrentSurveyInfo adapterSurvey(Survey survey) {
+        return new CurrentSurveyInfo(survey.getId(), survey.getName(), 0, false, null, null);
+    }
+
+    public static CurrentSurveyInfo adapterSnapshotRepositoryData(SnapshotRepositoryData snapshotRepositoryData) {
+        return new CurrentSurveyInfo(
+                snapshotRepositoryData.getSurvey().getId(),
+                snapshotRepositoryData.getSurvey().getName(),
+                0,
+                true,
+                snapshotRepositoryData.getSnapshot().getPathToLastQuestion(),
+                snapshotRepositoryData.getSnapshot().getSnapshotID()
+        );
     }
 }

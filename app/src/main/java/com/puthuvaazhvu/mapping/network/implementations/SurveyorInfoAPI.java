@@ -3,7 +3,7 @@ package com.puthuvaazhvu.mapping.network.implementations;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.puthuvaazhvu.mapping.modals.surveyorinfo.SurveyorInfo;
+import com.puthuvaazhvu.mapping.modals.surveyorinfo.SurveyorInfoFromAPI;
 import com.puthuvaazhvu.mapping.network.adapters.NetworkAdapter;
 import com.puthuvaazhvu.mapping.network.client_interfaces.SurveyorInfoClient;
 
@@ -31,10 +31,10 @@ public class SurveyorInfoAPI {
         this.gson = new Gson();
     }
 
-    public Observable<SurveyorInfo> getAuthData() {
-        return Observable.create(new ObservableOnSubscribe<SurveyorInfo>() {
+    public Observable<SurveyorInfoFromAPI> getAuthData() {
+        return Observable.create(new ObservableOnSubscribe<SurveyorInfoFromAPI>() {
             @Override
-            public void subscribe(final ObservableEmitter<SurveyorInfo> e) throws Exception {
+            public void subscribe(final ObservableEmitter<SurveyorInfoFromAPI> e) throws Exception {
 
                 Call<JsonElement> call = client.getAuthData();
                 call.enqueue(new Callback<JsonElement>() {
@@ -46,8 +46,8 @@ public class SurveyorInfoAPI {
                             return;
                         }
                         JsonObject jsonObject = jsonElement.getAsJsonObject();
-                        SurveyorInfo surveyorInfo = gson.fromJson(jsonObject, SurveyorInfo.class);
-                        e.onNext(surveyorInfo);
+                        SurveyorInfoFromAPI surveyorInfoFromAPI = gson.fromJson(jsonObject, SurveyorInfoFromAPI.class);
+                        e.onNext(surveyorInfoFromAPI);
                         e.onComplete();
                     }
 

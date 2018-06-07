@@ -42,7 +42,7 @@
                 android:id="@+id/go_to_main_page_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Go back to main screen"
+                android:text="Go back to home screen"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
 
             <Button
@@ -112,7 +112,7 @@
                 android:id="@+id/go_to_connector_page_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Go to the connector page"
+                android:text="Go to the upload page"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
 
             <Button

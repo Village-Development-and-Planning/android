@@ -1,4 +1,4 @@
-package com.puthuvaazhvu.mapping.views.activities.connector.upload;
+package com.puthuvaazhvu.mapping.views.activities.upload;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -7,14 +7,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
-import com.puthuvaazhvu.mapping.application.MappingApplication;
-import com.puthuvaazhvu.mapping.auth.AuthUtils;
+import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.upload.AnswersUploadTask;
 import com.puthuvaazhvu.mapping.upload.FileUploadResultReceiver;
 import com.puthuvaazhvu.mapping.utils.PauseHandler;
-import com.puthuvaazhvu.mapping.views.activities.BaseActivity;
 import com.puthuvaazhvu.mapping.views.activities.MenuActivity;
 
 /**
@@ -81,7 +78,7 @@ public class UploadActivity extends MenuActivity implements FileUploadResultRece
             }
         });
 
-        answersUploadTask = new AnswersUploadTask(surveyorCode, "none", this);
+        answersUploadTask = new AnswersUploadTask(this, surveyorCode, Constants.PASSWORD, this);
 
         toggleUIForLoading(false);
 

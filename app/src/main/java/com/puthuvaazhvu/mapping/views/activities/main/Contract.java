@@ -6,10 +6,8 @@ import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
-import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListData;
 import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogic;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import io.reactivex.Observable;
@@ -38,7 +36,7 @@ public interface Contract {
 
         void finishActivityWithError(String error);
 
-        void startListOfSurveysActivity();
+        void startHomeActivity();
 
         void updateCurrentQuestion(Question question);
     }
@@ -47,10 +45,6 @@ public interface Contract {
         Observable<FlowLogic> init();
 
         FlowLogic getFlowLogic();
-
-        JsonObject getAuthJson();
-
-        void setAuthJson(JsonObject authJson);
 
         void setFlowLogic(FlowLogic flowLogic);
 

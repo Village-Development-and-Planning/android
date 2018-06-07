@@ -1,11 +1,11 @@
-package com.puthuvaazhvu.mapping.data;
+package com.puthuvaazhvu.mapping.repository;
 
 import android.content.Context;
 
 import com.puthuvaazhvu.mapping.filestorage.io.SurveyIO;
 import com.puthuvaazhvu.mapping.filestorage.modals.DataInfo;
 import com.puthuvaazhvu.mapping.modals.Survey;
-import com.puthuvaazhvu.mapping.modals.surveyorinfo.SurveyorInfo;
+import com.puthuvaazhvu.mapping.modals.surveyorinfo.SurveyorInfoFromAPI;
 import com.puthuvaazhvu.mapping.network.implementations.SingleSurveyAPI;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.ThrowableWithErrorCode;
@@ -33,7 +33,7 @@ public class SurveyRepository extends Repository<Survey> {
         surveyIO = new SurveyIO();
     }
 
-    private Observable<SurveyorInfo> getSurveyorInfo() {
+    private Observable<SurveyorInfoFromAPI> getSurveyorInfo() {
         return authRepository.get(false);
     }
 
@@ -59,15 +59,15 @@ public class SurveyRepository extends Repository<Survey> {
 
     @Override
     public Observable<Survey> get(final boolean forceOffline) {
-        return getSurveyorInfo().flatMap(new Function<SurveyorInfo, ObservableSource<Survey>>() {
+        return getSurveyorInfo().flatMap(new Function<SurveyorInfoFromAPI, ObservableSource<Survey>>() {
             @Override
-            public ObservableSource<Survey> apply(final SurveyorInfo surveyorInfo) throws Exception {
-                return getSurveyOffline(surveyorInfo.getSurveyId())
+            public ObservableSource<Survey> apply(final SurveyorInfoFromAPI surveyorInfoFromAPI) throws Exception {
+                return getSurveyOffline(surveyorInfoFromAPI.getSurveyId())
                         .onErrorResumeNext(new Function<Throwable, ObservableSource<? extends Survey>>() {
                             @Override
                             public ObservableSource<? extends Survey> apply(Throwable throwable) throws Exception {
                                 if (Utils.isNetworkAvailable(getContext())) {
-                                    return getSurveyFromAPI(surveyorInfo.getSurveyId());
+                                    return getSurveyFromAPI(surveyorInfoFromAPI.getSurveyId());
                                 } else {
                                     throw new Exception(new ThrowableWithErrorCode("Network unavailable"
                                             , Constants.ErrorCodes.NETWORK_ERROR));

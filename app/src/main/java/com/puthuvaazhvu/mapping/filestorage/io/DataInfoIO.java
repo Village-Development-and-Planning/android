@@ -54,6 +54,16 @@ public class DataInfoIO extends IOBase {
                 });
     }
 
+    public Observable<Boolean> delete() {
+        return Observable.just(true)
+                .map(new Function<Boolean, Boolean>() {
+                    @Override
+                    public Boolean apply(Boolean aBoolean) throws Exception {
+                        return StorageUtils.delete(new File(getAbsolutePath()));
+                    }
+                });
+    }
+
     public boolean isExists() {
         return new File(getAbsolutePath()).exists();
     }

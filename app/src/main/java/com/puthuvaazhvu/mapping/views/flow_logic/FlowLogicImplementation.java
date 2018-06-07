@@ -9,8 +9,9 @@ import com.puthuvaazhvu.mapping.modals.Answer;
 import com.puthuvaazhvu.mapping.modals.FlowPattern;
 import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
+import com.puthuvaazhvu.mapping.modals.SurveyAPIInfo;
 import com.puthuvaazhvu.mapping.modals.Text;
-import com.puthuvaazhvu.mapping.auth.AuthUtils;
+import com.puthuvaazhvu.mapping.modals.surveyorinfo.SurveyorInfoFromAPI;
 import com.puthuvaazhvu.mapping.modals.utils.QuestionUtils;
 import com.puthuvaazhvu.mapping.utils.SharedPreferenceUtils;
 import com.puthuvaazhvu.mapping.utils.Utils;
@@ -33,30 +34,26 @@ import timber.log.Timber;
 public class FlowLogicImplementation extends FlowLogic {
     private BackStack backStack;
     private Question currentQuestion;
-    private JsonObject authJson;
-    private SharedPreferences sharedPreferences;
+    SurveyorInfoFromAPI surveyorInfoFromAPI;
 
-    public FlowLogicImplementation(JsonObject authJson, SharedPreferences sharedPreferences) {
+    public FlowLogicImplementation(SurveyorInfoFromAPI surveyorInfoFromAPI) {
         backStack = new BackStack();
-        this.authJson = authJson;
-        this.sharedPreferences = sharedPreferences;
+        this.surveyorInfoFromAPI = surveyorInfoFromAPI;
     }
 
     public FlowLogicImplementation(
             Question root,
-            JsonObject authJson,
-            SharedPreferences sharedPreferences) {
-        this(authJson, sharedPreferences);
+            SurveyorInfoFromAPI surveyorInfoFromAPI) {
+        this(surveyorInfoFromAPI);
         setCurrent(root);
     }
 
     public FlowLogicImplementation(
             Question root,
-            JsonObject authJson,
-            String snapshotPath,
-            SharedPreferences sharedPreferences
+            SurveyorInfoFromAPI surveyorInfoFromAPI,
+            String snapshotPath
     ) {
-        this(authJson, sharedPreferences);
+        this(surveyorInfoFromAPI);
         Question question = QuestionUtils.moveToQuestionUsingPath(snapshotPath, root);
         setCurrent(question);
     }
@@ -377,8 +374,7 @@ public class FlowLogicImplementation extends FlowLogic {
     }
 
     private boolean preFlow(Question question) {
-
-        if (authJson == null) {
+        if (surveyorInfoFromAPI == null) {
             // authentication error
             Timber.e("Authentication error");
             return false;
@@ -391,18 +387,12 @@ public class FlowLogicImplementation extends FlowLogic {
         ArrayList<String> fill = preFlow.getFill();
         if (fill == null || fill.isEmpty()) return true;
 
-        String surveyorID = SharedPreferenceUtils.getSurveyorID(sharedPreferences);
-
-        if (surveyorID == null) return false;
-
-        JsonObject auth = AuthUtils.getAuthForSurveyCode(authJson, surveyorID);
-
-        if (auth == null) return false;
-
         ArrayList<Option> options = new ArrayList<>();
 
+        JsonObject payload = surveyorInfoFromAPI.getPayload().toJson();
+
         for (int i = 0; i < fill.size(); i++) {
-            JsonElement authFillElement = auth.get(fill.get(i));
+            JsonElement authFillElement = payload.get(fill.get(i));
             if (authFillElement != null) {
                 if (authFillElement.isJsonArray()) {
                     for (int j = 0; j < authFillElement.getAsJsonArray().size(); j++) {
@@ -432,8 +422,9 @@ public class FlowLogicImplementation extends FlowLogic {
     }
 
     private boolean postFlow(Question question) {
-        if (authJson == null) {
-            Timber.e("Auth json is null.");
+        if (surveyorInfoFromAPI == null) {
+            // authentication error
+            Timber.e("Authentication error");
             return false;
         }
 
@@ -447,11 +438,7 @@ public class FlowLogicImplementation extends FlowLogic {
         if (postFlowTags != null) {
             if (postFlowTags.contains("SURVEYOR_CODE")) {
                 String inputCode = question.getCurrentAnswer().getLoggedOptions().get(0).getTextString();
-                JsonObject surveyorAuthJson = AuthUtils.getAuthForSurveyCode(authJson, inputCode);
-
-                SharedPreferenceUtils.putSurveyID(sharedPreferences, inputCode);
-
-                return surveyorAuthJson != null;
+                return surveyorInfoFromAPI.getCode().equals(inputCode);
             }
         }
 

@@ -11,4 +11,8 @@ public class ThrowableWithErrorCode extends Throwable {
         super(message);
         this.errorCode = code;
     }
+
+    public int getErrorCode() {
+        return errorCode;
+    }
 }

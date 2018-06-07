@@ -11,7 +11,7 @@ import java.util.List;
  * Created by muthuveerappans on 05/06/18.
  */
 
-public class SurveyorInfo {
+public class SurveyorInfoFromAPI {
     @SerializedName("surveyId")
     @Expose
     private String surveyId;

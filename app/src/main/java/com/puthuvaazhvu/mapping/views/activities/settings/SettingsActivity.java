@@ -21,9 +21,9 @@ import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.PauseHandler;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.activities.BaseActivity;
-import com.puthuvaazhvu.mapping.views.activities.MenuActivity;
-import com.puthuvaazhvu.mapping.views.activities.connector.ConnectorActivity;
-import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListActivity;
+import com.puthuvaazhvu.mapping.views.activities.home.HomeActivity;
+import com.puthuvaazhvu.mapping.views.activities.main.MainActivity;
+import com.puthuvaazhvu.mapping.views.activities.upload.UploadActivity;
 import com.puthuvaazhvu.mapping.views.dialogs.ProgressDialog;
 
 import timber.log.Timber;
@@ -119,13 +119,13 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                showListOfSurveyActivity();
+                                showUploadActivity();
                             }
                         },
                         null).show();
                 break;
             case R.id.connector_page_button:
-                showConnectorActivity();
+                showUploadActivity();
                 break;
         }
     }
@@ -133,12 +133,12 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
     private void setLanguageForViews() {
     }
 
-    private void showConnectorActivity() {
-        startActivity(new Intent(this, ConnectorActivity.class));
+    private void showUploadActivity() {
+        startActivity(new Intent(this, UploadActivity.class));
     }
 
-    private void showListOfSurveyActivity() {
-        Intent intent = new Intent(this, SurveyListActivity.class);
+    private void showHomeActivity() {
+        Intent intent = new Intent(this, HomeActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }

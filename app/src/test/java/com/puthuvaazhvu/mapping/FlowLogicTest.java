@@ -3,6 +3,7 @@ package com.puthuvaazhvu.mapping;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.Helpers.DataTraversing;
 import com.puthuvaazhvu.mapping.Helpers.ReadTestFile;
@@ -11,6 +12,7 @@ import com.puthuvaazhvu.mapping.modals.Option;
 import com.puthuvaazhvu.mapping.modals.Question;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.modals.Text;
+import com.puthuvaazhvu.mapping.modals.surveyorinfo.SurveyorInfoFromAPI;
 import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogic;
 import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogicImplementation;
 import com.puthuvaazhvu.mapping.views.fragments.question.GridQuestionsFragment;
@@ -47,13 +49,11 @@ public class FlowLogicTest {
 
     @Before
     public void before() throws Exception {
-        this.sharedPrefs = Mockito.mock(SharedPreferences.class);
-        this.context = Mockito.mock(Context.class);
-        Mockito.when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPrefs);
-        Mockito.when(sharedPrefs.getString("last_session_survey_id", null)).thenReturn("21010430");
-
         JsonObject auth = ReadTestFile.readFromFileAsJson(this, "auth.json");
-        flowLogicImplementation = new FlowLogicImplementation(null, auth, sharedPrefs);
+        Gson gson = new Gson();
+        SurveyorInfoFromAPI surveyorInfoFromAPI = gson.fromJson(auth, SurveyorInfoFromAPI.class);
+
+        flowLogicImplementation = new FlowLogicImplementation(null, surveyorInfoFromAPI);
     }
 
     @Test

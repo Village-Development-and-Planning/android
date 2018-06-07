@@ -19,7 +19,6 @@ import com.puthuvaazhvu.mapping.views.flow_logic.FlowLogic;
 public class MainActivityViewModal extends ViewModel {
     private MutableLiveData<Survey> surveyMutableLiveData = new MutableLiveData<>();
     private Question currentQuestion;
-    private MutableLiveData<JsonObject> authJson = new MutableLiveData<>();
     private FlowLogic flowLogic;
 
     public FlowLogic getFlowLogic() {
@@ -36,14 +35,6 @@ public class MainActivityViewModal extends ViewModel {
 
     public LiveData<Survey> getSurvey() {
         return surveyMutableLiveData;
-    }
-
-    public MutableLiveData<JsonObject> getAuthJson() {
-        return authJson;
-    }
-
-    public void setAuthJson(JsonObject authJson) {
-        this.authJson.setValue(authJson);
     }
 
     public Question getCurrentQuestion() {

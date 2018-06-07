@@ -1,8 +1,8 @@
-package com.puthuvaazhvu.mapping.data;
+package com.puthuvaazhvu.mapping.repository;
 
 import android.content.Context;
 
-import com.puthuvaazhvu.mapping.modals.surveyorinfo.SurveyorInfo;
+import com.puthuvaazhvu.mapping.modals.surveyorinfo.SurveyorInfoFromAPI;
 import com.puthuvaazhvu.mapping.network.implementations.SurveyorInfoAPI;
 import com.puthuvaazhvu.mapping.utils.SharedPreferenceUtils;
 import com.puthuvaazhvu.mapping.utils.Utils;
@@ -14,7 +14,7 @@ import io.reactivex.functions.Consumer;
  * Created by muthuveerappans on 31/01/18.
  */
 
-public class AuthRepository extends Repository<SurveyorInfo> {
+public class AuthRepository extends Repository<SurveyorInfoFromAPI> {
     private final SurveyorInfoAPI surveyorInfoAPI;
     private final SharedPreferenceUtils sharedPreferenceUtils;
 
@@ -26,7 +26,7 @@ public class AuthRepository extends Repository<SurveyorInfo> {
     }
 
     @Override
-    public Observable<SurveyorInfo> get(boolean forceOffline) {
+    public Observable<SurveyorInfoFromAPI> get(boolean forceOffline) {
         if (forceOffline) {
             return Observable.just(getFromPrefs());
         }
@@ -38,17 +38,17 @@ public class AuthRepository extends Repository<SurveyorInfo> {
         }
     }
 
-    private Observable<SurveyorInfo> getFromNetwork() {
+    private Observable<SurveyorInfoFromAPI> getFromNetwork() {
         return surveyorInfoAPI.getAuthData()
-                .doOnNext(new Consumer<SurveyorInfo>() {
+                .doOnNext(new Consumer<SurveyorInfoFromAPI>() {
                     @Override
-                    public void accept(SurveyorInfo surveyorInfo) throws Exception {
-                        sharedPreferenceUtils.putSurveyorInfo(surveyorInfo);
+                    public void accept(SurveyorInfoFromAPI surveyorInfoFromAPI) throws Exception {
+                        sharedPreferenceUtils.putSurveyorInfo(surveyorInfoFromAPI);
                     }
                 });
     }
 
-    private SurveyorInfo getFromPrefs() {
+    private SurveyorInfoFromAPI getFromPrefs() {
         return sharedPreferenceUtils.getSurveyorInfo();
     }
 }

@@ -2,11 +2,9 @@ package com.puthuvaazhvu.mapping.upload;
 
 import android.content.Context;
 
-import com.puthuvaazhvu.mapping.data.AnswersRepository;
+import com.puthuvaazhvu.mapping.repository.AnswersRepository;
 import com.puthuvaazhvu.mapping.filestorage.io.AnswerIO;
-import com.puthuvaazhvu.mapping.filestorage.StorageUtils;
 import com.puthuvaazhvu.mapping.filestorage.modals.DataInfo;
-import com.puthuvaazhvu.mapping.other.Constants;
 
 import java.io.File;
 import java.util.List;

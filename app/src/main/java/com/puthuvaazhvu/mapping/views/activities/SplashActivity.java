@@ -2,30 +2,30 @@ package com.puthuvaazhvu.mapping.views.activities;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.gson.JsonObject;
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.filestorage.io.DataInfoIO;
-import com.puthuvaazhvu.mapping.filestorage.StorageUtils;
 import com.puthuvaazhvu.mapping.filestorage.modals.DataInfo;
+import com.puthuvaazhvu.mapping.modals.surveyorinfo.SurveyorInfoFromAPI;
 import com.puthuvaazhvu.mapping.other.Config;
 import com.puthuvaazhvu.mapping.other.Constants;
+import com.puthuvaazhvu.mapping.repository.AuthRepository;
 import com.puthuvaazhvu.mapping.utils.PauseHandler;
+import com.puthuvaazhvu.mapping.utils.ThrowableWithErrorCode;
 import com.puthuvaazhvu.mapping.utils.Utils;
-import com.puthuvaazhvu.mapping.views.activities.survey_list.SurveyListActivity;
-
-import java.io.File;
+import com.puthuvaazhvu.mapping.views.activities.home.HomeActivity;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
@@ -36,13 +36,16 @@ import timber.log.Timber;
  */
 
 public class SplashActivity extends BaseActivity {
+    DataInfoIO dataInfoIO;
+
     ProgressBar progressBar;
     TextView infoTxt;
 
-    AlertDialog retryDialog;
+    AlertDialog authDialog;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        dataInfoIO = new DataInfoIO();
 
         setContentView(R.layout.splash_screen);
 
@@ -53,17 +56,29 @@ public class SplashActivity extends BaseActivity {
 
         super.onCreate(savedInstanceState);
 
-        retryDialog = Utils.createAlertDialog(this,
-                getString(R.string.error_init),
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.enter_surveyor_code_dialog, null);
+        final EditText surveyorCodeEdt = dialogView.findViewById(R.id.surveyor_code_edt);
+
+        authDialog = Utils.createAlertDialog(
+                this,
+                getString(R.string.enter_surveyor_code),
                 new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        init();
+                    public void onClick(DialogInterface dialog, int which) {
+                        String surveyorCode = surveyorCodeEdt.getText().toString();
+                        initializeApp(surveyorCode);
                     }
                 },
-                null);
-
-        retryDialog.setCancelable(false);
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        finish();
+                    }
+                });
+        authDialog.setView(dialogView);
+        authDialog.setCancelable(false);
+        authDialog.show();
     }
 
     @Override
@@ -74,70 +89,78 @@ public class SplashActivity extends BaseActivity {
     @Override
     protected void onPermissionsGranted() {
         super.onPermissionsGranted();
-
-        init();
     }
 
-    private void openSurveyListActivity() {
-        Intent intent = new Intent(this, SurveyListActivity.class);
+    private void openMainActivity() {
+        Intent intent = new Intent(this, HomeActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
     }
 
-    private void init() {
-        SharedPreferences sharedPreferences = getSharedPreferences(Constants.PREFS, MODE_PRIVATE);
-        //AuthRepository authDataRepository = new AuthRepository(sharedPreferences, this);
-        final DataInfoIO dataInfoIO = new DataInfoIO();
-
-        Observable.zip(
-                //authDataRepository.get(Utils.isNetworkAvailable(this)),
-                Observable.just(new JsonObject()),
-                dataInfoIO.read()
-                        .onErrorReturn(new Function<Throwable, DataInfo>() {
-                            @Override
-                            public DataInfo apply(Throwable throwable) throws Exception {
-                                DataInfo dataInfo = new DataInfo();
-                                File file = dataInfoIO.save(dataInfo).blockingFirst();
-                                if (!file.exists())
-                                    throw new Exception("Cannot create data info file");
-                                return dataInfo;
-                            }
-                        }),
-                new BiFunction<JsonObject, DataInfo, Object>() {
+    private void initializeApp(final String surveyorCode) {
+        Observable.just(true)
+                .flatMap(new Function<Boolean, ObservableSource<Boolean>>() {
                     @Override
-                    public Object apply(JsonObject jsonObject, DataInfo dataInfo) throws Exception {
-                        // set the auth to the global context
-                        //MappingApplication.globalContext.getApplicationData().setAuthJson(jsonObject);
-
-                        // check datainfo.json file version
-                        if (dataInfo.getVersion() != Config.Versions.DATA_INFO_VERSION) {
-                            File file = new File(StorageUtils.root() + "/" + Constants.DATA_DIR);
-                            if (file.exists()) {
-                                StorageUtils.deleteDir(file);
-                                dataInfo = new DataInfo();
-                                dataInfoIO.save(dataInfo).blockingFirst();
-                            }
-                        }
-                        return new Object();
+                    public ObservableSource<Boolean> apply(Boolean aBoolean) throws Exception {
+                        AuthRepository authRepository = new AuthRepository(SplashActivity.this,
+                                surveyorCode, Constants.PASSWORD);
+                        return authRepository.get(false)
+                                .flatMap(new Function<SurveyorInfoFromAPI, ObservableSource<Boolean>>() {
+                                    @Override
+                                    public ObservableSource<Boolean> apply(SurveyorInfoFromAPI surveyorInfoFromAPI) throws Exception {
+                                        return checkDataInfo();
+                                    }
+                                });
                     }
-                }
-        )
+                })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<Object>() {
+                .subscribe(new Consumer<Boolean>() {
                     @Override
-                    public void accept(Object o) throws Exception {
+                    public void accept(Boolean b) throws Exception {
+                        if (authDialog != null) {
+                            authDialog.dismiss();
+                        }
+
                         progressBar.setVisibility(View.INVISIBLE);
                         infoTxt.setText("DONE");
-                        openSurveyListActivity();
+                        openMainActivity();
                     }
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
                         Timber.e(throwable);
-                        if (!retryDialog.isShowing()) {
-                            retryDialog.show();
+
+                        if (throwable instanceof ThrowableWithErrorCode) {
+                            ThrowableWithErrorCode throwableWithErrorCode = (ThrowableWithErrorCode) throwable;
+
+                            if (throwableWithErrorCode.getErrorCode() == Constants.ErrorCodes.FILE_NOT_EXIST ||
+                                    throwableWithErrorCode.getErrorCode() == Constants.ErrorCodes.ERROR_READING_FILE) {
+                                return;
+                            }
+                        } else {
+                            Utils.showMessageToast("Authentication failed. Please try again."
+                                    , SplashActivity.this);
                         }
+
+                        if (authDialog != null)
+                            authDialog.show();
                     }
                 });
     }
+
+    private Observable<Boolean> checkDataInfo() {
+        return dataInfoIO.read()
+                .flatMap(new Function<DataInfo, ObservableSource<Boolean>>() {
+                    @Override
+                    public ObservableSource<Boolean> apply(DataInfo dataInfo) throws Exception {
+                        int dataInfoVersion = dataInfo.getVersion();
+                        if (dataInfoVersion != Config.Versions.DATA_INFO_VERSION) {
+                            return dataInfoIO.delete();
+                        }
+                        return Observable.just(true);
+                    }
+                });
+    }
+
 }

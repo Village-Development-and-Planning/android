@@ -1,4 +1,4 @@
-package com.puthuvaazhvu.mapping.data;
+package com.puthuvaazhvu.mapping.repository;
 
 import android.content.Context;
 

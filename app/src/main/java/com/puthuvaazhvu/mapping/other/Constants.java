@@ -16,6 +16,8 @@ public class Constants {
     public static String DATA_INFO_FILE = "datainfo";
     public static String LOG_DIR = "logs";
 
+    public static String PASSWORD = "none";
+
     public static class PermissionRequestCodes {
         public static final int REQUEST_GPS_CODE = 1;
         public static final int STORAGE_PERMISSION_REQUEST_CODE = 2;
@@ -32,5 +34,6 @@ public class Constants {
         public static int ERROR_WRITING_FILE = -3;
         public static int ERROR_DELETING_FILE = -4;
         public static int NETWORK_ERROR = -100;
+        public static int PERMISSION_ERROR = -200;
     }
 }
