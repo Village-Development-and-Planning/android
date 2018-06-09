@@ -8,30 +8,50 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.puthuvaazhvu.mapping.R;
+import com.puthuvaazhvu.mapping.filestorage.io.DataInfoIO;
+import com.puthuvaazhvu.mapping.filestorage.modals.DataInfo;
+import com.puthuvaazhvu.mapping.filestorage.modals.SurveyorData;
+import com.puthuvaazhvu.mapping.modals.surveyorinfo.SurveyorInfoFromAPI;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.upload.AnswersUploadTask;
 import com.puthuvaazhvu.mapping.upload.FileUploadResultReceiver;
 import com.puthuvaazhvu.mapping.utils.PauseHandler;
+import com.puthuvaazhvu.mapping.utils.SharedPreferenceUtils;
 import com.puthuvaazhvu.mapping.views.activities.MenuActivity;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by muthuveerappans on 09/05/18.
  */
 
 public class UploadActivity extends MenuActivity implements FileUploadResultReceiver {
-    TextView surveyorCodeTxt, surveyorNameTxt, uploadingProgressTxt, uploadedCountTxt, failureAnswersTitle;
+    TextView surveyorCodeTxt, surveyorNameTxt, uploadingProgressTxt, uploadedCountTxt, answersCountTitle;
     Button uploadBtn;
     Button doneBtn;
 
     AnswersUploadTask answersUploadTask;
     String uploadProgress = "";
 
+    DataInfoIO dataInfoIO;
+
+    String surveyorCode;
+    String surveyorName;
+
+    SurveyorInfoFromAPI surveyorInfoFromAPI;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        String surveyorCode = getIntent().getExtras().getString("surveyor_code");
-        String surveyorName = getIntent().getExtras().getString("surveyor_name");
+        surveyorInfoFromAPI = SharedPreferenceUtils.getInstance(this).getSurveyorInfo();
+
+        dataInfoIO = new DataInfoIO();
+
+        surveyorCode = getIntent().getExtras().getString("surveyor_code");
+        surveyorName = getIntent().getExtras().getString("surveyor_name");
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -45,11 +65,11 @@ public class UploadActivity extends MenuActivity implements FileUploadResultRece
 
         uploadingProgressTxt = findViewById(R.id.uploading_status);
 
-        View failure = findViewById(R.id.failed_count_holder);
-        TextView pendingTitle = failure.findViewById(R.id.info_label);
-        pendingTitle.setText(R.string.failure_answers_title);
-        failureAnswersTitle = failure.findViewById(R.id.value);
-        failureAnswersTitle.setText("" + 0);
+        View countHolder = findViewById(R.id.count_holder);
+        TextView pendingTitle = countHolder.findViewById(R.id.info_label);
+        pendingTitle.setText(R.string.answers_count_title);
+        answersCountTitle = countHolder.findViewById(R.id.value);
+        answersCountTitle.setText("" + 0);
 
         View uploaded = findViewById(R.id.done_count_holder);
         TextView uploadedTitle = uploaded.findViewById(R.id.info_label);
@@ -83,6 +103,8 @@ public class UploadActivity extends MenuActivity implements FileUploadResultRece
         toggleUIForLoading(false);
 
         updateTitles(surveyorName, surveyorCode);
+
+        updateAnswersCount();
     }
 
     @Override
@@ -122,7 +144,6 @@ public class UploadActivity extends MenuActivity implements FileUploadResultRece
 
     private void updateInfo(int successCount, int failureCount) {
         uploadedCountTxt.setText("" + successCount);
-        failureAnswersTitle.setText("" + failureCount);
     }
 
     private void updateTitles(String name, String code) {
@@ -146,5 +167,22 @@ public class UploadActivity extends MenuActivity implements FileUploadResultRece
 
     private void uiForDone() {
         doneBtn.setVisibility(View.VISIBLE);
+    }
+
+    private void updateAnswersCount() {
+        dataInfoIO.read()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<DataInfo>() {
+                    @Override
+                    public void accept(DataInfo dataInfo) throws Exception {
+                        SurveyorData surveyorData = dataInfo.getSurveyorData(surveyorCode);
+
+                        if (surveyorData != null) {
+                            answersCountTitle.setText("" + surveyorData.getAnswersInfo()
+                                    .getAnswersCount(surveyorInfoFromAPI.getSurveyId()));
+                        }
+                    }
+                });
     }
 }

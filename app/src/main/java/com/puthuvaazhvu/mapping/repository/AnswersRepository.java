@@ -6,7 +6,7 @@ import com.puthuvaazhvu.mapping.filestorage.io.AnswerIO;
 import com.puthuvaazhvu.mapping.filestorage.io.DataInfoIO;
 import com.puthuvaazhvu.mapping.filestorage.modals.AnswerInfo;
 import com.puthuvaazhvu.mapping.filestorage.modals.DataInfo;
-import com.puthuvaazhvu.mapping.filestorage.modals.SurveyorInfo;
+import com.puthuvaazhvu.mapping.filestorage.modals.SurveyorData;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -36,9 +36,9 @@ public class AnswersRepository extends Repository<List<String>> {
                     public List<File> apply(DataInfo dataInfo) throws Exception {
                         List<File> files = new ArrayList<>();
 
-                        SurveyorInfo surveyorInfo = dataInfo.getSurveyorInfo(getSurveyorCode());
-                        if (surveyorInfo != null) {
-                            AnswerInfo answerInfo = surveyorInfo.getAnswersInfo();
+                        SurveyorData surveyorData = dataInfo.getSurveyorData(getSurveyorCode());
+                        if (surveyorData != null) {
+                            AnswerInfo answerInfo = surveyorData.getAnswersInfo();
                             ArrayList<AnswerInfo.Answer> answers = answerInfo.getAnswers();
 
                             for (AnswerInfo.Answer answer : answers) {

@@ -17,8 +17,10 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.puthuvaazhvu.mapping.R;
+import com.puthuvaazhvu.mapping.modals.surveyorinfo.SurveyorInfoFromAPI;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.utils.PauseHandler;
+import com.puthuvaazhvu.mapping.utils.SharedPreferenceUtils;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.activities.BaseActivity;
 import com.puthuvaazhvu.mapping.views.activities.home.HomeActivity;
@@ -42,9 +44,13 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
     RadioButton tamil_rb;
     RadioButton english_rb;
 
+    SurveyorInfoFromAPI surveyorInfoFromAPI;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        surveyorInfoFromAPI = SharedPreferenceUtils.getInstance(this).getSurveyorInfo();
 
         setContentView(R.layout.settings_activity);
 
@@ -119,7 +125,7 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                showUploadActivity();
+                                showHomeActivity();
                             }
                         },
                         null).show();
@@ -134,7 +140,10 @@ public class SettingsActivity extends BaseActivity implements View.OnClickListen
     }
 
     private void showUploadActivity() {
-        startActivity(new Intent(this, UploadActivity.class));
+        Intent i = new Intent(this, UploadActivity.class);
+        i.putExtra("surveyor_code", surveyorInfoFromAPI.getCode());
+        i.putExtra("surveyor_name", surveyorInfoFromAPI.getName());
+        startActivity(i);
     }
 
     private void showHomeActivity() {

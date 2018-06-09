@@ -63,14 +63,13 @@
             android:orientation="vertical">
 
             <include
-                android:id="@+id/done_count_holder"
+                android:id="@+id/count_holder"
                 layout="@layout/upload_summary_row"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
-
             <include
-                android:id="@+id/failed_count_holder"
+                android:id="@+id/done_count_holder"
                 layout="@layout/upload_summary_row"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />

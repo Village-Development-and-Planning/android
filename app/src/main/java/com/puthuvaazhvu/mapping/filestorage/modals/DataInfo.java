@@ -11,11 +11,11 @@ import java.util.HashMap;
 
 public class DataInfo implements Serializable {
     private int version;
-    private HashMap<String, SurveyorInfo> surveyorInfoHashMap;
+    private HashMap<String, SurveyorData> surveyorDataHashMap;
 
     public DataInfo() {
         this.version = Config.Versions.DATA_INFO_VERSION;
-        this.surveyorInfoHashMap = new HashMap<>();
+        this.surveyorDataHashMap = new HashMap<>();
     }
 
     public int getVersion() {
@@ -26,11 +26,11 @@ public class DataInfo implements Serializable {
         this.version = version;
     }
 
-    public SurveyorInfo getSurveyorInfo(String surveyorCode) {
-        return surveyorInfoHashMap.get(surveyorCode);
+    public SurveyorData getSurveyorData(String surveyorCode) {
+        return surveyorDataHashMap.get(surveyorCode);
     }
 
-    public void addSurveyorInfoToMap(String surveyorCode, SurveyorInfo surveyorInfo) {
-        surveyorInfoHashMap.put(surveyorCode, surveyorInfo);
+    public void addSurveyorInfoToMap(String surveyorCode, SurveyorData surveyorData) {
+        surveyorDataHashMap.put(surveyorCode, surveyorData);
     }
 }

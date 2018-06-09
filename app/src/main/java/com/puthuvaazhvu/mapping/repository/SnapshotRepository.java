@@ -6,7 +6,7 @@ import com.puthuvaazhvu.mapping.filestorage.io.DataInfoIO;
 import com.puthuvaazhvu.mapping.filestorage.io.SnapshotIO;
 import com.puthuvaazhvu.mapping.filestorage.modals.DataInfo;
 import com.puthuvaazhvu.mapping.filestorage.modals.SnapshotsInfo;
-import com.puthuvaazhvu.mapping.filestorage.modals.SurveyorInfo;
+import com.puthuvaazhvu.mapping.filestorage.modals.SurveyorData;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.modals.surveyorinfo.SurveyorInfoFromAPI;
 import com.puthuvaazhvu.mapping.other.Constants;
@@ -15,6 +15,7 @@ import com.puthuvaazhvu.mapping.utils.ThrowableWithErrorCode;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by muthuveerappans on 06/06/18.
@@ -35,6 +36,7 @@ public class SnapshotRepository extends Repository<SnapshotRepositoryData> {
     @Override
     public Observable<SnapshotRepositoryData> get(boolean forceOffline) {
         return authRepository.get(false)
+                .observeOn(Schedulers.io())
                 .flatMap(new Function<SurveyorInfoFromAPI, ObservableSource<SnapshotRepositoryData>>() {
                     @Override
                     public ObservableSource<SnapshotRepositoryData> apply(final SurveyorInfoFromAPI surveyorInfoFromAPI) throws Exception {
@@ -42,9 +44,9 @@ public class SnapshotRepository extends Repository<SnapshotRepositoryData> {
                                 .flatMap(new Function<DataInfo, ObservableSource<SnapshotRepositoryData>>() {
                                     @Override
                                     public ObservableSource<SnapshotRepositoryData> apply(DataInfo dataInfo) throws Exception {
-                                        SurveyorInfo surveyorInfoOffline = dataInfo.getSurveyorInfo(getSurveyorCode());
-                                        if (surveyorInfoOffline != null) {
-                                            SnapshotsInfo snapshotsInfo = surveyorInfoOffline.getSnapshotsInfo();
+                                        SurveyorData surveyorDataOffline = dataInfo.getSurveyorData(getSurveyorCode());
+                                        if (surveyorDataOffline != null) {
+                                            SnapshotsInfo snapshotsInfo = surveyorDataOffline.getSnapshotsInfo();
                                             SnapshotsInfo.Survey survey = snapshotsInfo.getSurvey(surveyorInfoFromAPI.getSurveyId());
 
                                             if (survey != null) {

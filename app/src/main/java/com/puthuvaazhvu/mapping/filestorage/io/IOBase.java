@@ -16,7 +16,7 @@ import static com.puthuvaazhvu.mapping.filestorage.StorageUtils.isPathAValidFile
  * Created by muthuveerappans on 06/06/18.
  */
 
-public class IOBase {
+class IOBase {
     boolean isFileReadable(String path) {
         return isPathAValidFile(path) && isExternalStorageReadable();
     }

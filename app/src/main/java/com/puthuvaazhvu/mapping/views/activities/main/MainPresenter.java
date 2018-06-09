@@ -184,6 +184,7 @@ public class MainPresenter implements Contract.UserAction {
         activityView.showLoading(R.string.loading);
 
         Observable.just(true)
+                .observeOn(Schedulers.io())
                 .map(new Function<Boolean, String>() {
                     @Override
                     public String apply(Boolean aBoolean) throws Exception {

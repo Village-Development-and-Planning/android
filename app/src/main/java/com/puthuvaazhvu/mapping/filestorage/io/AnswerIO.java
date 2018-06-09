@@ -6,8 +6,7 @@ import com.puthuvaazhvu.mapping.filestorage.StorageUtils;
 import com.puthuvaazhvu.mapping.filestorage.modals.AnswerInfo;
 import com.puthuvaazhvu.mapping.filestorage.modals.DataInfo;
 import com.puthuvaazhvu.mapping.filestorage.modals.SnapshotsInfo;
-import com.puthuvaazhvu.mapping.filestorage.modals.SurveyorInfo;
-import com.puthuvaazhvu.mapping.filestorage.modals.SurveysInfo;
+import com.puthuvaazhvu.mapping.filestorage.modals.SurveyorData;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.modals.deserialization.SurveyGsonAdapter;
 import com.puthuvaazhvu.mapping.other.Constants;
@@ -20,6 +19,7 @@ import java.util.Iterator;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
 /**
@@ -28,10 +28,13 @@ import timber.log.Timber;
 
 public class AnswerIO extends IOBase {
     private final DataInfoIO dataInfoIO;
+    private final SnapshotIO snapshotIO;
+
     private final Gson gson;
 
     public AnswerIO() {
         dataInfoIO = new DataInfoIO();
+        snapshotIO = new SnapshotIO();
 
         final GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(Survey.class, new SurveyGsonAdapter());
@@ -39,87 +42,64 @@ public class AnswerIO extends IOBase {
         gson = gsonBuilder.create();
     }
 
-    public Observable<Survey> read() {
-        throw new UnsupportedOperationException("Not implemented");
-    }
-
     public Observable<DataInfo> save(final Survey answer, final String surveyorCode) {
-        return Observable.just(gson.toJson(answer, Survey.class))
+        final String answerId = answer.getId() + "_" + System.currentTimeMillis();
+
+        return Observable.just(true)
+                .observeOn(Schedulers.io())
+                .map(new Function<Boolean, String>() {
+                    @Override
+                    public String apply(Boolean aBoolean) throws Exception {
+                        return gson.toJson(answer, Survey.class);
+                    }
+                })
+                // save answer to file system
                 .flatMap(new Function<String, ObservableSource<DataInfo>>() {
                     @Override
                     public ObservableSource<DataInfo> apply(String s) throws Exception {
-                        final String answerId = answer.getId() + "_" + System.currentTimeMillis();
-
                         final File f = getFileFromPath(getAbsolutePath(answerId));
                         if (f == null) {
                             throw new RuntimeException("Error saving the file. The file is null.");
                         }
 
-                        final File answerFile = StorageUtils.saveContentsToFile(f, s).blockingFirst();
-                        if (!answerFile.exists()) {
-                            return Observable.error(new ThrowableWithErrorCode(
-                                            "File " + answerFile.getAbsolutePath() + " not exists.",
+                        return StorageUtils.saveContentsToFile(f, s).flatMap(new Function<File, ObservableSource<DataInfo>>() {
+                            @Override
+                            public ObservableSource<DataInfo> apply(File file) throws Exception {
+                                if (!file.exists()) {
+                                    throw new Exception(new ThrowableWithErrorCode(
+                                            "File " + file.getAbsolutePath() + " not exists.",
                                             Constants.ErrorCodes.ERROR_WRITING_FILE
-                                    )
-                            );
-                        }
-
-                        return Observable.just(answerFile)
-                                .flatMap(new Function<File, ObservableSource<DataInfo>>() {
+                                    ));
+                                } else {
+                                    return dataInfoIO.read();
+                                }
+                            }
+                        });
+                    }
+                })
+                // modify the datainfo file
+                .flatMap(new Function<DataInfo, ObservableSource<DataInfo>>() {
+                    @Override
+                    public ObservableSource<DataInfo> apply(DataInfo dataInfo) throws Exception {
+                        return snapshotIO.clearOldSnapshots(surveyorCode, answer.getId())
+                                .flatMap(new Function<DataInfo, ObservableSource<DataInfo>>() {
                                     @Override
-                                    public ObservableSource<DataInfo> apply(File f) throws Exception {
-                                        if (dataInfoIO.isExists()) {
-                                            return dataInfoIO.read();
-                                        } else {
-                                            throw new RuntimeException("The" + Constants.DATA_INFO_FILE + " is not present.");
-                                        }
-                                    }
-                                }).flatMap(new Function<DataInfo, ObservableSource<DataInfo>>() {
-                                    @Override
-                                    public ObservableSource<DataInfo> apply(final DataInfo dataInfo) throws Exception {
-                                        final SurveyorInfo surveyorInfo = dataInfo.getSurveyorInfo(surveyorCode);
-                                        if (surveyorInfo == null) {
-                                            throw new RuntimeException("The surveyor info is null for " + surveyorCode);
-                                        }
+                                    public ObservableSource<DataInfo> apply(DataInfo dataInfo) throws Exception {
+                                        final SurveyorData surveyorData = dataInfo.getSurveyorData(surveyorCode);
 
-                                        // remove all the snapshots of the surveyID
-                                        ArrayList<Observable<DataInfo>> dataInfoObservables = new ArrayList<>();
+                                        AnswerInfo.Answer answerInfo = new AnswerInfo.Answer();
+                                        answerInfo.setSurveyID(answer.getId());
+                                        answerInfo.setSurveyName(answer.getName());
+                                        answerInfo.setTimeStamp(System.currentTimeMillis());
+                                        answerInfo.setAnswerID(answerId);
 
-                                        SnapshotsInfo.Survey s
-                                                = surveyorInfo.getSnapshotsInfo().getSurvey(answer.getId());
+                                        surveyorData.getAnswersInfo().getAnswers().add(answerInfo);
 
-                                        if (s != null) {
-                                            Iterator<SnapshotsInfo.Snapshot> snapshotIterator
-                                                    = s.getSnapshots().iterator();
-
-                                            while (snapshotIterator.hasNext()) {
-                                                SnapshotsInfo.Snapshot snapshot = snapshotIterator.next();
-                                                SnapshotIO snapshotIO = new SnapshotIO();
-                                                dataInfoObservables.add(snapshotIO.delete(snapshot.getSnapshotID(), surveyorCode));
-                                                snapshotIterator.remove();
-                                            }
-
-                                        }
-
-                                        return Observable.merge(dataInfoObservables)
-                                                .flatMap(new Function<DataInfo, ObservableSource<DataInfo>>() {
+                                        return dataInfoIO.save(dataInfo)
+                                                .flatMap(new Function<File, ObservableSource<DataInfo>>() {
                                                     @Override
-                                                    public ObservableSource<DataInfo> apply(DataInfo dataInfo) throws Exception {
-                                                        AnswerInfo.Answer answerInfo = new AnswerInfo.Answer();
-                                                        answerInfo.setSurveyID(answer.getId());
-                                                        answerInfo.setSurveyName(answer.getName());
-                                                        answerInfo.setTimeStamp(System.currentTimeMillis());
-                                                        answerInfo.setAnswerID(answerId);
-
-                                                        surveyorInfo.getAnswersInfo().getAnswers().add(answerInfo);
-
-                                                        return dataInfoIO.save(dataInfo)
-                                                                .flatMap(new Function<File, ObservableSource<DataInfo>>() {
-                                                                    @Override
-                                                                    public ObservableSource<DataInfo> apply(File file) throws Exception {
-                                                                        return dataInfoIO.read();
-                                                                    }
-                                                                });
+                                                    public ObservableSource<DataInfo> apply(File file) throws Exception {
+                                                        return dataInfoIO.read();
                                                     }
                                                 });
                                     }
@@ -140,6 +120,7 @@ public class AnswerIO extends IOBase {
         File file = new File(getAbsolutePath(answerId));
 
         return Observable.just(file.delete())
+                .observeOn(Schedulers.io())
                 .flatMap(new Function<Boolean, ObservableSource<DataInfo>>() {
                     @Override
                     public ObservableSource<DataInfo> apply(Boolean aBoolean) throws Exception {
@@ -153,15 +134,15 @@ public class AnswerIO extends IOBase {
                                 .flatMap(new Function<DataInfo, ObservableSource<DataInfo>>() {
                                     @Override
                                     public ObservableSource<DataInfo> apply(final DataInfo dataInfo) throws Exception {
-                                        SurveyorInfo surveyorInfo = dataInfo.getSurveyorInfo(surveyorCode);
-                                        if (surveyorInfo != null) {
-                                            boolean result = surveyorInfo.getAnswersInfo().removeAnswer(answerId);
+                                        SurveyorData surveyorData = dataInfo.getSurveyorData(surveyorCode);
+                                        if (surveyorData != null) {
+                                            boolean result = surveyorData.getAnswersInfo().removeAnswer(answerId);
                                             Timber.i("Remove answer " + answerId + " from " + Constants.DATA_INFO_FILE + " status: " + result);
 
-                                            return dataInfoIO.save(dataInfo).map(new Function<File, DataInfo>() {
+                                            return dataInfoIO.save(dataInfo).flatMap(new Function<File, ObservableSource<DataInfo>>() {
                                                 @Override
-                                                public DataInfo apply(File file) throws Exception {
-                                                    return dataInfo;
+                                                public ObservableSource<DataInfo> apply(File file) throws Exception {
+                                                    return dataInfoIO.read();
                                                 }
                                             });
                                         }
@@ -174,7 +155,7 @@ public class AnswerIO extends IOBase {
     }
 
     public File getFile(String answerId) {
-        return StorageUtils.createFile(getAbsolutePath(answerId));
+        return new File(getAbsolutePath(answerId));
     }
 
     private String getAbsolutePath(String answerId) {

@@ -18,9 +18,11 @@ import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.ObservableSource;
 import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import timber.log.Timber;
 
 /**
  * Created by muthuveerappans on 10/30/17.
@@ -44,6 +46,7 @@ public class SingleSurveyAPI {
 
     public Observable<Survey> getSurvey(final String surveyId) {
         return Observable.just(surveyId)
+                .observeOn(Schedulers.io())
                 .map(new Function<String, Survey>() {
                     @Override
                     public Survey apply(String s) throws Exception {

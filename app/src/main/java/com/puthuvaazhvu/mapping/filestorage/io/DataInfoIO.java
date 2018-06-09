@@ -10,6 +10,7 @@ import java.io.File;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 import static com.puthuvaazhvu.mapping.filestorage.StorageUtils.saveContentsToFile;
 
@@ -29,6 +30,7 @@ public class DataInfoIO extends IOBase {
         }
 
         return StorageUtils.readFromFile(new File(getAbsolutePath()))
+                .observeOn(Schedulers.io())
                 .flatMap(new Function<byte[], ObservableSource<DataInfo>>() {
                     @Override
                     public ObservableSource<DataInfo> apply(byte[] bytes) throws Exception {
@@ -45,6 +47,7 @@ public class DataInfoIO extends IOBase {
 
     public Observable<File> save(DataInfo contents) {
         return StorageUtils.serialize(contents)
+                .observeOn(Schedulers.io())
                 .flatMap(new Function<byte[], ObservableSource<File>>() {
                     @Override
                     public ObservableSource<File> apply(byte[] bytes) throws Exception {
@@ -56,6 +59,7 @@ public class DataInfoIO extends IOBase {
 
     public Observable<Boolean> delete() {
         return Observable.just(true)
+                .observeOn(Schedulers.io())
                 .map(new Function<Boolean, Boolean>() {
                     @Override
                     public Boolean apply(Boolean aBoolean) throws Exception {

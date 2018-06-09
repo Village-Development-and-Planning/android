@@ -6,6 +6,6 @@ package com.puthuvaazhvu.mapping.other;
 
 public class Config {
     public static class Versions {
-        public static int DATA_INFO_VERSION = 1;
+        public static int DATA_INFO_VERSION = 2;
     }
 }

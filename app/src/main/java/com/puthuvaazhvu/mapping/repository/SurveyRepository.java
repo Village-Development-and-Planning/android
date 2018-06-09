@@ -14,6 +14,7 @@ import com.puthuvaazhvu.mapping.utils.Utils;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by muthuveerappans on 01/02/18.
@@ -39,6 +40,7 @@ public class SurveyRepository extends Repository<Survey> {
 
     private Observable<Survey> getSurveyFromAPI(String surveyId) {
         return singleSurveyAPI.getSurvey(surveyId)
+                .observeOn(Schedulers.io())
                 .flatMap(new Function<Survey, ObservableSource<Survey>>() {
                     @Override
                     public ObservableSource<Survey> apply(final Survey survey) throws Exception {
@@ -59,22 +61,24 @@ public class SurveyRepository extends Repository<Survey> {
 
     @Override
     public Observable<Survey> get(final boolean forceOffline) {
-        return getSurveyorInfo().flatMap(new Function<SurveyorInfoFromAPI, ObservableSource<Survey>>() {
-            @Override
-            public ObservableSource<Survey> apply(final SurveyorInfoFromAPI surveyorInfoFromAPI) throws Exception {
-                return getSurveyOffline(surveyorInfoFromAPI.getSurveyId())
-                        .onErrorResumeNext(new Function<Throwable, ObservableSource<? extends Survey>>() {
-                            @Override
-                            public ObservableSource<? extends Survey> apply(Throwable throwable) throws Exception {
-                                if (Utils.isNetworkAvailable(getContext())) {
-                                    return getSurveyFromAPI(surveyorInfoFromAPI.getSurveyId());
-                                } else {
-                                    throw new Exception(new ThrowableWithErrorCode("Network unavailable"
-                                            , Constants.ErrorCodes.NETWORK_ERROR));
-                                }
-                            }
-                        });
-            }
-        });
+        return getSurveyorInfo()
+                .observeOn(Schedulers.io())
+                .flatMap(new Function<SurveyorInfoFromAPI, ObservableSource<Survey>>() {
+                    @Override
+                    public ObservableSource<Survey> apply(final SurveyorInfoFromAPI surveyorInfoFromAPI) throws Exception {
+                        return getSurveyOffline(surveyorInfoFromAPI.getSurveyId())
+                                .onErrorResumeNext(new Function<Throwable, ObservableSource<? extends Survey>>() {
+                                    @Override
+                                    public ObservableSource<? extends Survey> apply(Throwable throwable) throws Exception {
+                                        if (Utils.isNetworkAvailable(getContext())) {
+                                            return getSurveyFromAPI(surveyorInfoFromAPI.getSurveyId());
+                                        } else {
+                                            throw new Exception(new ThrowableWithErrorCode("Network unavailable"
+                                                    , Constants.ErrorCodes.NETWORK_ERROR));
+                                        }
+                                    }
+                                });
+                    }
+                });
     }
 }

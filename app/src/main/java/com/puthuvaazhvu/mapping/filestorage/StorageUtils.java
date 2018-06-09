@@ -20,6 +20,7 @@ import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
 /**
@@ -38,6 +39,7 @@ public final class StorageUtils {
 
     public static Observable<byte[]> serialize(final Object obj) {
         return Observable.just(obj)
+                .observeOn(Schedulers.io())
                 .map(new Function<Object, byte[]>() {
                     @Override
                     public byte[] apply(Object o) throws Exception {
@@ -55,6 +57,7 @@ public final class StorageUtils {
 
     public static Observable<Object> deserialize(final byte[] data) {
         return Observable.just(data)
+                .observeOn(Schedulers.io())
                 .map(new Function<byte[], Object>() {
                     @Override
                     public Object apply(byte[] bytes) throws Exception {
@@ -71,6 +74,7 @@ public final class StorageUtils {
 
     public static Observable<File> saveContentsToFile(final File file, final byte[] contents) {
         return Observable.just(true)
+                .observeOn(Schedulers.io())
                 .map(new Function<Boolean, File>() {
                     @Override
                     public File apply(Boolean aBoolean) throws Exception {
@@ -94,6 +98,7 @@ public final class StorageUtils {
 
     public static Observable<File> saveContentsToFile(final File file, final String contents) {
         return Observable.just(true)
+                .observeOn(Schedulers.io())
                 .map(new Function<Boolean, File>() {
                     @Override
                     public File apply(Boolean aBoolean) throws Exception {
@@ -115,6 +120,7 @@ public final class StorageUtils {
 
     public static Observable<byte[]> readFromFile(final File file) {
         return Observable.just(file)
+                .observeOn(Schedulers.io())
                 .map(new Function<File, byte[]>() {
                     @Override
                     public byte[] apply(File file) throws Exception {

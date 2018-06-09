@@ -6,12 +6,12 @@ import com.puthuvaazhvu.mapping.other.Config;
  * Created by muthuveerappans on 05/06/18.
  */
 
-public class SurveyorInfo {
+public class SurveyorData {
     private SurveysInfo surveysInfo;
     private SnapshotsInfo snapshotsInfo;
     private AnswerInfo answersInfo;
 
-    public SurveyorInfo() {
+    public SurveyorData() {
         surveysInfo = new SurveysInfo();
         snapshotsInfo = new SnapshotsInfo();
         answersInfo = new AnswerInfo();

@@ -53,6 +53,7 @@ public class HomeActivity extends MenuActivity implements View.OnClickListener, 
         surveyorNameTxt = findViewById(R.id.name_txt);
 
         homeActivityPresenter = new HomeActivityPresenter(this);
+        homeActivityPresenter.getSurveyorInfo();
     }
 
     @Override
@@ -95,7 +96,8 @@ public class HomeActivity extends MenuActivity implements View.OnClickListener, 
 
     @Override
     public void showLoading() {
-        dialogHandler.showDialog("progress_dialog");
+        if (!progressDialog.isAdded())
+            dialogHandler.showDialog("progress_dialog");
     }
 
     @Override
@@ -113,12 +115,16 @@ public class HomeActivity extends MenuActivity implements View.OnClickListener, 
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.start_survey_btn:
+                homeActivityPresenter.startSurvey();
                 break;
-            case R.id.download_survey:
+            case R.id.download_survey_btn:
+                homeActivityPresenter.doDownload();
                 break;
             case R.id.upload_btn:
+                homeActivityPresenter.doUpload();
                 break;
             case R.id.logout_btn:
+                homeActivityPresenter.doLogout();
                 break;
         }
     }

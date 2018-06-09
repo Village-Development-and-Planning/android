@@ -19,12 +19,14 @@ import com.puthuvaazhvu.mapping.other.Config;
 import com.puthuvaazhvu.mapping.other.Constants;
 import com.puthuvaazhvu.mapping.repository.AuthRepository;
 import com.puthuvaazhvu.mapping.utils.PauseHandler;
+import com.puthuvaazhvu.mapping.utils.SharedPreferenceUtils;
 import com.puthuvaazhvu.mapping.utils.ThrowableWithErrorCode;
 import com.puthuvaazhvu.mapping.utils.Utils;
 import com.puthuvaazhvu.mapping.views.activities.home.HomeActivity;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
+import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
@@ -42,6 +44,7 @@ public class SplashActivity extends BaseActivity {
     TextView infoTxt;
 
     AlertDialog authDialog;
+    EditText surveyorCodeEdt;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -59,26 +62,28 @@ public class SplashActivity extends BaseActivity {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.enter_surveyor_code_dialog, null);
         final EditText surveyorCodeEdt = dialogView.findViewById(R.id.surveyor_code_edt);
 
-        authDialog = Utils.createAlertDialog(
-                this,
-                getString(R.string.enter_surveyor_code),
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String surveyorCode = surveyorCodeEdt.getText().toString();
-                        initializeApp(surveyorCode);
-                    }
-                },
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        finish();
-                    }
-                });
-        authDialog.setView(dialogView);
-        authDialog.setCancelable(false);
-        authDialog.show();
+        SharedPreferenceUtils sharedPreferenceUtils = SharedPreferenceUtils.getInstance(this);
+
+        SurveyorInfoFromAPI surveyorInfoFromAPI = sharedPreferenceUtils.getSurveyorInfo();
+
+        if (surveyorInfoFromAPI == null) {
+            authDialog = Utils.createAlertDialog(
+                    this,
+                    getString(R.string.enter_surveyor_code),
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String surveyorCode = surveyorCodeEdt.getText().toString();
+                            initializeApp(surveyorCode);
+                        }
+                    },
+                    null);
+            authDialog.setView(dialogView);
+            authDialog.setCancelable(false);
+            authDialog.show();
+        } else {
+            initializeApp(surveyorInfoFromAPI.getCode());
+        }
     }
 
     @Override
@@ -130,18 +135,8 @@ public class SplashActivity extends BaseActivity {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
                         Timber.e(throwable);
-
-                        if (throwable instanceof ThrowableWithErrorCode) {
-                            ThrowableWithErrorCode throwableWithErrorCode = (ThrowableWithErrorCode) throwable;
-
-                            if (throwableWithErrorCode.getErrorCode() == Constants.ErrorCodes.FILE_NOT_EXIST ||
-                                    throwableWithErrorCode.getErrorCode() == Constants.ErrorCodes.ERROR_READING_FILE) {
-                                return;
-                            }
-                        } else {
-                            Utils.showMessageToast("Authentication failed. Please try again."
-                                    , SplashActivity.this);
-                        }
+                        Utils.showMessageToast("Authentication failed. Please try again."
+                                , SplashActivity.this);
 
                         if (authDialog != null)
                             authDialog.show();
@@ -159,6 +154,21 @@ public class SplashActivity extends BaseActivity {
                             return dataInfoIO.delete();
                         }
                         return Observable.just(true);
+                    }
+                })
+                .onErrorReturn(new Function<Throwable, Boolean>() {
+                    @Override
+                    public Boolean apply(Throwable throwable) throws Exception {
+                        if (throwable instanceof ThrowableWithErrorCode) {
+                            ThrowableWithErrorCode throwableWithErrorCode = (ThrowableWithErrorCode) throwable;
+
+                            if (throwableWithErrorCode.getErrorCode() == Constants.ErrorCodes.FILE_NOT_EXIST ||
+                                    throwableWithErrorCode.getErrorCode() == Constants.ErrorCodes.ERROR_READING_FILE) {
+                                return true;
+                            }
+                        }
+
+                        throw new Exception(throwable);
                     }
                 });
     }

@@ -2,7 +2,7 @@ package com.puthuvaazhvu.mapping.filestorage.io;
 
 import com.puthuvaazhvu.mapping.filestorage.StorageUtils;
 import com.puthuvaazhvu.mapping.filestorage.modals.DataInfo;
-import com.puthuvaazhvu.mapping.filestorage.modals.SurveyorInfo;
+import com.puthuvaazhvu.mapping.filestorage.modals.SurveyorData;
 import com.puthuvaazhvu.mapping.filestorage.modals.SurveysInfo;
 import com.puthuvaazhvu.mapping.modals.Survey;
 import com.puthuvaazhvu.mapping.other.Constants;
@@ -13,6 +13,7 @@ import java.io.File;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
 /**
@@ -52,6 +53,7 @@ public class SurveyIO extends IOBase {
 
     public Observable<DataInfo> save(final Survey contents, final String surveyorCode) {
         return StorageUtils.serialize(contents)
+                .observeOn(Schedulers.io())
                 .flatMap(new Function<byte[], ObservableSource<DataInfo>>() {
                     @Override
                     public ObservableSource<DataInfo> apply(byte[] bytes) throws Exception {
@@ -82,10 +84,10 @@ public class SurveyIO extends IOBase {
                                 }).flatMap(new Function<DataInfo, ObservableSource<DataInfo>>() {
                                     @Override
                                     public ObservableSource<DataInfo> apply(final DataInfo dataInfo) throws Exception {
-                                        SurveyorInfo surveyorInfo = dataInfo.getSurveyorInfo(surveyorCode);
-                                        if (surveyorInfo == null) {
-                                            surveyorInfo = new SurveyorInfo();
-                                            dataInfo.addSurveyorInfoToMap(surveyorCode, surveyorInfo);
+                                        SurveyorData surveyorData = dataInfo.getSurveyorData(surveyorCode);
+                                        if (surveyorData == null) {
+                                            surveyorData = new SurveyorData();
+                                            dataInfo.addSurveyorInfoToMap(surveyorCode, surveyorData);
                                         }
 
                                         SurveysInfo.Survey survey = new SurveysInfo.Survey();
@@ -94,13 +96,13 @@ public class SurveyIO extends IOBase {
                                         survey.setSurveyName(contents.getName());
                                         survey.setTimeStamp(System.currentTimeMillis());
 
-                                        surveyorInfo.getSurveysInfo().addSurvey(survey);
+                                        surveyorData.getSurveysInfo().addSurvey(survey);
 
                                         return dataInfoIO.save(dataInfo)
-                                                .map(new Function<File, DataInfo>() {
+                                                .flatMap(new Function<File, ObservableSource<DataInfo>>() {
                                                     @Override
-                                                    public DataInfo apply(File file) throws Exception {
-                                                        return dataInfo;
+                                                    public ObservableSource<DataInfo> apply(File file) throws Exception {
+                                                        return dataInfoIO.read();
                                                     }
                                                 });
                                     }
@@ -121,6 +123,7 @@ public class SurveyIO extends IOBase {
         File file = new File(getAbsolutePath(surveyId));
 
         return Observable.just(file.delete())
+                .observeOn(Schedulers.io())
                 .flatMap(new Function<Boolean, ObservableSource<DataInfo>>() {
                     @Override
                     public ObservableSource<DataInfo> apply(Boolean aBoolean) throws Exception {
@@ -134,15 +137,15 @@ public class SurveyIO extends IOBase {
                                 .flatMap(new Function<DataInfo, ObservableSource<DataInfo>>() {
                                     @Override
                                     public ObservableSource<DataInfo> apply(final DataInfo dataInfo) throws Exception {
-                                        SurveyorInfo surveyorInfo = dataInfo.getSurveyorInfo(surveyorCode);
-                                        if (surveyorInfo != null) {
-                                            boolean result = surveyorInfo.getSurveysInfo().removeSurvey(surveyId);
+                                        SurveyorData surveyorData = dataInfo.getSurveyorData(surveyorCode);
+                                        if (surveyorData != null) {
+                                            boolean result = surveyorData.getSurveysInfo().removeSurvey(surveyId);
                                             Timber.i("Remove survey " + surveyId + " from " + Constants.DATA_INFO_FILE + " status: " + result);
 
-                                            return dataInfoIO.save(dataInfo).map(new Function<File, DataInfo>() {
+                                            return dataInfoIO.save(dataInfo).flatMap(new Function<File, ObservableSource<DataInfo>>() {
                                                 @Override
-                                                public DataInfo apply(File file) throws Exception {
-                                                    return dataInfo;
+                                                public ObservableSource<DataInfo> apply(File file) throws Exception {
+                                                    return dataInfoIO.read();
                                                 }
                                             });
                                         }

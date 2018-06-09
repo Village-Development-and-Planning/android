@@ -20,6 +20,13 @@ public class ProgressDialog extends DialogFragment {
     private ProgressBar progressBar;
     private String text;
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setCancelable(false);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -31,6 +38,13 @@ public class ProgressDialog extends DialogFragment {
         progressBar = view.findViewById(R.id.progressBar);
         textView = view.findViewById(R.id.title_text);
         textView.setText(text);
+
+        view.findViewById(R.id.hide_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+            }
+        });
     }
 
     public void setTextView(String text) {

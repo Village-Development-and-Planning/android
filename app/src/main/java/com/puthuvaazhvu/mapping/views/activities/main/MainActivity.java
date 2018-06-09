@@ -231,7 +231,8 @@ public class MainActivity extends MenuActivity
     @Override
     public void showLoading(int messageID) {
         progressDialog.setTextView(getString(messageID));
-        dialogHandler.showDialog("progress_dialog");
+        if (!progressDialog.isAdded())
+            dialogHandler.showDialog("progress_dialog");
     }
 
     @Override

@@ -18,6 +18,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
+import timber.log.Timber;
 
 /**
  * Created by muthuveerappans on 07/06/18.
@@ -71,6 +72,7 @@ public class HomeActivityPresenter implements Contract.UserAction {
                         new Consumer<Throwable>() {
                             @Override
                             public void accept(Throwable throwable) throws Exception {
+                                context.onError(throwable.getMessage());
                                 context.hideLoading();
                             }
                         });
@@ -81,8 +83,8 @@ public class HomeActivityPresenter implements Contract.UserAction {
         context.showLoading();
 
         getSurveyToStart()
-                .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<CurrentSurveyInfo>() {
                                @Override
                                public void accept(CurrentSurveyInfo currentSurveyInfo) throws Exception {
@@ -93,6 +95,7 @@ public class HomeActivityPresenter implements Contract.UserAction {
                         new Consumer<Throwable>() {
                             @Override
                             public void accept(Throwable throwable) throws Exception {
+                                context.onError(throwable.getMessage());
                                 context.hideLoading();
                             }
                         });
@@ -104,14 +107,8 @@ public class HomeActivityPresenter implements Contract.UserAction {
     }
 
     private Observable<CurrentSurveyInfo> getSurveyToStart() {
-        return snapshotRepository.get(true)
-                .map(new Function<SnapshotRepositoryData, CurrentSurveyInfo>() {
-                    @Override
-                    public CurrentSurveyInfo apply(SnapshotRepositoryData snapshotRepositoryData) throws Exception {
-                        return CurrentSurveyInfo.adapterSnapshotRepositoryData(snapshotRepositoryData);
-                    }
-                })
-                .onErrorResumeNext(new Function<Throwable, ObservableSource<? extends CurrentSurveyInfo>>() {
+        return getSurveyFromSnapshot().
+                onErrorResumeNext(new Function<Throwable, ObservableSource<? extends CurrentSurveyInfo>>() {
                     @Override
                     public ObservableSource<? extends CurrentSurveyInfo> apply(Throwable throwable) throws Exception {
                         return surveyRepository.get(false)
@@ -121,6 +118,16 @@ public class HomeActivityPresenter implements Contract.UserAction {
                                         return CurrentSurveyInfo.adapterSurvey(survey);
                                     }
                                 });
+                    }
+                });
+    }
+
+    private Observable<CurrentSurveyInfo> getSurveyFromSnapshot() {
+        return snapshotRepository.get(true)
+                .map(new Function<SnapshotRepositoryData, CurrentSurveyInfo>() {
+                    @Override
+                    public CurrentSurveyInfo apply(SnapshotRepositoryData snapshotRepositoryData) throws Exception {
+                        return CurrentSurveyInfo.adapterSnapshotRepositoryData(snapshotRepositoryData);
                     }
                 });
     }
