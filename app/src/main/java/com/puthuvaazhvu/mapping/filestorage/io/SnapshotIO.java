@@ -211,8 +211,16 @@ public class SnapshotIO extends IOBase {
                 });
     }
 
+    public Observable<Boolean> deleteAll() {
+        return deleteAll(getDir());
+    }
+
+    private String getDir() {
+        return root().getAbsolutePath() + "/" + Constants.DATA_DIR + "/" + Constants.SNAPSHOTS_DIR;
+    }
+
     private String getAbsolutePath(String snapshotId) {
-        return root().getAbsolutePath() + "/" + Constants.DATA_DIR + "/" + Constants.SNAPSHOTS_DIR + "/" + filename(snapshotId);
+        return getDir() + "/" + filename(snapshotId);
     }
 
     private String filename(String snapshotId) {

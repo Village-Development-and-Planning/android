@@ -2,9 +2,14 @@ package com.puthuvaazhvu.mapping.filestorage.io;
 
 import android.os.Environment;
 
+import com.puthuvaazhvu.mapping.filestorage.StorageUtils;
+
 import java.io.File;
 import java.io.IOException;
 
+import io.reactivex.Observable;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
 import static com.puthuvaazhvu.mapping.filestorage.StorageUtils.createFile;
@@ -35,5 +40,18 @@ class IOBase {
             return createFile(path);
         }
         return file;
+    }
+
+    protected Observable<Boolean> deleteAll(final String absolutePath) {
+        return Observable.just(true)
+                .observeOn(Schedulers.io())
+                .map(new Function<Boolean, Boolean>() {
+                    @Override
+                    public Boolean apply(Boolean aBoolean) throws Exception {
+                        return StorageUtils.delete(
+                                new File(absolutePath)
+                        );
+                    }
+                });
     }
 }

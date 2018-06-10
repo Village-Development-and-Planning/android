@@ -157,8 +157,17 @@ public class SurveyIO extends IOBase {
                 });
     }
 
+
+    public Observable<Boolean> deleteAll() {
+        return deleteAll(getDir());
+    }
+
+    private String getDir() {
+        return root().getAbsolutePath() + "/" + Constants.DATA_DIR + "/" + Constants.SURVEY_DIR;
+    }
+
     private String getAbsolutePath(String surveyId) {
-        return root().getAbsolutePath() + "/" + Constants.DATA_DIR + "/" + Constants.SURVEY_DIR + "/" + filename(surveyId);
+        return getDir() + "/" + filename(surveyId);
     }
 
     private String filename(String surveyId) {

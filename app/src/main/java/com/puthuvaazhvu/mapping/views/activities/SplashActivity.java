@@ -2,6 +2,8 @@ package com.puthuvaazhvu.mapping.views.activities;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -13,6 +15,8 @@ import android.widget.TextView;
 
 import com.puthuvaazhvu.mapping.R;
 import com.puthuvaazhvu.mapping.filestorage.io.DataInfoIO;
+import com.puthuvaazhvu.mapping.filestorage.io.SnapshotIO;
+import com.puthuvaazhvu.mapping.filestorage.io.SurveyIO;
 import com.puthuvaazhvu.mapping.filestorage.modals.DataInfo;
 import com.puthuvaazhvu.mapping.modals.surveyorinfo.SurveyorInfoFromAPI;
 import com.puthuvaazhvu.mapping.other.Config;
@@ -30,6 +34,7 @@ import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
+import io.reactivex.functions.Function3;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
 
@@ -39,6 +44,8 @@ import timber.log.Timber;
 
 public class SplashActivity extends BaseActivity {
     DataInfoIO dataInfoIO;
+    SnapshotIO snapshotIO;
+    SurveyIO surveyIO;
 
     ProgressBar progressBar;
     TextView infoTxt;
@@ -49,6 +56,8 @@ public class SplashActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         dataInfoIO = new DataInfoIO();
+        snapshotIO = new SnapshotIO();
+        surveyIO = new SurveyIO();
 
         setContentView(R.layout.splash_screen);
 
@@ -104,6 +113,12 @@ public class SplashActivity extends BaseActivity {
 
     private void initializeApp(final String surveyorCode) {
         Observable.just(true)
+                .flatMap(new Function<Boolean, ObservableSource<Boolean>>() {
+                    @Override
+                    public ObservableSource<Boolean> apply(Boolean aBoolean) throws Exception {
+                        return migration();
+                    }
+                })
                 .flatMap(new Function<Boolean, ObservableSource<Boolean>>() {
                     @Override
                     public ObservableSource<Boolean> apply(Boolean aBoolean) throws Exception {
@@ -171,6 +186,39 @@ public class SplashActivity extends BaseActivity {
                         throw new Exception(throwable);
                     }
                 });
+    }
+
+    private Observable<Boolean> migration() {
+        switch (getVersionCode()) {
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+                return Observable.zip(dataInfoIO.delete(), snapshotIO.deleteAll(), surveyIO.deleteAll(), new Function3<Boolean, Boolean, Boolean, Boolean>() {
+                    @Override
+                    public Boolean apply(Boolean aBoolean, Boolean aBoolean2, Boolean aBoolean3) throws Exception {
+                        return true;
+                    }
+                });
+
+            default:
+                return Observable.just(true);
+
+
+        }
+    }
+
+    private int getVersionCode() {
+        try {
+            PackageManager manager = getPackageManager();
+            PackageInfo info = null;
+            info = manager.getPackageInfo(
+                    getPackageName(), 0);
+            return info.versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            Timber.e(e);
+        }
+        return -1;
     }
 
 }

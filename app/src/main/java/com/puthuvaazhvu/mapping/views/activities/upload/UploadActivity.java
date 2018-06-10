@@ -183,6 +183,11 @@ public class UploadActivity extends MenuActivity implements FileUploadResultRece
                                     .getAnswersCount(surveyorInfoFromAPI.getSurveyId()));
                         }
                     }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        answersCountTitle.setText("" + 0);
+                    }
                 });
     }
 }
