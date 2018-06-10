@@ -81,7 +81,7 @@ public abstract class FileUploadTask implements Command {
                                         .flatMap(new Function<UploadResult, ObservableSource<UploadResult>>() {
                                             @Override
                                             public ObservableSource<UploadResult> apply(final UploadResult result) throws Exception {
-                                                return onPostExecute(result)
+                                                return onFileUploaded(result)
                                                         .onErrorReturnItem("Error deleting the file " + result.getFile().getName())
                                                         .map(new Function<String, UploadResult>() {
                                                             @Override
@@ -129,13 +129,18 @@ public abstract class FileUploadTask implements Command {
                 }, new Action() {
                     @Override
                     public void run() throws Exception {
+                        onPostExecute();
                         receiver.onUploadCompleted(successFiles.size(), failureFiles.size());
                         reset();
                     }
                 });
+
     }
 
-    protected Observable<String> onPostExecute(UploadResult result) {
+    protected void onPostExecute() {
+    }
+
+    protected Observable<String> onFileUploaded(UploadResult result) {
         return Observable.just("");
     }
 

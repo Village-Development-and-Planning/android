@@ -35,6 +35,13 @@ public class UploadSurveysAPI {
         gson = new Gson();
     }
 
+    public Observable<Upload> uploadFileMock(final String name, final File file) {
+        Upload upload = new Upload();
+        upload.set_id("12345");
+        upload.setName(name);
+        return Observable.just(upload);
+    }
+
     public Observable<Upload> uploadFile(final String name, final File file) {
         return Observable.create(new ObservableOnSubscribe<Upload>() {
             @Override

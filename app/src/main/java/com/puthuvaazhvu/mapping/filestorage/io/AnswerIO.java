@@ -109,17 +109,7 @@ public class AnswerIO extends IOBase {
     }
 
     public Observable<DataInfo> delete(final String answerId, final String surveyorCode) {
-        if (!isFileReadable(getAbsolutePath(answerId))) {
-            return Observable.error(new ThrowableWithErrorCode(
-                            "File " + getAbsolutePath(answerId) + " cannot be read.",
-                            Constants.ErrorCodes.ERROR_READING_FILE
-                    )
-            );
-        }
-
-        File file = new File(getAbsolutePath(answerId));
-
-        return Observable.just(file.delete())
+        return deleteFile(answerId)
                 .observeOn(Schedulers.io())
                 .flatMap(new Function<Boolean, ObservableSource<DataInfo>>() {
                     @Override
@@ -152,6 +142,20 @@ public class AnswerIO extends IOBase {
                                 });
                     }
                 });
+    }
+
+    public Observable<Boolean> deleteFile(String answerId) {
+        if (!isFileReadable(getAbsolutePath(answerId))) {
+            return Observable.error(new ThrowableWithErrorCode(
+                            "File " + getAbsolutePath(answerId) + " cannot be read.",
+                            Constants.ErrorCodes.ERROR_READING_FILE
+                    )
+            );
+        }
+
+        File file = new File(getAbsolutePath(answerId));
+
+        return Observable.just(file.delete());
     }
 
     public File getFile(String answerId) {
