@@ -16,6 +16,7 @@ public class Survey extends BaseObject {
     private Question question;
     private String modifiedAt;
     private boolean enabled;
+    private String surveyorCode;
 
     public Survey() {
     }
@@ -27,6 +28,14 @@ public class Survey extends BaseObject {
         this.question = question;
         this.modifiedAt = modifiedAt;
         this.enabled = enabled;
+    }
+
+    public String getSurveyorCode() {
+        return surveyorCode;
+    }
+
+    public void setSurveyorCode(String surveyorCode) {
+        this.surveyorCode = surveyorCode;
     }
 
     public boolean isEnabled() {

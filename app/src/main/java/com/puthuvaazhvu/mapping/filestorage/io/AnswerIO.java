@@ -45,6 +45,8 @@ public class AnswerIO extends IOBase {
     public Observable<DataInfo> save(final Survey answer, final String surveyorCode) {
         final String answerId = answer.getId() + "_" + System.currentTimeMillis();
 
+        answer.setSurveyorCode(surveyorCode);
+
         return Observable.just(true)
                 .observeOn(Schedulers.io())
                 .map(new Function<Boolean, String>() {

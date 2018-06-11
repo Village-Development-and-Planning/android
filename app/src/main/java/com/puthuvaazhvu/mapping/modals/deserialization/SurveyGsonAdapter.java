@@ -27,6 +27,7 @@ public class SurveyGsonAdapter extends TypeAdapter<Survey> {
         out.name("_id").value(value.getId());
         out.name("name").value(value.getName());
         out.name("description").value(value.getDescription());
+        out.name("surveyorCode").value(value.getSurveyorCode());
         out.name("version").value(1);
         writeQuestion(out, value.getQuestion());
         out.endObject();
