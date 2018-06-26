@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.puthuvaazhvu.mapping">
+    package="org.ptracking.vdp">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -9,7 +9,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
-        android:name=".application.MappingApplication"
+        android:name="org.ptracking.vdp.application.MappingApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -25,16 +25,12 @@
             android:name="io.fabric.ApiKey"
             android:value="6fd50a18cce0b74ec2ea15fc7a97a0d21f04c10f" />
 
-        <activity android:name=".views.activities.main.MainActivity" />
+        <activity android:name="org.ptracking.vdp.views.activities.main.MainActivity" />
 
-        <activity android:name=".views.activities.survey_list.SurveyListActivity" />
-
-        <activity android:name=".views.activities.dump_survey_activity.SurveyDataDumpActivity" />
-
-        <activity android:name=".views.activities.settings.SettingsActivity" />
+        <activity android:name="org.ptracking.vdp.views.activities.settings.SettingsActivity" />
 
         <activity
-            android:name=".views.activities.SplashActivity"
+            android:name="org.ptracking.vdp.views.activities.SplashActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -43,9 +39,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".views.activities.connector.ConnectorActivity" />
-        <activity android:name=".views.activities.upload.UploadActivity" />
-        <activity android:name=".views.activities.home.HomeActivity" />
+        <activity android:name="org.ptracking.vdp.views.activities.upload.UploadActivity" />
+        <activity android:name="org.ptracking.vdp.views.activities.home.HomeActivity" />
 
     </application>
 
